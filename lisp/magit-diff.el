@@ -2877,30 +2877,30 @@ It the SECTION has a different type, then do nothing."
                                          beg (line-end-position))))
                          (t t))))))))
 
-(defun magit-hunk-goto-successor (section arg)
-  (and (magit-hunk-section-p section)
-       (and-let* ((parent (magit-get-section
-                           (magit-section-ident
-                            (oref section parent)))))
-         (let* ((children (oref parent children))
-                (siblings (magit-section-siblings section 'prev))
-                (previous (nth (length siblings) children)))
-           (if (not arg)
-               (--when-let (or previous (car (last children)))
-                 (magit-section-goto it)
-                 t)
-             (when previous
-               (magit-section-goto previous))
-             (if (and (stringp arg)
-                      (re-search-forward arg (oref parent end) t))
-                 (goto-char (match-beginning 0))
-               (goto-char (oref (car (last children)) end))
-               (forward-line -1)
-               (while (looking-at "^ ")    (forward-line -1))
-               (while (looking-at "^[-+]") (forward-line -1))
-               (forward-line)))))))
-
-(add-hook 'magit-section-goto-successor-hook #'magit-hunk-goto-successor)
+(cl-defmethod magit-section-goto-successor ((section magit-hunk-section)
+                                            line char arg)
+  (or (magit-section-goto-successor--same section line char)
+      (and-let* ((parent (magit-get-section
+                          (magit-section-ident
+                           (oref section parent)))))
+        (let* ((children (oref parent children))
+               (siblings (magit-section-siblings section 'prev))
+               (previous (nth (length siblings) children)))
+          (if (not arg)
+              (--when-let (or previous (car (last children)))
+                (magit-section-goto it)
+                t)
+            (when previous
+              (magit-section-goto previous))
+            (if (and (stringp arg)
+                     (re-search-forward arg (oref parent end) t))
+                (goto-char (match-beginning 0))
+              (goto-char (oref (car (last children)) end))
+              (forward-line -1)
+              (while (looking-at "^ ")    (forward-line -1))
+              (while (looking-at "^[-+]") (forward-line -1))
+              (forward-line)))))
+      (magit-section-goto-successor--related section)))
 
 ;;; Diff Sections
 

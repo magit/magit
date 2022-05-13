@@ -81,11 +81,6 @@ value should be `show', `hide' or nil.  If no function returns
 non-nil, determine the visibility as usual, i.e. use the
 hardcoded section specific default (see `magit-insert-section').")
 
-(defvar magit-section-goto-successor-hook nil
-  "Hook used to go to the same section as was current before a refresh.
-This is only used if the standard mechanism for doing so did not
-succeed.")
-
 ;;; Options
 
 (defgroup magit-section nil
@@ -1701,26 +1696,33 @@ invisible."
              (line-number-at-pos start))
           (- point (line-beginning-position)))))
 
-(defun magit-section-goto-successor (section line char &optional arg)
-  (let ((ident (magit-section-ident section)))
-    (--if-let (magit-get-section ident)
-        (let ((start (oref it start)))
-          (goto-char start)
-          (unless (eq it magit-root-section)
-            (ignore-errors
-              (forward-line line)
-              (forward-char char))
-            (unless (eq (magit-current-section) it)
-              (goto-char start))))
-      (or (run-hook-with-args-until-success
-           'magit-section-goto-successor-hook section arg)
-          (goto-char (--if-let (magit-section-goto-successor-1 section)
-                         (if (eq (oref it type) 'button)
-                             (point-min)
-                           (oref it start))
-                       (point-min)))))))
+(cl-defgeneric magit-section-goto-successor ())
 
-(defun magit-section-goto-successor-1 (section)
+(cl-defmethod magit-section-goto-successor ((section magit-section)
+                                            line char &optional _arg)
+  (or (magit-section-goto-successor--same section line char)
+      (magit-section-goto-successor--related section)))
+
+(defun magit-section-goto-successor--same (section line char)
+  (let ((ident (magit-section-ident section)))
+    (and-let* ((found (magit-get-section ident)))
+      (let ((start (oref found start)))
+        (goto-char start)
+        (unless (eq found magit-root-section)
+          (ignore-errors
+            (forward-line line)
+            (forward-char char))
+          (unless (eq (magit-current-section) found)
+            (goto-char start))))
+      t)))
+
+(defun magit-section-goto-successor--related (section)
+  (and-let* ((found (magit-section-goto-successor--related-1 section)))
+    (goto-char (if (eq (oref found type) 'button)
+                   (point-min)
+                 (oref found start)))))
+
+(defun magit-section-goto-successor--related-1 (section)
   (or (and-let* ((alt (pcase (oref section type)
                         ('staged 'unstaged)
                         ('unstaged 'staged)
@@ -1733,7 +1735,7 @@ invisible."
         (magit-get-section (magit-section-ident prev)))
       (and-let* ((parent (oref section parent)))
         (or (magit-get-section (magit-section-ident parent))
-            (magit-section-goto-successor-1 parent)))))
+            (magit-section-goto-successor--related-1 parent)))))
 
 ;;; Region
 
