@@ -35,8 +35,6 @@
 (require 'help-mode)
 (require 'transient)
 
-;; For `magit-display-buffer-fullcolumn-most-v1' from `git-commit'
-(defvar git-commit-mode)
 ;; For `magit-refresh-buffer'
 (declare-function magit-process-unset-mode-line-error-status "magit-process" ())
 ;; For `magit-refresh-get-relative-position'
@@ -798,7 +796,7 @@ the mode of the current buffer derives from `magit-log-mode' or
 `magit-cherry-mode'."
   (display-buffer
    buffer
-   (cond ((and (or git-commit-mode
+   (cond ((and (or (bound-and-true-p git-commit-mode)
                    (derived-mode-p 'magit-log-mode
                                    'magit-cherry-mode
                                    'magit-reflog-mode))
