@@ -37,8 +37,6 @@
 
 ;; For `magit-display-buffer-fullcolumn-most-v1' from `git-commit'
 (defvar git-commit-mode)
-;; For `magit-refresh' and `magit-refresh-all'
-(declare-function magit-auto-revert-buffers "magit-autorevert" ())
 ;; For `magit-refresh-buffer'
 (declare-function magit-process-unset-mode-line-error-status "magit-process" ())
 ;; For `magit-refresh-get-relative-position'
