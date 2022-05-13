@@ -788,27 +788,30 @@ By default, this is the same except for the \"pick\" command."
                           (string-pad
                            (substitute-command-keys (format "\\[%s]" cmd)) 8)
                           desc)))
-        (while (re-search-forward (concat git-rebase-comment-re
-                                          "\\(  ?\\)\\([^\n,],\\) "
-                                          "\\([^\n ]+\\) ")
-                                  nil t)
-          (let ((cmd (intern (concat "git-rebase-" (match-string 3)))))
-            (if (not (fboundp cmd))
-                (delete-region (line-beginning-position)
-                               (1+ (line-end-position)))
-              (replace-match " " t t nil 1)
-              (replace-match
-               (string-pad
-                (mapconcat (lambda (key)
-                             (save-match-data
-                               (substitute-command-keys
-                                (format "\\`%s'" (key-description key)))))
-                           (cl-remove-if (lambda (key) (eq (elt key 0) 'menu-bar))
-                                         (reverse (where-is-internal
-                                                   cmd git-rebase-mode-map)))
-                           ", ")
-                8)
-               t t nil 2))))))))
+        (while (re-search-forward
+                (concat git-rebase-comment-re "\\(?:"
+                        "\\( \\.?     *\\)\\|"
+                        "\\( +\\)\\([^\n,],\\) \\([^\n ]+\\) \\)")
+                nil t)
+          (if (match-string 1)
+              (replace-match (make-string 10 ?\s) t t nil 1)
+            (let ((cmd (intern (concat "git-rebase-" (match-string 4)))))
+              (if (not (fboundp cmd))
+                  (delete-region (line-beginning-position)
+                                 (1+ (line-end-position)))
+                (replace-match " " t t nil 2)
+                (replace-match
+                 (string-pad
+                  (mapconcat (lambda (key)
+                               (save-match-data
+                                 (substitute-command-keys
+                                  (format "\\`%s'" (key-description key)))))
+                             (cl-remove-if (lambda (key) (eq (elt key 0) 'menu-bar))
+                                           (reverse (where-is-internal
+                                                     cmd git-rebase-mode-map)))
+                             ", ")
+                  8)
+                 t t nil 3)))))))))
 
 (add-hook 'git-rebase-mode-hook #'git-rebase-mode-show-keybindings t)
 
