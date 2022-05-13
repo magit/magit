@@ -783,7 +783,8 @@ By default, this is the same except for the \"pick\" command."
                   nil t))
         (goto-char (line-beginning-position))
         (pcase-dolist (`(,cmd . ,desc) git-rebase-command-descriptions)
-          (insert (format "%s %s %s\n"
+          (insert (format (propertize "%s %s %s\n"
+                                      'font-lock-face 'font-lock-comment-face)
                           comment-start
                           (string-pad
                            (substitute-command-keys (format "\\[%s]" cmd)) 8)
@@ -799,6 +800,9 @@ By default, this is the same except for the \"pick\" command."
               (if (not (fboundp cmd))
                   (delete-region (line-beginning-position)
                                  (1+ (line-end-position)))
+                (add-text-properties (line-beginning-position)
+                                     (1+ (line-end-position))
+                                     '(font-lock-face font-lock-comment-face))
                 (replace-match " " t t nil 2)
                 (replace-match
                  (string-pad
