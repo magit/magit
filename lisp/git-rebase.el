@@ -793,15 +793,17 @@ By default, this is the same except for the \"pick\" command."
                                   nil t)
           (let ((cmd (intern (concat "git-rebase-" (match-string 3)))))
             (if (not (fboundp cmd))
-                (delete-region (line-beginning-position) (1+ (line-end-position)))
+                (delete-region (line-beginning-position)
+                               (1+ (line-end-position)))
               (replace-match " " t t nil 1)
               (replace-match
-               (format "%-8s"
-                       (mapconcat #'key-description
-                                  (--remove (eq (elt it 0) 'menu-bar)
-                                            (reverse (where-is-internal
-                                                      cmd git-rebase-mode-map)))
-                                  ", "))
+               (format
+                "%-8s"
+                (mapconcat #'key-description
+                           (cl-remove-if (lambda (key) (eq (elt key 0) 'menu-bar))
+                                         (reverse (where-is-internal
+                                                   cmd git-rebase-mode-map)))
+                           ", "))
                t t nil 2))))))))
 
 (add-hook 'git-rebase-mode-hook #'git-rebase-mode-show-keybindings t)
