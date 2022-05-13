@@ -918,14 +918,14 @@ returning the truename."
                 ;; Step outside the control directory to enter the working tree.
                 (file-name-directory (directory-file-name gitdir)))))))))))
 
+(defun magit--toplevel-safe ()
+  (or (magit-toplevel)
+      (magit--not-inside-repository-error)))
+
 (defmacro magit-with-toplevel (&rest body)
   (declare (indent defun) (debug (body)))
-  (let ((toplevel (cl-gensym "toplevel")))
-    `(let ((,toplevel (magit-toplevel)))
-       (if ,toplevel
-           (let ((default-directory ,toplevel))
-             ,@body)
-         (magit--not-inside-repository-error)))))
+  `(let ((default-directory (magit--toplevel-safe)))
+     ,@body))
 
 (define-error 'magit-outside-git-repo "Not inside Git repository")
 (define-error 'magit-corrupt-git-config "Corrupt Git configuration")

@@ -849,45 +849,43 @@ If `visible', then only consider buffers on all visible frames.
 If `selected' or t, then only consider buffers on the selected
   frame.
 If a frame, then only consider buffers on that frame."
-  (if-let ((topdir (magit-toplevel)))
-      (cl-flet* ((b (buffer)
-                   (with-current-buffer buffer
-                     (and (eq major-mode mode)
-                          (equal magit--default-directory topdir)
-                          (if value
-                              (and magit-buffer-locked-p
-                                   (equal (magit-buffer-value) value))
-                            (not magit-buffer-locked-p))
-                          buffer)))
-                 (w (window)
-                   (b (window-buffer window)))
-                 (f (frame)
-                   (seq-some #'w (window-list frame 'no-minibuf))))
-        (pcase-exhaustive frame
-          ('nil                   (seq-some #'b (buffer-list)))
-          ('all                   (seq-some #'f (frame-list)))
-          ('visible               (seq-some #'f (visible-frame-list)))
-          ((or 'selected 't)      (seq-some #'w (window-list (selected-frame))))
-          ((guard (framep frame)) (seq-some #'w (window-list frame)))))
-    (magit--not-inside-repository-error)))
+  (let ((topdir (magit--toplevel-safe)))
+    (cl-flet* ((b (buffer)
+                 (with-current-buffer buffer
+                   (and (eq major-mode mode)
+                        (equal magit--default-directory topdir)
+                        (if value
+                            (and magit-buffer-locked-p
+                                 (equal (magit-buffer-value) value))
+                          (not magit-buffer-locked-p))
+                        buffer)))
+               (w (window)
+                 (b (window-buffer window)))
+               (f (frame)
+                 (seq-some #'w (window-list frame 'no-minibuf))))
+      (pcase-exhaustive frame
+        ('nil                   (seq-some #'b (buffer-list)))
+        ('all                   (seq-some #'f (frame-list)))
+        ('visible               (seq-some #'f (visible-frame-list)))
+        ((or 'selected 't)      (seq-some #'w (window-list (selected-frame))))
+        ((guard (framep frame)) (seq-some #'w (window-list frame)))))))
 
 (defun magit-mode-get-buffer (mode &optional create frame value)
   (declare (obsolete magit-get-mode-buffer "Magit 3.0.0"))
   (when create
     (error "`magit-mode-get-buffer's CREATE argument is obsolete"))
-  (if-let ((topdir (magit-toplevel)))
-      (--first (with-current-buffer it
-                 (and (eq major-mode mode)
-                      (equal magit--default-directory topdir)
-                      (if value
-                          (and magit-buffer-locked-p
-                               (equal (magit-buffer-value) value))
-                        (not magit-buffer-locked-p))))
-               (if frame
-                   (mapcar #'window-buffer
-                           (window-list (unless (eq frame t) frame)))
-                 (buffer-list)))
-    (magit--not-inside-repository-error)))
+  (let ((topdir (magit--toplevel-safe)))
+    (--first (with-current-buffer it
+               (and (eq major-mode mode)
+                    (equal magit--default-directory topdir)
+                    (if value
+                        (and magit-buffer-locked-p
+                             (equal (magit-buffer-value) value))
+                      (not magit-buffer-locked-p))))
+             (if frame
+                 (mapcar #'window-buffer
+                         (window-list (unless (eq frame t) frame)))
+               (buffer-list)))))
 
 (defun magit-generate-new-buffer (mode &optional value)
   (let* ((name (funcall magit-generate-buffer-name-function mode value))
