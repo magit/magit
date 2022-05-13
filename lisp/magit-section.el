@@ -50,6 +50,9 @@
 
 (eval-when-compile (require 'benchmark))
 
+;; For `magit-section-get-relative-position'
+(declare-function magit-hunk-section-p "magit-diff" (section) t)
+
 ;;; Hooks
 
 (defvar magit-section-movement-hook nil
@@ -1688,6 +1691,28 @@ invisible."
     (overlay-put ov 'evaporate t)
     (push ov magit-section-highlight-overlays)
     ov))
+
+(defun magit-section-get-relative-position ()
+  (and-let* ((section (magit-current-section))
+             (start (oref section start))
+             (point (magit-point)))
+    (list (- (line-number-at-pos point)
+             (line-number-at-pos start))
+          (- point (line-beginning-position))
+          (and (magit-hunk-section-p section)
+               (region-active-p)
+               (progn (goto-char (line-beginning-position))
+                      (when  (looking-at "^[-+]") (forward-line))
+                      (while (looking-at "^[ @]") (forward-line))
+                      (let ((beg (point)))
+                        (cond ((looking-at "^[-+]")
+                               (forward-line)
+                               (while (looking-at "^[-+]") (forward-line))
+                               (while (looking-at "^ ")    (forward-line))
+                               (forward-line -1)
+                               (regexp-quote (buffer-substring-no-properties
+                                              beg (line-end-position))))
+                              (t t))))))))
 
 (defun magit-section-goto-successor (section line char arg)
   (let ((ident (magit-section-ident section)))

@@ -37,8 +37,6 @@
 
 ;; For `magit-refresh-buffer'
 (declare-function magit-process-unset-mode-line-error-status "magit-process" ())
-;; For `magit-refresh-get-relative-position'
-(declare-function magit-hunk-section-p "magit-diff" (section) t)
 ;; For `magit-mode'
 (defvar bookmark-make-record-function)
 (declare-function magit--make-bookmark "magit-bookmark" ())
@@ -1086,7 +1084,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                              (and-let* ((section (magit-section-at)))
                                `(( ,window
                                    ,section
-                                   ,@(magit-refresh-get-relative-position)))))))
+                                   ,@(magit-section-get-relative-position)))))))
                        ;; If it qualifies, then the selected window
                        ;; comes first, but we want to handle it last
                        ;; so that its `magit-section-movement-hook'
@@ -1117,28 +1115,6 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
         (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name)
                  (float-time (time-subtract (current-time)
                                             magit-refresh-start-time)))))))
-
-(defun magit-refresh-get-relative-position ()
-  (and-let* ((section (magit-current-section))
-             (start (oref section start))
-             (point (magit-point)))
-    (list (- (line-number-at-pos point)
-             (line-number-at-pos start))
-          (- point (line-beginning-position))
-          (and (magit-hunk-section-p section)
-               (region-active-p)
-               (progn (goto-char (line-beginning-position))
-                      (when  (looking-at "^[-+]") (forward-line))
-                      (while (looking-at "^[ @]") (forward-line))
-                      (let ((beg (point)))
-                        (cond ((looking-at "^[-+]")
-                               (forward-line)
-                               (while (looking-at "^[-+]") (forward-line))
-                               (while (looking-at "^ ")    (forward-line))
-                               (forward-line -1)
-                               (regexp-quote (buffer-substring-no-properties
-                                              beg (line-end-position))))
-                              (t t))))))))
 
 ;;; Save File-Visiting Buffers
 
