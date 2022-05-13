@@ -2887,8 +2887,8 @@ It the SECTION has a different type, then do nothing."
                (siblings (magit-section-siblings section 'prev))
                (previous (nth (length siblings) children)))
           (if (not arg)
-              (--when-let (or previous (car (last children)))
-                (magit-section-goto it)
+              (when-let ((sibling (or previous (car (last children)))))
+                (magit-section-goto sibling)
                 t)
             (when previous
               (magit-section-goto previous))
