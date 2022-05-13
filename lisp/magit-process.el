@@ -1043,6 +1043,9 @@ If STR is supplied, it replaces the `mode-line-process' text."
                    'magit-mode-line-process-error))
       (magit-process-unset-mode-line))))
 
+(add-hook 'magit-refresh-buffer-hook
+          #'magit-process-unset-mode-line-error-status)
+
 (defun magit-process-unset-mode-line (&optional directory)
   "Remove the git command from the mode line."
   (let ((default-directory (or directory default-directory)))
