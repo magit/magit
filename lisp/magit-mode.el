@@ -31,7 +31,6 @@
 (require 'magit-base)
 (require 'magit-git)
 
-(require 'bookmark)
 (require 'format-spec)
 (require 'help-mode)
 (require 'transient)
@@ -1480,11 +1479,18 @@ mentioned caches completely."
 
 ;;; Bookmark support
 
+(declare-function bookmark-get-filename "bookmark" (bookmark-name-or-record))
+(declare-function bookmark-make-record-default "bookmark"
+                  (&optional no-file no-context posn))
+(declare-function bookmark-prop-get "bookmark" (bookmark-name-or-record prop))
+(declare-function bookmark-prop-set "bookmark" (bookmark-name-or-record prop val))
+
 (defun magit--make-bookmark ()
   "Create a bookmark for the current Magit buffer.
 Input values are the major-mode's `magit-bookmark-name' method,
 and the buffer-local values of the variables referenced in its
 `magit-bookmark-variables' property."
+  (require 'bookmark)
   (if (plist-member (symbol-plist major-mode) 'magit-bookmark-variables)
       ;; `bookmark-make-record-default's return value does not match
       ;; (NAME . ALIST), even though it is used as the default value
