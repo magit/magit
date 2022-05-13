@@ -2849,7 +2849,7 @@ or a ref which is not a branch, then it inserts nothing."
 (cl-defmethod magit-buffer-value (&context (major-mode magit-merge-preview-mode))
   magit-buffer-revision)
 
-;;; Diff Sections
+;;; Hunk Section
 
 (defun magit-hunk-set-window-start (section)
   "When SECTION is a `hunk', ensure that its beginning is visible.
@@ -2858,6 +2858,24 @@ It the SECTION has a different type, then do nothing."
     (magit-section-set-window-start section)))
 
 (add-hook 'magit-section-movement-hook #'magit-hunk-set-window-start)
+
+(cl-defmethod magit-section-get-relative-position ((_section magit-hunk-section))
+  (nconc (cl-call-next-method)
+         (and (region-active-p)
+              (progn
+                (goto-char (line-beginning-position))
+                (when  (looking-at "^[-+]") (forward-line))
+                (while (looking-at "^[ @]") (forward-line))
+                (let ((beg (magit-point)))
+                  (list (cond
+                         ((looking-at "^[-+]")
+                          (forward-line)
+                          (while (looking-at "^[-+]") (forward-line))
+                          (while (looking-at "^ ")    (forward-line))
+                          (forward-line -1)
+                          (regexp-quote (buffer-substring-no-properties
+                                         beg (line-end-position))))
+                         (t t))))))))
 
 (defun magit-hunk-goto-successor (section arg)
   (and (magit-hunk-section-p section)
@@ -2883,6 +2901,8 @@ It the SECTION has a different type, then do nothing."
                (forward-line)))))))
 
 (add-hook 'magit-section-goto-successor-hook #'magit-hunk-goto-successor)
+
+;;; Diff Sections
 
 (defvar magit-unstaged-section-map
   (let ((map (make-sparse-keymap)))

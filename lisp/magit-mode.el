@@ -1084,7 +1084,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                              (and-let* ((section (magit-section-at)))
                                `(( ,window
                                    ,section
-                                   ,@(magit-section-get-relative-position)))))))
+                                   ,@(magit-section-get-relative-position
+                                      section)))))))
                        ;; If it qualifies, then the selected window
                        ;; comes first, but we want to handle it last
                        ;; so that its `magit-section-movement-hook'
