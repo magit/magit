@@ -2878,7 +2878,7 @@ It the SECTION has a different type, then do nothing."
                          (t t))))))))
 
 (cl-defmethod magit-section-goto-successor ((section magit-hunk-section)
-                                            line char arg)
+                                            line char &optional arg)
   (or (magit-section-goto-successor--same section line char)
       (and-let* ((parent (magit-get-section
                           (magit-section-ident
