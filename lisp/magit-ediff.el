@@ -123,7 +123,23 @@ recommend you do not further complicate that by enabling this.")
     ("r" "Show range"    magit-ediff-compare)
     ("z" "Show stash"    magit-ediff-show-stash)]])
 
-(defmacro magit-ediff-buffers (a b &optional c setup quit)
+(defmacro magit-ediff-buffers (a b &optional c setup quit file)
+  "Run Ediff on two or three buffers.
+This is a wrapper around `ediff-buffers-internal'.
+
+A, B and C have the form (GET-BUFFER CREATE-BUFFER).  It
+GET-BUFFER returns a non-nil, then that buffer is used and
+it is not killed when exiting Ediff.  Otherwise CREATE-BUFFER
+must return a buffer and that is killed when exiting Ediff.
+
+If non-nil, SETUP must be a function.  It is called without
+arguments after Ediff is done setting up buffers.
+
+If non-nil, QUIT must be a function.  It is added to
+`ediff-quit-hook' and is called without arguments.
+
+If FILE is non-nil, then perform a merge.  The merge result
+is put in FILE."
   (let (get make kill (char ?A))
     (dolist (spec (list a b c))
       (if (not spec)
@@ -145,8 +161,12 @@ recommend you do not further complicate that by enabling this.")
                      ,m)
                   make)
             (push `(unless ,b
-                     (ediff-kill-buffer-carefully
-                      ,(intern (format "ediff-buffer-%c" char))))
+                     ;; For merge jobs Ediff switches buffer names around.
+                     ;; See (if ediff-merge-job ...) in `ediff-setup'.
+                     (let ((var ,(if (and file (= char ?C))
+                                     'ediff-ancestor-buffer
+                                   (intern (format "ediff-buffer-%c" char)))))
+                       (ediff-kill-buffer-carefully var)))
                   kill))
           (cl-incf char))))
     (setq get  (nreverse get))
@@ -154,18 +174,29 @@ recommend you do not further complicate that by enabling this.")
     (setq kill (nreverse kill))
     `(magit-with-toplevel
        (let ((conf (current-window-configuration))
+             (file ,file)
              ,@get)
          (ediff-buffers-internal
           ,@make
           (list ,@(and setup (list setup))
                 (lambda ()
+                  ;; We do not want to kill buffers that existed before
+                  ;; Ediff was invoked, so we cannot use Ediff's default
+                  ;; quit functions.  Ediff splits quitting across two
+                  ;; hooks for merge jobs but we only ever use one.
+                  (setq-local ediff-quit-merge-hook nil)
                   (setq-local ediff-quit-hook
                               (list ,@(and quit (list quit))
                                     (lambda ()
                                       ,@kill
                                       (let ((magit-ediff-previous-winconf conf))
                                         (run-hooks 'magit-ediff-quit-hook)))))))
-          ,(if c 'ediff-buffers3 'ediff-buffers))))))
+          (pcase (list ,(and c t) (and file t))
+            ('(nil nil) 'ediff-buffers)
+            ('(nil t)   'ediff-merge-buffers)
+            ('(t   nil) 'ediff-buffers3)
+            ('(t   t)   'ediff-merge-buffers-with-ancestor))
+          file)))))
 
 ;;;###autoload
 (defun magit-ediff-resolve-rest (file)
