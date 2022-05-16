@@ -123,37 +123,6 @@ recommend you do not further complicate that by enabling this.")
     ("r" "Show range"    magit-ediff-compare)
     ("z" "Show stash"    magit-ediff-show-stash)]])
 
-;;;###autoload
-(defun magit-ediff-resolve (file)
-  "Resolve outstanding conflicts in FILE using Ediff.
-FILE has to be relative to the top directory of the repository.
-
-In the rare event that you want to manually resolve all
-conflicts, including those already resolved by Git, use
-`ediff-merge-revisions-with-ancestor'."
-  (interactive (list (magit-read-unmerged-file)))
-  (magit-with-toplevel
-    (with-current-buffer (find-file-noselect file)
-      (smerge-ediff)
-      (setq-local
-       ediff-quit-hook
-       (lambda ()
-         (let ((bufC ediff-buffer-C)
-               (bufS smerge-ediff-buf))
-           (with-current-buffer bufS
-             (when (yes-or-no-p (format "Conflict resolution finished; save %s? "
-                                        buffer-file-name))
-               (erase-buffer)
-               (insert-buffer-substring bufC)
-               (save-buffer))))
-         (when (buffer-live-p ediff-buffer-A) (kill-buffer ediff-buffer-A))
-         (when (buffer-live-p ediff-buffer-B) (kill-buffer ediff-buffer-B))
-         (when (buffer-live-p ediff-buffer-C) (kill-buffer ediff-buffer-C))
-         (when (buffer-live-p ediff-ancestor-buffer)
-           (kill-buffer ediff-ancestor-buffer))
-         (let ((magit-ediff-previous-winconf smerge-ediff-windows))
-           (run-hooks 'magit-ediff-quit-hook)))))))
-
 (defmacro magit-ediff-buffers (quit &rest spec)
   (declare (indent 1))
   (let ((fn (if (length= spec 3) 'ediff-buffers3 'ediff-buffers))
@@ -192,6 +161,37 @@ conflicts, including those already resolved by Git, use
                            (let ((magit-ediff-previous-winconf conf))
                              (run-hooks 'magit-ediff-quit-hook)))))))
           ',fn)))))
+
+;;;###autoload
+(defun magit-ediff-resolve (file)
+  "Resolve outstanding conflicts in FILE using Ediff.
+FILE has to be relative to the top directory of the repository.
+
+In the rare event that you want to manually resolve all
+conflicts, including those already resolved by Git, use
+`ediff-merge-revisions-with-ancestor'."
+  (interactive (list (magit-read-unmerged-file)))
+  (magit-with-toplevel
+    (with-current-buffer (find-file-noselect file)
+      (smerge-ediff)
+      (setq-local
+       ediff-quit-hook
+       (lambda ()
+         (let ((bufC ediff-buffer-C)
+               (bufS smerge-ediff-buf))
+           (with-current-buffer bufS
+             (when (yes-or-no-p (format "Conflict resolution finished; save %s? "
+                                        buffer-file-name))
+               (erase-buffer)
+               (insert-buffer-substring bufC)
+               (save-buffer))))
+         (when (buffer-live-p ediff-buffer-A) (kill-buffer ediff-buffer-A))
+         (when (buffer-live-p ediff-buffer-B) (kill-buffer ediff-buffer-B))
+         (when (buffer-live-p ediff-buffer-C) (kill-buffer ediff-buffer-C))
+         (when (buffer-live-p ediff-ancestor-buffer)
+           (kill-buffer ediff-ancestor-buffer))
+         (let ((magit-ediff-previous-winconf smerge-ediff-windows))
+           (run-hooks 'magit-ediff-quit-hook)))))))
 
 ;;;###autoload
 (defun magit-ediff-stage (file)
