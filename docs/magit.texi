@@ -4366,9 +4366,9 @@ line of the region.  With a prefix argument, instead of diffing the
 revisions, choose a revision to view changes along, starting at the
 common ancestor of both revisions (i.e., use a "@dots{}"  range).
 
-@item @kbd{E m} (@code{magit-ediff-resolve})
+@item @kbd{E m} (@code{magit-ediff-resolve-rest})
 @kindex E m
-@findex magit-ediff-resolve
+@findex magit-ediff-resolve-rest
 Resolve outstanding conflicts in a file using Ediff, defaulting to
 the file at point.
 
@@ -4384,7 +4384,7 @@ including those already resolved by Git, use
 @kindex E t
 @findex magit-git-mergetool
 This command does not actually use Ediff.  While it serves the same
-purpose as @samp{magit-ediff-resolve}, it uses @samp{git mergetool --gui} to
+purpose as @samp{magit-ediff-resolve-rest}, it uses @samp{git mergetool --gui} to
 resolve conflicts.
 
 With a prefix argument this acts as a transient prefix command,

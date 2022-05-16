@@ -114,7 +114,7 @@ recommend you do not further complicate that by enabling this.")
   ["Ediff"
    [("E" "Dwim"          magit-ediff-dwim)
     ("s" "Stage"         magit-ediff-stage)
-    ("m" "Resolve"       magit-ediff-resolve)
+    ("m" "Resolve"       magit-ediff-resolve-rest)
     ("t" "Resolve using mergetool" magit-git-mergetool)]
    [("u" "Show unstaged" magit-ediff-show-unstaged)
     ("i" "Show staged"   magit-ediff-show-staged)
@@ -163,7 +163,7 @@ recommend you do not further complicate that by enabling this.")
           ',fn)))))
 
 ;;;###autoload
-(defun magit-ediff-resolve (file)
+(defun magit-ediff-resolve-rest (file)
   "Resolve outstanding conflicts in FILE using Ediff.
 FILE has to be relative to the top directory of the repository.
 
@@ -317,7 +317,7 @@ mind at all, then it asks the user for a command to run."
          ((and (guard (not magit-ediff-dwim-show-on-hunks))
                (or 'unstaged 'staged))
           (setq command (if (magit-anything-unmerged-p)
-                            #'magit-ediff-resolve
+                            #'magit-ediff-resolve-rest
                           #'magit-ediff-stage)))
          ('unstaged (setq command #'magit-ediff-show-unstaged))
          ('staged (setq command #'magit-ediff-show-staged))
@@ -353,7 +353,7 @@ mind at all, then it asks the user for a command to run."
                  (?c "[c]ommit"  #'magit-ediff-show-commit)
                  (?r "[r]ange"   #'magit-ediff-compare)
                  (?s "[s]tage"   #'magit-ediff-stage)
-                 (?v "resol[v]e" #'magit-ediff-resolve))))
+                 (?v "resol[v]e" #'magit-ediff-resolve-rest))))
              ((eq command #'magit-ediff-compare)
               (apply #'magit-ediff-compare revA revB
                      (magit-ediff-read-files revA revB file)))

@@ -3496,7 +3496,7 @@ information on how to use Ediff itself, see info:ediff.
   revisions, choose a revision to view changes along, starting at the
   common ancestor of both revisions (i.e., use a "..."  range).
 
-- Key: E m (magit-ediff-resolve) ::
+- Key: E m (magit-ediff-resolve-rest) ::
 
   Resolve outstanding conflicts in a file using Ediff, defaulting to
   the file at point.
@@ -3512,7 +3512,7 @@ information on how to use Ediff itself, see info:ediff.
 - Key: E t (magit-git-mergetool) ::
 
   This command does not actually use Ediff.  While it serves the same
-  purpose as =magit-ediff-resolve=, it uses =git mergetool --gui= to
+  purpose as =magit-ediff-resolve-rest=, it uses =git mergetool --gui= to
   resolve conflicts.
 
   With a prefix argument this acts as a transient prefix command,
