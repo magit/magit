@@ -50,7 +50,8 @@
 (transient-define-prefix magit-git-mergetool (file args &optional transient)
   "Resolve conflicts in FILE using \"git mergetool --gui\".
 With a prefix argument allow changing ARGS using a transient
-popup."
+popup.  See info node `(magit) Ediffing' for information about
+alternative commands."
   :man-page "git-mergetool"
   ["Settings"
    ("-t" magit-git-mergetool:--tool)

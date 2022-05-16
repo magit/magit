@@ -3498,16 +3498,48 @@ information on how to use Ediff itself, see info:ediff.
 
 - Key: E m (magit-ediff-resolve-rest) ::
 
-  Resolve outstanding conflicts in a file using Ediff, defaulting to
-  the file at point.
+  This command allows you to resolve outstanding conflicts in a file
+  using Ediff, defaulting to the file at point.
 
   Provided that the value of ~merge.conflictstyle~ is ~diff3~, you can
   view the file's merge-base revision using ~/~ in the Ediff control
   buffer.
 
-  In the rare event that you want to manually resolve all conflicts,
-  including those already resolved by Git, use
-  ~ediff-merge-revisions-with-ancestor~.
+  The A, B and Ancestor buffers are constructed from the conflict
+  markers in the worktree file.  Because you and/or Git may have
+  already resolved some conflicts, that means that these buffers
+  to not contain the actual versions from the respective blobs.
+
+- Key: E m (magit-ediff-resolve-all) ::
+
+  This command allows you to resolve all conflicts in FILE using
+  Ediff, defaulting to the file at point.
+
+  Provided that the value of ~merge.conflictstyle~ is ~diff3~, you can
+  view the file's merge-base revision using ~/~ in the Ediff control
+  buffer.
+
+  First the file in the worktree is moved aside, appending the suffix
+  =.ORIG=, so that you could later go back to that version.  Then it is
+  reconstructed from the two sides of the conflict and the merge-base,
+  if available.
+
+  It would be nice if the worktree file were just used as-is, but
+  Ediff does not support that.  This means that all conflicts, that
+  Git has already resolved, are restored.  On the other hand Ediff
+  also tries to resolve conflicts, and in many cases Ediff and Git
+  should produce similar results.
+
+  However if you have already resolved some conflicts manually, then
+  those changes are discarded (though you can recover them from the
+  backup file).  In such cases ~magit-ediff-resolve-rest~ might be more
+  suitable.
+
+  The advantage that this command has over ~magit-ediff-resolve-rest~
+  is that the A, B and Ancestor buffers correspond to blobs from the
+  respective commits, allowing you to inspect a side in context and
+  to use Magit commands in these buffers to do so.  Blame and log
+  commands are particularly useful here.
 
 - Key: E t (magit-git-mergetool) ::
 
@@ -8806,38 +8838,6 @@ also affects the diffs displayed inside Magit.
 *** How does branching and pushing work?
 
 Please see [[*Branching]] and http://emacsair.me/2016/01/18/magit-2.4
-
-*** Can Magit be used as ~ediff-version-control-package~?
-
-No, it cannot.  For that to work the functions ~ediff-magit-internal~
-and ~ediff-magit-merge-internal~ would have to be implemented, and they
-are not.  These two functions are only used by the three commands
-~ediff-revision~, ~ediff-merge-revisions-with-ancestor~, and
-~ediff-merge-revisions~.
-
-These commands only delegate the task of populating buffers with
-certain revisions to the "internal" functions.  The equally important
-task of determining which revisions are to be compared/merged is not
-delegated.  Instead this is done without any support whatsoever from
-the version control package/system - meaning that the user has to
-enter the revisions explicitly.  Instead of implementing
-~ediff-magit-internal~ we provide ~magit-ediff-compare~, which handles
-both tasks like it is 2005.
-
-The other commands ~ediff-merge-revisions~ and
-~ediff-merge-revisions-with-ancestor~ are normally not what you want
-when using a modern version control system like Git.  Instead of
-letting the user resolve only those conflicts which Git could not
-resolve on its own, they throw away all work done by Git and then
-expect the user to manually merge all conflicts, including those that
-had already been resolved.  That made sense back in the days when
-version control systems couldn't merge (or so I have been told), but
-not anymore.  Once in a blue moon you might actually want to see all
-conflicts, in which case you *can* use these commands, which then use
-~ediff-vc-merge-internal~.  So we don't actually have to implement
-~ediff-magit-merge-internal~.  Instead we provide the more useful
-command ~magit-ediff-resolve~ which only shows yet-to-be resolved
-conflicts.
 
 *** Should I disable VC?
 

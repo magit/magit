@@ -329,7 +329,6 @@ FAQ - How to @dots{}?
 * How to install the gitman info manual?::
 * How to show diffs for gpg-encrypted files?::
 * How does branching and pushing work?::
-* Can Magit be used as @code{ediff-version-control-package}?::
 * Should I disable VC@?::
 
 
@@ -4369,16 +4368,49 @@ common ancestor of both revisions (i.e., use a "@dots{}"  range).
 @item @kbd{E m} (@code{magit-ediff-resolve-rest})
 @kindex E m
 @findex magit-ediff-resolve-rest
-Resolve outstanding conflicts in a file using Ediff, defaulting to
-the file at point.
+This command allows you to resolve outstanding conflicts in a file
+using Ediff, defaulting to the file at point.
 
 Provided that the value of @code{merge.conflictstyle} is @code{diff3}, you can
 view the file's merge-base revision using @code{/} in the Ediff control
 buffer.
 
-In the rare event that you want to manually resolve all conflicts,
-including those already resolved by Git, use
-@code{ediff-merge-revisions-with-ancestor}.
+The A, B and Ancestor buffers are constructed from the conflict
+markers in the worktree file.  Because you and/or Git may have
+already resolved some conflicts, that means that these buffers
+to not contain the actual versions from the respective blobs.
+
+@item @kbd{E m} (@code{magit-ediff-resolve-all})
+@kindex E m
+@findex magit-ediff-resolve-all
+This command allows you to resolve all conflicts in FILE using
+Ediff, defaulting to the file at point.
+
+Provided that the value of @code{merge.conflictstyle} is @code{diff3}, you can
+view the file's merge-base revision using @code{/} in the Ediff control
+buffer.
+
+First the file in the worktree is moved aside, appending the suffix
+@samp{.ORIG}, so that you could later go back to that version.  Then it is
+reconstructed from the two sides of the conflict and the merge-base,
+if available.
+
+It would be nice if the worktree file were just used as-is, but
+Ediff does not support that.  This means that all conflicts, that
+Git has already resolved, are restored.  On the other hand Ediff
+also tries to resolve conflicts, and in many cases Ediff and Git
+should produce similar results.
+
+However if you have already resolved some conflicts manually, then
+those changes are discarded (though you can recover them from the
+backup file).  In such cases @code{magit-ediff-resolve-rest} might be more
+suitable.
+
+The advantage that this command has over @code{magit-ediff-resolve-rest}
+is that the A, B and Ancestor buffers correspond to blobs from the
+respective commits, allowing you to inspect a side in context and
+to use Magit commands in these buffers to do so.  Blame and log
+commands are particularly useful here.
 
 @item @kbd{E t} (@code{magit-git-mergetool})
 @kindex E t
@@ -10695,7 +10727,6 @@ Please also see @ref{Debugging Tools}.
 * How to install the gitman info manual?::
 * How to show diffs for gpg-encrypted files?::
 * How does branching and pushing work?::
-* Can Magit be used as @code{ediff-version-control-package}?::
 * Should I disable VC@?::
 @end menu
 
@@ -10768,39 +10799,6 @@ echo "*.gpg filter=gpg diff=gpg" > .gitattributes
 @appendixsubsec How does branching and pushing work?
 
 Please see @ref{Branching} and @uref{http://emacsair.me/2016/01/18/magit-2.4}
-
-@node Can Magit be used as @code{ediff-version-control-package}?
-@appendixsubsec Can Magit be used as @code{ediff-version-control-package}?
-
-No, it cannot.  For that to work the functions @code{ediff-magit-internal}
-and @code{ediff-magit-merge-internal} would have to be implemented, and they
-are not.  These two functions are only used by the three commands
-@code{ediff-revision}, @code{ediff-merge-revisions-with-ancestor}, and
-@code{ediff-merge-revisions}.
-
-These commands only delegate the task of populating buffers with
-certain revisions to the "internal" functions.  The equally important
-task of determining which revisions are to be compared/merged is not
-delegated.  Instead this is done without any support whatsoever from
-the version control package/system - meaning that the user has to
-enter the revisions explicitly.  Instead of implementing
-@code{ediff-magit-internal} we provide @code{magit-ediff-compare}, which handles
-both tasks like it is 2005.
-
-The other commands @code{ediff-merge-revisions} and
-@code{ediff-merge-revisions-with-ancestor} are normally not what you want
-when using a modern version control system like Git.  Instead of
-letting the user resolve only those conflicts which Git could not
-resolve on its own, they throw away all work done by Git and then
-expect the user to manually merge all conflicts, including those that
-had already been resolved.  That made sense back in the days when
-version control systems couldn't merge (or so I have been told), but
-not anymore.  Once in a blue moon you might actually want to see all
-conflicts, in which case you @strong{can} use these commands, which then use
-@code{ediff-vc-merge-internal}.  So we don't actually have to implement
-@code{ediff-magit-merge-internal}.  Instead we provide the more useful
-command @code{magit-ediff-resolve} which only shows yet-to-be resolved
-conflicts.
 
 @node Should I disable VC@?
 @appendixsubsec Should I disable VC@?

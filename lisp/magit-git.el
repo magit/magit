@@ -1108,6 +1108,14 @@ range.  Otherwise, it can be any revision or range accepted by
                                           "--diff-filter=R" revA revB)
                          3)))
 
+(defun magit--rev-file-name (file rev other-rev)
+  "For FILE, potentially renamed between REV and OTHER-REV, return name in REV.
+Return nil, if FILE appears neither in REV nor OTHER-REV,
+or if no rename is detected."
+  (or (car (member file (magit-revision-files rev)))
+      (and-let* ((renamed (magit-renamed-files rev other-rev)))
+        (car (rassoc file renamed)))))
+
 (defun magit-file-status (&rest args)
   (magit--with-temp-process-buffer
     (save-excursion (magit-git-insert "status" "-z" args))

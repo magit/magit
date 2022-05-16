@@ -113,8 +113,9 @@ recommend you do not further complicate that by enabling this.")
   :info-manual "(ediff)"
   ["Ediff"
    [("E" "Dwim"          magit-ediff-dwim)
-    ("s" "Stage"         magit-ediff-stage)
-    ("m" "Resolve"       magit-ediff-resolve-rest)
+    ("s" "Stage"         magit-ediff-stage)]
+   [("m" "Resolve rest"            magit-ediff-resolve-rest)
+    ("M" "Resolve all conflicts"   magit-ediff-resolve-all)
     ("t" "Resolve using mergetool" magit-git-mergetool)]
    [("u" "Show unstaged" magit-ediff-show-unstaged)
     ("i" "Show staged"   magit-ediff-show-staged)
@@ -199,13 +200,77 @@ is put in FILE."
           file)))))
 
 ;;;###autoload
+(defun magit-ediff-resolve-all (file)
+  "Resolve all conflicts in FILE using Ediff.
+See info node `(magit) Ediffing' for more information about this
+and alternative commands."
+  (interactive (list (magit-read-unmerged-file)))
+  (magit-with-toplevel
+    (let* ((revA  (or (magit-name-branch "HEAD")
+                      (magit-commit-p "HEAD")))
+           (revB  (cl-find-if (lambda (head) (file-exists-p (magit-git-dir head)))
+                              '("MERGE_HEAD" "CHERRY_PICK_HEAD" "REVERT_HEAD")))
+           (revB  (or (magit-name-branch revB)
+                      (magit-commit-p revB)))
+           (revC  (magit-commit-p (magit-git-string "merge-base" revA revB)))
+           (fileA (magit--rev-file-name file revA revB))
+           (fileB (magit--rev-file-name file revB revA))
+           (fileC (or (magit--rev-file-name file revC revA)
+                      (magit--rev-file-name file revC revB))))
+      ;; Ediff assumes that the FILE where it is going to store the merge
+      ;; result does not exist yet, so move the existing file out of the
+      ;; way.  If a buffer visits FILE, then we have to kill that upfront.
+      (when-let ((buffer (find-buffer-visiting file)))
+        (when (and (buffer-modified-p buffer)
+                   (not (y-or-n-p (format "Save buffer %s %s? "
+                                          (buffer-name buffer)
+                                          "(cannot continue otherwise)"))))
+          (user-error "Abort"))
+        (kill-buffer buffer))
+      (let ((orig (concat file ".ORIG")))
+        (when (file-exists-p orig)
+          (rename-file orig (make-temp-name (concat orig "_"))))
+        (rename-file file orig))
+      (let ((setup (lambda ()
+                     ;; Use the same conflict marker style as Git uses.
+                     (setq-local ediff-combination-pattern
+                                 '("<<<<<<< HEAD" A
+                                   ,(format "||||||| %s" revC) Ancestor
+                                   "=======" B
+                                   ,(format ">>>>>>> %s" revB)))))
+            (quit  (lambda ()
+                     ;; For merge jobs Ediff switches buffer names around.
+                     ;; At this point `ediff-buffer-C' no longer refer to
+                     ;; the ancestor buffer but to the merge result buffer.
+                     ;; See (if ediff-merge-job ...) in `ediff-setup'.
+                     (when (buffer-live-p ediff-buffer-C)
+                       (with-current-buffer ediff-buffer-C
+                         (save-buffer)
+                         (save-excursion
+                           (goto-char (point-min))
+                           (unless (re-search-forward "^<<<<<<< " nil t)
+                             (magit-stage-file file))))))))
+        (if fileC
+            (magit-ediff-buffers
+             ((magit-get-revision-buffer revA fileA)
+              (magit-find-file-noselect  revA fileA))
+             ((magit-get-revision-buffer revB fileB)
+              (magit-find-file-noselect  revB fileB))
+             ((magit-get-revision-buffer revC fileC)
+              (magit-find-file-noselect  revC fileC))
+             setup quit file)
+          (magit-ediff-buffers
+           ((magit-get-revision-buffer revA fileA)
+            (magit-find-file-noselect  revA fileA))
+           ((magit-get-revision-buffer revB fileB)
+            (magit-find-file-noselect  revB fileB))
+           nil setup quit file))))))
+
+;;;###autoload
 (defun magit-ediff-resolve-rest (file)
   "Resolve outstanding conflicts in FILE using Ediff.
-FILE has to be relative to the top directory of the repository.
-
-In the rare event that you want to manually resolve all
-conflicts, including those already resolved by Git, use
-`ediff-merge-revisions-with-ancestor'."
+See info node `(magit) Ediffing' for more information about this
+and alternative commands."
   (interactive (list (magit-read-unmerged-file)))
   (magit-with-toplevel
     (with-current-buffer (find-file-noselect file)
@@ -390,7 +455,10 @@ mind at all, then it asks the user for a command to run."
                  (?c "[c]ommit"  #'magit-ediff-show-commit)
                  (?r "[r]ange"   #'magit-ediff-compare)
                  (?s "[s]tage"   #'magit-ediff-stage)
-                 (?v "resol[v]e" #'magit-ediff-resolve-rest))))
+                 (?m "[m] resolve remaining conflicts"
+                     #'magit-ediff-resolve-rest)
+                 (?M "[M] resolve all conflicts"
+                     #'magit-ediff-resolve-all))))
              ((eq command #'magit-ediff-compare)
               (apply #'magit-ediff-compare revA revB
                      (magit-ediff-read-files revA revB file)))
