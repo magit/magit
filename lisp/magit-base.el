@@ -83,6 +83,8 @@ alphabetical order, depending on your version of Ivy."
 
 (defcustom magit-dwim-selection
   '((magit-stash-apply        nil t)
+    (magit-ediff-resolve-all  nil t)
+    (magit-ediff-resolve-rest nil t)
     (magit-stash-branch       nil t)
     (magit-stash-branch-here  nil t)
     (magit-stash-format-patch nil t)

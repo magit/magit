@@ -3498,8 +3498,9 @@ information on how to use Ediff itself, see info:ediff.
 
 - Key: E m (magit-ediff-resolve-rest) ::
 
-  This command allows you to resolve outstanding conflicts in a file
-  using Ediff, defaulting to the file at point.
+  This command allows you to resolve outstanding conflicts in the file
+  at point using Ediff.  If there is no file at point or if it doesn't
+  have any unmerged changes, then this command prompts for a file.
 
   Provided that the value of ~merge.conflictstyle~ is ~diff3~, you can
   view the file's merge-base revision using ~/~ in the Ediff control
@@ -3512,8 +3513,9 @@ information on how to use Ediff itself, see info:ediff.
 
 - Key: E m (magit-ediff-resolve-all) ::
 
-  This command allows you to resolve all conflicts in FILE using
-  Ediff, defaulting to the file at point.
+  This command allows you to resolve all conflicts in the file at
+  point using Ediff.  If there is no file at point or if it doesn't
+  have any unmerged changes, then this command prompts for a file.
 
   Provided that the value of ~merge.conflictstyle~ is ~diff3~, you can
   view the file's merge-base revision using ~/~ in the Ediff control

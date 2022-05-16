@@ -201,7 +201,11 @@ is put in FILE."
 
 ;;;###autoload
 (defun magit-ediff-resolve-all (file)
-  "Resolve all conflicts in FILE using Ediff.
+  "Resolve all conflicts in the FILE at point using Ediff.
+
+If there is no file at point or if it doesn't have any unmerged
+changes, then prompt for a file.
+
 See info node `(magit) Ediffing' for more information about this
 and alternative commands."
   (interactive (list (magit-read-unmerged-file)))
@@ -268,7 +272,11 @@ and alternative commands."
 
 ;;;###autoload
 (defun magit-ediff-resolve-rest (file)
-  "Resolve outstanding conflicts in FILE using Ediff.
+  "Resolve outstanding conflicts in the FILE at point using Ediff.
+
+If there is no file at point or if it doesn't have any unmerged
+changes, then prompt for a file.
+
 See info node `(magit) Ediffing' for more information about this
 and alternative commands."
   (interactive (list (magit-read-unmerged-file)))
