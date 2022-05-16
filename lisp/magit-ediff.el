@@ -126,11 +126,14 @@ recommend you do not further complicate that by enabling this.")
 (defmacro magit-ediff-buffers (quit &rest spec)
   (declare (indent 1))
   (let ((fn (if (length= spec 3) 'ediff-buffers3 'ediff-buffers))
-        (char ?@)
+        (char ?A)
         get make kill)
     (pcase-dolist (`(,g ,m) spec)
-      (let ((b (intern (format "buf%c" (cl-incf char)))))
+      (let ((b (intern (format "buf%c" char))))
         (push `(,b ,g) get)
+        ;; This is an unfortunate complication that I have added for
+        ;; the benefit of one user.  Pretend we used this instead:
+        ;; (push `(or ,b ,m) make)
         (push `(if ,b
                    (if magit-ediff-use-indirect-buffers
                        (prog1
@@ -143,7 +146,8 @@ recommend you do not further complicate that by enabling this.")
         (push `(unless ,b
                  (ediff-kill-buffer-carefully
                   ,(intern (format "ediff-buffer-%c" char))))
-              kill)))
+              kill))
+      (cl-incf char))
     (setq get  (nreverse get))
     (setq make (nreverse make))
     (setq kill (nreverse kill))
@@ -153,13 +157,12 @@ recommend you do not further complicate that by enabling this.")
          (,fn
           ,@make
           (list (lambda ()
-                  (setq-local
-                   ediff-quit-hook
-                   (list ,@(and quit (list quit))
-                         (lambda ()
-                           ,@kill
-                           (let ((magit-ediff-previous-winconf conf))
-                             (run-hooks 'magit-ediff-quit-hook)))))))
+                  (setq-local ediff-quit-hook
+                              (list ,@(and quit (list quit))
+                                    (lambda ()
+                                      ,@kill
+                                      (let ((magit-ediff-previous-winconf conf))
+                                        (run-hooks 'magit-ediff-quit-hook)))))))
           ',fn)))))
 
 ;;;###autoload
