@@ -1102,10 +1102,11 @@ range.  Otherwise, it can be any revision or range accepted by
     (magit-git-items "diff" "-z" "--name-only" rev-or-range other-rev)))
 
 (defun magit-renamed-files (revA revB)
-  (--map (cons (nth 1 it) (nth 2 it))
-         (-partition 3 (magit-git-items
-                        "diff-tree" "-r" "--diff-filter=R" "-z" "-M"
-                        revA revB))))
+  (mapcar (pcase-lambda (`(,_status ,fileA ,fileB))
+            (cons fileA fileB))
+          (seq-partition (magit-git-items "diff" "-z" "--name-status"
+                                          "--diff-filter=R" revA revB)
+                         3)))
 
 (defun magit-file-status (&rest args)
   (magit--with-temp-process-buffer
