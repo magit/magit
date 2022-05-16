@@ -3577,6 +3577,12 @@ information on how to use Ediff itself, see info:ediff.
 
   Show changes to a file introduced by a stash using Ediff.
 
+- User Option: magit-ediff-dwim-resolve-function ::
+
+  This option controls which function ~magit-ediff-dwim~ uses to resolve
+  conflicts.  One of ~magit-ediff-resolve-rest~, ~magit-ediff-resolve-all~
+  or ~magit-git-mergetool~; which are all discussed above.
+
 - User Option: magit-ediff-dwim-show-on-hunks ::
 
   This option controls what command ~magit-ediff-dwim~ calls when

@@ -56,6 +56,14 @@ invoked using Magit."
   :options '(magit-ediff-cleanup-auxiliary-buffers
              magit-ediff-restore-previous-winconf))
 
+(defcustom magit-ediff-dwim-resolve-function #'magit-ediff-resolve-rest
+  "The function `magit-ediff-dwim' uses to resolve conflicts."
+  :package-version '(magit . "3.4.0")
+  :group 'magit-ediff
+  :type '(choice (const magit-ediff-resolve-rest)
+                 (const magit-ediff-resolve-all)
+                 (const magit-git-mergetool)))
+
 (defcustom magit-ediff-dwim-show-on-hunks nil
   "Whether `magit-ediff-dwim' runs show variants on hunks.
 If non-nil, `magit-ediff-show-staged' or
@@ -427,7 +435,7 @@ mind at all, then it asks the user for a command to run."
          ((and (guard (not magit-ediff-dwim-show-on-hunks))
                (or 'unstaged 'staged))
           (setq command (if (magit-anything-unmerged-p)
-                            #'magit-ediff-resolve-rest
+                            magit-ediff-dwim-resolve-function
                           #'magit-ediff-stage)))
          ('unstaged (setq command #'magit-ediff-show-unstaged))
          ('staged (setq command #'magit-ediff-show-staged))

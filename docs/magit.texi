@@ -4456,6 +4456,12 @@ Show changes to a file introduced by a commit using Ediff.
 Show changes to a file introduced by a stash using Ediff.
 @end table
 
+@defopt magit-ediff-dwim-resolve-function
+This option controls which function @code{magit-ediff-dwim} uses to resolve
+conflicts.  One of @code{magit-ediff-resolve-rest}, @code{magit-ediff-resolve-all}
+or @code{magit-git-mergetool}; which are all discussed above.
+@end defopt
+
 @defopt magit-ediff-dwim-show-on-hunks
 This option controls what command @code{magit-ediff-dwim} calls when
 point is on uncommitted hunks.  When nil, always run
