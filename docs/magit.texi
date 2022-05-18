@@ -4379,7 +4379,7 @@ buffer.
 The A, B and Ancestor buffers are constructed from the conflict
 markers in the worktree file.  Because you and/or Git may have
 already resolved some conflicts, that means that these buffers
-to not contain the actual versions from the respective blobs.
+may not contain the actual versions from the respective blobs.
 
 @item @kbd{E m} (@code{magit-ediff-resolve-all})
 @kindex E m
