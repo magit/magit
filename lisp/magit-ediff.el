@@ -136,8 +136,8 @@ recommend you do not further complicate that by enabling this.")
   "Run Ediff on two or three buffers.
 This is a wrapper around `ediff-buffers-internal'.
 
-A, B and C have the form (GET-BUFFER CREATE-BUFFER).  It
-GET-BUFFER returns a non-nil, then that buffer is used and
+A, B and C have the form (GET-BUFFER CREATE-BUFFER).  If
+GET-BUFFER returns a non-nil value, then that buffer is used and
 it is not killed when exiting Ediff.  Otherwise CREATE-BUFFER
 must return a buffer and that is killed when exiting Ediff.
 
