@@ -1105,6 +1105,7 @@ range.  Otherwise, it can be any revision or range accepted by
   (mapcar (pcase-lambda (`(,_status ,fileA ,fileB))
             (cons fileA fileB))
           (seq-partition (magit-git-items "diff" "-z" "--name-status"
+                                          "--find-renames"
                                           "--diff-filter=R" revA revB)
                          3)))
 
