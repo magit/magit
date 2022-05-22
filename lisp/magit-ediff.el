@@ -181,31 +181,34 @@ is put in FILE."
     (setq get  (nreverse get))
     (setq make (nreverse make))
     (setq kill (nreverse kill))
-    `(magit-with-toplevel
-       (let ((conf (current-window-configuration))
-             (file ,file)
-             ,@get)
-         (ediff-buffers-internal
-          ,@make
-          (list ,@(and setup (list setup))
-                (lambda ()
-                  ;; We do not want to kill buffers that existed before
-                  ;; Ediff was invoked, so we cannot use Ediff's default
-                  ;; quit functions.  Ediff splits quitting across two
-                  ;; hooks for merge jobs but we only ever use one.
-                  (setq-local ediff-quit-merge-hook nil)
-                  (setq-local ediff-quit-hook
-                              (list ,@(and quit (list quit))
-                                    (lambda ()
-                                      ,@kill
-                                      (let ((magit-ediff-previous-winconf conf))
-                                        (run-hooks 'magit-ediff-quit-hook)))))))
-          (pcase (list ,(and c t) (and file t))
-            ('(nil nil) 'ediff-buffers)
-            ('(nil t)   'ediff-merge-buffers)
-            ('(t   nil) 'ediff-buffers3)
-            ('(t   t)   'ediff-merge-buffers-with-ancestor))
-          file)))))
+    (let ((mconf (cl-gensym "conf"))
+          (mfile (cl-gensym "file")))
+      `(magit-with-toplevel
+         (let ((,mconf (current-window-configuration))
+               (,mfile ,file)
+               ,@get)
+           (ediff-buffers-internal
+            ,@make
+            (list ,@(and setup (list setup))
+                  (lambda ()
+                    ;; We do not want to kill buffers that existed before
+                    ;; Ediff was invoked, so we cannot use Ediff's default
+                    ;; quit functions.  Ediff splits quitting across two
+                    ;; hooks for merge jobs but we only ever use one.
+                    (setq-local ediff-quit-merge-hook nil)
+                    (setq-local ediff-quit-hook
+                                (list
+                                 ,@(and quit (list quit))
+                                 (lambda ()
+                                   ,@kill
+                                   (let ((magit-ediff-previous-winconf ,mconf))
+                                     (run-hooks 'magit-ediff-quit-hook)))))))
+            (pcase (list ,(and c t) (and ,mfile t))
+              ('(nil nil) 'ediff-buffers)
+              ('(nil t)   'ediff-merge-buffers)
+              ('(t   nil) 'ediff-buffers3)
+              ('(t   t)   'ediff-merge-buffers-with-ancestor))
+            ,mfile))))))
 
 ;;;###autoload
 (defun magit-ediff-resolve-all (file)
