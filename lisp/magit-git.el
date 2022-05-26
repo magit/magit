@@ -233,13 +233,13 @@ This affects commands that read a ref.  More specifically, it
 controls the order of refs returned by `magit-list-refs', which
 is called by functions like `magit-list-branch-names' to generate
 the collection of refs.  By default, refs are sorted according to
-their full refname (i.e., 'refs/...').
+their full refname (i.e., \"refs/...\").
 
-Any value accepted by the `--sort' flag of `git for-each-ref' can
+Any value accepted by the `--sort' flag of \"git for-each-ref\" can
 be used.  For example, \"-creatordate\" places refs with more
 recent committer or tagger dates earlier in the list.  A list of
 strings can also be given in order to pass multiple sort keys to
-`git for-each-ref'.
+\"git for-each-ref\".
 
 Note that, depending on the completion framework you use, this
 may not be sufficient to change the order in which the refs are

@@ -686,10 +686,10 @@ Like `forward-line' but go into the opposite direction."
 (define-derived-mode git-rebase-mode special-mode "Git Rebase"
   "Major mode for editing of a Git rebase file.
 
-Rebase files are generated when you run 'git rebase -i' or run
+Rebase files are generated when you run \"git rebase -i\" or run
 `magit-interactive-rebase'.  They describe how Git should perform
 the rebase.  See the documentation for git-rebase (e.g., by
-running 'man git-rebase' at the command line) for details."
+running \"man git-rebase\" at the command line) for details."
   :group 'git-rebase
   (setq comment-start (or (magit-get "core.commentChar") "#"))
   (setq git-rebase-comment-re (concat "^" (regexp-quote comment-start)))
