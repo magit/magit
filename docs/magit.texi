@@ -6331,8 +6331,8 @@ Delete one or multiple branches.  If the region marks multiple
 branches, then offer to delete those.  Otherwise, prompt for a single
 branch to be deleted, defaulting to the branch at point.
 
-@item @kbd{b r} (@code{magit-branch-rename})
-@kindex b r
+@item @kbd{b m} (@code{magit-branch-rename})
+@kindex b m
 @findex magit-branch-rename
 Rename a branch.  The branch and the new name are read in the
 minibuffer.  With prefix argument the branch is renamed even if that
