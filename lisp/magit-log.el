@@ -835,7 +835,7 @@ https://github.com/mhagger/git-when-merged."
                        m))
          args files nil commit)
       (setq m (string-trim m))
-      (if (equal m "Commit is directly on this branch.")
+      (if (string-suffix-p "Commit is directly on this branch." m)
           (let* ((from (concat commit "~10"))
                  (to (- (car (magit-rev-diff-count branch commit)) 10))
                  (to (if (<= to 0)
