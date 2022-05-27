@@ -1513,7 +1513,8 @@ to, or to some other symbolic-ref that points to the same ref."
 (defun magit-commit-at-point ()
   (or (magit-section-value-if 'commit)
       (magit-thing-at-point 'git-revision t)
-      (and-let* ((chunk (and (fboundp 'magit-current-blame-chunk)
+      (and-let* ((chunk (and (bound-and-true-p magit-blame-mode)
+                             (fboundp 'magit-current-blame-chunk)
                              (magit-current-blame-chunk 'addition t))))
         (oref chunk orig-rev))
       (and (derived-mode-p 'magit-stash-mode
@@ -1534,7 +1535,8 @@ to, or to some other symbolic-ref that points to the same ref."
                      (magit-ref-p (format "refs/pullreqs/%s"
                                           (oref (oref it value) number))))))
       (magit-thing-at-point 'git-revision t)
-      (and-let* ((chunk (and (fboundp 'magit-current-blame-chunk)
+      (and-let* ((chunk (and (bound-and-true-p magit-blame-mode)
+                             (fboundp 'magit-current-blame-chunk)
                              (magit-current-blame-chunk 'addition t))))
         (oref chunk orig-rev))
       (and magit-buffer-file-name
