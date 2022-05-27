@@ -829,11 +829,8 @@ https://github.com/mhagger/git-when-merged."
                                       commit branch)))
       (setq m (buffer-substring-no-properties (point) (line-end-position))))
     (if (zerop exit)
-        (magit-log-setup-buffer
-         (list (format "%s^1..%s"
-                       (magit-git-string "merge-base" (concat m "^") commit)
-                       m))
-         args files nil commit)
+        (magit-log-setup-buffer (list (format "%s^1..%s" m m))
+                                args files nil commit)
       ;; Output: "<ref><lots of spaces><message>".
       ;; This is not the same as `string-trim'.
       (setq m (string-trim-left (substring m (string-match " " m))))
