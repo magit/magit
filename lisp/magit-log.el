@@ -834,8 +834,10 @@ https://github.com/mhagger/git-when-merged."
                        (magit-git-string "merge-base" (concat m "^") commit)
                        m))
          args files nil commit)
-      (setq m (string-trim m))
-      (if (string-suffix-p "Commit is directly on this branch." m)
+      ;; Output: "<ref><lots of spaces><message>".
+      ;; This is not the same as `string-trim'.
+      (setq m (string-trim-left (substring m (string-match " " m))))
+      (if (equal m "Commit is directly on this branch.")
           (let* ((from (concat commit "~10"))
                  (to (- (car (magit-rev-diff-count branch commit)) 10))
                  (to (if (<= to 0)
