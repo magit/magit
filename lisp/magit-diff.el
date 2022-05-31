@@ -437,7 +437,7 @@ image, accordingly.  Either the car or the cdr may be nil."
   "Whether to work around a bug which affects display of gravatars.
 
 Gravatar images are spliced into two halves which are then
-displayed on separate lines.  On OS X the splicing has a bug in
+displayed on separate lines.  On macOS the splicing has a bug in
 some Emacs builds, which causes the top and bottom halves to be
 interchanged.  Enabling this option works around this issue by
 interchanging the halves once more, which cancels out the effect

@@ -338,7 +338,7 @@ FAQ - Issues and Errors
 * I changed several thousand files at once and now Magit is unusable::
 * I am having problems committing::
 * I am using MS Windows and cannot push with Magit::
-* I am using OS X and SOMETHING works in shell, but not in Magit: I am using OS X and SOMETHING works in shell but not in Magit. 
+* I am using macOS and SOMETHING works in shell, but not in Magit: I am using macOS and SOMETHING works in shell but not in Magit. 
 * Expanding a file to show the diff causes it to disappear::
 * Point is wrong in the @code{COMMIT_EDITMSG} buffer::
 * The mode-line information isn't always up-to-date::
@@ -10830,7 +10830,7 @@ the value of @code{vc-handled-backends}.
 * I changed several thousand files at once and now Magit is unusable::
 * I am having problems committing::
 * I am using MS Windows and cannot push with Magit::
-* I am using OS X and SOMETHING works in shell, but not in Magit: I am using OS X and SOMETHING works in shell but not in Magit. 
+* I am using macOS and SOMETHING works in shell, but not in Magit: I am using macOS and SOMETHING works in shell but not in Magit. 
 * Expanding a file to show the diff causes it to disappear::
 * Point is wrong in the @code{COMMIT_EDITMSG} buffer::
 * The mode-line information isn't always up-to-date::
@@ -10875,8 +10875,8 @@ can push on the command line.
 Detailed setup instructions can be found at
 @uref{https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows}.
 
-@node I am using OS X and SOMETHING works in shell but not in Magit
-@appendixsubsec I am using OS X and SOMETHING works in shell, but not in Magit
+@node I am using macOS and SOMETHING works in shell but not in Magit
+@appendixsubsec I am using macOS and SOMETHING works in shell, but not in Magit
 
 This usually occurs because Emacs doesn't have the same environment
 variables as your shell.  Try installing and configuring

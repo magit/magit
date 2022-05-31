@@ -8891,7 +8891,7 @@ can push on the command line.
 Detailed setup instructions can be found at
 https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows.
 
-*** I am using OS X and SOMETHING works in shell, but not in Magit
+*** I am using macOS and SOMETHING works in shell, but not in Magit
 
 This usually occurs because Emacs doesn't have the same environment
 variables as your shell.  Try installing and configuring
