@@ -10850,10 +10850,10 @@ See @ref{Performance}.
 @node I changed several thousand files at once and now Magit is unusable
 @appendixsubsec I changed several thousand files at once and now Magit is unusable
 
-Magit is @strong{currently} not expected to work under such conditions. It sure
-would be nice if it did, and v2.5 will hopefully be a big step into
-that direction.  But it might take until v3.1 to accomplish fully
-satisfactory performance, because that requires some heavy refactoring.
+Magit is currently not expected to work well under such conditions.
+It sure would be nice if it did.  Reaching satisfactory performance
+under such conditions will require some heavy refactoring.  This is no
+small task but I hope to eventually find the time to make it happen.
 
 But for now we recommend you use the command line to complete this one
 commit.  Also see @ref{Performance}.
