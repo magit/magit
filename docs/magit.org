@@ -8863,7 +8863,8 @@ the value of ~vc-handled-backends~.
 ** FAQ - Issues and Errors
 *** Magit is slow
 
-See [[*Performance]].
+See [[*Performance]] and [[*I changed several thousand files at once and
+now Magit is unusable]].
 
 *** I changed several thousand files at once and now Magit is unusable
 

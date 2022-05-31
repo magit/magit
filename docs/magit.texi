@@ -10845,7 +10845,7 @@ the value of @code{vc-handled-backends}.
 @node Magit is slow
 @appendixsubsec Magit is slow
 
-See @ref{Performance}.
+See @ref{Performance} and @ref{I changed several thousand files at once and now Magit is unusable}.
 
 @node I changed several thousand files at once and now Magit is unusable
 @appendixsubsec I changed several thousand files at once and now Magit is unusable
