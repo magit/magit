@@ -2369,6 +2369,21 @@ and this option only controls what face is used.")
               (magit-rev-hash (match-string 3 range)))
     (magit-rev-hash range)))
 
+(defvar magit-revision-faces
+  '(magit-hash
+    magit-tag
+    magit-branch-remote
+    magit-branch-remote-head
+    magit-branch-local
+    magit-branch-current
+    magit-branch-upstream
+    magit-branch-warning
+    magit-head
+    magit-refname
+    magit-refname-stash
+    magit-refname-wip
+    magit-refname-pullreq))
+
 (put 'git-revision 'thing-at-point #'magit-thingatpt--git-revision)
 (defun magit-thingatpt--git-revision ()
   (and-let* ((bounds
@@ -2386,7 +2401,10 @@ and this option only controls what face is used.")
     (and (or (and (>= (length string) 7)
                   (string-match-p "[a-z]" string)
                   (magit-commit-p string))
-             (magit-ref-p string))
+             (and (magit-ref-p string)
+                  (let ((face (get-text-property (point) 'face)))
+                    (or (not face)
+                        (member face magit-revision-faces)))))
          string)))
 
 ;;; Completion
