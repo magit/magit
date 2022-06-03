@@ -1717,7 +1717,7 @@ transient prefix command is later invoked again, then the arguments
 are initially reset to the default value.  This default value can be
 set for the current Emacs session or saved permanently, see
 @ref{Saving Values,,,transient,}.  It is also possible to cycle through
-previously used sets of arguments using @code{M-p} and @code{M-n}, see
+previously used sets of arguments using @code{C-M-p} and @code{C-M-n}, see
 @ref{Using History,,,transient,}.
 
 However the infix arguments of many other transient commands continue
@@ -1736,7 +1736,7 @@ As mentioned above, it is possible to cycle through previously used
 sets of arguments while a transient popup is visible.  That means that
 we could always reset the infix arguments to the default because the
 set of arguments that is active in the existing buffer is only a few
-@code{M-p} away.  Magit can be configured to behave like that, but because I
+@code{C-M-p} away.  Magit can be configured to behave like that, but because I
 expect that most users would not find that very convenient, it is not
 the default.
 
