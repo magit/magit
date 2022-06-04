@@ -373,7 +373,7 @@ Usually this is just its basename."
   "Insert a description of the repository's `HEAD' revision."
   (and-let* ((v (or (magit-git-string "describe" "--tags" "--dirty")
                     ;; If there are no tags, use the date in MELPA format.
-                    (magit-git-string "show" "--no-patch" "--format=%cd-g%h"
+                    (magit-rev-format "%cd-g%h" nil
                                       "--date=format:%Y%m%d.%H%M"))))
     (save-match-data
       (when (string-match magit-repolist-column-version-regexp v)

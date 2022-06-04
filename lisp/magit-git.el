@@ -2135,7 +2135,9 @@ Return a list of two integers: (A>B B>A)."
      (car (split-string (buffer-string))))))
 
 (defun magit-rev-format (format &optional rev args)
-  (let ((str (magit-git-string "show" "--no-patch"
+  ;; Prefer `git log --no-walk' to `git show --no-patch' because it
+  ;; performs better in some scenarios.
+  (let ((str (magit-git-string "log" "--no-walk"
                                (concat "--format=" format) args
                                (if rev (magit--rev-dereference rev) "HEAD")
                                "--")))
@@ -2143,7 +2145,9 @@ Return a list of two integers: (A>B B>A)."
       str)))
 
 (defun magit-rev-insert-format (format &optional rev args)
-  (magit-git-insert "show" "--no-patch"
+  ;; Prefer `git log --no-walk' to `git show --no-patch' because it
+  ;; performs better in some scenarios.
+  (magit-git-insert "log" "--no-walk"
                     (concat "--format=" format) args
                     (if rev (magit--rev-dereference rev) "HEAD")
                     "--"))
