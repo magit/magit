@@ -563,7 +563,7 @@ See `magit-commit-absorb' for an alternative implementation."
                   '(nil (inhibit-same-window t))))
           (message "Diffing changes to be committed (C-g to abort diffing)")
           (cl-case last-command
-            (magit-commit
+            (magit-commit-create
              (magit-diff-staged nil args))
             (magit-commit--all
              (magit-diff-working-tree nil args))
