@@ -372,9 +372,10 @@ depending on the value of option `magit-commit-squash-confirm'."
     (when (eq magit-commit-ask-to-stage 'verbose)
       (magit-diff-unstaged))
     (prog1 (when (or (eq magit-commit-ask-to-stage 'stage)
-                     (y-or-n-p "Nothing staged.  Stage and commit all unstaged changes? "))
-             (magit-run-git "add" "-u" ".")
-             (or args (list "--")))
+                     (y-or-n-p
+                      "Nothing staged.  Commit all uncommitted changes? "))
+             (setq this-command 'magit-commit--all)
+             (cons "--all" (or args (list "--"))))
       (when (and (eq magit-commit-ask-to-stage 'verbose)
                  (derived-mode-p 'magit-diff-mode))
         (magit-mode-bury-buffer))))
