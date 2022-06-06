@@ -546,6 +546,7 @@ See `magit-commit-absorb' for an alternative implementation."
 ;;; Pending Diff
 
 (defun magit-commit-diff ()
+  (magit-repository-local-set 'this-commit-command last-command)
   (when (and git-commit-mode magit-commit-show-diff)
     (when-let ((diff-buffer (magit-get-mode-buffer 'magit-diff-mode)))
       ;; This window just started displaying the commit message
@@ -562,7 +563,7 @@ See `magit-commit-absorb' for an alternative implementation."
   (let ((rev nil)
         (arg "--cached")
         (msg nil))
-    (pcase last-command
+    (pcase (magit-repository-local-get 'this-commit-command)
       ((guard (eq this-command 'magit-diff-while-committing))
        (if-let ((diff-buf (magit-get-mode-buffer 'magit-diff-mode 'selected)))
            (with-current-buffer diff-buf
@@ -604,6 +605,9 @@ See `magit-commit-absorb' for an alternative implementation."
 
 (add-to-list 'with-editor-server-window-alist
              (cons git-commit-filename-regexp #'switch-to-buffer))
+
+(defun magit-commit--reset-command ()
+  (magit-repository-local-delete 'this-commit-command))
 
 ;;; Message Utilities
 

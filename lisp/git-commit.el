@@ -556,6 +556,9 @@ to recover older messages")
             #'git-commit-save-message nil t)
   (add-hook 'with-editor-pre-cancel-hook
             #'git-commit-save-message nil t)
+  (when (fboundp 'magit-commit--reset-command)
+    (add-hook 'with-editor-post-finish-hook #'magit-commit--reset-command)
+    (add-hook 'with-editor-post-cancel-hook #'magit-commit--reset-command))
   (when (and (fboundp 'magit-rev-parse)
              (not (memq last-command
                         '(magit-sequencer-continue
