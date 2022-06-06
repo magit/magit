@@ -559,8 +559,37 @@ See `magit-commit-absorb' for an alternative implementation."
         (quit)))))
 
 (defun magit-commit-diff-1 ()
-  (let ((args (car (magit-diff-arguments))))
-    (progn
+  (let ((rev nil)
+        (arg "--cached")
+        (msg nil))
+    (pcase last-command
+      ((guard (eq this-command 'magit-diff-while-committing))
+       (if-let ((diff-buf (magit-get-mode-buffer 'magit-diff-mode 'selected)))
+           (with-current-buffer diff-buf
+             (cond ((and (equal magit-buffer-range "HEAD^")
+                         (equal magit-buffer-typearg "--cached"))
+                    )
+                   ((and (equal magit-buffer-range nil)
+                         (equal magit-buffer-typearg "--cached"))
+                    (setq rev "HEAD^"))
+                   ((magit-anything-staged-p)
+                    )
+                   (t
+                    (setq rev "HEAD^"))))
+         (unless (magit-anything-staged-p)
+           (setq rev "HEAD^"))))
+      (`magit-commit-commit
+       )
+      (`magit-commit--all
+       (setq arg nil))
+      ((or `magit-commit-amend
+           `magit-commit-reword
+           `magit-rebase-reword-commit)
+       (setq rev "HEAD^"))
+      ((guard (not (magit-anything-staged-p)))
+       (setq rev "HEAD^")))
+    (if msg
+        (message (if (eq msg t) "No alternative diff" msg))
       (let ((magit-inhibit-save-previous-winconf 'unset)
             (magit-display-buffer-noselect t)
             (display-buffer-overriding-action
@@ -568,18 +597,7 @@ See `magit-commit-absorb' for an alternative implementation."
         (when magit-commit-diff-inhibit-same-window
           (setq display-buffer-overriding-action
                 '(nil (inhibit-same-window t))))
-        (cl-case last-command
-          (magit-commit-create
-           (magit-diff-staged nil args))
-          (magit-commit--all
-           (magit-diff-working-tree nil args))
-          ((magit-commit-amend
-            magit-commit-reword
-            magit-rebase-reword-commit)
-           (magit-diff-while-amending args))
-          (t (if (magit-anything-staged-p)
-                 (magit-diff-staged nil args)
-               (magit-diff-while-amending args))))))))
+        (magit-diff-setup-buffer rev arg (car (magit-diff-arguments)) nil)))))
 
 (add-hook 'server-switch-hook #'magit-commit-diff)
 (add-hook 'with-editor-filter-visit-hook #'magit-commit-diff)
