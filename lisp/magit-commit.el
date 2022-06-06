@@ -581,8 +581,6 @@ See `magit-commit-absorb' for an alternative implementation."
                  (magit-diff-staged nil args)
                (magit-diff-while-amending args))))))))
 
-;; Mention `magit-diff-while-committing' because that's
-;; always what I search for when I try to find this line.
 (add-hook 'server-switch-hook #'magit-commit-diff)
 (add-hook 'with-editor-filter-visit-hook #'magit-commit-diff)
 
