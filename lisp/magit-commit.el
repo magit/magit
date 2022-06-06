@@ -552,30 +552,34 @@ See `magit-commit-absorb' for an alternative implementation."
       ;; buffer.  Without this that buffer would immediately be
       ;; replaced with the diff buffer.  See #2632.
       (unrecord-window-buffer nil diff-buffer))
-    (condition-case nil
-        (let ((args (car (magit-diff-arguments)))
-              (magit-inhibit-save-previous-winconf 'unset)
-              (magit-display-buffer-noselect t)
-              (inhibit-quit nil)
-              (display-buffer-overriding-action
-               display-buffer-overriding-action))
-          (when magit-commit-diff-inhibit-same-window
-            (setq display-buffer-overriding-action
-                  '(nil (inhibit-same-window t))))
-          (message "Diffing changes to be committed (C-g to abort diffing)")
-          (cl-case last-command
-            (magit-commit-create
-             (magit-diff-staged nil args))
-            (magit-commit--all
-             (magit-diff-working-tree nil args))
-            ((magit-commit-amend
-              magit-commit-reword
-              magit-rebase-reword-commit)
-             (magit-diff-while-amending args))
-            (t (if (magit-anything-staged-p)
-                   (magit-diff-staged nil args)
-                 (magit-diff-while-amending args)))))
-      (quit))))
+    (message "Diffing changes to be committed (C-g to abort diffing)")
+    (let ((inhibit-quit nil))
+      (condition-case nil
+          (magit-commit-diff-1)
+        (quit)))))
+
+(defun magit-commit-diff-1 ()
+  (let ((args (car (magit-diff-arguments))))
+    (progn
+      (let ((magit-inhibit-save-previous-winconf 'unset)
+            (magit-display-buffer-noselect t)
+            (display-buffer-overriding-action
+             display-buffer-overriding-action))
+        (when magit-commit-diff-inhibit-same-window
+          (setq display-buffer-overriding-action
+                '(nil (inhibit-same-window t))))
+        (cl-case last-command
+          (magit-commit-create
+           (magit-diff-staged nil args))
+          (magit-commit--all
+           (magit-diff-working-tree nil args))
+          ((magit-commit-amend
+            magit-commit-reword
+            magit-rebase-reword-commit)
+           (magit-diff-while-amending args))
+          (t (if (magit-anything-staged-p)
+                 (magit-diff-staged nil args)
+               (magit-diff-while-amending args))))))))
 
 ;; Mention `magit-diff-while-committing' because that's
 ;; always what I search for when I try to find this line.
