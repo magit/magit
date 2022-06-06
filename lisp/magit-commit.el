@@ -181,7 +181,7 @@ With a prefix argument, amend to the commit at `HEAD' instead.
                    (list (cons "--amend" (magit-commit-arguments)))
                  (list (magit-commit-arguments))))
   (when (member "--all" args)
-    (setq this-command 'magit-commit-all))
+    (setq this-command 'magit-commit--all))
   (when (setq args (magit-commit-assert args))
     (let ((default-directory (magit-toplevel)))
       (magit-run-git-with-editor "commit" args))))
@@ -565,7 +565,7 @@ See `magit-commit-absorb' for an alternative implementation."
           (cl-case last-command
             (magit-commit
              (magit-diff-staged nil args))
-            (magit-commit-all
+            (magit-commit--all
              (magit-diff-working-tree nil args))
             ((magit-commit-amend
               magit-commit-reword
