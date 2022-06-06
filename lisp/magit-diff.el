@@ -1947,9 +1947,12 @@ Staging and applying changes is documented in info node
                    (format "Changes from working tree to %s" magit-buffer-range))
                   (t
                    (format "Changes from %s to working tree" magit-buffer-range)))
-               (if (equal magit-buffer-typearg "--cached")
-                   "Staged changes"
-                 "Unstaged changes"))
+               (cond ((equal magit-buffer-typearg "--cached")
+                      "Staged changes")
+                     ((and (magit-repository-local-get 'this-commit-command)
+                           (not (magit-anything-staged-p)))
+                      "Uncommitting changes")
+                     (t "Unstaged changes")))
              (pcase (length magit-buffer-diff-files)
                (0)
                (1 (concat " in file " (car magit-buffer-diff-files)))
