@@ -546,7 +546,10 @@ See `magit-commit-absorb' for an alternative implementation."
 ;;; Pending Diff
 
 (defun magit-commit-diff ()
-  (magit-repository-local-set 'this-commit-command last-command)
+  (magit-repository-local-set 'this-commit-command
+                              (if (eq this-command 'with-editor-finish)
+                                  'magit-commit--rebase
+                                last-command))
   (when (and git-commit-mode magit-commit-show-diff)
     (when-let ((diff-buffer (magit-get-mode-buffer 'magit-diff-mode)))
       ;; This window just started displaying the commit message
@@ -562,35 +565,44 @@ See `magit-commit-absorb' for an alternative implementation."
 (defun magit-commit-diff-1 ()
   (let ((rev nil)
         (arg "--cached")
-        (msg nil))
-    (pcase (magit-repository-local-get 'this-commit-command)
-      ((guard (eq this-command 'magit-diff-while-committing))
-       (if-let ((diff-buf (magit-get-mode-buffer 'magit-diff-mode 'selected)))
-           (with-current-buffer diff-buf
-             (cond ((and (equal magit-buffer-range "HEAD^")
-                         (equal magit-buffer-typearg "--cached"))
-                    )
-                   ((and (equal magit-buffer-range nil)
-                         (equal magit-buffer-typearg "--cached"))
-                    (setq rev "HEAD^"))
-                   ((magit-anything-staged-p)
-                    )
-                   (t
-                    (setq rev "HEAD^"))))
-         (unless (magit-anything-staged-p)
-           (setq rev "HEAD^"))))
-      (`magit-commit-commit
-       )
-      (`magit-commit--all
-       (setq arg nil))
-      ((or `magit-commit-amend
-           `magit-commit-reword
-           `magit-rebase-reword-commit)
+        (command (magit-repository-local-get 'this-commit-command))
+        (staged (magit-anything-staged-p))
+        (unstaged (magit-anything-unstaged-p))
+        (squash (let ((f (magit-git-dir "rebase-merge/rewritten-pending")))
+                  (and (file-exists-p f) (length (magit-file-lines f)))))
+        (noalt nil))
+    (pcase (list staged unstaged command)
+      ((and `(,_ ,_ magit-commit--rebase)
+            (guard (integerp squash)))
+       (setq rev (format "HEAD~%s" squash)))
+      (`(,_ ,_ magit-commit-amend)
        (setq rev "HEAD^"))
-      ((guard (not (magit-anything-staged-p)))
-       (setq rev "HEAD^")))
-    (if msg
-        (message (if (eq msg t) "No alternative diff" msg))
+      ((or `(,_ ,_ magit-commit-reword)
+           `(nil nil ,_))
+       (setq rev "HEAD^..HEAD")
+       (setq arg nil))
+      (`(,_ t magit-commit--all)
+       (setq rev "HEAD")
+       (setq arg nil))
+      (`(nil t handle-switch-frame)
+       ;; Either --all or --allow-empty. Assume it is the former.
+       (setq rev "HEAD")
+       (setq arg nil)))
+    (cond
+     ((not
+       (and (eq this-command 'magit-diff-while-committing)
+            (and-let* ((buf (magit-get-mode-buffer
+                             'magit-diff-mode nil 'selected)))
+              (and (equal rev (buffer-local-value 'magit-buffer-range buf))
+                   (equal arg (buffer-local-value 'magit-buffer-typearg buf)))))))
+     ((eq command 'magit-commit-amend)
+      (setq rev nil))
+     ((or squash (file-exists-p (magit-git-dir "rebase-merge/amend")))
+      (setq rev "HEAD^"))
+     (t
+      (message "No alternative diff while committing")
+      (setq noalt t)))
+    (unless noalt
       (let ((magit-inhibit-save-previous-winconf 'unset)
             (magit-display-buffer-noselect t)
             (display-buffer-overriding-action
