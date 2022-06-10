@@ -3,15 +3,48 @@
 ** Changes since v3.3.0
 
 - Added new function ~git-commit-turn-on-orglink~ intended for use in
-  ~git-commit-setup-hook~.
+  ~git-commit-setup-hook~.  d122f15edd
+
+- ~git-commit.el~ no longer depends on ~dash~.  bb7b7a4020
+
+7a94132384 Rename magit-keep-region-overlay to magit-section-keep-region-overlay
 
 - Some repository and submodule list columns got a bit fancier.
+  3f3980735f 451438dc90
 
 - Refreshing a repository or submodule list buffer now restores the
-  previous position.
+  previous position.  1feda0cb1c
+
+ceab3124fb magit-submodule-list-predicate: New variable
 
 - Added new face ~git-rebase-action~ to allow customization of the face
-  used for the action words in git-rebase-todo files.
+  used for the action words in git-rebase-todo files.  #4544
+
+6da7771b61 magit-faces: Add diff-refine-{added,removed}
+
+- When invoked with a prefix argument ~magit-fetch-modules~ now acts as a
+  transient prefix command.  fd5b9eadf3
+
+- Added new face ~magit-branch-warning~ and improved related faces.
+  bf3bcbe051 ff
+
+dfe3d03a14 git-commit-save-message: Report whether message was saved
+
+- Added new commands ~git-commit-search-message-backward~ and
+  ~git-commit-search-message-forward~.  #4537
+
+- Make use of ~with-connection-local-variables~, and for older Emacsen
+  use a stripped down implementation. #4568
+
+- Added new functions ~version>~ and ~version=~ using the names
+  ~magit-version>~ and ~magit-version=~.  My brain is too small to always
+  get yoda conditions right, while the Emacs maintainers have huge
+  brains and as a consequence have rejected the addition of these
+  functions on grounds of them being unnecessary.  I don't want to
+  make such mistakes anymore, so I am forced to define these functions
+  myself.  I guess this makes me a Sith.  c8c2efd014
+
+- Added new command ~magit-log-related~.  c33ed664e6
 
 - New transient ~magit-sparse-checkout~ provides an interface to the
   ~git sparse-checkout~ command, introduced in Git v2.25.  #4102
@@ -24,11 +57,103 @@
   default) to support partial cloning, a feature that is available as
   of Git v2.17.  #4102
 
+- Added new command ~magit-stash-push~, which allows specifying a list of
+  files to be stashed.  #4583
+
+- Added some forward compatibility for SHA-256.  #4585
+
+429d5c55e8 magit-tag-release: Use version from HEAD's message if appropriate
+
+- Added new face ~magit-section-child-count~.  #4599
+
+- Improved version display and sorting in repository list buffers.
+  53199f2dd5, 68be0584f4
+
+- Added support for marking repositories in repository list buffers
+  and acting on the marked repositories.  #4453
+
+- Improved internals of the version/feature check caches.  On the user
+  visible side, teach ~magit-zap-caches~ to zap everything, when invoked
+  with a prefix argument.  #4603
+
+- Rewrote Imenu support, which resulted in a few new features and much
+  less code.  4727dcbe22 ff
+
+- For performance reasons the "margin" style sadly had to be removed
+  from ~magit-blame-styles~.  608242086e
+
+- When blaming, neighboring chunks about the same commit are not
+  combined into just one chunk.  #4030
+
+- Added new command ~magit-git-mergetool~.  #4128
+
+- Taught ~magit-diff-dwim~ about commits of submodules shown in the status
+  buffer of the super-repository.  #4151
+
 - A cherry pick or revert can now be continued when there are unstaged
   changes as long as there are no unresolved conflicts, a behavior
   that more closely matches the command line behavior.  #4615
 
+- For the longest time (which is why I don't consider this a bug fix)
+  toggling a section caused point to move to the beginning of that
+  section.  Stop doing that unless absolutely necessary.  9d8d5e5603
+
+70b34f08ab Increase use of section type, keymap and binding inheritance
+
+- Sections can now be expanded and collapsed by double-clicking on the
+  section heading or by clicking on the left margin.  949b4a47a4
+
+- The menu-bar menu, which was severally neglected for many years,
+  finally got a makeover.  It no longer offers a completely random
+  subset of Magit's features.  Now it can be used to invoke most of
+  the commands that could also be invoked using ~magit-dispatch~; but
+  by means of a small furry animal.  5641d3749c
+
+- Added many context menus, which can be invoked using the mouse or
+  a key (~menu~ by default) and are a great way to discover context
+  sensitive commands.  Unfortunately this isn't enabled by default.
+  In Emacs 28 and greater, the new global mode ~context-menu-mode~ has
+  to be enabled.  Set ~magit-section-show-context-menu-for-emacs<28~
+  to ~t~ if you are still using an older release.  #4645
+
+0bbf31a2ef magit--git-variable:choices: Support fallback instead of default
+
+- Depend on the Compat package, allowing me to use convenient features
+  that were added to Emacs over the last few years, without having to
+  wait another few years until everybody has updated to a reasonably
+  recent Emacs release.  571b4346c1
+
+- Added new option ~magit-openpgp-default-signing-key~.  4eed9e1a45
+
+- Added new command ~magit-toggle-git-debug~.  2ed5a06d08
+
+- Tag messages and signatures are now turned into sections in commit
+  buffers.  476383fc8f
+
+- Work has began on making internal circular dependencies a thing of
+  the past.
+
+- The help text displayed in ~git-rebase-mode~ buffers got a makeover.
+  670dad14b5 ff
+
+- Added new command ~magit-ediff-resolve-all~, an alternative to
+  ~magit-ediff-resolve-rest~ (formerly known as ~magit-ediff-resolve~).
+  The new option ~magit-ediff-dwim-resolve-function~ controls which
+  is used by ~magit-ediff-dwim~ (the new command ~magit-git-mergetool~
+  is another option).  #4348
+
+- Improve the diff shown while committing.  #3246
+
+[TODO Keep these at end.]
+
+- Added new infix arguments and suffixes to the transient prefix
+  commands ~magit-pull~, ~magit-rebase~ and ~magit-dispatch~.  Likewise
+  added new commands to keymaps ~magit-stashes-section-map~.  [TODO more]
+
 ** Fixes since v3.3.0
+
+5b0d1ce31e magit-status-quick: Add autoload cookie
+b1ad283941 #4526 magit-version: more compatible fix for #4511
 
 - Automatic saving of file-visiting buffers was broken inside remote
   repositories that are accessed using Tramp.  #4292
@@ -39,16 +164,36 @@
 
 - Due to a regression in v3.3.0 setting the mark did not highlight the
   current and only selected section until a second section is selected.
+  197f51fd5b
 
-- Fixed calculation of gravatar image size.
+- A diff header added in a new Git release wasn't handled yet.  #4531
+
+- Fixed calculation of gravatar image size.  ecfaa325a3
+
+a14f847d97 magit-branch-checkout: Refresh after all configuration took place
+aba0a59611 Force highlighting update after delayed washing on initial expansion
+f85c4efb52 magit-dispatch: Change binding that conflicts with transient-help
+9413847c1a magit-diff-dwim: Compare unpushed/unpulled changes with merged-base
+a66b86d511 Define empty face definitions without making them rogue
+2039619696 magit-remote-at-point: For branch section check type of parent
+28f0c19187 #4552 magit-log-maybe-update-blob-buffer: Fix regression
 
 - The helper function ~magit-current-blame-chunk~ passed the directory
   visited by a Dired buffer to ~git blame~, leading to some commands
   (e.g., ~magit-checkout~) erroring when called from a Dired buffer.
   #4560
 
+fa620ed3e4 4557 magit-convert-filename-for-git: Fix for Tramp in Windows
+
 - For Helm users, calling ~magit-stash-drop~ on the "Stashes" section
   has been broken since v3.0.0.  #4571
+
+5e70f10566 magit-rebase: Do or don't offer merge arguments based on version
+804d189bc7 #4581 magit-generate-changelog: Autoload
+d899f0e7a6 Specify :test when calling cl-set-difference with strings
+466c7adf5d magit-modified-files: Use just one call to git-diff-files
+edc593c7c1 #4598 magit-log-insert-child-count: Use eq instead of =
+dc11ba7b29 magit-fetch-modules: Remove --all argument
 
 - ~magit-discard~ didn't properly handle conflicts resulting from a
   file being renamed on both sides.  #4225
@@ -56,6 +201,32 @@
 - Since v3.0.0, ~magit-pull-from-pushremote~ has failed on
   non-fast-forward merges.  #4604
 
+e479739688 magit-insert-revision-message: Avoid hash section at message start
+77255776cb git-commit: Use magit-git-executable function if available
+0f96d39834 magit-global-core.{notes,display}Ref: Actually handle global value
+f9ae2a6306 #4620 magit-blame--make-highlight-overlay: Add only to intended line
+
 - A regression from v3.2.0 broke visiting a file when that file has a
   mode change and point is on the file or the mode change section.
   #4623
+
+10b5407131 magit-diff-highlight-list: Ensure delayed highlighting takes place
+b32521d543 magit-ediff-read-files: Handle renames in one-file logs
+94aca04dc8 magit-module-section: Use correct keymap
+4ff3db8a5e magit-diff-hunk-line: Visit for diffs that lack a proper hunk
+4b1b7b4a1c magit-section: Load format-spec
+d1ad778280 #4646 magit-{cherry-pick,revert}-in-progress-p: Restore sequencer/todo check
+4d1d00e6fa Fix finding remote executables
+414c18c0f3 #4664 magit-stash-save: Disable external diff tools
+4db39239db (...) magit-thingatpt--git-revision: Fewer false-negatives
+3cb7f5ba43 #4662 Support revisions that match commit message
+fa8552d1d9 #4666 magit-visit-ref: Fix inverted condition
+713bebef9e #4667 magit--rev-dereference: Handle nil REV
+437dfe95e9 magit-current-blame-chunk: Don't error at eob
+2676dddb84 magit-revision-refresh-buffer: Use hash of commit not tag
+ea1d09e0a7 magit-tag-release: Fix creating first release
+84922c3997 magit-show-commit: Fix handling of current buffer's file
+1b0474b590 #4693 Highlight trailing whitespace on lines using dos eol style
+a4a78d341a #4694 magit-ediff-buffers: Fix hygiene regression
+4b8eab3af1 #4697 magit-{branch-or,}commit-at-point: Only use blame chunk when blaming
+9b48dd7e36 #4702 Prefer 'git log --no-walk' to 'git show --no-patch'
