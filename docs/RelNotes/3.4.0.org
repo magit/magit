@@ -82,7 +82,7 @@ dfe3d03a14 git-commit-save-message: Report whether message was saved
 - For performance reasons the "margin" style sadly had to be removed
   from ~magit-blame-styles~.  608242086e
 
-- When blaming, neighboring chunks about the same commit are not
+- When blaming, neighboring chunks about the same commit are now
   combined into just one chunk.  #4030
 
 - Added new command ~magit-git-mergetool~.  #4128
@@ -103,7 +103,7 @@ dfe3d03a14 git-commit-save-message: Report whether message was saved
 - Sections can now be expanded and collapsed by double-clicking on the
   section heading or by clicking on the left margin.  949b4a47a4
 
-- The menu-bar menu, which was severally neglected for many years,
+- The menu-bar menu, which was severely neglected for many years,
   finally got a makeover.  It no longer offers a completely random
   subset of Magit's features.  Now it can be used to invoke most of
   the commands that could also be invoked using ~magit-dispatch~; but
