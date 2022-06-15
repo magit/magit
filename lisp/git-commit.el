@@ -14,7 +14,7 @@
 ;; Package-Version: 3.3.0-git
 ;; Package-Requires: (
 ;;     (emacs "25.1")
-;;     (compat "28.1.1.0")
+;;     (compat "28.1.1.2")
 ;;     (transient "0.3.6")
 ;;     (with-editor "3.0.5"))
 
