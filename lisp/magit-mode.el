@@ -1540,6 +1540,8 @@ with the variables' values as arguments, which were recorded by
       (funcall bmkp-jump-display-function (current-buffer)))
     nil))
 
+(put 'magit--handle-bookmark 'bookmark-handler-type "Magit")
+
 (cl-defgeneric magit-bookmark-name ()
   "Return name for bookmark to current buffer."
   (format "%s%s"
