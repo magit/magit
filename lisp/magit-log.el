@@ -301,6 +301,14 @@ the upstream isn't ahead of the current branch) show."
   :group 'magit-status
   :type 'number)
 
+(defcustom magit-log-merged-commit-count 20
+  "How many surrounding commits to show for `magit-log-merged'.
+`magit-log-merged' will shows approximately half of this number
+commits before and half after."
+  :package-version '(magit . "3.3.0")
+  :group 'magit-log
+  :type 'integer)
+
 ;;; Arguments
 ;;;; Prefix Classes
 
@@ -807,9 +815,9 @@ restrict the log to the lines that the region touches."
   "Show log for the merge of COMMIT into BRANCH.
 
 More precisely, find merge commit M that brought COMMIT into
-BRANCH, and show the log of the range \"M^1..M\".  If COMMIT is
-directly on BRANCH, then show approximately twenty surrounding
-commits instead.
+BRANCH, and show the log of the range \"M^1..M\". If COMMIT is
+directly on BRANCH, then show approximately
+`magit-log-merged-commit-count' surrounding commits instead.
 
 This command requires git-when-merged, which is available from
 https://github.com/mhagger/git-when-merged."
@@ -835,8 +843,10 @@ https://github.com/mhagger/git-when-merged."
       ;; This is not the same as `string-trim'.
       (setq m (string-trim-left (substring m (string-match " " m))))
       (if (equal m "Commit is directly on this branch.")
-          (let* ((from (concat commit "~10"))
-                 (to (- (car (magit-rev-diff-count branch commit)) 10))
+          (let* ((from (format "%s~%d" commit
+                               (/ magit-log-merged-commit-count 2)))
+                 (to (- (car (magit-rev-diff-count branch commit))
+                        (/ magit-log-merged-commit-count 2)))
                  (to (if (<= to 0)
                          branch
                        (format "%s~%s" branch to))))

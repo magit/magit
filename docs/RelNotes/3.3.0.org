@@ -99,6 +99,8 @@ Also see https://emacsair.me/2021/10/04/magit-3.3.
 
 - Added new option ~git-commit-use-local-message-ring~.  #4503
 
+- Added new option ~magit-log-merged-commit-count~. #4711
+
 ** Fixes since v3.2.0
 
 - Make ~magit-branch-remote-head~ and ~magit-branch-current~ fall back
