@@ -98,6 +98,7 @@ alphabetical order, depending on your version of Ivy."
     (forge-browse-pullreq     nil t)
     (forge-edit-topic-title   nil t)
     (forge-edit-topic-state   nil t)
+    (forge-edit-topic-draft   nil t)
     (forge-edit-topic-milestone nil t)
     (forge-edit-topic-labels  nil t)
     (forge-edit-topic-marks   nil t)
