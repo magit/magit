@@ -517,8 +517,8 @@ commits before and half after."
     ("s" "buffer and set defaults"  transient-set  :transient nil)
     ("w" "buffer and save defaults" transient-save :transient nil)]
    ["Margin"
-    ("L" "toggle visibility"        magit-toggle-margin)
-    ("l" "cycle style"              magit-cycle-margin-style)
+    ("L" "toggle visibility"        magit-toggle-margin      :transient t)
+    ("l" "cycle style"              magit-cycle-margin-style :transient t)
     ("d" "toggle details"           magit-toggle-margin-details)
     ("x" "toggle shortstat"         magit-toggle-log-margin-style)]
    [:if-mode magit-log-mode

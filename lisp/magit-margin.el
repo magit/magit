@@ -62,8 +62,8 @@ does not carry to other options."
   "Change what information is displayed in the margin."
   :info-manual "(magit) Log Margin"
   ["Margin"
-   ("L" "Toggle visibility" magit-toggle-margin)
-   ("l" "Cycle style"       magit-cycle-margin-style)
+   ("L" "Toggle visibility" magit-toggle-margin      :transient t)
+   ("l" "Cycle style"       magit-cycle-margin-style :transient t)
    ("d" "Toggle details"    magit-toggle-margin-details)
    ("v" "Change verbosity"  magit-refs-set-show-commit-count
     :if-derived magit-refs-mode)])
