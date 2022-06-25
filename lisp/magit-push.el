@@ -292,30 +292,33 @@ what this command will do.  For example:
 
 (defun magit-push-implicitly--desc ()
   (let ((default (magit-get "push.default")))
-    (unless (equal default "nothing")
-      (or (and-let* ((remote (or (magit-get-remote)
-                                 (magit-primary-remote)))
-                     (refspec (magit-get "remote" remote "push")))
-            (format "%s using %s"
-                    (magit--propertize-face remote 'magit-branch-remote)
-                    (magit--propertize-face refspec 'bold)))
-          (and-let* ((upstream (and (not (magit-get-push-branch))
-                                    (magit-get-upstream-branch))))
-            (format "%s aka %s\n"
-                    (magit-branch-set-face upstream)
-                    (magit--propertize-face "@{upstream}" 'bold)))
-          (and-let* ((push-branch (magit-get-push-branch)))
-            (format "%s aka %s\n"
-                    (magit-branch-set-face push-branch)
-                    (magit--propertize-face "pushRemote" 'bold)))
-          (and-let* ((push-branch (magit-get-@{push}-branch)))
-            (format "%s aka %s\n"
-                    (magit-branch-set-face push-branch)
-                    (magit--propertize-face "@{push}" 'bold)))
-          (format "using %s (%s is %s)\n"
-                  (magit--propertize-face "git push"     'bold)
-                  (magit--propertize-face "push.default" 'bold)
-                  (magit--propertize-face default        'bold))))))
+    (or (and (equal default "nothing")
+             (format "nothing (%s is %s)\n"
+                     (magit--propertize-face "push.default" 'bold)
+                     (magit--propertize-face default        'bold)))
+        (and-let* ((remote (or (magit-get-remote)
+                               (magit-primary-remote)))
+                   (refspec (magit-get "remote" remote "push")))
+          (format "%s using %s"
+                  (magit--propertize-face remote 'magit-branch-remote)
+                  (magit--propertize-face refspec 'bold)))
+        (and-let* ((upstream (and (not (magit-get-push-branch))
+                                  (magit-get-upstream-branch))))
+          (format "%s aka %s\n"
+                  (magit-branch-set-face upstream)
+                  (magit--propertize-face "@{upstream}" 'bold)))
+        (and-let* ((push-branch (magit-get-push-branch)))
+          (format "%s aka %s\n"
+                  (magit-branch-set-face push-branch)
+                  (magit--propertize-face "pushRemote" 'bold)))
+        (and-let* ((push-branch (magit-get-@{push}-branch)))
+          (format "%s aka %s\n"
+                  (magit-branch-set-face push-branch)
+                  (magit--propertize-face "@{push}" 'bold)))
+        (format "using %s (%s is %s)\n"
+                (magit--propertize-face "git push"     'bold)
+                (magit--propertize-face "push.default" 'bold)
+                (magit--propertize-face default        'bold)))))
 
 ;;;###autoload
 (defun magit-push-to-remote (remote args)
