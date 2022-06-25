@@ -291,34 +291,58 @@ what this command will do.  To add it use something like:
   (magit-run-git-async "push" "-v" args))
 
 (defun magit-push-implicitly--desc ()
-  (let ((default (magit-get "push.default")))
-    (or (and (equal default "nothing")
-             (format "nothing (%s is %s)"
-                     (magit--propertize-face "push.default" 'bold)
-                     (magit--propertize-face default        'bold)))
-        (and-let* ((remote (or (magit-get-remote)
-                               (magit-primary-remote)))
-                   (refspec (magit-get "remote" remote "push")))
-          (format "%s using %s"
-                  (magit--propertize-face remote 'magit-branch-remote)
-                  (magit--propertize-face refspec 'bold)))
-        (and-let* ((upstream (and (not (magit-get-push-branch))
-                                  (magit-get-upstream-branch))))
-          (format "%s aka %s"
-                  (magit-branch-set-face upstream)
-                  (magit--propertize-face "@{upstream}" 'bold)))
-        (and-let* ((push-branch (magit-get-push-branch)))
-          (format "%s aka %s"
-                  (magit-branch-set-face push-branch)
-                  (magit--propertize-face "pushRemote" 'bold)))
-        (and-let* ((push-branch (magit-get-@{push}-branch)))
-          (format "%s aka %s"
-                  (magit-branch-set-face push-branch)
-                  (magit--propertize-face "@{push}" 'bold)))
-        (format "using %s (%s is %s)"
-                (magit--propertize-face "git push"     'bold)
-                (magit--propertize-face "push.default" 'bold)
-                (magit--propertize-face default        'bold)))))
+  ;; This implements the logic for git push as documented.
+  ;; First, we resolve a remote to use based on various remote and
+  ;; pushRemote options.
+  ;; Then, we resolve the refspec to use for the remote based on push
+  ;; and pushDefault options.
+  ;; Note that the remote and refspec to push are handled separately,
+  ;; so it doesn't make sense to talk about "pushing to upstream".
+  ;; Depending on the options, you could end up pushing to the
+  ;; "upstream" remote but not the "upstream" branch, and vice versa.
+  (let ((branch (magit-get-current-branch))
+        (remote (or (magit-get-push-remote)
+                    (magit-get-remote)
+                    (let ((remotes (magit-list-remotes)))
+                      (cond
+                       ((and (magit-git-version>= "2.27")
+                             (= (length remotes) 1))
+                        (car remotes))
+                       ((member "origin" remotes) "origin"))))))
+    (if (null remote)
+        "nothing (no remote)"
+      (let ((refspec (magit-get "remote" remote "push")))
+        (if refspec
+            (format "to %s with refspecs %s"
+                    (magit--propertize-face remote 'bold)
+                    (magit--propertize-face refspec 'bold))
+          (pcase (or (magit-get "push.default") "simple")
+            ("nothing" "nothing (due to push.default)")
+            ((or "current" "simple")
+             (format "%s to %s"
+                     (magit--propertize-face branch 'magit-branch-current)
+                     (magit--propertize-face (format "%s/%s" remote branch)
+                                             'magit-branch-remote)))
+            ((or "upstream" "tracking")
+             (let ((ref (magit-get "branch" branch "merge")))
+               (if ref
+                   (format "%s to %s"
+                           (magit--propertize-face branch 'magit-branch-current)
+                           (cond
+                            ((string-prefix-p "refs/heads/" ref)
+                             (magit--propertize-face
+                              (format "%s/%s" remote
+                                      (substring ref (length "refs/heads/")))
+                              'magit-branch-remote))
+                            ((not (string-match "/" ref))
+                             (magit--propertize-face (format "%s/%s" remote ref)
+                                                     'magit-branch-remote))
+                            (t (format "%s as %s"
+                                       (magit--propertize-face remote 'bold)
+                                       (magit--propertize-face ref 'bold)))))
+                 "nothing (no upstream)")))
+            ("matching" (format "all matching to %s"
+                                (magit--propertize-face remote 'bold)))))))))
 
 ;;;###autoload (autoload 'magit-push-to-remote "magit-push" nil t)
 (transient-define-suffix magit-push-to-remote (remote args)
