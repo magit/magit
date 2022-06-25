@@ -293,7 +293,7 @@ what this command will do.  To add it use something like:
 (defun magit-push-implicitly--desc ()
   (let ((default (magit-get "push.default")))
     (or (and (equal default "nothing")
-             (format "nothing (%s is %s)\n"
+             (format "nothing (%s is %s)"
                      (magit--propertize-face "push.default" 'bold)
                      (magit--propertize-face default        'bold)))
         (and-let* ((remote (or (magit-get-remote)
@@ -304,18 +304,18 @@ what this command will do.  To add it use something like:
                   (magit--propertize-face refspec 'bold)))
         (and-let* ((upstream (and (not (magit-get-push-branch))
                                   (magit-get-upstream-branch))))
-          (format "%s aka %s\n"
+          (format "%s aka %s"
                   (magit-branch-set-face upstream)
                   (magit--propertize-face "@{upstream}" 'bold)))
         (and-let* ((push-branch (magit-get-push-branch)))
-          (format "%s aka %s\n"
+          (format "%s aka %s"
                   (magit-branch-set-face push-branch)
                   (magit--propertize-face "pushRemote" 'bold)))
         (and-let* ((push-branch (magit-get-@{push}-branch)))
-          (format "%s aka %s\n"
+          (format "%s aka %s"
                   (magit-branch-set-face push-branch)
                   (magit--propertize-face "@{push}" 'bold)))
-        (format "using %s (%s is %s)\n"
+        (format "using %s (%s is %s)"
                 (magit--propertize-face "git push"     'bold)
                 (magit--propertize-face "push.default" 'bold)
                 (magit--propertize-face default        'bold)))))
@@ -343,7 +343,7 @@ You can add this command as a suffix using something like:
   (magit-run-git-async "push" "-v" args remote))
 
 (defun magit-push-to-remote--desc ()
-  (format "using %s\n" (magit--propertize-face "git push <remote>" 'bold)))
+  (format "using %s" (magit--propertize-face "git push <remote>" 'bold)))
 
 ;;; _
 (provide 'magit-push)
