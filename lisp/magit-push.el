@@ -281,9 +281,9 @@ these Git variables: `push.default', `remote.pushDefault',
 
 If you add this suffix to a transient prefix without explicitly
 specifying the description, then an attempt is made to predict
-what this command will do.  For example:
+what this command will do.  To add it use something like:
 
-  (transient-insert-suffix \\='magit-push \"p\"
+  (transient-insert-suffix \\='magit-push \"o\"
     \\='(\"i\" magit-push-implicitly))"
   :description #'magit-push-implicitly--desc
   (interactive (list (magit-push-arguments)))
