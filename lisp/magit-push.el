@@ -111,6 +111,7 @@ argument the push-remote can be changed before pushed to it."
          "%" "%%"
          (format "Really use \"%s\" as push-remote and push \"%s\" there"
                  remote branch))))
+    ;; TODO As for magit-push-current-to-upstream, using separate option.
     (run-hooks 'magit-credential-hook)
     (magit-run-git-async "push" "-v" args remote
                          (format "refs/heads/%s:refs/heads/%s"
@@ -175,9 +176,35 @@ the upstream."
            (format "Really use \"%s\" as upstream and push \"%s\" there"
                    upstream branch))))
       (cl-pushnew "--set-upstream" args :test #'equal))
-    ;; (magit-maybe-confirm-push-target )
-    (run-hooks 'magit-credential-hook)
-    (magit-run-git-async "push" "-v" args remote (concat branch ":" merge))))
+    (when (or (not magit-push-current-to-upstream-confirm)
+              (funcall magit-push-current-to-upstream-confirm
+                       branch remote merge))
+      (run-hooks 'magit-credential-hook)
+      (magit-run-git-async "push" "-v" args remote (concat branch ":" merge)))))
+
+(defcustom magit-push-current-to-upstream-confirm nil "TODO"
+  :type '(choice (const nil) function))
+
+(defun magit-push-current-to-upstream-confirm-always (branch remote merge)
+  (magit-confirm-push-prompt branch remote merge))
+
+(defun magit-push-current-to-upstream-confirm-if-main-branch (branch remote merge)
+  (or (not (is-the-head/main-branch remote merge))
+      (magit-confirm-push-prompt branch remote merge)))
+
+;; We provide this function so that not every
+;; magit-push-current-to-upstream-confirm function has to reimplement it.
+;; We do however give these functions the option to use another prompt (by
+;; not doing this work in magit-push-current-to-upstream itself) because
+;; depending on context they might want to use another prompt.  Or not, I
+;; don't know.
+(defun magit-confirm-push-prompt (branch remote merge)
+  (y-or-n-p (if (magit--unnamed-upstream-p remote merge)
+                (format "TODO")
+              (format "Really push %s to %s/%s" branch remote
+                      (if (string-match-p "refs/heads/" merge)
+                          (substring "refs/heads/x" merge)
+                        "TODO handle edge-case")))))
 
 (defun magit-push--upstream-description ()
   (and-let* ((branch (magit-get-current-branch)))
@@ -198,6 +225,8 @@ the upstream."
             (concat u ", creating it and replacing invalid"))
            (t
             (concat u ", creating it")))))))
+
+;; TODO maybe below functions also need confirmation.  I don't know.
 
 ;;;###autoload
 (defun magit-push-current (target args)
