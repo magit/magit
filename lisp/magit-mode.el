@@ -499,7 +499,7 @@ which visits the thing at point using `browse-url'."
      ["Worktree..."               magit-worktree t])
     "---"
     ["Show command dispatcher..." magit-dispatch t]
-    ["Show manual"                magit-help t]
+    ["Show manual"                magit-info t]
     ["Show another buffer"        magit-display-repository-buffer t]
     "---"
     ("Change buffer arguments"
