@@ -90,7 +90,7 @@ has to be used to view and change remote related variables."
   (transient-setup 'magit-remote nil nil :scope remote))
 
 (defun magit-read-url (prompt &optional initial-input)
-  (let ((url (magit-read-string-ns prompt initial-input)))
+  (let ((url (magit-read-string prompt initial-input)))
     (if (string-prefix-p "~" url)
         (expand-file-name url)
       url)))
