@@ -11098,8 +11098,8 @@ issue lays with Magit or something else.
 If you run Magit from its Git repository, then you should be able to
 use @code{make emacs-Q} instead of the output of this command.
 
-@item @kbd{M-x magit-toggle-verbose-refresh}
-@findex magit-toggle-verbose-refresh
+@item @kbd{M-x magit-toggle-git-debug}
+@findex magit-toggle-git-debug
 This command toggles whether additional git errors are reported.
 
 Magit basically calls git for one of these two reasons: for
