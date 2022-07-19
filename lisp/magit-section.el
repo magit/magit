@@ -1713,8 +1713,8 @@ invisible."
             (forward-line line)
             (forward-char char))
           (unless (eq (magit-current-section) found)
-            (goto-char start))))
-      t)))
+            (goto-char start)))
+        t))))
 
 (defun magit-section-goto-successor--related (section)
   (and-let* ((found (magit-section-goto-successor--related-1 section)))
