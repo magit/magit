@@ -48,17 +48,17 @@
   <a href="https://magit.vc/donate/ach.html">
      <img title="Donate using ACH"
           alt="Donate using ACH"
-          src="https://magit.vc/assets/ach.png"></a>
+          src="https://magit.vc/assets/ach-50px.png"></a>
   &nbsp;
   <a href="https://magit.vc/donate/stripe.html">
     <img title="Donate using Stripe"
          alt="Donate using Stripe"
-         src="https://magit.vc/assets/stripe.png"></a>
+         src="https://magit.vc/assets/stripe-50px.png"></a>
   &nbsp;
   <a href="https://magit.vc/donate/paypal.html">
     <img title="Donate using PayPal"
          alt="Donate using PayPal"
-         src="https://magit.vc/assets/paypal.png"></a>
+         src="https://magit.vc/assets/paypal-50px.png"></a>
 </div>
 <br>
 <div align="center">
