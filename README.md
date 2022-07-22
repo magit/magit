@@ -39,22 +39,18 @@
     <img title="Donate using Github Sponsors"
          alt="Donate using Github Sponsors"
          src="https://magit.vc/assets/github-sponsors-50px.png"></a>
-  &nbsp;
   <a href="https://magit.vc/donate/iban.html">
      <img title="Donate using IBAN"
           alt="Donate using IBAN"
           src="https://magit.vc/assets/iban-50px.png"></a>
-  &nbsp;
   <a href="https://magit.vc/donate/ach.html">
      <img title="Donate using ACH"
           alt="Donate using ACH"
           src="https://magit.vc/assets/ach-50px.png"></a>
-  &nbsp;
   <a href="https://magit.vc/donate/stripe.html">
     <img title="Donate using Stripe"
          alt="Donate using Stripe"
          src="https://magit.vc/assets/stripe-50px.png"></a>
-  &nbsp;
   <a href="https://magit.vc/donate/paypal.html">
     <img title="Donate using PayPal"
          alt="Donate using PayPal"
