@@ -567,7 +567,11 @@ See `magit-commit-absorb' for an alternative implementation."
         (arg "--cached")
         (command (magit-repository-local-get 'this-commit-command))
         (staged (magit-anything-staged-p))
-        (unstaged (magit-anything-unstaged-p))
+        (unstaged
+         ;; Escape $GIT_DIR because `magit-anything-unstaged-p'
+         ;; requires a working tree.
+         (magit-with-toplevel
+           (magit-anything-unstaged-p)))
         (squash (let ((f (magit-git-dir "rebase-merge/rewritten-pending")))
                   (and (file-exists-p f) (length (magit-file-lines f)))))
         (noalt nil))
