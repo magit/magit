@@ -1,4 +1,4 @@
-;;; magit-log.el --- Inspect Git history  -*- lexical-binding:t -*-
+;;; magit-log.el --- Inspect Git history  -*- lexical-binding:t; coding:utf-8 -*-
 
 ;; Copyright (C) 2008-2022 The Magit Project Contributors
 

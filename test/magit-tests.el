@@ -1,4 +1,4 @@
-;;; magit-tests.el --- Tests for Magit  -*- lexical-binding:t -*-
+;;; magit-tests.el --- Tests for Magit  -*- lexical-binding:t; coding:utf-8 -*-
 
 ;; Copyright (C) 2008-2022 The Magit Project Contributors
 

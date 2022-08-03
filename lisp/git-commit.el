@@ -1,4 +1,4 @@
-;;; git-commit.el --- Edit Git commit messages  -*- lexical-binding:t -*-
+;;; git-commit.el --- Edit Git commit messages  -*- lexical-binding:t; coding:utf-8 -*-
 
 ;; Copyright (C) 2008-2022 The Magit Project Contributors
 
