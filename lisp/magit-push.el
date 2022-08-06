@@ -300,15 +300,17 @@ what this command will do.  To add it use something like:
   ;; so it doesn't make sense to talk about "pushing to upstream".
   ;; Depending on the options, you could end up pushing to the
   ;; "upstream" remote but not the "upstream" branch, and vice versa.
-  (let ((branch (magit-get-current-branch))
-        (remote (or (magit-get-push-remote)
-                    (magit-get-remote)
-                    (let ((remotes (magit-list-remotes)))
-                      (cond
-                       ((and (magit-git-version>= "2.27")
-                             (= (length remotes) 1))
-                        (car remotes))
-                       ((member "origin" remotes) "origin"))))))
+  (let* ((branch (magit-get-current-branch))
+         (remote (or (magit-get-push-remote branch)
+                     ;; Note: Avoid `magit-get-remote' because it
+                     ;; filters out the local repo case (".").
+                     (magit-get "branch" branch "remote")
+                     (let ((remotes (magit-list-remotes)))
+                       (cond
+                        ((and (magit-git-version>= "2.27")
+                              (= (length remotes) 1))
+                         (car remotes))
+                        ((member "origin" remotes) "origin"))))))
     (if (null remote)
         "nothing (no remote)"
       (let ((refspec (magit-get "remote" remote "push")))
