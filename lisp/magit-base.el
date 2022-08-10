@@ -597,14 +597,14 @@ Set up the `crm' variables needed to read multiple values with
 `read-from-minibuffer'.
 
 SEP is a regexp matching characters that can separate choices.
-When SEP is nil, it defaults to `crm-default-separator'.
-DEFAULT, HIST, and KEYMAP are passed to `read-from-minibuffer'.
-When KEYMAP is nil, it defaults to `crm-local-completion-map'.
+When SEP is nil, it defaults to `crm-separator'.  DEFAULT, HIST,
+and KEYMAP are passed to `read-from-minibuffer'.  When KEYMAP is
+nil, it defaults to `crm-local-completion-map'.
 
 Unlike `completing-read-multiple', the return value is not split
 into a list."
   (declare (obsolete magit-completing-read-multiple* "Magit 3.1.0"))
-  (let* ((crm-separator (or sep crm-default-separator))
+  (let* ((crm-separator (or sep crm-separator))
          (crm-completion-table (magit--completion-table choices))
          (choose-completion-string-functions
           '(crm--choose-completion-string))
