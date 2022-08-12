@@ -134,6 +134,8 @@ if non-nil, means to invert the resulting sort."
                  (cons (string :tag "Column name")
                        (boolean :tag "Flip order"))))
 
+(defvar magit-submodule-list-format-path-functions nil)
+
 (defcustom magit-submodule-remove-trash-gitdirs nil
   "Whether `magit-submodule-remove' offers to trash module gitdirs.
 
@@ -684,7 +686,10 @@ These sections can be expanded to show the respective commits."
 
 (defun magit-modulelist-column-path (spec)
   "Insert the relative path of the submodule."
-  (cadr (assq :path spec)))
+  (let ((path (cadr (assq :path spec))))
+    (or (run-hook-with-args-until-success
+         'magit-submodule-list-format-path-functions path)
+        path)))
 
 ;;; Utilities
 
