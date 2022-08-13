@@ -306,8 +306,8 @@ to `magit-dispatch'."
     ("f" "...reverse" magit-blame-reverse)
     ("m" "Blame echo" magit-blame-echo)
     ("q" "Quit blame" magit-blame-quit)]
-   [("p" "Prev blob"  magit-blob-previous)
-    ("n" "Next blob"  magit-blob-next)
+   [("p" "Prev blob"  magit-blob-previous :transient t)
+    ("n" "Next blob"  magit-blob-next :transient t)
     ("v" "Goto blob"  magit-find-file)
     ("V" "Goto file"  magit-blob-visit-file)]
    [(5 "C-c r" "Rename file"   magit-file-rename)
