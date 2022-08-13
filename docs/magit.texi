@@ -10793,7 +10793,7 @@ echo "*.gpg filter=gpg diff=gpg" > .gitattributes
 @node How does branching and pushing work?
 @appendixsubsec How does branching and pushing work?
 
-Please see @ref{Branching} and @uref{http://emacsair.me/2016/01/18/magit-2.4}
+Please see @ref{Branching} and @uref{http://emacsair.me/2016/01/17/magit-2.4}
 
 @node Should I disable VC@?
 @appendixsubsec Should I disable VC@?

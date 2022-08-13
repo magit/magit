@@ -8833,7 +8833,7 @@ also affects the diffs displayed inside Magit.
 
 *** How does branching and pushing work?
 
-Please see [[*Branching]] and http://emacsair.me/2016/01/18/magit-2.4
+Please see [[*Branching]] and http://emacsair.me/2016/01/17/magit-2.4
 
 *** Should I disable VC?
 
