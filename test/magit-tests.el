@@ -303,6 +303,48 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
         (should (equal (pop sent-strings) "mypasswd\n")))
       (should (null sent-strings)))))
 
+;;; Clone
+
+(ert-deftest magit-clone:--name-to-url-format-single-string ()
+  (let ((magit-clone-url-format "bird@%h:%n.git")
+        (magit-clone-name-alist
+         '(("\\`\\(?:github:\\|gh:\\)?\\([^:]+\\)\\'" "github.com" "u")
+           ("\\`\\(?:gitlab:\\|gl:\\)\\([^:]+\\)\\'" "gitlab.com" "u"))))
+    (should (string-equal (magit-clone--name-to-url "gh:a/b")
+                          "bird@github.com:a/b.git"))
+    (should (string-equal (magit-clone--name-to-url "gl:a/b")
+                          "bird@gitlab.com:a/b.git"))
+    (should (string-equal (magit-clone--name-to-url "github:c/d")
+                          "bird@github.com:c/d.git"))
+    (should (string-equal (magit-clone--name-to-url "gitlab:c/d")
+                          "bird@gitlab.com:c/d.git"))))
+
+(ert-deftest magit-clone:--name-to-url-format-bad-type-throws-error ()
+  (let ((magit-clone-url-format 3))
+    (should-error (magit-clone--name-to-url "gh:a/b")
+                  :type 'user-error)))
+
+(ert-deftest magit-clone:--name-to-url-format-alist-different-urls-per-hostname ()
+  (let ((magit-clone-name-alist
+         '(("\\`\\(?:example:\\|ex:\\)\\([^:]+\\)\\'" "git.example.com" "foouser")
+           ("\\`\\(?:gh:\\)?\\([^:]+\\)\\'" "github.com" "u")))
+        (magit-clone-url-format
+         '(("git.example.com" . "cow@%h:~%n")
+           (nil . "git@%h:%n.git"))))
+    (should (string-equal (magit-clone--name-to-url "gh:a/b")
+                          "git@github.com:a/b.git"))
+    (should (string-equal (magit-clone--name-to-url "ex:a/b")
+                          "cow@git.example.com:~a/b"))
+    (should (string-equal (magit-clone--name-to-url "example:x/y")
+                          "cow@git.example.com:~x/y"))
+    (should (string-equal (magit-clone--name-to-url "ex:c")
+                          "cow@git.example.com:~foouser/c"))))
+
+(ert-deftest magit-clone:--name-to-url-format-alist-no-fallback-throws-error ()
+  (let ((magit-clone-url-format '(("fail.example.com" . "git@%h:~%n"))))
+    (should-error (magit-clone--name-to-url "gh:a/b")
+                  :type 'user-error)))
+
 ;;; Status
 
 (defun magit-test-get-section (list file)

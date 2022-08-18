@@ -57,6 +57,9 @@ dfe3d03a14 git-commit-save-message: Report whether message was saved
   default) to support partial cloning, a feature that is available as
   of Git v2.17.  #4102
 
+- ~magit-clone-url-format~ can now be configured to an alist to
+  support servers that employ different URL schemes.  #4738
+
 - Added new command ~magit-stash-push~, which allows specifying a list of
   files to be stashed.  #4583
 

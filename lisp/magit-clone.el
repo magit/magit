@@ -93,12 +93,17 @@ as the username itself."
                        (string :tag "user name or git variable"))))
 
 (defcustom magit-clone-url-format "git@%h:%n.git"
-  "Format used when turning repository names into urls.
-%h is the hostname and %n is the repository name, including
-the name of the owner.  Also see `magit-clone-name-alist'."
+  "Format(s) used when turning repository names into urls.
+%h is the hostname and %n is the repository name, including the
+name of the owner.  The value can be a string (representing a
+single static format) or an alist with elements (HOSTNAME
+. FORMAT) mapping hostnames to formats.  When an alist is used,
+the nil key represents the default.  Also see
+`magit-clone-name-alist'."
   :package-version '(magit . "3.0.0")
   :group 'magit-commands
-  :type 'string)
+  :type '(choice (string)
+                 (alist :key-type string :value-type string)))
 
 ;;; Commands
 
@@ -311,16 +316,24 @@ Then show the status buffer for the new repository."
                   'magit-clone-name-alist)))
 
 (defun magit-clone--format-url (host user repo)
-  (format-spec
-   magit-clone-url-format
-   `((?h . ,host)
-     (?n . ,(if (string-search "/" repo)
-                repo
-              (if (string-search "." user)
-                  (if-let ((user (magit-get user)))
-                      (concat user "/" repo)
-                    (user-error "Set %S or specify owner explicitly" user))
-                (concat user "/" repo)))))))
+  (if-let ((url-format
+            (cond ((listp magit-clone-url-format)
+                   (cdr (or (assoc host magit-clone-url-format)
+                            (assoc nil magit-clone-url-format))))
+                  ((stringp magit-clone-url-format)
+                   magit-clone-url-format))))
+      (format-spec
+       url-format
+       `((?h . ,host)
+         (?n . ,(if (string-search "/" repo)
+                    repo
+                  (if (string-search "." user)
+                      (if-let ((user (magit-get user)))
+                          (concat user "/" repo)
+                        (user-error "Set %S or specify owner explicitly" user))
+                    (concat user "/" repo))))))
+    (user-error
+     "Bogus `magit-clone-url-format' (bad type or missing default)")))
 
 ;;; _
 (provide 'magit-clone)
