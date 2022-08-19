@@ -98,7 +98,7 @@ as the username itself."
 the name of the owner.  Also see `magit-clone-name-alist'."
   :package-version '(magit . "3.0.0")
   :group 'magit-commands
-  :type 'regexp)
+  :type 'string)
 
 ;;; Commands
 
