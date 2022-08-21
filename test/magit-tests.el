@@ -305,6 +305,38 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
 
 ;;; Clone
 
+(ert-deftest magit-clone:--name-to-url-format-defaults ()
+  (magit-with-test-repository
+   (magit-git "config" "--add" "sourcehut.user" "shuser")
+   (magit-git "config" "--add" "github.user" "ghuser")
+   (magit-git "config" "--add" "gitlab.user" "gluser")
+   ;; No explicit service
+   (should (string-equal (magit-clone--name-to-url "a/b")
+                         "git@github.com:a/b.git"))
+   (should (string-equal (magit-clone--name-to-url "b")
+                         "git@github.com:ghuser/b.git"))
+   ;; User in config
+   (should (string-equal (magit-clone--name-to-url "gh:b")
+                         "git@github.com:ghuser/b.git"))
+   (should (string-equal (magit-clone--name-to-url "gl:n")
+                         "git@gitlab.com:gluser/n.git"))
+   (should (string-equal (magit-clone--name-to-url "sh:l")
+                         "git@git.sr.ht:~shuser/l"))
+   ;; Explicit user (abbreviated service names)
+   (should (string-equal (magit-clone--name-to-url "gh:a/b")
+                         "git@github.com:a/b.git"))
+   (should (string-equal (magit-clone--name-to-url "gl:t/s")
+                         "git@gitlab.com:t/s.git"))
+   (should (string-equal (magit-clone--name-to-url "sh:x/y")
+                         "git@git.sr.ht:~x/y"))
+   ;; Explicit user (long service names)
+   (should (string-equal (magit-clone--name-to-url "github:a1/b1")
+                         "git@github.com:a1/b1.git"))
+   (should (string-equal (magit-clone--name-to-url "gitlab:t1/s1")
+                         "git@gitlab.com:t1/s1.git"))
+   (should (string-equal (magit-clone--name-to-url "sourcehut:x1/y1")
+                         "git@git.sr.ht:~x1/y1"))))
+
 (ert-deftest magit-clone:--name-to-url-format-single-string ()
   (let ((magit-clone-url-format "bird@%h:%n.git")
         (magit-clone-name-alist

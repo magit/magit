@@ -69,7 +69,8 @@ directly."
 
 (defcustom magit-clone-name-alist
   '(("\\`\\(?:github:\\|gh:\\)?\\([^:]+\\)\\'" "github.com" "github.user")
-    ("\\`\\(?:gitlab:\\|gl:\\)\\([^:]+\\)\\'"  "gitlab.com" "gitlab.user"))
+    ("\\`\\(?:gitlab:\\|gl:\\)\\([^:]+\\)\\'"  "gitlab.com" "gitlab.user")
+    ("\\`\\(?:sourcehut:\\|sh:\\)\\([^:]+\\)\\'" "git.sr.ht" "sourcehut.user"))
   "Alist mapping repository names to repository urls.
 
 Each element has the form (REGEXP HOSTNAME USER).  When the user
@@ -92,7 +93,9 @@ as the username itself."
                        (string :tag "Hostname")
                        (string :tag "User name or git variable"))))
 
-(defcustom magit-clone-url-format "git@%h:%n.git"
+(defcustom magit-clone-url-format
+  '(("git.sr.ht" . "git@%h:~%n")
+    (t . "git@%h:%n.git"))
   "Format(s) used when turning repository names into urls.
 
 In a format string, %h is the hostname and %n is the repository
