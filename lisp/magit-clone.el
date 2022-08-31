@@ -94,17 +94,19 @@ as the username itself."
 
 (defcustom magit-clone-url-format "git@%h:%n.git"
   "Format(s) used when turning repository names into urls.
-%h is the hostname and %n is the repository name, including the
-name of the owner.  The value can be a string (representing a
-single static format) or an alist with elements (HOSTNAME
-. FORMAT) mapping hostnames to formats.  When an alist is used,
-the nil key represents the default.  Also see
-`magit-clone-name-alist'."
+
+In a format string, %h is the hostname and %n is the repository
+name, including the name of the owner.
+
+The value can be a string (representing a single static format)
+or an alist with elements (HOSTNAME . FORMAT) mapping hostnames
+to formats.  When an alist is used, the t key represents the
+default.  Also see `magit-clone-name-alist'."
   :package-version '(magit . "3.4.0")
   :group 'magit-commands
   :type '(choice (string :tag "Format")
                  (alist :key-type (choice (string :tag "Host")
-                                          (const :tag "Default" nil))
+                                          (const :tag "Default" t))
                         :value-type (string :tag "Format"))))
 
 ;;; Commands
@@ -321,7 +323,7 @@ Then show the status buffer for the new repository."
   (if-let ((url-format
             (cond ((listp magit-clone-url-format)
                    (cdr (or (assoc host magit-clone-url-format)
-                            (assoc nil magit-clone-url-format))))
+                            (assoc t magit-clone-url-format))))
                   ((stringp magit-clone-url-format)
                    magit-clone-url-format))))
       (format-spec

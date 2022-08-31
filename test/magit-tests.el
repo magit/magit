@@ -330,7 +330,7 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
            ("\\`\\(?:gh:\\)?\\([^:]+\\)\\'" "github.com" "u")))
         (magit-clone-url-format
          '(("git.example.com" . "cow@%h:~%n")
-           (nil . "git@%h:%n.git"))))
+           (t . "git@%h:%n.git"))))
     (should (string-equal (magit-clone--name-to-url "gh:a/b")
                           "git@github.com:a/b.git"))
     (should (string-equal (magit-clone--name-to-url "ex:a/b")

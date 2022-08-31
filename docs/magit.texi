@@ -5393,7 +5393,7 @@ names into urls.  @code{%h} is the hostname and @code{%n} is the repository
 name, including the name of the owner.  The value can be a string
 (representing a single static format) or an alist with elements
 @code{(HOSTNAME . FORMAT)} mapping hostnames to formats.  When an alist
-is used, the @code{nil} key represents the default format.
+is used, the @code{t} key represents the default format.
 
 Example of a single format string:
 
