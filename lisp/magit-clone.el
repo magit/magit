@@ -86,11 +86,11 @@ default user specified in the matched entry is used.
 If USER contains a dot, then it is treated as a Git variable and
 the value of that is used as the username.  Otherwise it is used
 as the username itself."
-  :package-version '(magit . "3.0.0")
+  :package-version '(magit . "3.4.0")
   :group 'magit-commands
   :type '(repeat (list regexp
-                       (string :tag "hostname")
-                       (string :tag "user name or git variable"))))
+                       (string :tag "Hostname")
+                       (string :tag "User name or git variable"))))
 
 (defcustom magit-clone-url-format "git@%h:%n.git"
   "Format(s) used when turning repository names into urls.
@@ -100,10 +100,12 @@ single static format) or an alist with elements (HOSTNAME
 . FORMAT) mapping hostnames to formats.  When an alist is used,
 the nil key represents the default.  Also see
 `magit-clone-name-alist'."
-  :package-version '(magit . "3.0.0")
+  :package-version '(magit . "3.4.0")
   :group 'magit-commands
-  :type '(choice (string)
-                 (alist :key-type string :value-type string)))
+  :type '(choice (string :tag "Format")
+                 (alist :key-type (choice (string :tag "Host")
+                                          (const :tag "Default" nil))
+                        :value-type (string :tag "Format"))))
 
 ;;; Commands
 
