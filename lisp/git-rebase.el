@@ -806,14 +806,8 @@ By default, this is the same except for the \"pick\" command."
                 (replace-match " " t t nil 2)
                 (replace-match
                  (string-pad
-                  (mapconcat (lambda (key)
-                               (save-match-data
-                                 (substitute-command-keys
-                                  (format "\\`%s'" (key-description key)))))
-                             (cl-remove-if (lambda (key) (eq (elt key 0) 'menu-bar))
-                                           (reverse (where-is-internal
-                                                     cmd git-rebase-mode-map)))
-                             ", ")
+                  (save-match-data
+                    (substitute-command-keys (format "\\[%s]" cmd)))
                   8)
                  t t nil 3)))))))))
 
