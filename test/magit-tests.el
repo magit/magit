@@ -307,7 +307,7 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
 
 (ert-deftest magit-clone:--name-to-url-format-defaults ()
   (magit-with-test-repository
-   (magit-git "config" "--add" "sourcehut.user" "shuser")
+   (magit-git "config" "--add" "sourcehut.user" "~shuser")
    (magit-git "config" "--add" "github.user" "ghuser")
    (magit-git "config" "--add" "gitlab.user" "gluser")
    ;; No explicit service
@@ -327,14 +327,14 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
                          "git@github.com:a/b.git"))
    (should (string-equal (magit-clone--name-to-url "gl:t/s")
                          "git@gitlab.com:t/s.git"))
-   (should (string-equal (magit-clone--name-to-url "sh:x/y")
+   (should (string-equal (magit-clone--name-to-url "sh:~x/y")
                          "git@git.sr.ht:~x/y"))
    ;; Explicit user (long service names)
    (should (string-equal (magit-clone--name-to-url "github:a1/b1")
                          "git@github.com:a1/b1.git"))
    (should (string-equal (magit-clone--name-to-url "gitlab:t1/s1")
                          "git@gitlab.com:t1/s1.git"))
-   (should (string-equal (magit-clone--name-to-url "sourcehut:x1/y1")
+   (should (string-equal (magit-clone--name-to-url "sourcehut:~x1/y1")
                          "git@git.sr.ht:~x1/y1"))))
 
 (ert-deftest magit-clone:--name-to-url-format-single-string ()

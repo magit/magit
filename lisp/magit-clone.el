@@ -94,7 +94,7 @@ as the username itself."
                        (string :tag "User name or git variable"))))
 
 (defcustom magit-clone-url-format
-  '(("git.sr.ht" . "git@%h:~%n")
+  '(("git.sr.ht" . "git@%h:%n")
     (t . "git@%h:%n.git"))
   "Format(s) used when turning repository names into urls.
 
