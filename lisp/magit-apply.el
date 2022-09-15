@@ -776,6 +776,11 @@ a separate commit.  A typical workflow would be:
   (interactive)
   (magit-call-smerge #'smerge-keep-lower))
 
+(defun magit-smerge-keep-all ()
+  "Keep all versions of the conflict at point."
+  (interactive)
+  (magit-call-smerge #'smerge-keep-all))
+
 (defun magit-call-smerge (fn)
   (pcase-let* ((file (magit-file-at-point t t))
                (keep (get-file-buffer file))
