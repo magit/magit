@@ -784,7 +784,7 @@ Save current message first."
       (insert str)
       (goto-char (point-min))
       (when (re-search-forward (concat flush " -+ >8 -+$") nil t)
-        (delete-region (point-at-bol) (point-max)))
+        (delete-region (line-beginning-position) (point-max)))
       (goto-char (point-min))
       (flush-lines flush)
       (goto-char (point-max))
