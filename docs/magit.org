@@ -7863,7 +7863,7 @@ numbers of tags.  It would therefore be a good idea to disable
 :END:
 
 When showing logs, Magit limits the number of commits initially shown
-in the hope that this avoids unnecessary work.  When using ~--graph~ is
+in the hope that this avoids unnecessary work.  When ~--graph~ is
 used, then this unfortunately does not have the desired effect for
 large histories.  Junio, Git's maintainer, said on the git mailing
 list (http://www.spinics.net/lists/git/msg232230.html): "~--graph~ wants
