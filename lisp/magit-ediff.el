@@ -587,7 +587,7 @@ stash that were staged."
     (ediff-kill-buffer-carefully ediff-debug-buffer)
     (when (boundp 'ediff-patch-diagnostics)
       (ediff-kill-buffer-carefully ediff-patch-diagnostics))
-    (cond ((and (ediff-window-display-p)
+    (cond ((and (display-graphic-p)
                 (frame-live-p ctl-frm))
            (delete-frame ctl-frm))
           ((window-live-p ctl-win)
