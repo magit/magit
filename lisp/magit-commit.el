@@ -613,7 +613,7 @@ See `magit-commit-absorb' for an alternative implementation."
              display-buffer-overriding-action))
         (when magit-commit-diff-inhibit-same-window
           (setq display-buffer-overriding-action
-                '(nil (inhibit-same-window t))))
+                '(nil (inhibit-same-window . t))))
         (magit-diff-setup-buffer rev arg (car (magit-diff-arguments)) nil)))))
 
 (add-hook 'server-switch-hook #'magit-commit-diff)

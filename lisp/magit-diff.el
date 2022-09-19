@@ -1604,7 +1604,7 @@ the Magit-Status buffer for DIRECTORY."
       (dired-jump other-window (concat directory "/."))
     (let ((display-buffer-overriding-action
            (if other-window
-               '(nil (inhibit-same-window t))
+               '(nil (inhibit-same-window . t))
              '(display-buffer-same-window))))
       (magit-status-setup-buffer directory))))
 
