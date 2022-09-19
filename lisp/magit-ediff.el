@@ -342,7 +342,7 @@ FILE has to be relative to the top directory of the repository."
        (lambda ()
          (when (buffer-live-p ediff-buffer-B)
            (when lockB
-             (with-current-buffer bufB (setq buffer-read-only t))
+             (with-current-buffer bufB (setq buffer-read-only t)))
            (when (buffer-modified-p ediff-buffer-B)
              (with-current-buffer ediff-buffer-B
                (magit-update-index))))
