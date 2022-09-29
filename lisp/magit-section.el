@@ -422,7 +422,8 @@ Magit-Section is documented in info node `(magit-section)'."
   (when (fboundp 'magit-section-context-menu)
     (add-hook 'context-menu-functions #'magit-section-context-menu 10 t))
   (when magit-section-disable-line-numbers
-    (when (bound-and-true-p global-linum-mode)
+    (when (and (fboundp 'linum-mode)
+               (bound-and-true-p global-linum-mode))
       (linum-mode -1))
     (when (and (fboundp 'nlinum-mode)
                (bound-and-true-p global-nlinum-mode))
