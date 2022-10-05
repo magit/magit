@@ -1130,7 +1130,8 @@ If no DWIM context is found, nil is returned."
       ([hunk file commit]
        (cons 'commit (oref (oref (oref it parent) parent) value)))
       (stash (cons 'stash (oref it value)))
-      (pullreq (forge--pullreq-range (oref it value) t))))))
+      (pullreq (forge--pullreq-range (oref it value) t))
+      (topic-refs (oref it value))))))
 
 (defun magit-diff--range-to-endpoints (range)
   (cond ((string-match "\\.\\.\\." range) (replace-match ".."  nil nil range))
