@@ -7948,6 +7948,7 @@ using:
 
 #+begin_src emacs-lisp
   (remove-hook 'server-switch-hook 'magit-commit-diff)
+  (remove-hook 'with-editor-filter-visit-hook 'magit-commit-diff)
 #+end_src
 
 Then you can type ~C-c C-d~ to show the diff when you actually want to

@@ -9842,6 +9842,7 @@ using:
 
 @lisp
 (remove-hook 'server-switch-hook 'magit-commit-diff)
+(remove-hook 'with-editor-filter-visit-hook 'magit-commit-diff)
 @end lisp
 
 Then you can type @code{C-c C-d} to show the diff when you actually want to
