@@ -567,9 +567,10 @@ modes is toggled, then this mode also gets toggled automatically.
     (forward-line (1- line))
     (point)))
 
-(defun magit-blame--make-margin-overlays (chunk revinfo _beg end)
+(defun magit-blame--make-margin-overlays (chunk revinfo beg end)
   (save-excursion
     (let ((line 0))
+      (goto-char beg)
       (while (< (point) end)
         (magit-blame--make-margin-overlay chunk revinfo line)
         (forward-line)
