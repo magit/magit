@@ -10753,7 +10753,7 @@ to pronounce Magit like magic, while taking into account that C and T
 do not sound the same.
 
 The German "Magie" is not pronounced the same as the English "magic",
-so if you speak German then you can use the above rational to justify
+so if you speak German then you can use the above rationale to justify
 using the former pronunciation; @code{Mag@{ie => it@}}.
 
 You can also choose to use the former pronunciation just because you
