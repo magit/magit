@@ -75,6 +75,7 @@ All Contributors
 - Benjamin Motz
 - Ben North
 - Ben Walton
+- Ben Zanin
 - Bob Uhl
 - Boruch Baum
 - Bradley Wright
@@ -100,6 +101,7 @@ All Contributors
 - Clément Pit-Claudel
 - Cornelius Mika
 - Craig Andera
+- Daanturo
 - Dale Hagglund
 - Damien Cassou
 - Dan Davison
@@ -128,6 +130,7 @@ All Contributors
 - Dominique Quatravaux
 - Duianto Vebotci
 - Eli Barzilay
+- Ellis Kenyo
 - Eric
 - Eric Davis
 - Eric Prud'hommeaux
@@ -158,6 +161,7 @@ All Contributors
 - Guillaume Martres
 - Hannu Koivisto
 - Hans-Peter Deifel
+- hokomo
 - Hussein Ait-Lahcen
 - Ian Eure
 - Ian Milligan
@@ -176,6 +180,7 @@ All Contributors
 - Jim Blandy
 - Joakim Jalap
 - Johannes Altmanninger
+- Johannes Maier
 - Johann Klähn
 - John Mastro
 - John Morris
@@ -214,6 +219,7 @@ All Contributors
 - Leo Liu
 - Leonardo Etcheverry
 - Leo Vivier
+- Li Chen
 - Lingchao Xin
 - Lin Sun
 - Li-Yun Chang
@@ -253,6 +259,7 @@ All Contributors
 - Miloš Mošić
 - Mitchel Humpherys
 - Moritz Bunkus
+- Nacho Barrientos
 - Naoya Yamashita
 - Natalie Weizenbaum
 - Nguyễn Tuấn Anh
@@ -318,6 +325,7 @@ All Contributors
 - Sanjoy Das
 - Sean Allred
 - Sean Bryant
+- Sean Farley
 - Sean Whitton
 - Sebastian Wiesner
 - Sébastien Gross
