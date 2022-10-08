@@ -2,6 +2,7 @@ name: manual
 on:
   push:
     branches: master
+permissions: read-all
 jobs:
   manual:
     name: "Generate and distribute manual"

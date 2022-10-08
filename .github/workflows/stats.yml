@@ -2,6 +2,7 @@ name: stats
 on:
   push:
     branches: master
+permissions: read-all
 jobs:
   manual:
     name: "Generate and distribute statistics"
