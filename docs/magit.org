@@ -1840,8 +1840,8 @@ sections are available.  There is one additional command.
 
 - Variable: magit-git-debug ::
 
-  This option controls whether additional reporting of git errors is
-  enabled.
+  This variable controls whether additional reporting of git errors
+  is enabled.
 
   Magit basically calls git for one of these two reasons: for
   side-effects or to do something with its standard output.
@@ -1868,16 +1868,6 @@ sections are available.  There is one additional command.
 
   The command ~magit-toggle-git-debug~ changes the value of this
   variable.
-
-- Variable: magit-process-extreme-logging ::
-
-  This option controls whether ~magit-process-file~ logs to the
-  ~*Messages*~ buffer.
-
-  Only intended for temporary use when you try to figure out how
-  Magit uses Git behind the scene.  Output that normally goes to
-  the magit-process buffer continues to go there.  Not all output
-  goes to either of these two buffers.
 
 *** Git Process Status
 
@@ -9315,6 +9305,20 @@ issue.
   these error messages.  Whether some error message is relevant in
   the context of some unexpected behavior has to be judged on a case
   by case basis.
+
+- Key: M-x magit-toggle-log-commands ::
+
+- Variable: magit-process-extreme-logging ::
+
+  This option controls whether ~magit-process-file~ logs to the
+  ~*Messages*~ buffer.
+
+  Only intended for temporary use when you try to figure out how
+  Magit uses Git behind the scene.  Output that normally goes to
+  the magit-process buffer continues to go there.  Not all output
+  goes to either of these two buffers.
+
+
 
 - Key: M-x magit-toggle-verbose-refresh ::
 

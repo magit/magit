@@ -289,11 +289,22 @@ Also see `magit-process-extreme-logging'.")
 
 (defun magit-toggle-git-debug ()
   "Toggle whether additional git errors are reported.
+If this isn't enough, also try `magit-toggle-log-commands'.
 See info node `(magit)Debugging Tools' for more information."
   (interactive)
   (setq magit-git-debug (not magit-git-debug))
-  (message "Additional reporting of Git errors %s"
+  (message "Extreme logging %s"
            (if magit-git-debug "enabled" "disabled")))
+
+(defun magit-toggle-log-commands ()
+  "Toggle whether run git commands are logged to *Messages*.
+This is only intended for debugging purposes, otherwise it is
+too verbose.  Also try the less extreme `magit-toggle-git-debug'.
+See info node `(magit)Debugging Tools' for more information."
+  (interactive)
+  (setq magit-process-extreme-logging (not magit-process-extreme-logging))
+  (message "Additional reporting of Git errors %s"
+           (if magit-process-extreme-logging "enabled" "disabled")))
 
 (defvar magit--refresh-cache nil)
 
