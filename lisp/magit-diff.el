@@ -2314,14 +2314,10 @@ section or a child thereof."
       (when orig
         (setq orig (magit-decode-git-path orig)))
       (setq file (magit-decode-git-path file))
-      ;; KLUDGE `git-diff' ignores `--no-prefix' for new files and renames at
-      ;; least.  And `git-log' ignores `--no-prefix' when `-L' is used.
-      (when (or (and file orig
-                     (string-prefix-p "a/" orig)
-                     (string-prefix-p "b/" file))
-                (and (derived-mode-p 'magit-log-mode)
-                     (--first (string-prefix-p "-L" it)
-                              magit-buffer-log-args)))
+      ;; KLUDGE `git-log' ignores `--no-prefix' when `-L' is used.
+      (when (and (derived-mode-p 'magit-log-mode)
+                 (--first (string-prefix-p "-L" it)
+                          magit-buffer-log-args))
         (setq file (substring file 2))
         (when orig
           (setq orig (substring orig 2))))
