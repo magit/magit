@@ -2302,25 +2302,24 @@ section or a child thereof."
           (setq binary t))
          ;; TODO Use all combined diff extended headers.
          ((looking-at "mode .+\n"))
-         (t
-          (error "BUG: Unknown extended header: %S"
+         ((error "BUG: Unknown extended header: %S"
                  (buffer-substring (point) (line-end-position)))))
         ;; These headers are treated as some sort of special hunk.
         (unless (or (string-prefix-p "old mode" (match-string 0))
                     (string-prefix-p "rename"   (match-string 0)))
           (push (match-string 0) header))
         (magit-delete-match))
-      (setq header (mapconcat #'identity (nreverse header) ""))
       (when orig
         (setq orig (magit-decode-git-path orig)))
       (setq file (magit-decode-git-path file))
+      (setq header (mapconcat #'identity (nreverse header) ""))
       ;; KLUDGE `git-log' ignores `--no-prefix' when `-L' is used.
       (when (and (derived-mode-p 'magit-log-mode)
-                 (--first (string-prefix-p "-L" it)
-                          magit-buffer-log-args))
-        (setq file (substring file 2))
+                 (seq-some (lambda (arg) (string-prefix-p "-L" arg))
+                           magit-buffer-log-args))
         (when orig
-          (setq orig (substring orig 2))))
+          (setq orig (substring orig 2)))
+        (setq file (substring file 2)))
       (magit-diff-insert-file-section
        file orig status modes rename header binary nil)))))
 
