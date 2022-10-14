@@ -2312,14 +2312,23 @@ section or a child thereof."
       (when orig
         (setq orig (magit-decode-git-path orig)))
       (setq file (magit-decode-git-path file))
-      (setq header (mapconcat #'identity (nreverse header) ""))
+      (setq header (nreverse header))
       ;; KLUDGE `git-log' ignores `--no-prefix' when `-L' is used.
       (when (and (derived-mode-p 'magit-log-mode)
                  (seq-some (lambda (arg) (string-prefix-p "-L" arg))
                            magit-buffer-log-args))
         (when orig
           (setq orig (substring orig 2)))
-        (setq file (substring file 2)))
+        (setq file (substring file 2))
+        (setq header (list (save-excursion
+                             (string-match "diff [^ ]+" (car header))
+                             (format "%s %s %s\n"
+                                     (match-string 0 (car header))
+                                     (or orig file)
+                                     (or file orig)))
+                           (format "--- %s\n" (or orig "/dev/null"))
+                           (format "+++ %s\n" (or file "/dev/null")))))
+      (setq header (mapconcat #'identity header ""))
       (magit-diff-insert-file-section
        file orig status modes rename header binary nil)))))
 
