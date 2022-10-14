@@ -2253,7 +2253,7 @@ section or a child thereof."
       (when orig (setq orig (magit-decode-git-path orig)))
       (when file (setq file (magit-decode-git-path file)))
       (magit-diff-insert-file-section
-       (or file base) orig status nil nil nil long-status)))
+       (or file base) orig status nil nil nil nil long-status)))
    ;; The files on this line may be ambiguous due to whitespace.
    ;; That's okay. We can get their names from subsequent headers.
    ((looking-at "^diff --\
@@ -2267,7 +2267,8 @@ section or a child thereof."
           (header (list (buffer-substring-no-properties
                          (line-beginning-position) (1+ (line-end-position)))))
           (modes nil)
-          (rename nil))
+          (rename nil)
+          (binary nil))
       (magit-delete-line)
       (while (not (or (eobp) (looking-at magit-diff-headline-re)))
         (cond
@@ -2295,8 +2296,10 @@ section or a child thereof."
          ((looking-at "\\+\\+\\+ \\(.+?\\)\t?\n")
           (unless (equal (match-string 1) "/dev/null")
             (setq file (match-string 1))))
-         ((looking-at "Binary files .+ and .+ differ\n"))
-         ((looking-at "Binary files differ\n"))
+         ((looking-at "Binary files .+ and .+ differ\n")
+          (setq binary t))
+         ((looking-at "Binary files differ\n")
+          (setq binary t))
          ;; TODO Use all combined diff extended headers.
          ((looking-at "mode .+\n"))
          (t
@@ -2322,10 +2325,11 @@ section or a child thereof."
         (setq file (substring file 2))
         (when orig
           (setq orig (substring orig 2))))
-      (magit-diff-insert-file-section file orig status modes rename header)))))
+      (magit-diff-insert-file-section
+       file orig status modes rename header binary nil)))))
 
 (defun magit-diff-insert-file-section
-    (file orig status modes rename header &optional long-status)
+    (file orig status modes rename header binary long-status)
   (magit-insert-section section
     (file file (or (equal status "deleted")
                    (derived-mode-p 'magit-status-mode)))
@@ -2334,8 +2338,10 @@ section or a child thereof."
                                     file
                                   (format "%s -> %s" orig file)))
                         'font-lock-face 'magit-diff-file-heading))
-    (when long-status
-      (insert (format " (%s)" long-status)))
+    (cond ((and binary long-status)
+           (insert (format " (%s, binary)" long-status)))
+          ((or binary long-status)
+           (insert (format " (%s)" (if binary "binary" long-status)))))
     (magit-insert-heading)
     (unless (equal orig file)
       (oset section source orig))
