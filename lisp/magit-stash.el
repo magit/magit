@@ -218,8 +218,9 @@ use \"git stash\" and are generally more flexible but don't allow
 specifying a list of files to be stashed."
   :man-page "git-stash"
   ["Arguments"
-   (magit:-- :reader ,(-rpartial #'magit-read-files
-                                 #'magit-modified-files))
+   (magit:-- :reader (lambda (prompt initial-input history)
+                       (magit-read-files prompt initial-input history
+                                         #'magit-modified-files)))
    ("-u" "Also save untracked files" ("-u" "--include-untracked"))
    ("-a" "Also save untracked and ignored files" ("-a" "--all"))
    ("-k" "Keep index" ("-k" "--keep-index"))
