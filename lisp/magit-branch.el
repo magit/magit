@@ -617,7 +617,7 @@ defaulting to the branch at point."
      (t ; And now for something completely different.
       (let* ((branch (car branches))
              (prompt (format "Branch %s is checked out.  " branch))
-             (target (magit-get-upstream-branch)))
+             (target (magit-get-indirect-upstream-branch branch t)))
         (when (equal branch (magit-get-current-branch))
           (when (or (equal branch target)
                     (not target))
