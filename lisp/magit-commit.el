@@ -317,18 +317,22 @@ depending on the value of option `magit-commit-squash-confirm'."
                   args)))
             (magit-run-git-with-editor "commit" args))
           t) ; The commit was created; used by below lambda.
-      (magit-log-select
-        (lambda (commit)
-          (when (and (magit-commit-squash-internal option commit args
-                                                   rebase edit t)
-                     rebase)
-            (magit-commit-amend-assert commit)
-            (magit-rebase-interactive-1 commit
-                (list "--autosquash" "--autostash" "--keep-empty")
-              "" "true" nil t)))
-        (format "Type %%p on a commit to %s into it,"
-                (substring option 2))
-        nil nil nil commit)
+      (let ((winconf (and magit-commit-show-diff
+                          (current-window-configuration))))
+        (magit-log-select
+          (lambda (commit)
+            (when (and (magit-commit-squash-internal option commit args
+                                                     rebase edit t)
+                       rebase)
+              (magit-commit-amend-assert commit)
+              (magit-rebase-interactive-1 commit
+                  (list "--autosquash" "--autostash" "--keep-empty")
+                "" "true" nil t))
+            (when winconf
+              (set-window-configuration winconf)))
+          (format "Type %%p on a commit to %s into it,"
+                  (substring option 2))
+          nil nil nil commit))
       (when magit-commit-show-diff
         (let ((magit-display-buffer-noselect t))
           (apply #'magit-diff-staged nil (magit-diff-arguments)))))))
