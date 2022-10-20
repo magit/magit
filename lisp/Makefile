@@ -93,7 +93,8 @@ $(PKG)-autoloads.el: $(ELS)
   (cl-letf (((symbol-function 'progress-reporter-do-update) (lambda (&rest _)))\
             ((symbol-function 'progress-reporter-done) (lambda (_))))\
     (let ((generated-autoload-file file))\
-      (update-directory-autoloads default-directory))))"
+      (update-directory-autoloads default-directory))))" \
+	2>&1 | sed "/^Package autoload is deprecated$$/d"
 
 $(PKG)-version.el:
 	@printf " Creating $@\n"
