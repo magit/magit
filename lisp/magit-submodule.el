@@ -628,7 +628,9 @@ These sections can be expanded to show the respective commits."
 
 ;;;###autoload
 (defun magit-list-submodules ()
-  "Display a list of the current repository's submodules."
+  "Display a list of the current repository's submodules. By default, this only
+list populated submodules. If a prefix is given to the command, all submodules
+are listed."
   (interactive)
   (magit-submodule-list-setup magit-submodule-list-columns))
 
@@ -666,7 +668,7 @@ These sections can be expanded to show the respective commits."
         (-keep (lambda (module)
                  (let ((default-directory
                         (expand-file-name (file-name-as-directory module))))
-                   (and (file-exists-p ".git")
+                   (and (or (file-exists-p ".git") current-prefix-arg)
                         (or (not magit-submodule-list-predicate)
                             (funcall magit-submodule-list-predicate module))
                         (list module
