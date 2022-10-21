@@ -378,7 +378,8 @@ to recover from making a mistake here, but don't count on it."
   (interactive
    (list (if-let ((modules (magit-region-values 'magit-module-section t)))
              (magit-confirm 'remove-modules nil "Remove %i modules" nil modules)
-           (list (magit-read-module-path "Remove module")))
+           (list (file-relative-name (magit-read-module-path "Remove module")
+                                     (magit-toplevel))))
          (magit-submodule-arguments "--force")
          current-prefix-arg))
   (when (magit-git-version< "2.12.0")
