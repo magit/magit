@@ -180,6 +180,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     ("branch"      . magit-reflog-checkout)
     ("reset"       . magit-reflog-reset)
     ("rebase"      . magit-reflog-rebase)
+    ("rewritten"   . magit-reflog-rebase)
     ("cherry-pick" . magit-reflog-cherry-pick)
     ("initial"     . magit-reflog-commit)
     ("pull"        . magit-reflog-remote)
