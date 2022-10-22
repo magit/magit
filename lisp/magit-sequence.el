@@ -523,6 +523,8 @@ This discards all changes made since the sequence started."
    ("-r" "Rebase merges"            ("-r" "--rebase-merges=")
     magit-rebase-merges-select-mode
     :if (lambda () (magit-git-version>= "2.18.0")))
+   ("-u" "Update branches"          "--update-refs"
+    :if (lambda () (magit-git-version>= "2.38.0")))
    (7 magit-merge:--strategy)
    (7 magit-merge:--strategy-option)
    (7 "=X" magit-diff:--diff-algorithm :argument "-Xdiff-algorithm=")
