@@ -177,7 +177,7 @@ like \"/path/to/foo-bar\"."
           (tag (cond
                 ((not ptag)
                  (read-string "Create first release tag: "
-                              (if (string-match-p "\\`[0-9]" ver)
+                              (if (and ver (string-match-p "\\`[0-9]" ver))
                                   (concat "v" ver)
                                 ver)))
                 (ver
