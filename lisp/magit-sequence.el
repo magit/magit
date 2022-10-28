@@ -667,9 +667,9 @@ START has to be selected from a list of recent commits."
   (declare (indent 2))
   (when commit
     (if (eq commit :merge-base)
-        (setq commit (--if-let (magit-get-upstream-branch)
-                         (magit-git-string "merge-base" it "HEAD")
-                       nil))
+        (setq commit
+              (and-let* ((upstream (magit-get-upstream-branch)))
+                (magit-git-string "merge-base" upstream "HEAD")))
       (unless (magit-rev-ancestor-p commit "HEAD")
         (user-error "%s isn't an ancestor of HEAD" commit))
       (if (magit-commit-parents commit)
@@ -690,7 +690,7 @@ START has to be selected from a list of recent commits."
                           editor))
                 process-environment))
         (magit-run-git-sequencer "rebase" "-i" args
-                                 (unless (member "--root" args) commit)))
+                                 (and (not (member "--root" args)) commit)))
     (magit-log-select
       `(lambda (commit)
          ;; In some cases (currently just magit-rebase-remove-commit), "-c
