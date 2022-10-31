@@ -166,6 +166,7 @@
     (define-key map (kbd "w")   #'git-rebase-reword)
     (define-key map (kbd "s")   #'git-rebase-squash)
     (define-key map (kbd "t")   #'git-rebase-reset)
+    (define-key map (kbd "u")   #'git-rebase-update-ref)
     (define-key map (kbd "x")   #'git-rebase-exec)
     (define-key map (kbd "y")   #'git-rebase-insert)
     (define-key map (kbd "z")   #'git-rebase-noop)
@@ -258,6 +259,7 @@ If the region is active, act on all lines touched by the region."
     (?r . "reword")
     (?s . "squash")
     (?t . "reset")
+    (?u . "update-ref")
     (?x . "exec"))
   "Alist mapping single key of an action to the full name.")
 
@@ -291,7 +293,8 @@ If the region is active, act on all lines touched by the region."
     (bare . ,(concat (regexp-opt '("b" "break" "noop") "\\(?1:")
                      " *$"))
     (label . ,(concat (regexp-opt '("l" "label"
-                                    "t" "reset")
+                                    "t" "reset"
+                                    "u" "update-ref")
                                   "\\(?1:")
                       " \\(?3:[^ \n]+\\) ?\\(?4:.*\\)"))
     (merge . ,(concat "\\(?1:m\\|merge\\) "
@@ -544,6 +547,20 @@ input, remove the reset command on the current line, if any."
    (lambda (initial)
      (or (magit-completing-read "Label" (git-rebase-buffer-labels)
                                 nil t initial)
+         ""))
+   arg))
+
+(defun git-rebase-update-ref (arg)
+  "Insert an update-ref action after the current line.
+If there is already an update-ref action on the current line,
+then edit that instead.  With a prefix argument, insert a new
+action even when there is already one on the current line.  With
+empty input, remove the action on the current line, if any."
+  (interactive "P")
+  (git-rebase-set-noncommit-action
+   "update-ref"
+   (lambda (initial)
+     (or (magit-completing-read "Ref" (magit-list-refs) nil nil initial)
          ""))
    arg))
 

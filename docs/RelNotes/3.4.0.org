@@ -145,6 +145,9 @@ dfe3d03a14 git-commit-save-message: Report whether message was saved
   is used by ~magit-ediff-dwim~ (the new command ~magit-git-mergetool~
   is another option).  #4348
 
+- Support ~--update-refs~ option of ~git rebase~ (new in Git 2.38).
+  #4776
+
 - Improve the diff shown while committing.  #3246
 
 [TODO Keep these at end.]
