@@ -404,11 +404,10 @@ NEWNAME may be a file or directory name.  If FILE isn't tracked in
 Git, fallback to using `rename-file'."
   (interactive
    (let* ((file (magit-read-file "Rename file"))
-          (dir (file-name-directory file))
-          (newname (read-file-name (format "Move %s to destination: " file)
-                                   (and dir (expand-file-name dir)))))
-     (list (expand-file-name file (magit-toplevel))
-           (expand-file-name newname))))
+          (path (expand-file-name file (magit-toplevel))))
+     (list path (expand-file-name
+                 (read-file-name (format "Move %s to destination: " file)
+                                 (file-name-directory path))))))
   (let ((oldbuf (get-file-buffer file))
         (dstdir (file-name-directory newname))
         (dstfile (if (directory-name-p newname)
