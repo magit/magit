@@ -980,7 +980,7 @@ Added to `font-lock-extend-region-functions'."
     (eval . `(,(git-commit-summary-regexp)
               (1 'git-commit-summary)))
     ;; - Keyword [aka "text in brackets"] (overrides summary)
-    ("\\[.+?\\]"
+    ("\\[[^][]+?\\]"
      (0 'git-commit-keyword t))
     ;; - Non-empty second line (overrides summary and note)
     (eval . `(,(git-commit-summary-regexp)
