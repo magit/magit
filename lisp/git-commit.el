@@ -302,7 +302,7 @@ already using it, then you probably shouldn't start doing so."
 (defcustom git-commit-known-pseudo-headers
   '("Signed-off-by" "Acked-by" "Modified-by" "Cc"
     "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by"
-    "Co-authored-by")
+    "Co-authored-by" "Co-developed-by")
   "A list of Git pseudo headers to be highlighted."
   :group 'git-commit
   :safe (lambda (val) (and (listp val) (seq-every-p #'stringp val)))
@@ -446,6 +446,8 @@ This is only used if Magit is available."
      :help "Insert a 'Suggested-by' header"]
     ["Co-authored-by" git-commit-co-authored t
      :help "Insert a 'Co-authored-by' header"]
+    ["Co-developed-by" git-commit-co-developed t
+     :help "Insert a 'Co-developed-by' header"]
     "-"
     ["Save" git-commit-save-message t]
     ["Cancel" with-editor-cancel t]
@@ -810,16 +812,17 @@ Save current message first."
 (transient-define-prefix git-commit-insert-pseudo-header ()
   "Insert a commit message pseudo header."
   [["Insert ... by yourself"
-    ("a"   "Ack"         git-commit-ack)
-    ("m"   "Modified"    git-commit-modified)
-    ("r"   "Reviewed"    git-commit-review)
-    ("s"   "Signed-off"  git-commit-signoff)
-    ("t"   "Tested"      git-commit-test)]
+    ("a"   "Ack"          git-commit-ack)
+    ("m"   "Modified"     git-commit-modified)
+    ("r"   "Reviewed"     git-commit-review)
+    ("s"   "Signed-off"   git-commit-signoff)
+    ("t"   "Tested"       git-commit-test)]
    ["Insert ... by someone"
-    ("C-c" "Cc"          git-commit-cc)
-    ("C-r" "Reported"    git-commit-reported)
-    ("C-i" "Suggested"   git-commit-suggested)
-    ("C-a" "Co-authored" git-commit-co-authored)]])
+    ("C-c" "Cc"           git-commit-cc)
+    ("C-r" "Reported"     git-commit-reported)
+    ("C-i" "Suggested"    git-commit-suggested)
+    ("C-a" "Co-authored"  git-commit-co-authored)
+    ("C-d" "Co-developed" git-commit-co-developed)]])
 
 (defun git-commit-ack (name mail)
   "Insert a header acknowledging that you have looked at the commit."
@@ -865,6 +868,11 @@ Save current message first."
   "Insert a header mentioning the person who co-authored the commit."
   (interactive (git-commit-read-ident "Co-authored-by"))
   (git-commit-insert-header "Co-authored-by" name mail))
+
+(defun git-commit-co-developed (name mail)
+  "Insert a header mentioning the person who co-developed the commit."
+  (interactive (git-commit-read-ident "Co-developed-by"))
+  (git-commit-insert-header "Co-developed-by" name mail))
 
 (defun git-commit-self-ident ()
   (list (or (getenv "GIT_AUTHOR_NAME")
