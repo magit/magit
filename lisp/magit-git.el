@@ -582,6 +582,19 @@ call function WASHER with ARGS as its sole argument."
         (magit-cancel-section))
       (magit-maybe-make-margin-overlay))))
 
+(defun magit-git-executable-find (command)
+  "Search for COMMAND in Git's exec path, falling back to `exec-path'.
+Like `executable-find', return the absolute file name of the
+executable."
+  (or (locate-file command
+                   (list (concat
+                          (file-remote-p default-directory)
+                          (or (magit-git-string "--exec-path")
+                              (error "`git --exec-path' failed"))))
+                   exec-suffixes
+                   #'file-executable-p)
+      (compat-executable-find command t)))
+
 ;;; Git Version
 
 (defconst magit--git-version-regexp

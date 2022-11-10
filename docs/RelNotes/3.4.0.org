@@ -174,6 +174,10 @@ b1ad283941 #4526 magit-version: more compatible fix for #4511
 
 - A diff header added in a new Git release wasn't handled yet.  #4531
 
+- Commands that use optional third-party Git extensions didn't
+  consider that extension executables may be installed in Git's exec
+  path instead of a directory in ~exec-path~.  #4812
+
 - Fixed calculation of gravatar image size.  ecfaa325a3
 
 a14f847d97 magit-branch-checkout: Refresh after all configuration took place
