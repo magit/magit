@@ -39,12 +39,12 @@ HTML_FIXUP_MENU   = '/<\/body>/i<div id="s-css-s--menu"><\/div>'
 
 html-dir: $(TEXIFILES)
 	@printf "Generating magit/*.html\n"
-	@$(MAKEINFO) --html $(MANUAL_HTML_ARGS) magit.texi
+	@$(MAKEINFO) --html -o $(PKG)/ $(MANUAL_HTML_ARGS) magit.texi
 	@for f in $$(find magit -name '*.html') ; do \
 	sed -i -e $(HTML_FIXUP_CSS) -e $(HTML_FIXUP_ONLOAD) -e $(HTML_FIXUP_MENU) $$f ; \
 	done
 	@printf "Generating magit-section/*.html\n"
-	@$(MAKEINFO) --html $(MANUAL_HTML_ARGS) magit-section.texi
+	@$(MAKEINFO) --html -o $(PKG)/ $(MANUAL_HTML_ARGS) magit-section.texi
 	@for f in $$(find magit-section -name '*.html') ; do \
 	sed -i -e $(HTML_FIXUP_CSS) -e $(HTML_FIXUP_ONLOAD) -e $(HTML_FIXUP_MENU) $$f ; \
 	done
