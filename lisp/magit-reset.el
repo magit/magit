@@ -1,4 +1,4 @@
-;;; magit-reset.el --- Reset fuctionality  -*- lexical-binding:t -*-
+;;; magit-reset.el --- Reset functionality  -*- lexical-binding:t -*-
 
 ;; Copyright (C) 2008-2022 The Magit Project Contributors
 
