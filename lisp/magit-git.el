@@ -2178,8 +2178,8 @@ Return a list of two integers: (A>B B>A)."
                                (concat "--format=" format) args
                                (if rev (magit--rev-dereference rev) "HEAD")
                                "--")))
-    (unless (string-equal str "")
-      str)))
+    (and (not (string-equal str ""))
+         str)))
 
 (defun magit-rev-insert-format (format &optional rev args)
   ;; Prefer `git log --no-walk' to `git show --no-patch' because it
