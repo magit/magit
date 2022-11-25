@@ -375,6 +375,7 @@ All Contributors
 - Vladimir Ivanov
 - Vladimir Panteleev
 - Vladimir Sedach
+- Waqar Hameed
 - Wei Huang
 - Wilfred Hughes
 - Win Treese
