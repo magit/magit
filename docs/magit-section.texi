@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Magit-Section Developer Manual
-@subtitle for version 3.3.0-git
+@subtitle for version 3.3.0.50-git
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -54,7 +54,7 @@ user options see @ref{Sections,,,magit,}.  This manual documents how you
 can use sections in your own packages.
 
 @noindent
-This manual is for Magit-Section version 3.3.0-git.
+This manual is for Magit-Section version 3.3.0.50-git.
 
 @insertcopying
 @end ifnottex

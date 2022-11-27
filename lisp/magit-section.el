@@ -8,7 +8,7 @@
 ;; Homepage: https://github.com/magit/magit
 ;; Keywords: tools
 
-;; Package-Version: 3.3.0-git
+;; Package-Version: 3.3.0.50-git
 ;; Package-Requires: ((emacs "25.1") (compat "28.1.1.2") (dash "2.19.1"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
