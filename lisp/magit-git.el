@@ -2092,9 +2092,14 @@ PATH has to be relative to the super-repository."
   (car (member string (magit-list-remotes))))
 
 (defvar magit-main-branch-names
-  ;; These are the names that Git suggests
-  ;; if `init.defaultBranch' is undefined.
-  '("main" "master" "trunk" "development"))
+  '("main" "master" "trunk" "development")
+  "Branch names reserved for use by the primary branch.
+Use function `magit-main-branch' to get the name actually used in
+the current repository.")
+
+(defvar magit-long-lived-branches
+  (append magit-main-branch-names (list "maint" "next"))
+  "Branch names reserved for use by long lived branches.")
 
 (defun magit-main-branch ()
   "Return the main branch.
