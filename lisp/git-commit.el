@@ -230,10 +230,10 @@ to edit a commit message.  If a commit is created without the
 user typing a message into a buffer, then this hook is not run.
 
 This hook is not run until the new commit has been created.  If
-doing so takes Git longer than one second, then this hook isn't
-run at all.  For certain commands such as `magit-rebase-continue'
-this hook is never run because doing so would lead to a race
-condition.
+that takes Git longer than `git-commit-post-finish-hook-timeout'
+seconds, then this hook isn't run at all.  For certain commands
+such as `magit-rebase-continue' this hook is never run because
+doing so would lead to a race condition.
 
 This hook is only run if `magit' is available.
 
@@ -241,6 +241,17 @@ Also see `magit-post-commit-hook'."
   :group 'git-commit
   :type 'hook
   :get (and (featurep 'magit-base) #'magit-hook-custom-get))
+
+(defcustom git-commit-post-finish-hook-timeout 1
+  "Time in seconds to wait for git to create a commit.
+
+The hook `git-commit-post-finish-hook' (which see) is run only
+after git is done creating a commit.  If it takes longer than
+`git-commit-post-finish-hook-timeout' seconds to create the
+commit, then the hook is not run at all."
+  :group 'git-commit
+  :safe 'numberp
+  :type 'number)
 
 (defcustom git-commit-finish-query-functions
   '(git-commit-check-style-conventions)
@@ -596,7 +607,8 @@ to recover older messages")
              (fboundp 'magit-rev-parse))
     (cl-block nil
       (let ((break (time-add (current-time)
-                             (seconds-to-time 1))))
+                             (seconds-to-time
+                              git-commit-post-finish-hook-timeout))))
         (while (equal (magit-rev-parse "HEAD") previous)
           (if (time-less-p (current-time) break)
               (sit-for 0.01)
