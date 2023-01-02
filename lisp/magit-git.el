@@ -1528,7 +1528,7 @@ to, or to some other symbolic-ref that points to the same ref."
       (magit-thing-at-point 'git-revision t)
       (and-let* ((chunk (and (bound-and-true-p magit-blame-mode)
                              (fboundp 'magit-current-blame-chunk)
-                             (magit-current-blame-chunk 'addition t))))
+                             (magit-current-blame-chunk))))
         (oref chunk orig-rev))
       (and (derived-mode-p 'magit-stash-mode
                            'magit-merge-preview-mode
@@ -1550,7 +1550,7 @@ to, or to some other symbolic-ref that points to the same ref."
       (magit-thing-at-point 'git-revision t)
       (and-let* ((chunk (and (bound-and-true-p magit-blame-mode)
                              (fboundp 'magit-current-blame-chunk)
-                             (magit-current-blame-chunk 'addition t))))
+                             (magit-current-blame-chunk))))
         (oref chunk orig-rev))
       (and magit-buffer-file-name
            magit-buffer-refname)
