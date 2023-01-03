@@ -1,6 +1,6 @@
 ;;; magit-sparse-checkout.el --- Sparse checkout support for Magit  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2008-2022 The Magit Project Contributors
+;; Copyright (C) 2008-2023 The Magit Project Contributors
 
 ;; Author: Kyle Meyer <kyle@kyleam.com>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>

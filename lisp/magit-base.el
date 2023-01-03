@@ -1,6 +1,6 @@
 ;;; magit-base.el --- Early birds  -*- lexical-binding:t; coding:utf-8 -*-
 
-;; Copyright (C) 2008-2022 The Magit Project Contributors
+;; Copyright (C) 2008-2023 The Magit Project Contributors
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
@@ -21,7 +21,7 @@
 ;; along with Magit.  If not, see <https://www.gnu.org/licenses/>.
 
 ;; This file contains code taken from GNU Emacs, which is
-;; Copyright (C) 1976-2022 Free Software Foundation, Inc.
+;; Copyright (C) 1976-2023 Free Software Foundation, Inc.
 
 ;;; Commentary:
 

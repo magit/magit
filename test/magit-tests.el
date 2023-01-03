@@ -1,6 +1,6 @@
 ;;; magit-tests.el --- Tests for Magit  -*- lexical-binding:t; coding:utf-8 -*-
 
-;; Copyright (C) 2008-2022 The Magit Project Contributors
+;; Copyright (C) 2008-2023 The Magit Project Contributors
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 

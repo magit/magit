@@ -1,6 +1,6 @@
 ;;; magit-bookmark.el --- Bookmark support for Magit  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2008-2022 The Magit Project Contributors
+;; Copyright (C) 2008-2023 The Magit Project Contributors
 
 ;; Inspired by an earlier implementation by Yuri Khan.
 
