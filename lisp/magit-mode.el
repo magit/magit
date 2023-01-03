@@ -1371,7 +1371,7 @@ Unless specified, REPOSITORY is the current buffer's repository."
   (when-let ((cache (assoc (or repository
                                (magit-repository-local-repository))
                            magit-repository-local-cache)))
-    (setf cache (compat-assoc-delete-all key cache))))
+    (setf cache (compat-call assoc-delete-all key cache))))
 
 (defmacro magit--with-repository-local-cache (key &rest body)
   (declare (indent 1) (debug (form body)))

@@ -593,7 +593,7 @@ executable."
                               (error "`git --exec-path' failed"))))
                    exec-suffixes
                    #'file-executable-p)
-      (compat-executable-find command t)))
+      (compat-call executable-find command t)))
 
 ;;; Git Version
 
@@ -946,7 +946,7 @@ returning the truename."
   "Git executable cannot be found (see https://magit.vc/goto/e6a78ed2)")
 
 (defun magit--assert-usable-git ()
-  (if (not (compat-executable-find (magit-git-executable) t))
+  (if (not (compat-call executable-find (magit-git-executable) t))
       (signal 'magit-git-executable-not-found (magit-git-executable))
     (let ((magit-git-debug
            (lambda (err)

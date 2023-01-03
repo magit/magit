@@ -263,9 +263,9 @@ is no file at point, then instead visit `default-directory'."
   (interactive "P")
   (if-let ((topdir (magit-toplevel default-directory)))
       (let ((args (car (magit-log-arguments)))
-            (files (compat-dired-get-marked-files
-                    nil nil #'magit-file-tracked-p nil
-                    "No marked file is being tracked by Git")))
+            (files (compat-call dired-get-marked-files
+                                nil nil #'magit-file-tracked-p nil
+                                "No marked file is being tracked by Git")))
         (when (and follow
                    (not (member "--follow" args))
                    (not (cdr files)))
@@ -286,7 +286,7 @@ for a repository."
   (interactive (list (or (magit-toplevel)
                          (magit-read-repository t))
                      current-prefix-arg))
-  (let ((files (compat-dired-get-marked-files nil arg nil nil t)))
+  (let ((files (compat-call dired-get-marked-files nil arg nil nil t)))
     (magit-status-setup-buffer repo)
     (magit-am-apply-patches files)))
 

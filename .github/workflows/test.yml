@@ -29,7 +29,7 @@ jobs:
     - name: Checkout compat
       uses: actions/checkout@v2
       with:
-        repository: emacsmirror/compat
+        repository: emacs-compat/compat
         path: compat
     - name: Checkout dash
       uses: actions/checkout@v2
