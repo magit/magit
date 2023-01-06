@@ -32,26 +32,31 @@ jobs:
       with:
         repository: emacs-compat/compat
         path: compat
+        persist-credentials: false
     - name: Checkout dash
       uses: actions/checkout@v3
       with:
         repository: magnars/dash.el
         path: dash
+        persist-credentials: false
     - name: Checkout transient
       uses: actions/checkout@v3
       with:
         repository: magit/transient
         path: transient
+        persist-credentials: false
     - name: Checkout with-editor
       uses: actions/checkout@v3
       with:
         repository: magit/with-editor
         path: with-editor
+        persist-credentials: false
     - name: Checkout magit
       uses: actions/checkout@v3
       with:
         repository: magit/magit
         path: magit
+        persist-credentials: false
     - name: Build compat
       run: make -C compat compile
     - name: Build magit
