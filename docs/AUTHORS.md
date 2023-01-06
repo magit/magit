@@ -114,6 +114,7 @@ All Contributors
 - Daniel Kraus
 - Daniel Mai
 - Daniel Martín
+- Daniel Mendler
 - Daniel Nagy
 - Dan Kessler
 - Dan LaManna
@@ -216,6 +217,7 @@ All Contributors
 - Laverne Schrock
 - Leandro Facchinetti
 - Lele Gaifax
+- Lénaïc Huard
 - Leo Liu
 - Leonardo Etcheverry
 - Leo Vivier
