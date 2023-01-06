@@ -51,8 +51,6 @@
 
 (require 'cl-lib)
 (require 'compat)
-(require 'compat-26)
-(require 'compat-27)
 (require 'dash)
 (require 'eieio)
 (require 'seq)
