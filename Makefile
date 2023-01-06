@@ -151,9 +151,6 @@ texi:
 
 authors:
 	@$(MAKE) -C docs authors
-	@git commit --gpg-sign -m "AUTHORS.md: Update list of contributors" \
-	-o -- docs/AUTHORS.md .mailmap
-	@git show --pretty= -p HEAD
 
 publish:
 	@$(MAKE) -C docs publish

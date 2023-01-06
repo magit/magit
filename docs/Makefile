@@ -105,9 +105,13 @@ AUTHORS.md:
 	@printf "Generating AUTHORS.md..."
 	@test -e $(TOP).git \
 	&& (printf "$$AUTHORS_HEADER\n" > $@ \
-	&& git log --pretty=format:'- %aN' | sort -u >> $@ \
+	&& git log --pretty=format:'- %aN' | sort -u | \
+	grep -v dependabot >> $@ \
 	&& printf "done\n" ; ) \
 	|| printf "FAILED (non-fatal)\n"
+	@git commit --gpg-sign -m "AUTHORS.md: Update list of contributors" \
+	-o -- $@ ../.mailmap || true
+	@git show --pretty= -p HEAD
 
 PUBLISH_PATH   ?= /manual/
 RELEASE_PATH   ?= /manual/$(VERSION)/
