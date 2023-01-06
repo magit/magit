@@ -27,27 +27,27 @@ jobs:
       with:
         version: ${{ matrix.emacs_version }}
     - name: Checkout compat
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: emacs-compat/compat
         path: compat
     - name: Checkout dash
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: magnars/dash.el
         path: dash
     - name: Checkout transient
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: magit/transient
         path: transient
     - name: Checkout with-editor
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: magit/with-editor
         path: with-editor
     - name: Checkout magit
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: magit/magit
         path: magit
