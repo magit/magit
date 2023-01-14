@@ -596,7 +596,12 @@ Magit status buffer."
     (when input
       (with-current-buffer input
         (process-send-region process (point-min) (point-max))
-        (process-send-eof    process)))
+        ;; `process-send-eof' appears to be broken over
+        ;;  Tramp from Windows. See #3624 and bug#43226.
+        (if (and (eq system-type 'windows-nt)
+                 (file-remote-p (process-get process 'default-dir) nil t))
+            (process-send-string process "")
+          (process-send-eof process))))
     (setq magit-this-process process)
     (oset section value process)
     (magit-process-display-buffer process)

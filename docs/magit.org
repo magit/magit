@@ -9053,19 +9053,6 @@ always visible.  If that is too drastic for your taste, then you may
 instead use ~magit-diff-visit-file-hook~ to reveal the text, possibly
 using ~reveal-post-command~ or for Org buffers ~org-reveal~.
 
-*** I am unable to stage when using Tramp from MS Windows
-
-Magit may be unable to stage (or otherwise apply) individual hunks
-when you are connected to remote machine using Tramp and the local
-machine uses MS Windows.
-
-There appears to be a problem with ~process-send-eof~ in this scenario,
-as mentioned at the end of ~tramp-tests.el~.  I have contacted the Tramp
-maintainer about this.  For now this unfortunately means that it just
-doesn't work and we cannot do anything about it.  If you have more
-information, then please comment on
-https://github.com/magit/magit/issues/3624.
-
 *** I am no longer able to save popup defaults
 
 Magit used to use Magit-Popup to implement the transient popup menus.
