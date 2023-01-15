@@ -817,7 +817,9 @@ and also rename the respective reflog file."
    ("p"   magit-branch.<branch>.pushRemote)]
   ["Configure repository defaults"
    ("R" magit-pull.rebase)
-   ("P" magit-remote.pushDefault)]
+   ("P" magit-remote.pushDefault)
+   ("b" "Update default branch" magit-update-default-branch
+    :inapt-if-not magit-get-some-remote)]
   ["Configure branch creation"
    ("a m" magit-branch.autoSetupMerge)
    ("a r" magit-branch.autoSetupRebase)]

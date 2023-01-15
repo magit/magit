@@ -85,6 +85,7 @@ has to be used to view and change remote related variables."
    [("C" "Configure..."         magit-remote-configure)
     ("p" "Prune stale branches" magit-remote-prune)
     ("P" "Prune stale refspecs" magit-remote-prune-refspecs)
+    ("b" magit-update-default-branch)
     (7 "z" "Unshallow remote"   magit-remote-unshallow)]]
   (interactive (list (magit-get-current-remote)))
   (transient-setup 'magit-remote nil nil :scope remote))
@@ -254,6 +255,37 @@ doing that."
 Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (interactive (list (magit-read-remote "Unset HEAD for remote")))
   (magit-run-git "remote" "set-head" remote "--delete"))
+
+;;;###autoload (autoload 'magit-update-default-branch "magit-remote" nil t)
+(transient-define-suffix magit-update-default-branch ()
+  "Update name of the default branch after upstream changed it."
+  :description "Update default branch"
+  :inapt-if-not #'magit-get-some-remote
+  (interactive)
+  (pcase-let ((`(,_remote ,oldname) (magit--get-default-branch))
+              (`( ,remote ,newname) (magit--get-default-branch t)))
+    (cond
+     ((equal oldname newname)
+      (setq oldname
+            (read-string
+             (format "Name of default branch is still `%s', %s\n%s" oldname
+                     "but some upstreams might need updating."
+                     "Name of upstream branches to update: ")))
+      (magit--set-default-branch newname oldname)
+      (magit-refresh))
+     (t
+      (unless oldname
+        (setq oldname
+              (magit-read-other-local-branch
+               (format "Name of old default branch to be renamed to `%s'"
+                       newname)
+               newname "master")))
+      (cond
+       ((y-or-n-p (format "Default branch changed from `%s' to `%s' on %s.%s"
+                          oldname newname remote "  Do the same locally? "))
+        (magit--set-default-branch newname oldname)
+        (magit-refresh))
+       ((user-error "Abort")))))))
 
 ;;;###autoload
 (defun magit-remote-unshallow (remote)

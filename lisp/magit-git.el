@@ -50,6 +50,7 @@
 
 ;; From `magit-process'.
 (declare-function magit-call-git "magit-process" (&rest args))
+(declare-function magit-git "magit-process" (&rest args))
 (declare-function magit-process-buffer "magit-process" (&optional nodisplay))
 (declare-function magit-process-file "magit-process"
                   (process &optional infile buffer display &rest args))
@@ -1604,6 +1605,42 @@ The amount of time spent searching is limited by
                       (equal prev current))))
       (cl-incf i))
     prev))
+
+(defun magit--set-default-branch (newname oldname)
+  (let ((remote (or (magit-primary-remote)
+                    (user-error "Cannot determine primary remote")))
+        (branches (mapcar (lambda (line) (split-string line "\t"))
+                          (magit-git-lines
+                           "for-each-ref" "refs/heads"
+                           "--format=%(refname:short)\t%(upstream:short)"))))
+    (when-let ((old (assoc oldname branches)))
+      (unless (assoc newname branches)
+        (magit-call-git "branch" "-m" oldname newname)
+        (setcar old newname)))
+    (let ((new (if (magit-branch-p newname)
+                   newname
+                 (concat remote "/" newname))))
+      (pcase-dolist (`(,branch ,upstream) branches)
+        (cond
+         ((equal upstream oldname)
+          (magit-set-upstream-branch branch new))
+         ((equal upstream (concat remote "/" oldname))
+          (magit-set-upstream-branch branch (concat remote "/" newname))))))))
+
+(defun magit--get-default-branch (&optional update)
+  (let ((remote (magit-primary-remote)))
+    (when update
+      (if (not remote)
+          (user-error "Cannot determine primary remote")
+        (message "Determining default branch...")
+        (magit-git "fetch" "--prune")
+        (magit-git "remote" "set-head" "--auto" remote)
+        (message "Determining default branch...done")))
+    (let ((branch (magit-git-string "symbolic-ref" "--short"
+                                    (format "refs/remotes/%s/HEAD" remote))))
+      (when (and update (not branch))
+        (error "Cannot determine new default branch"))
+      (list remote (and branch (cdr (magit-split-branch-name branch)))))))
 
 (defun magit-set-upstream-branch (branch upstream)
   "Set UPSTREAM as the upstream of BRANCH.
