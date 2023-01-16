@@ -235,6 +235,16 @@ ifndef ORG_LOAD_PATH
 ORG_LOAD_PATH = -L ../../org/lisp
 endif
 
+## Dependencies ######################################################
+
+# This isn't used by make, but is needed for the Compile ci workflow.
+
+DEPS  = compat
+DEPS += dash
+DEPS += transient/lisp
+DEPS += vterm
+DEPS += with-editor/lisp
+
 ## Publish ###########################################################
 
 DOMAIN      ?= magit.vc
