@@ -1,18 +1,11 @@
-name: stats
+name: Statistics
 on:
   push:
-    branches: master
+    branches: main
 jobs:
-  manual:
-    name: "Generate and distribute statistics"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install gitstats
-        uses: magit/actions/install-gitstats@main
-      - name: Generate statistics
-        uses: magit/actions/stats-generate@main
-      - name: Publish statistics
-        uses: magit/actions/stats-publish@main
-        with:
-          key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  stats:
+    name: Statistics
+    uses: emacscollective/workflows/.github/workflows/stats.yml@main
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

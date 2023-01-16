@@ -1,26 +1,11 @@
-name: manual
+name: Manual
 on:
   push:
-    branches: master
+    branches: main
 jobs:
   manual:
-    name: "Generate and distribute manual"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure
-        uses: magit/actions/config@main
-      - name: Install Emacs
-        uses: magit/actions/install-emacs@main
-      - name: Install Texlive
-        uses: magit/actions/install-texlive@main
-      - name: Install Org
-        uses: magit/actions/install-org@main
-      - name: Generate manual
-        uses: magit/actions/manual-generate@main
-      - name: Commit manual
-        uses: magit/actions/manual-commit@main
-      - name: Publish manual
-        uses: magit/actions/manual-publish@main
-        with:
-          key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    name: Manual
+    uses: emacscollective/workflows/.github/workflows/manual.yml@main
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
