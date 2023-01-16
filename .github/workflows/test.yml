@@ -1,65 +1,8 @@
-name: test
-on: [ push, pull_request ]
-permissions: {}
+name: Test
+on: [push, pull_request]
 env:
   BUILD_MAGIT_LIBGIT: "false"
 jobs:
   test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        emacs_version:
-        - 25.1
-        - 25.3
-        - 26.1
-        - 26.2
-        - 26.3
-        - 27.1
-        - 27.2
-        - 28.1
-        - snapshot
-    steps:
-    - name: Configure git
-      run: |
-        git config --global user.name "A U Thor"
-        git config --global user.email a.u.thor@example.com
-    - name: Install emacs
-      uses: purcell/setup-emacs@master
-      with:
-        version: ${{ matrix.emacs_version }}
-    - name: Checkout compat
-      uses: actions/checkout@v3
-      with:
-        repository: emacs-compat/compat
-        path: compat
-        persist-credentials: false
-    - name: Checkout dash
-      uses: actions/checkout@v3
-      with:
-        repository: magnars/dash.el
-        path: dash
-        persist-credentials: false
-    - name: Checkout transient
-      uses: actions/checkout@v3
-      with:
-        repository: magit/transient
-        path: transient
-        persist-credentials: false
-    - name: Checkout with-editor
-      uses: actions/checkout@v3
-      with:
-        repository: magit/with-editor
-        path: with-editor
-        persist-credentials: false
-    - name: Checkout magit
-      uses: actions/checkout@v3
-      with:
-        repository: magit/magit
-        path: magit
-        persist-credentials: false
-    - name: Build compat
-      run: make -C compat compile
-    - name: Build magit
-      run: make -C magit all
-    - name: Test magit
-      run: make -C magit test
+    name: Test
+    uses: emacscollective/workflows/.github/workflows/test.yml@main
