@@ -112,6 +112,15 @@ default.  Also see `magit-clone-name-alist'."
                                           (const :tag "Default" t))
                         :value-type (string :tag "Format"))))
 
+(defcustom magit-post-clone-hook nil
+  "Hook run after the repository has been successfully cloned.
+
+When the hook is called, `default-directory' is let-bound to the
+directory where the repository has been cloned."
+  :package-version '(magit . "3.4.0")
+  :group 'magit-commands
+  :type 'hook)
+
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-clone "magit-clone" nil t)
@@ -275,6 +284,8 @@ Then show the status buffer for the new repository."
            (let ((default-directory directory))
              (magit-call-git "sparse-checkout" "init" "--cone")
              (magit-call-git "checkout" (magit-get-current-branch))))
+         (let ((default-directory directory))
+           (run-hooks 'magit-post-clone-hook))
          (with-current-buffer (process-get process 'command-buf)
            (magit-status-setup-buffer directory)))))))
 

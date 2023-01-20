@@ -5410,6 +5410,12 @@ Example of by-hostname format strings:
 @end lisp
 @end defopt
 
+@defopt magit-post-clone-hook
+Hook run after the Git process has successfully finished cloning the
+repository.  When the hook is called, @code{default-directory} is
+let-bound to the directory where the repository has been cloned.
+@end defopt
+
 @node Staging and Unstaging
 @section Staging and Unstaging
 

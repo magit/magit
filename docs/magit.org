@@ -4354,6 +4354,12 @@ The following suffixes are disabled by default. See
             (nil . "git@%h:%n.git")))
   #+END_SRC
 
+- User Option: magit-post-clone-hook ::
+
+  Hook run after the Git process has successfully finished cloning the
+  repository.  When the hook is called, ~default-directory~ is
+  let-bound to the directory where the repository has been cloned.
+
 ** Staging and Unstaging
 
 Like Git, Magit can of course stage and unstage complete files.
