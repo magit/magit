@@ -409,7 +409,11 @@ when using `magit-branch-and-checkout'."
                     (magit-read-starting-point prompt choice default-start))
             (user-error "Not a valid starting-point: %s" choice))))
     (let ((branch (magit-read-string-ns (concat prompt " named"))))
-      (list branch (magit-read-starting-point prompt branch default-start)))))
+      (if (magit-branch-p branch)
+          (magit-branch-read-args
+           (format "Branch `%s' already exists; pick another name" branch)
+           default-start)
+        (list branch (magit-read-starting-point prompt branch default-start))))))
 
 ;;;###autoload
 (defun magit-branch-spinout (branch &optional from)
