@@ -315,7 +315,7 @@ Emacs to edit commit messages but would like to do so to edit
 rebase sequences.")
 
 (defmacro magit-with-editor (&rest body)
-  "Like `with-editor' but let-bind some more variables.
+  "Like `with-editor*' but let-bind some more variables.
 Also respect the value of `magit-with-editor-envvar'."
   (declare (indent 0) (debug (body)))
   `(let ((magit-process-popup-time -1)
