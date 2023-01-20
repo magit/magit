@@ -242,7 +242,8 @@ which creates patches for all commits that are reachable from
   ["Arguments"
    ("-i" "Also apply to index" "--index")
    ("-c" "Only apply to index" "--cached")
-   ("-3" "Fall back on 3way merge" ("-3" "--3way"))]
+   ("-3" "Fall back on 3way merge" ("-3" "--3way"))
+   ("-R" "Apply reverse patch" "-R")]
   ["Actions"
    ("a"  "Apply patch" magit-patch-apply)]
   (interactive
