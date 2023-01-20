@@ -755,6 +755,7 @@ Magit status buffer."
       (when-let ((ret-pos (cl-position ?\r string :from-end t)))
         (cl-callf substring string (1+ ret-pos))
         (delete-region (line-beginning-position) (point)))
+      (setq string (magit-process-remove-bogus-errors string))
       (insert (propertize string 'magit-section
                           (process-get proc 'section)))
       (set-marker (process-mark proc) (point))
@@ -779,6 +780,17 @@ Magit status buffer."
            (abort-recursive-edit)))
        (let ((minibuffer-local-map ,map))
          ,@body))))
+
+(defun magit-process-remove-bogus-errors (str)
+  (save-match-data
+    (when (string-match "^\\(\\*ERROR\\*: \\)Canceled by user" str)
+      (setq str (replace-match "" nil nil str 1)))
+    (when (string-match "^error: There was a problem with the editor.*\n" str)
+      (setq str (replace-match "" nil nil str)))
+    (when (string-match
+           "^Please supply the message using either -m or -F option\\.\n" str)
+      (setq str (replace-match "" nil nil str))))
+  str)
 
 (defun magit-process-yes-or-no-prompt (process string)
   "Forward Yes-or-No prompts to the user."
