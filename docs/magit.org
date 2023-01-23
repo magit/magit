@@ -337,7 +337,7 @@ local branch onto the remote configured as the push-remote.  (If the
 push-remote is not configured yet, then you would first be prompted
 for the remote to push to.)
 
-So far we have mentioned the commit, push, and log menu commands.
+So far we have mentioned the commit and push menu commands.
 These are probably among the menus you will be using the most, but
 many others exist.  To show a menu that lists all other menus (as well
 as the various apply commands and some other essential commands), type
