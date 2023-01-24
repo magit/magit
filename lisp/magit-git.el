@@ -2154,12 +2154,15 @@ exists in the current repository is considered its main branch."
                      (cons (magit-get "init.defaultBranch")
                            magit-main-branch-names))))))
 
-(defun magit-rev-diff-count (a b)
+(defun magit-rev-diff-count (a b &optional first-parent)
   "Return the commits in A but not B and vice versa.
-Return a list of two integers: (A>B B>A)."
+Return a list of two integers: (A>B B>A).
+
+If `first-parent' is set, traverse only first parents."
   (mapcar #'string-to-number
           (split-string (magit-git-string "rev-list"
                                           "--count" "--left-right"
+                                          (and first-parent "--first-parent")
                                           (concat a "..." b))
                         "\t")))
 

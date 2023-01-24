@@ -845,7 +845,7 @@ https://github.com/mhagger/git-when-merged."
       (if (equal m "Commit is directly on this branch.")
           (let* ((from (format "%s~%d" commit
                                (/ magit-log-merged-commit-count 2)))
-                 (to (- (car (magit-rev-diff-count branch commit))
+                 (to (- (car (magit-rev-diff-count branch commit t))
                         (/ magit-log-merged-commit-count 2)))
                  (to (if (<= to 0)
                          branch
