@@ -25,8 +25,9 @@ RMDIR    ?= rm -rf
 TAR      ?= tar
 SED      ?= sed
 
-EMACS    ?= emacs
-BATCH     = $(EMACS) -Q --batch $(LOAD_PATH)
+EMACS      ?= emacs
+EMACS_ARGS ?=
+BATCH       = $(EMACS) -Q --batch $(EMACS_ARGS) $(LOAD_PATH)
 
 LISP_EXTRA_TARGETS ?= check-declare
 
