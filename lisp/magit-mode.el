@@ -35,6 +35,8 @@
 (require 'help-mode)
 (require 'transient)
 
+(defvar bookmark-make-record-function)
+
 ;;; Options
 
 (defcustom magit-mode-hook

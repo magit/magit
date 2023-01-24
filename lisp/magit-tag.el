@@ -69,7 +69,7 @@ With a prefix argument annotate the tag.
                      (magit-read-branch-or-commit "Place tag on")
                      (let ((args (magit-tag-arguments)))
                        (when current-prefix-arg
-                         (cl-pushnew "--annotate" args))
+                         (cl-pushnew "--annotate" args :test #'equal))
                        args)))
   (magit-run-git-with-editor "tag" args name rev))
 

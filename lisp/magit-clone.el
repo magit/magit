@@ -228,7 +228,7 @@ Then show the status buffer for the new repository."
                         'sparse))
 
 (defun magit-clone-internal (repository directory args &optional sparse)
-  (let* ((checkout (not (memq (car args) '("--bare" "--mirror"))))
+  (let* ((checkout (not (member (car args) '("--bare" "--mirror"))))
          (remote (or (transient-arg-value "--origin" args)
                      (magit-get "clone.defaultRemote")
                      "origin"))

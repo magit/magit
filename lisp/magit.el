@@ -75,6 +75,7 @@
 ;; For `magit:--gpg-sign'
 (declare-function epg-list-keys "epg" (context &optional name mode))
 (declare-function epg-decode-dn "epg" (alist))
+(defvar epa-protocol)
 
 ;;; Options
 
