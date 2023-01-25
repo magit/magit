@@ -423,7 +423,9 @@ two regular expressions.  The car specifies where to insert the
 author's image.  The top half of the image is inserted right
 after the matched text, the bottom half on the next line in the
 same column.  The cdr specifies where to insert the committer's
-image, accordingly.  Either the car or the cdr may be nil."
+image, accordingly.  Either the car or the cdr may be nil.  If the
+regular expression contains grouped subexpressions, the image is
+inserted after the first subexpression."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision
   :type '(choice (const :tag "Don't show gravatars" nil)
@@ -2771,8 +2773,9 @@ or a ref which is not a branch, then it inserts nothing."
   (save-excursion
     (goto-char beg)
     (when (re-search-forward regexp nil t)
+      (goto-char (or (match-end 1) (match-end 0)))
       (when-let ((window (get-buffer-window)))
-        (let* ((column   (length (match-string 0)))
+        (let* ((column   (length (or (match-string 1) (match-string 0))))
                (font-obj (query-font (font-at (point) window)))
                (size     (* 2 (+ (aref font-obj 4)
                                  (aref font-obj 5))))

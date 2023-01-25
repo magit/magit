@@ -3409,7 +3409,9 @@ that they are available here too.
   author's image.  The top half of the image is inserted right
   after the matched text, the bottom half on the next line in the
   same column.  The cdr specifies where to insert the committer's
-  image, accordingly.  Either the car or the cdr may be nil."
+  image, accordingly.  Either the car or the cdr may be nil.  If the
+  regular expression contains grouped subexpressions, the image is
+  inserted after the first subexpression.
 
 - User Option: magit-revision-use-hash-sections ::
 
