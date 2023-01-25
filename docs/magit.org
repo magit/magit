@@ -7999,6 +7999,12 @@ faster ~vfork~ will be used.  (The creation of child processes still
 takes about twice as long on Darwin compared to Linux.)  See [fn:mac1]
 for more information.
 
+Additionally, ~git~ installed from a package manager like ~brew~ or ~nix~
+seems to be slower than the native executable. Profile the ~git~
+executable you're running against the one at ~/usr/bin/git~, and if
+you notice a notable difference try using the latter as
+~magit-git-executable~.
+
 [fn:mac1] https://lists.gnu.org/archive/html/bug-gnu-emacs/2017-04/msg00201.html
 
 *** Default Bindings

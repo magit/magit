@@ -9894,6 +9894,12 @@ faster @code{vfork} will be used.  (The creation of child processes still
 takes about twice as long on Darwin compared to Linux.)  See @footnote{@uref{https://lists.gnu.org/archive/html/bug-gnu-emacs/2017-04/msg00201.html}}
 for more information.
 
+Additionally, @code{git} installed from a package manager like @code{brew} or @code{nix}
+seems to be slower than the native executable. Profile the @code{git}
+executable you're running against the one at @code{/usr/bin/git}, and if
+you notice a notable difference try using the latter as
+@code{magit-git-executable}.
+
 @node Default Bindings
 @subsection Default Bindings
 
