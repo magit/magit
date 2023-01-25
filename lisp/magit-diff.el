@@ -437,7 +437,8 @@ still visit the commit at point using \"RET\"."
                  (const :tag "Use sections, slow" slow)
                  (const :tag "Don't use sections" nil)))
 
-(defcustom magit-revision-show-gravatars nil
+(defcustom magit-revision-show-gravatars
+  '("^Author:     " "^Commit:     " 0)
   "Whether to show gravatar images in revision buffers.
 
 If nil, then don't insert any gravatar images.  If t, then insert
@@ -445,13 +446,16 @@ both images.  If `author' or `committer', then insert only the
 respective image.
 
 If you have customized the option `magit-revision-header-format'
-and want to insert the images then you might also have to specify
-where to do so.  In that case the value has to be a cons-cell of
-two regular expressions.  The car specifies where to insert the
-author's image.  The top half of the image is inserted right
-after the matched text, the bottom half on the next line in the
-same column.  The cdr specifies where to insert the committer's
-image, accordingly.  Either the car or the cdr may be nil."
+or are using a proportional face, then you might also have to
+specify where the images should be inserted.
+
+The value can also have the form (AUTHOR . COMMITTER) or (AUTHOR
+COMMITTER COLUMN).  AUTHOR and COMMITTER are either regexps, or
+nil, in which case the respective image is not inserted.  When
+using the first form, then the top half of each image is inserted
+after the matched text and the bottom half is inserted on the
+next line at the same column.  When using second form, then the
+images are inserted at the specified COLUMN."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision
   :type '(choice
@@ -459,11 +463,17 @@ image, accordingly.  Either the car or the cdr may be nil."
           (const :tag "Show gravatars" t)
           (const :tag "Show author gravatar" author)
           (const :tag "Show committer gravatar" committer)
-          (cons  :tag "Show gravatars using custom regexps"
+          (cons  :tag "Show gravatars after custom regexps"
                  (choice (const  :tag "No author image" nil)
                          (regexp :tag "Author regexp"    "^Author:     "))
                  (choice (const  :tag "No committer image" nil)
-                         (regexp :tag "Committer regexp" "^Commit:     ")))))
+                         (regexp :tag "Committer regexp" "^Commit:     ")))
+          (list  :tag "Show gravatars using custom regexps at column"
+                 (choice (const  :tag "No author image" nil)
+                         (regexp :tag "Author regexp"    "^Author:     "))
+                 (choice (const  :tag "No committer image" nil)
+                         (regexp :tag "Committer regexp" "^Commit:     "))
+                 (number :tag "Column"))))
 
 (defcustom magit-revision-use-gravatar-kludge nil
   "Whether to work around a bug which affects display of gravatars.
@@ -2932,23 +2942,28 @@ Refer to user option `magit-revision-insert-related-refs-display-alist'."
   (when (and magit-revision-show-gravatars
              (window-system))
     (require 'gravatar)
-    (pcase-let ((`(,author . ,committer)
-                 (pcase magit-revision-show-gravatars
-                   ('t '("^Author:     " . "^Commit:     "))
-                   ('author '("^Author:     " . nil))
-                   ('committer '(nil . "^Commit:     "))
-                   (_ magit-revision-show-gravatars))))
+    (pcase-let* ((column nil)
+                 (`(,author . ,committer)
+                  (pcase magit-revision-show-gravatars
+                    ('t '("^Author:     " . "^Commit:     "))
+                    ('author '("^Author:     " . nil))
+                    ('committer '(nil . "^Commit:     "))
+                    ((guard (listp (cdr magit-revision-show-gravatars)))
+                     (pcase-let ((`(,a ,c ,col) magit-revision-show-gravatars))
+                       (setq column col)
+                       (cons a c)))
+                    (_ magit-revision-show-gravatars))))
       (when-let ((email (and author (magit-rev-format "%aE" rev))))
-        (magit-insert-revision-gravatar beg rev email author))
+        (magit-insert-revision-gravatar beg rev email author column))
       (when-let ((email (and committer (magit-rev-format "%cE" rev))))
-        (magit-insert-revision-gravatar beg rev email committer)))))
+        (magit-insert-revision-gravatar beg rev email committer column)))))
 
-(defun magit-insert-revision-gravatar (beg rev email regexp)
+(defun magit-insert-revision-gravatar (beg rev email regexp column)
   (save-excursion
     (goto-char beg)
     (when (re-search-forward regexp nil t)
       (when-let ((window (get-buffer-window)))
-        (let* ((column   (length (match-string 0)))
+        (let* ((column   (or column (length (match-string 0))))
                (font-obj (query-font (font-at (point) window)))
                (size     (* 2 (+ (aref font-obj 4)
                                  (aref font-obj 5))))
@@ -2986,6 +3001,8 @@ Refer to user option `magit-revision-insert-related-refs-display-alist'."
               (when magit-revision-use-gravatar-kludge
                 (cl-rotatef top bot))
               (let ((inhibit-read-only t))
+                (goto-char (line-beginning-position))
+                (forward-char column)
                 (insert (propertize " " 'display top))
                 (insert (propertize " " 'display align))
                 (forward-line)
