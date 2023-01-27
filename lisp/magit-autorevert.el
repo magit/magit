@@ -115,33 +115,19 @@ seconds of user inactivity.  That is not desirable."
 ;;;###autoload
 (define-globalized-minor-mode magit-auto-revert-mode auto-revert-mode
   magit-turn-on-auto-revert-mode-if-desired
+  :init-value (not noninteractive)
   :package-version '(magit . "2.4.0")
   :link '(info-link "(magit)Automatic Reverting of File-Visiting Buffers")
   :group 'magit-auto-revert
-  :group 'magit-essentials
-  ;; - When `global-auto-revert-mode' is enabled, then this mode is
-  ;;   redundant.
-  ;; - In all other cases enable the mode because if buffers are not
-  ;;   automatically reverted that would make many very common tasks
-  ;;   much more cumbersome.
-  :init-value (not (or global-auto-revert-mode
-                       noninteractive)))
-;; - Unfortunately `:init-value t' only sets the value of the mode
-;;   variable but does not cause the mode function to be called.
-;; - I don't think it works like this on purpose, but since one usually
-;;   should not enable global modes by default, it is understandable.
-;; - If the user has set the variable `magit-auto-revert-mode' to nil
-;;   after loading magit (instead of doing so before loading magit or
-;;   by using the function), then we should still respect that setting.
-;; - If the user sets one of these variables after loading magit and
-;;   after `after-init-hook' has run, then that won't have an effect
-;;   and there is nothing we can do about it.
+  :group 'magit-essentials)
+
 (defun magit-auto-revert-mode--init-kludge ()
-  "This is an internal kludge to be used on `after-init-hook'.
-Do not use this function elsewhere, and don't remove it from
-the `after-init-hook'.  For more information see the comments
-and code surrounding the definition of this function."
-  (if magit-auto-revert-mode
+  "Set a global minor mode not intended for user modification.
+`magit-auto-revert-mode' defaults enabled, but is turned off under
+global-auto-revert-mode.  An explicit toggling-off in the init
+file is honored.  An explicit toggling-on in the init file is
+ignored.  Any subsequent setting of the mode is unsupervised."
+  (if (and magit-auto-revert-mode (not global-auto-revert-mode))
       (let ((start (current-time)))
         (magit-message "Turning on magit-auto-revert-mode...")
         (magit-auto-revert-mode 1)
