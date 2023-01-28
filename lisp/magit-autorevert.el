@@ -64,16 +64,14 @@ is enabled."
                 function))
 
 (defcustom magit-auto-revert-tracked-only t
-  "Whether `magit-auto-revert-mode' only reverts tracked files."
+  "Obsolesced.  `magit-auto-revert-mode' applies only to magit tracked files.
+To auto-revert all files, use `global-auto-revert-mode'."
   :package-version '(magit . "2.4.0")
   :group 'magit-auto-revert
-  :type 'boolean
-  :set (lambda (var val)
-         (set var val)
-         (when (and (bound-and-true-p magit-auto-revert-mode)
-                    (featurep 'magit-autorevert))
-           (magit-auto-revert-mode -1)
-           (magit-auto-revert-mode))))
+  :type 'boolean)
+(make-obsolete-variable 'magit-auto-revert-tracked-only
+                        'global-auto-revert-mode
+                        "Magit 3.3.1")
 
 (defcustom magit-auto-revert-immediately t
   "Whether Magit reverts buffers immediately.
@@ -95,6 +93,16 @@ seconds of user inactivity.  That is not desirable."
   :group 'magit-auto-revert
   :type 'boolean)
 
+(defcustom magit-auto-revert-mode (not noninteractive)
+  "Turns on `auto-revert-mode' for magit tracked files."
+  :package-version '(magit . "2.4.0")
+  :group 'magit-auto-revert
+  :type 'boolean
+  :set (lambda (variable value)
+	 (if (featurep 'magit-autorevert)
+	     (magit-auto-revert-mode (unless value 0))
+           (set-default variable value))))
+
 ;;; Mode
 
 (defun magit-turn-on-auto-revert-mode-if-desired (&optional file)
@@ -108,44 +116,34 @@ seconds of user inactivity.  That is not desirable."
                (file-readable-p buffer-file-name)
                (compat-call executable-find (magit-git-executable) t)
                (magit-toplevel)
-               (or (not magit-auto-revert-tracked-only)
-                   (magit-file-tracked-p buffer-file-name)))
+               (magit-file-tracked-p buffer-file-name))
       (auto-revert-mode 1))))
 
 ;;;###autoload
-(define-globalized-minor-mode magit-auto-revert-mode auto-revert-mode
-  magit-turn-on-auto-revert-mode-if-desired
-  :init-value (not noninteractive)
-  :package-version '(magit . "2.4.0")
-  :link '(info-link "(magit)Automatic Reverting of File-Visiting Buffers")
-  :group 'magit-auto-revert
-  :group 'magit-essentials)
-
-(defun magit-auto-revert-mode--init-kludge ()
-  "Set a global minor mode not intended for user modification.
-`magit-auto-revert-mode' defaults enabled, but is turned off under
-global-auto-revert-mode.  An explicit toggling-off in the init
-file is honored.  An explicit toggling-on in the init file is
-ignored.  Any subsequent setting of the mode is unsupervised."
-  (if (and magit-auto-revert-mode (not global-auto-revert-mode))
-      (let ((start (current-time)))
-        (magit-message "Turning on magit-auto-revert-mode...")
-        (magit-auto-revert-mode 1)
-        (magit-message
-         "Turning on magit-auto-revert-mode...done%s"
-         (let ((elapsed (float-time (time-subtract nil start))))
-           (if (> elapsed 0.2)
-               (format " (%.3fs, %s buffers checked)" elapsed
-                       (length (buffer-list)))
-             ""))))
-    (magit-auto-revert-mode -1)))
-(if after-init-time
-    ;; Since `after-init-hook' has already been
-    ;; run, turn the mode on or off right now.
-    (magit-auto-revert-mode--init-kludge)
-  ;; By the time the init file has been fully loaded the
-  ;; values of the relevant variables might have changed.
-  (add-hook 'after-init-hook #'magit-auto-revert-mode--init-kludge t))
+(defun magit-auto-revert-mode (&optional arg)
+  "ARG follows same rules as those in any minor mode."
+  (interactive (list 'toggle))
+  (set-default 'magit-auto-revert-mode
+               (if (eq arg 'toggle)
+                   (not magit-auto-revert-mode)
+                 (or (not (numberp arg)) (>= arg 1))))
+  (if magit-auto-revert-mode
+      (add-hook 'after-change-major-mode-hook
+                #'magit-turn-on-auto-revert-mode-if-desired
+                ;; depth 1 sequences this after global-auto-revert-mode
+                1)
+    (remove-hook 'after-change-major-mode-hook
+                 #'magit-turn-on-auto-revert-mode-if-desired))
+  (run-hooks 'magit-auto-revert-mode-hook)
+  (if magit-auto-revert-mode
+      (dolist (buf (buffer-list))
+        (with-current-buffer buf
+          (magit-turn-on-auto-revert-mode-if-desired)))
+    ;; Cannot turn off auto-revert-mode since...
+    (ignore "...provenance of auto-revert-mode unknown."))
+  (when (eq arg 'toggle)
+    (magit-message "magit-auto-revert-mode %s"
+                   (if magit-auto-revert-mode "enabled" "disabled"))))
 
 (put 'magit-auto-revert-mode 'function-documentation
      "Toggle Magit Auto Revert mode.
@@ -154,36 +152,14 @@ positive, and disable it if ARG is zero or negative.  If called
 from Lisp, also enable the mode if ARG is omitted or nil, and
 toggle it if ARG is `toggle'; disable the mode otherwise.
 
-Magit Auto Revert mode is a global minor mode that reverts
-buffers associated with a file that is located inside a Git
-repository when the file changes on disk.  Use `auto-revert-mode'
-to revert a particular buffer.  Or use `global-auto-revert-mode'
-to revert all file-visiting buffers, not just those that visit
-a file located inside a Git repository.
+Magit Auto Revert mode reverts buffers associated with a file
+that is located inside a Git repository when the file changes on
+disk.  Use `auto-revert-mode' to revert a particular buffer.  Or
+use `global-auto-revert-mode' to revert all file-visiting
+buffers, not just those that visit a file located inside a Git
+repository.
 
-This global mode works by turning on the buffer-local mode
-`auto-revert-mode' at the time a buffer is first created.  The
-local mode is turned on if the visited file is being tracked in
-a Git repository at the time when the buffer is created.
-
-If `magit-auto-revert-tracked-only' is non-nil (the default),
-then only tracked files are reverted.  But if you stage a
-previously untracked file using `magit-stage', then this mode
-notices that.
-
-Unlike `global-auto-revert-mode', this mode never reverts any
-buffers that are not visiting files.
-
-The behavior of this mode can be customized using the options
-in the `autorevert' and `magit-autorevert' groups.
-
-This function calls the hook `magit-auto-revert-mode-hook'.
-
-Like nearly every mode, this mode should be enabled or disabled
-by calling the respective mode function, the reason being that
-changing the state of a mode involves more than merely toggling
-a single switch, so setting the mode variable is not enough.
-Also, you should not use `after-init-hook' to disable this mode.")
+This function calls the hook `magit-auto-revert-mode-hook'.")
 
 (defun magit-auto-revert-buffers ()
   (when (and magit-auto-revert-immediately
@@ -241,6 +217,8 @@ defaults to nil) for any BUFFER."
 
 (advice-add 'auto-revert-buffers :around
             #'auto-revert-buffers--buffer-list-filter)
+
+(magit-auto-revert-mode (unless magit-auto-revert-mode 0))
 
 ;;; _
 (provide 'magit-autorevert)
