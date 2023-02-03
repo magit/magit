@@ -182,7 +182,10 @@ If there is only one worktree, then insert nothing."
               (insert (make-string (- align (length head)) ?\s))
               (insert (let ((r (file-relative-name path))
                             (a (abbreviate-file-name path)))
-                        (if (< (string-width r) (string-width a)) r a)))
+                        (if (or (> (string-width r) (string-width a))
+                                (equal r "./"))
+                            a
+                          r)))
               (insert ?\n))))
         (insert ?\n)))))
 
