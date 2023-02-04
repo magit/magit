@@ -202,12 +202,13 @@ define set_package_requires_nongnu
 
 (--update-package "lisp/git-commit.el" "$(GIT_COMMIT_VERSION)"
 `((emacs ,emacs-version) ;`
-  (dash ,dash-version)
+  (compat ,compat-version)
   (transient ,transient-version)
   (with-editor ,with-editor-version)))
 
 (--update-package "lisp/magit.el" "$(MAGIT_SECTION_VERSION)"
 `((emacs ,emacs-version) ;`
+  (compat ,compat-version)
   (dash ,dash-version)
   (git-commit ,git-commit-version)
   (magit-section ,magit-section-version)
@@ -216,11 +217,13 @@ define set_package_requires_nongnu
 
 (--update-package "lisp/magit-libgit.el" "$(MAGIT_LIBGIT_VERSION)"
 `((emacs "$(LIBGIT_EMACS_VERSION)") ;`
+  (compat ,compat-version)
   (libgit ,libgit-version)
   (magit ,magit-version)))
 
 (--update-package "lisp/magit-section.el" "$(MAGIT_SECTION_VERSION)"
 `((emacs ,emacs-version) ;`
+  (compat ,compat-version)
   (dash ,dash-version)))
 endef
 export set_package_requires_nongnu
@@ -232,11 +235,13 @@ define set_package_requires_melpa
 "(define-package \"git-commit\" \"$(GIT_COMMIT_VERSION)$(DEV_SUFFIX)\"
   \"Edit Git commit messages.\"
   '((emacs       %S)
+    (compat      %S)
     (transient   %S)
     (with-editor %S))
   :homepage \"https://magit.vc\"
   :keywords '(\"git\" \"tools\" \"vc\"))
 "   emacs-version
+    compat-version
     transient-version
     with-editor-version)))
 
@@ -245,6 +250,7 @@ define set_package_requires_melpa
 "(define-package \"magit\" \"$(MAGIT_VERSION)$(DEV_SUFFIX)\"
   \"A Git porcelain inside Emacs.\"
   '((emacs         %S)
+    (compat        %S)
     (dash          %S)
     (git-commit    %S)
     (magit-section %S)
@@ -253,6 +259,7 @@ define set_package_requires_melpa
   :homepage \"https://magit.vc\"
   :keywords '(\"git\" \"tools\" \"vc\"))
 "   emacs-version
+    compat-version
     dash-version
     git-commit-version
     magit-section-version
@@ -264,11 +271,13 @@ define set_package_requires_melpa
 "(define-package \"magit-libgit\" \"$(MAGIT_LIBGIT_VERSION)$(DEV_SUFFIX)\"
   \"(POC) Teach Magit to use Libgit2.\"
   '((emacs  %S)
+    (compat %S)
     (libgit %S)
     (magit  %S))
   :homepage \"https://magit.vc\"
   :keywords '(\"git\" \"tools\" \"vc\"))
 "   emacs-version
+    compat-version
     libgit-version
     magit-version)))
 
@@ -276,17 +285,20 @@ define set_package_requires_melpa
   (insert (format
 "(define-package \"magit-section\" \"$(MAGIT_SECTION_VERSION)$(DEV_SUFFIX)\"
   \"Sections for read-only buffers.\"
-  '((emacs %S)
-    (dash  %S))
+  '((emacs  %S)
+    (compat %S)
+    (dash   %S))
   :homepage \"https://magit.vc\"
   :keywords '(\"tools\"))
 "   emacs-version
+    compat-version
     dash-version)))
 endef
 export set_package_requires_melpa
 
 define set_package_versions
 (emacs-version "$(EMACS_VERSION)")
+(compat-version "$(COMPAT_VERSION)")
 (dash-version "$(DASH_VERSION)")
 (git-commit-version "$(GIT_COMMIT_VERSION)")
 (libgit-version "$(LIBGIT_VERSION)")
@@ -300,6 +312,7 @@ export set_package_versions
 
 define set_package_snapshots
 (emacs-version "$(EMACS_VERSION)")
+(compat-version "$(COMPAT_SNAPSHOT)")
 (dash-version "$(DASH_MELPA_SNAPSHOT)")
 (git-commit-version "$(GIT_COMMIT_MELPA_SNAPSHOT)")
 (libgit-version "$(LIBGIT_MELPA_SNAPSHOT)")
