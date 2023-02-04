@@ -150,7 +150,7 @@ then show it in Dired instead."
     (magit-menu-set map [magit-visit-thing]  #'magit-worktree-status "Visit %s")
     (magit-menu-set map [magit-delete-thing] #'magit-worktree-delete "Delete %m")
     (define-key-after map [separator-magit-worktree] menu-bar-separator)
-    (magit-menu-set map [magit-worktree ] #'magit-worktree "Worktree commands...")
+    (magit-menu-set map [magit-worktree] #'magit-worktree "Worktree commands...")
     map)
   "Keymap for `worktree' sections.")
 

@@ -509,7 +509,7 @@ or, failing that, the abbreviated HEAD commit hash."
 
 (defvar magit-modules-section-map
   (let ((map (make-sparse-keymap)))
-    (magit-menu-set map [remap magit-visit-thing]
+    (magit-menu-set map [magit-visit-thing]
       #'magit-list-submodules "List %t")
     map)
   "Keymap for `modules' sections.")
