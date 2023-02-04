@@ -231,13 +231,12 @@ define set_package_requires_melpa
   (insert (format
 "(define-package \"git-commit\" \"$(GIT_COMMIT_VERSION)$(DEV_SUFFIX)\"
   \"Edit Git commit messages.\"
-  '((emacs %S)
-    (transient %S)
+  '((emacs       %S)
+    (transient   %S)
     (with-editor %S))
   :homepage \"https://magit.vc\"
   :keywords '(\"git\" \"tools\" \"vc\"))
 "   emacs-version
-    dash-version
     transient-version
     with-editor-version)))
 
@@ -245,12 +244,12 @@ define set_package_requires_melpa
   (insert (format
 "(define-package \"magit\" \"$(MAGIT_VERSION)$(DEV_SUFFIX)\"
   \"A Git porcelain inside Emacs.\"
-  '((emacs %S)
-    (dash %S)
-    (git-commit %S)
+  '((emacs         %S)
+    (dash          %S)
+    (git-commit    %S)
     (magit-section %S)
-    (transient %S)
-    (with-editor %S))
+    (transient     %S)
+    (with-editor   %S))
   :homepage \"https://magit.vc\"
   :keywords '(\"git\" \"tools\" \"vc\"))
 "   emacs-version
@@ -263,10 +262,10 @@ define set_package_requires_melpa
 (with-temp-file "lisp/magit-libgit-pkg.el"
   (insert (format
 "(define-package \"magit-libgit\" \"$(MAGIT_LIBGIT_VERSION)$(DEV_SUFFIX)\"
-  \".\"
-  '((emacs %S)
+  \"(POC) Teach Magit to use Libgit2.\"
+  '((emacs  %S)
     (libgit %S)
-    (magit %S))
+    (magit  %S))
   :homepage \"https://magit.vc\"
   :keywords '(\"git\" \"tools\" \"vc\"))
 "   emacs-version
@@ -276,9 +275,9 @@ define set_package_requires_melpa
 (with-temp-file "lisp/magit-section-pkg.el"
   (insert (format
 "(define-package \"magit-section\" \"$(MAGIT_SECTION_VERSION)$(DEV_SUFFIX)\"
-  \"Sections for read-only buffers\"
+  \"Sections for read-only buffers.\"
   '((emacs %S)
-    (dash %S))
+    (dash  %S))
   :homepage \"https://magit.vc\"
   :keywords '(\"tools\"))
 "   emacs-version
