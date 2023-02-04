@@ -597,7 +597,7 @@ buffers whose major-modes derive from ~magit-mode~.
   ~magit-mode-bury-buffer~ calls this function with one argument.  If
   the argument is non-nil, then the function has to kill the current
   buffer.  Otherwise it has to bury it alive.  The default value
-  currently is ~magit-restore-window-configuration~.
+  currently is ~magit-mode-quit-window~.
 
 - Function: magit-restore-window-configuration kill-buffer ::
 
