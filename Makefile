@@ -331,7 +331,7 @@ _bump-versions:
         $$set_package_requires_melpa)"
 
 bump-snapshots:
-	@$(eval DEV_SUFFIX := -git)
+	@$(eval DEV_SUFFIX := $(DEV_VERSION_SUFFIX))
 	@$(BATCH) --eval "(let (\
         $$set_package_versions)\
         $$set_package_requires_nongnu)"
