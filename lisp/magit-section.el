@@ -11,7 +11,7 @@
 ;; Package-Version: 3.3.0.50-git
 ;; Package-Requires: (
 ;;     (emacs "25.1")
-;;     (compat "28.1.1.2")
+;;     (compat "29.1.3.2")
 ;;     (dash "2.19.1"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
