@@ -183,56 +183,45 @@ magit-$(VERSION).tar.gz: lisp versionlib info
 
 define set_package_requires_nongnu
 
-(with-temp-file "lisp/git-commit.el"
-  (insert-file-contents "lisp/git-commit.el")
-  (re-search-forward "^;; Package-Requires: ")
-  (delete-region (point) (line-end-position))
-  (insert (format "%S"
+(defun --update-package (file version deps)
+  (with-temp-buffer
+    (insert-file-contents file)
+    (re-search-forward "^;; Package-Version: ")
+    (delete-region (point) (line-end-position))
+    (insert (concat version "$(DEV_SUFFIX)"))
+    (re-search-forward "^;; Package-Requires: (\n")
+    (let ((beg (point)))
+      (forward-line)
+      (while (looking-at "^;;     ")
+        (forward-line))
+      (delete-region beg (1- (point)))
+      (goto-char beg)
+      (while deps
+        (insert (format ";;     %S%s" (pop deps) (if deps "\n" ")")))))
+    (write-region nil nil file nil 0)))
+
+(--update-package "lisp/git-commit.el" "$(GIT_COMMIT_VERSION)"
 `((emacs ,emacs-version) ;`
   (dash ,dash-version)
   (transient ,transient-version)
-  (with-editor ,with-editor-version))))
-  (re-search-forward "^;; Package-Version: ")
-  (delete-region (point) (line-end-position))
-  (insert "$(GIT_COMMIT_VERSION)"))
+  (with-editor ,with-editor-version)))
 
-(with-temp-file "lisp/magit.el"
-  (insert-file-contents "lisp/magit.el")
-  (re-search-forward "^;; Package-Requires: ")
-  (delete-region (point) (line-end-position))
-  (insert (format "%S"
+(--update-package "lisp/magit.el" "$(MAGIT_SECTION_VERSION)"
 `((emacs ,emacs-version) ;`
   (dash ,dash-version)
   (git-commit ,git-commit-version)
   (magit-section ,magit-section-version)
   (transient ,transient-version)
-  (with-editor ,with-editor-version))))
-  (re-search-forward "^;; Package-Version: ")
-  (delete-region (point) (line-end-position))
-  (insert "$(MAGIT_SECTION_VERSION)"))
+  (with-editor ,with-editor-version)))
 
-(with-temp-file "lisp/magit-libgit.el"
-  (insert-file-contents "lisp/magit-libgit.el")
-  (re-search-forward "^;; Package-Requires: ")
-  (delete-region (point) (line-end-position))
-  (insert (format "%S"
+(--update-package "lisp/magit-libgit.el" "$(MAGIT_LIBGIT_VERSION)"
 `((emacs "$(LIBGIT_EMACS_VERSION)") ;`
   (libgit ,libgit-version)
-  (magit ,magit-version))))
-  (re-search-forward "^;; Package-Version: ")
-  (delete-region (point) (line-end-position))
-  (insert "$(MAGIT_LIBGIT_VERSION)"))
+  (magit ,magit-version)))
 
-(with-temp-file "lisp/magit-section.el"
-  (insert-file-contents "lisp/magit-section.el")
-  (re-search-forward "^;; Package-Requires: ")
-  (delete-region (point) (line-end-position))
-  (insert (format "%S"
+(--update-package "lisp/magit-section.el" "$(MAGIT_SECTION_VERSION)"
 `((emacs ,emacs-version) ;`
-  (dash ,dash-version))))
-  (re-search-forward "^;; Package-Version: ")
-  (delete-region (point) (line-end-position))
-  (insert "$(MAGIT_SECTION_VERSION)"))
+  (dash ,dash-version)))
 endef
 export set_package_requires_nongnu
 
