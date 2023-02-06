@@ -97,6 +97,7 @@ All Contributors
 - Christian Dietrich
 - Christian Kluge
 - Christophe Junke
+- Christopher Carlile
 - Christopher Monsanto
 - Clément Pit-Claudel
 - Cornelius Mika
@@ -137,6 +138,7 @@ All Contributors
 - Eric Prud'hommeaux
 - Eric Schulte
 - Erik Anderson
+- Eugene Mikhaylov
 - Evan Torrie
 - Evgkeni Sampelnikof
 - Eyal Lotem
