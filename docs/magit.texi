@@ -2348,8 +2348,8 @@ This command kills the process represented by the section at point.
 @end table
 
 @defvar magit-git-debug
-This variable controls whether additional reporting of git errors
-is enabled.
+This option controls whether additional reporting of git errors is
+enabled.
 
 Magit basically calls git for one of these two reasons: for
 side-effects or to do something with its standard output.
@@ -2376,6 +2376,16 @@ by case basis.
 
 The command @code{magit-toggle-git-debug} changes the value of this
 variable.
+@end defvar
+
+@defvar magit-process-extreme-logging
+This option controls whether @code{magit-process-file} logs to the
+@code{*Messages*} buffer.
+
+Only intended for temporary use when you try to figure out how
+Magit uses Git behind the scene.  Output that normally goes to
+the magit-process buffer continues to go there.  Not all output
+goes to either of these two buffers.
 @end defvar
 
 @node Git Process Status
@@ -11108,21 +11118,6 @@ these error messages.  Whether some error message is relevant in
 the context of some unexpected behavior has to be judged on a case
 by case basis.
 
-@item @kbd{M-x magit-toggle-log-commands}
-@findex magit-toggle-log-commands
-@end table
-
-@defvar magit-process-extreme-logging
-This option controls whether @code{magit-process-file} logs to the
-@code{*Messages*} buffer.
-
-Only intended for temporary use when you try to figure out how
-Magit uses Git behind the scene.  Output that normally goes to
-the magit-process buffer continues to go there.  Not all output
-goes to either of these two buffers.
-@end defvar
-
-@table @asis
 @item @kbd{M-x magit-toggle-verbose-refresh}
 @findex magit-toggle-verbose-refresh
 This command toggles whether Magit refreshes buffers verbosely.
