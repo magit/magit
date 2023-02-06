@@ -1961,7 +1961,7 @@ Staging and applying changes is documented in info node
   (magit-diff-scope))
 
 (define-obsolete-variable-alias 'magit-diff-section-base-map
-  'magit-diff-section-map "Magit-Section 3.4.0")
+  'magit-diff-section-map "Magit-Section 4.0.0")
 (defvar magit-diff-section-map
   (let ((map (make-sparse-keymap)))
     (magit-menu-set map [magit-cherry-apply]

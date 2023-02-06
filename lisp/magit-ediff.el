@@ -58,7 +58,7 @@ invoked using Magit."
 
 (defcustom magit-ediff-dwim-resolve-function #'magit-ediff-resolve-rest
   "The function `magit-ediff-dwim' uses to resolve conflicts."
-  :package-version '(magit . "3.4.0")
+  :package-version '(magit . "4.0.0")
   :group 'magit-ediff
   :type '(choice (const magit-ediff-resolve-rest)
                  (const magit-ediff-resolve-all)

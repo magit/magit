@@ -85,7 +85,7 @@ If the specified primary key has signing capacity then it is used
 as the value of the `--gpg-sign' argument without prompting, even
 when other such keys exist.  To be able to select another key you
 must then use a prefix argument."
-  :package-version '(magit . "3.4.0")
+  :package-version '(magit . "4.0.0")
   :group 'magit-commands
   :type 'string)
 
