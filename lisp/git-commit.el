@@ -14,7 +14,7 @@
 ;; Package-Version: 3.3.0.50-git
 ;; Package-Requires: (
 ;;     (emacs "25.1")
-;;     (compat "29.1.3.2")
+;;     (compat "29.1.3.3")
 ;;     (transient "0.3.6")
 ;;     (with-editor "3.0.5"))
 
@@ -117,9 +117,8 @@
 
 ;;; Code:
 
-(require 'seq)
+(require 'compat)
 (require 'subr-x)
-
 (require 'log-edit)
 (require 'ring)
 (require 'rx)
