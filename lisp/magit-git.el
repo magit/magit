@@ -2234,7 +2234,7 @@ If `first-parent' is set, traverse only first parents."
                       (concat "--format=" format) args
                       (if rev (magit--rev-dereference rev) "HEAD")
                       "--")
-    (when magit-revision-show-gravatars
+    (when (bound-and-true-p magit-revision-show-gravatars)
       (put-text-property beg (point) 'face 'fixed-pitch))))
 
 (defun magit-format-rev-summary (rev)
