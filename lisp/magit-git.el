@@ -2229,10 +2229,13 @@ If `first-parent' is set, traverse only first parents."
 (defun magit-rev-insert-format (format &optional rev args)
   ;; Prefer `git log --no-walk' to `git show --no-patch' because it
   ;; performs better in some scenarios.
-  (magit-git-insert "log" "--no-walk"
-                    (concat "--format=" format) args
-                    (if rev (magit--rev-dereference rev) "HEAD")
-                    "--"))
+  (let ((beg (point)))
+    (magit-git-insert "log" "--no-walk"
+                      (concat "--format=" format) args
+                      (if rev (magit--rev-dereference rev) "HEAD")
+                      "--")
+    (when magit-revision-show-gravatars
+      (put-text-property beg (point) 'face 'fixed-pitch))))
 
 (defun magit-format-rev-summary (rev)
   (when-let* ((str (magit-rev-format "%h %s" rev))) ;debbugs#31840
