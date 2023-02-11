@@ -426,13 +426,16 @@ same column.  The cdr specifies where to insert the committer's
 image, accordingly.  Either the car or the cdr may be nil."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision
-  :type '(choice (const :tag "Don't show gravatars" nil)
-                 (const :tag "Show gravatars" t)
-                 (const :tag "Show author gravatar" author)
-                 (const :tag "Show committer gravatar" committer)
-                 (cons  :tag "Show gravatars using custom pattern."
-                        (regexp :tag "Author regexp"    "^Author:     ")
-                        (regexp :tag "Committer regexp" "^Commit:     "))))
+  :type '(choice
+          (const :tag "Don't show gravatars" nil)
+          (const :tag "Show gravatars" t)
+          (const :tag "Show author gravatar" author)
+          (const :tag "Show committer gravatar" committer)
+          (cons  :tag "Show gravatars using custom regexps"
+                 (choice (const  :tag "No author image" nil)
+                         (regexp :tag "Author regexp"    "^Author:     "))
+                 (choice (const  :tag "No committer image" nil)
+                         (regexp :tag "Committer regexp" "^Commit:     ")))))
 
 (defcustom magit-revision-use-gravatar-kludge nil
   "Whether to work around a bug which affects display of gravatars.
