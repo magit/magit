@@ -35,6 +35,23 @@
   :link '(info-link "(magit)Status Buffer")
   :group 'magit-modes)
 
+(defcustom magit-status-show-graph nil
+  "Whether to use `--graph' for various ‘magit-status’ sections."
+  :package-version '(magit . "4.0.0")
+  :group 'magit-status
+  :type '(choice (const :tag "uncolored" t)
+                 (const :tag "colored" color)
+                 (const :tag "never" nil))
+  :set (lambda (option value)
+         (custom-set-default option value)
+         (put 'magit-status-mode 'magit-log-default-arguments
+              (append (pcase value
+                        ('color '("--graph" "--color"))
+                        ('nil ())
+                        ('t '("--graph")))
+                      '("-n256" "--decorate")))
+         (message "log default args are %S" (get 'magit-status-mode 'magit-log-default-arguments))))
+
 (defcustom magit-status-mode-hook nil
   "Hook run after entering Magit-Status mode."
   :group 'magit-status
@@ -410,8 +427,6 @@ Type \\[magit-commit] to create a commit.
 
 (put 'magit-status-mode 'magit-diff-default-arguments
      '("--no-ext-diff"))
-(put 'magit-status-mode 'magit-log-default-arguments
-     '("-n256" "--decorate"))
 
 ;;;###autoload
 (defun magit-status-setup-buffer (&optional directory)
