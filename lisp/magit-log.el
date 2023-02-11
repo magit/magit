@@ -163,7 +163,8 @@ because the latter may make use of Imenu's outdated cache."
                  function))
 
 (defface magit-log-graph
-  '((((class color) (background light)) :foreground "grey30")
+  '((default :inherit fixed-pitch)
+    (((class color) (background light)) :foreground "grey30")
     (((class color) (background  dark)) :foreground "grey80"))
   "Face for the graph part of the log output."
   :group 'magit-faces)
@@ -1242,12 +1243,11 @@ Do not add this to a hook variable."
 
 (defun magit-log-wash-log (style args)
   (setq args (flatten-tree args))
-  (when (and (member "--graph" args)
-             (member "--color" args))
+  (when (member "--graph" args)
     (let ((ansi-color-apply-face-function
            (lambda (beg end face)
              (put-text-property beg end 'font-lock-face
-                                (or face 'magit-log-graph)))))
+                                (plist-put face :inherit '(magit-log-graph))))))
       (ansi-color-apply-on-region (point-min) (point-max))))
   (when (eq style 'cherry)
     (reverse-region (point-min) (point-max)))
@@ -1303,16 +1303,17 @@ Do not add this to a hook variable."
           ('module     (oset section type 'module-commit))
           ('bisect-log (setq hash (magit-rev-parse "--short" hash))))
         (setq hash (propertize hash 'font-lock-face
-                               (pcase (and gpg (aref gpg 0))
-                                 (?G 'magit-signature-good)
-                                 (?B 'magit-signature-bad)
-                                 (?U 'magit-signature-untrusted)
-                                 (?X 'magit-signature-expired)
-                                 (?Y 'magit-signature-expired-key)
-                                 (?R 'magit-signature-revoked)
-                                 (?E 'magit-signature-error)
-                                 (?N 'magit-hash)
-                                 (_  'magit-hash))))
+                               (append (pcase (and gpg (aref gpg 0))
+                                         (?G '(magit-signature-good))
+                                         (?B '(magit-signature-bad))
+                                         (?U '(magit-signature-untrusted))
+                                         (?X '(magit-signature-expired))
+                                         (?Y '(magit-signature-expired-key))
+                                         (?R '(magit-signature-revoked))
+                                         (?E '(magit-signature-error))
+                                         (?N ())
+                                         (_  ()))
+                                       '(magit-hash))))
         (when cherry
           (when (and (derived-mode-p 'magit-refs-mode)
                      magit-refs-show-commit-count)
@@ -1387,10 +1388,16 @@ Do not add this to a hook variable."
                 (delete-char (if (looking-at "\n") 1 4))
                 (magit-diff-wash-diffs (list "--stat") limit))
             (when align
-              (setq align (make-string (1+ abbrev) ? )))
+              (setq align (concat (propertize (make-string abbrev ? )
+                                              'font-lock-face
+                                              'magit-hash)
+                                  " ")))
             (when (and (not (eobp)) (not (looking-at non-graph-re)))
               (when align
-                (setq align (make-string (1+ abbrev) ? )))
+                (setq align (concat (propertize (make-string abbrev ? )
+                                                'font-lock-face
+                                                'magit-hash)
+                                    " ")))
               (while (and (not (eobp)) (not (looking-at non-graph-re)))
                 (when align
                   (save-excursion (insert align)))

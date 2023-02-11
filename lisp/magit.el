@@ -111,7 +111,8 @@ own faces for the `header-line', or for parts of the
   :group 'magit-faces)
 
 (defface magit-hash
-  '((((class color) (background light)) :foreground "grey60")
+  '((default :inherit fixed-pitch)
+    (((class color) (background light)) :foreground "grey60")
     (((class color) (background  dark)) :foreground "grey40"))
   "Face for the commit object name in the log output."
   :group 'magit-faces)
