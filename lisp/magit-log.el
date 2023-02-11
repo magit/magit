@@ -1331,7 +1331,7 @@ Do not add this to a hook variable."
         (when align
           (insert hash ?\s))
         (when graph
-          (insert graph))
+          (insert (propertize graph 'font-lock-face 'fixed-pitch)))
         (unless align
           (insert hash ?\s))
         (when (and refs (not magit-log-show-refname-after-summary))
@@ -1387,10 +1387,12 @@ Do not add this to a hook variable."
                 (delete-char (if (looking-at "\n") 1 4))
                 (magit-diff-wash-diffs (list "--stat") limit))
             (when align
-              (setq align (make-string (1+ abbrev) ? )))
+              (setq align (propertize (make-string (1+ abbrev) ?\s)
+                                      'font-lock-face 'magit-hash)))
             (when (and (not (eobp)) (not (looking-at non-graph-re)))
               (when align
-                (setq align (make-string (1+ abbrev) ? )))
+                (setq align (propertize (make-string (1+ abbrev) ?\s)
+                                        'font-lock-face 'magit-hash)))
               (while (and (not (eobp)) (not (looking-at non-graph-re)))
                 (when align
                   (save-excursion (insert align)))
