@@ -11,7 +11,7 @@
 ;; Package-Version: 3.3.0.50-git
 ;; Package-Requires: (
 ;;     (emacs "26.1")
-;;     (compat "29.1.3.3")
+;;     (compat "29.1.3.4")
 ;;     (libgit "0")
 ;;     (magit "3.3.0"))
 
