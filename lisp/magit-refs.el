@@ -271,13 +271,11 @@ the outcome.
 
 ;;; Mode
 
-(defvar magit-refs-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "C-y") #'magit-refs-set-show-commit-count)
-    (define-key map (kbd "L")   #'magit-margin-settings)
-    map)
-  "Keymap for `magit-refs-mode'.")
+(defvar-keymap magit-refs-mode-map
+  :doc "Keymap for `magit-refs-mode'."
+  :parent magit-mode-map
+  "C-y" #'magit-refs-set-show-commit-count
+  "L"   #'magit-margin-settings)
 
 (define-derived-mode magit-refs-mode magit-mode "Magit Refs"
   "Mode which lists and compares references.

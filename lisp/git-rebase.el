@@ -143,42 +143,39 @@
 
 ;;; Keymaps
 
-(defvar git-rebase-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map special-mode-map)
-    (define-key map (kbd "C-m") #'git-rebase-show-commit)
-    (define-key map (kbd   "p") #'git-rebase-backward-line)
-    (define-key map (kbd   "n") #'forward-line)
-    (define-key map (kbd "M-p") #'git-rebase-move-line-up)
-    (define-key map (kbd "M-n") #'git-rebase-move-line-down)
-    (define-key map (kbd   "c") #'git-rebase-pick)
-    (define-key map (kbd   "k") #'git-rebase-kill-line)
-    (define-key map (kbd "C-k") #'git-rebase-kill-line)
-    (define-key map (kbd "b")   #'git-rebase-break)
-    (define-key map (kbd "e")   #'git-rebase-edit)
-    (define-key map (kbd "l")   #'git-rebase-label)
-    (define-key map (kbd "M M") #'git-rebase-merge)
-    (define-key map (kbd "M t") #'git-rebase-merge-toggle-editmsg)
-    (define-key map (kbd "m")   #'git-rebase-edit)
-    (define-key map (kbd "f")   #'git-rebase-fixup)
-    (define-key map (kbd "q")   #'undefined)
-    (define-key map (kbd "r")   #'git-rebase-reword)
-    (define-key map (kbd "w")   #'git-rebase-reword)
-    (define-key map (kbd "s")   #'git-rebase-squash)
-    (define-key map (kbd "t")   #'git-rebase-reset)
-    (define-key map (kbd "u")   #'git-rebase-update-ref)
-    (define-key map (kbd "x")   #'git-rebase-exec)
-    (define-key map (kbd "y")   #'git-rebase-insert)
-    (define-key map (kbd "z")   #'git-rebase-noop)
-    (define-key map (kbd "SPC")     #'git-rebase-show-or-scroll-up)
-    (define-key map (kbd "DEL")     #'git-rebase-show-or-scroll-down)
-    (define-key map (kbd "C-x C-t") #'git-rebase-move-line-up)
-    (define-key map [M-up]          #'git-rebase-move-line-up)
-    (define-key map [M-down]        #'git-rebase-move-line-down)
-    (define-key map [remap undo]    #'git-rebase-undo)
-    map)
-  "Keymap for Git-Rebase mode.")
-
+(defvar-keymap git-rebase-mode-map
+  :doc "Keymap for Git-Rebase mode."
+  :parent special-mode-map
+  "C-m" #'git-rebase-show-commit
+  "p"   #'git-rebase-backward-line
+  "n"   #'forward-line
+  "M-p" #'git-rebase-move-line-up
+  "M-n" #'git-rebase-move-line-down
+  "c"   #'git-rebase-pick
+  "k"   #'git-rebase-kill-line
+  "C-k" #'git-rebase-kill-line
+  "b"   #'git-rebase-break
+  "e"   #'git-rebase-edit
+  "l"   #'git-rebase-label
+  "M M" #'git-rebase-merge
+  "M t" #'git-rebase-merge-toggle-editmsg
+  "m"   #'git-rebase-edit
+  "f"   #'git-rebase-fixup
+  "q"   #'undefined
+  "r"   #'git-rebase-reword
+  "w"   #'git-rebase-reword
+  "s"   #'git-rebase-squash
+  "t"   #'git-rebase-reset
+  "u"   #'git-rebase-update-ref
+  "x"   #'git-rebase-exec
+  "y"   #'git-rebase-insert
+  "z"   #'git-rebase-noop
+  "SPC" #'git-rebase-show-or-scroll-up
+  "DEL" #'git-rebase-show-or-scroll-down
+  "C-x C-t"        #'git-rebase-move-line-up
+  "M-<up>"         #'git-rebase-move-line-up
+  "M-<down>"       #'git-rebase-move-line-down
+  "<remap> <undo>" #'git-rebase-undo)
 (put 'git-rebase-reword       :advertised-binding (kbd "r"))
 (put 'git-rebase-move-line-up :advertised-binding (kbd "M-p"))
 (put 'git-rebase-kill-line    :advertised-binding (kbd "k"))

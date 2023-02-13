@@ -289,11 +289,9 @@ then also remove the respective remote branch."
 
 ;;; Sections
 
-(defvar magit-unmerged-section-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-log-section-map)
-    map)
-  "Keymap for `unmerged' sections.")
+(defvar-keymap magit-unmerged-section-map
+  :doc "Keymap for `unmerged' sections."
+  :parent magit-log-section-map)
 
 (defun magit-insert-merge-log ()
   "Insert section for the on-going merge.

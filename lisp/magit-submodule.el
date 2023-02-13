@@ -632,11 +632,9 @@ These sections can be expanded to show the respective commits."
   (interactive)
   (magit-submodule-list-setup magit-submodule-list-columns))
 
-(defvar magit-submodule-list-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-repolist-mode-map)
-    map)
-  "Local keymap for Magit-Submodule-List mode buffers.")
+(defvar-keymap magit-submodule-list-mode-map
+  :doc "Local keymap for Magit-Submodule-List mode buffers."
+  :parent magit-repolist-mode-map)
 
 (define-derived-mode magit-submodule-list-mode tabulated-list-mode "Modules"
   "Major mode for browsing a list of Git submodules."

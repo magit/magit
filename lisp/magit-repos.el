@@ -254,16 +254,14 @@ If it contains \"%s\" then the directory is substituted for that."
 
 ;;;; Mode
 
-(defvar magit-repolist-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map tabulated-list-mode-map)
-    (define-key map (kbd "C-m") #'magit-repolist-status)
-    (define-key map (kbd "m")   #'magit-repolist-mark)
-    (define-key map (kbd "u")   #'magit-repolist-unmark)
-    (define-key map (kbd "f")   #'magit-repolist-fetch)
-    (define-key map (kbd "5")   #'magit-repolist-find-file-other-frame)
-    map)
-  "Local keymap for Magit-Repolist mode buffers.")
+(defvar-keymap magit-repolist-mode-map
+  :doc "Local keymap for Magit-Repolist mode buffers."
+  :parent tabulated-list-mode-map
+  "C-m" #'magit-repolist-status
+  "m"   #'magit-repolist-mark
+  "u"   #'magit-repolist-unmark
+  "f"   #'magit-repolist-fetch
+  "5"   #'magit-repolist-find-file-other-frame)
 
 (define-derived-mode magit-repolist-mode tabulated-list-mode "Repos"
   "Major mode for browsing a list of Git repositories."

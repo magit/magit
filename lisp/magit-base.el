@@ -700,12 +700,10 @@ back to built-in `completing-read' for now." :error)
       (format "%s (default %s): " (substring prompt 0 -2) def)
     prompt))
 
-(defvar magit-minibuffer-local-ns-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map minibuffer-local-map)
-    (define-key map "\s" #'magit-whitespace-disallowed)
-    (define-key map "\t" #'magit-whitespace-disallowed)
-    map))
+(defvar-keymap magit-minibuffer-local-ns-map
+  :parent minibuffer-local-map
+  "SPC" #'magit-whitespace-disallowed
+  "TAB" #'magit-whitespace-disallowed)
 
 (defun magit-whitespace-disallowed ()
   "Beep to tell the user that whitespace is not allowed."

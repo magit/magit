@@ -322,16 +322,14 @@ to `magit-dispatch'."
 
 ;;; Blob Mode
 
-(defvar magit-blob-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "p" #'magit-blob-previous)
-    (define-key map "n" #'magit-blob-next)
-    (define-key map "b" #'magit-blame-addition)
-    (define-key map "r" #'magit-blame-removal)
-    (define-key map "f" #'magit-blame-reverse)
-    (define-key map "q" #'magit-kill-this-buffer)
-    map)
-  "Keymap for `magit-blob-mode'.")
+(defvar-keymap magit-blob-mode-map
+  :doc "Keymap for `magit-blob-mode'."
+  "p" #'magit-blob-previous
+  "n" #'magit-blob-next
+  "b" #'magit-blame-addition
+  "r" #'magit-blame-removal
+  "f" #'magit-blame-reverse
+  "q" #'magit-kill-this-buffer)
 
 (define-minor-mode magit-blob-mode
   "Enable some Magit features in blob-visiting buffers.

@@ -410,24 +410,22 @@ This is only used if Magit is available."
 
 ;;; Keymap
 
-(defvar git-commit-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "M-p")     #'git-commit-prev-message)
-    (define-key map (kbd "M-n")     #'git-commit-next-message)
-    (define-key map (kbd "C-c M-p") #'git-commit-search-message-backward)
-    (define-key map (kbd "C-c M-n") #'git-commit-search-message-forward)
-    (define-key map (kbd "C-c C-i") #'git-commit-insert-pseudo-header)
-    (define-key map (kbd "C-c C-a") #'git-commit-ack)
-    (define-key map (kbd "C-c M-i") #'git-commit-suggested)
-    (define-key map (kbd "C-c C-m") #'git-commit-modified)
-    (define-key map (kbd "C-c C-o") #'git-commit-cc)
-    (define-key map (kbd "C-c C-p") #'git-commit-reported)
-    (define-key map (kbd "C-c C-r") #'git-commit-review)
-    (define-key map (kbd "C-c C-s") #'git-commit-signoff)
-    (define-key map (kbd "C-c C-t") #'git-commit-test)
-    (define-key map (kbd "C-c M-s") #'git-commit-save-message)
-    map)
-  "Key map used by `git-commit-mode'.")
+(defvar-keymap git-commit-mode-map
+  :doc "Key map used by `git-commit-mode'."
+  "M-p"     #'git-commit-prev-message
+  "M-n"     #'git-commit-next-message
+  "C-c M-p" #'git-commit-search-message-backward
+  "C-c M-n" #'git-commit-search-message-forward
+  "C-c C-i" #'git-commit-insert-pseudo-header
+  "C-c C-a" #'git-commit-ack
+  "C-c M-i" #'git-commit-suggested
+  "C-c C-m" #'git-commit-modified
+  "C-c C-o" #'git-commit-cc
+  "C-c C-p" #'git-commit-reported
+  "C-c C-r" #'git-commit-review
+  "C-c C-s" #'git-commit-signoff
+  "C-c C-t" #'git-commit-test
+  "C-c M-s" #'git-commit-save-message)
 
 ;;; Menu
 

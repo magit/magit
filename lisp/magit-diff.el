@@ -1869,18 +1869,16 @@ commit or stash at point, then prompt for a commit."
 
 ;;; Diff Mode
 
-(defvar magit-diff-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "C-c C-d") #'magit-diff-while-committing)
-    (define-key map (kbd "C-c C-b") #'magit-go-backward)
-    (define-key map (kbd "C-c C-f") #'magit-go-forward)
-    (define-key map (kbd "SPC")     #'scroll-up)
-    (define-key map (kbd "DEL")     #'scroll-down)
-    (define-key map (kbd "j")       #'magit-jump-to-diffstat-or-diff)
-    (define-key map [remap write-file] #'magit-patch-save)
-    map)
-  "Keymap for `magit-diff-mode'.")
+(defvar-keymap magit-diff-mode-map
+  :doc "Keymap for `magit-diff-mode'."
+  :parent magit-mode-map
+  "C-c C-d" #'magit-diff-while-committing
+  "C-c C-b" #'magit-go-backward
+  "C-c C-f" #'magit-go-forward
+  "SPC"     #'scroll-up
+  "DEL"     #'scroll-down
+  "j"       #'magit-jump-to-diffstat-or-diff
+  "<remap> <write-file>" #'magit-patch-save)
 
 (define-derived-mode magit-diff-mode magit-mode "Magit Diff"
   "Mode for looking at a Git diff.
@@ -2006,11 +2004,9 @@ The classes `magit-file-section' and `magit-hunk-section' derive
 from the abstract `magit-diff-section' class.  Accordingly this
 keymap is the parent of their keymaps.")
 
-(defvar magit-file-section-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-diff-section-base-map)
-    map)
-  "Keymap for `file' sections.")
+(defvar-keymap magit-file-section-map
+  :doc "Keymap for `file' sections."
+  :parent magit-diff-section-base-map)
 
 (defvar magit-hunk-section-map
   (let ((map (make-sparse-keymap)))

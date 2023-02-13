@@ -289,33 +289,29 @@ Also see option `magit-blame-styles'."
 
 ;;; Keymaps
 
-(defvar magit-blame-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-q") 'magit-blame-quit)
-    map)
-  "Keymap for `magit-blame-mode'.
+(defvar-keymap magit-blame-mode-map
+  :doc "Keymap for `magit-blame-mode'.
 Note that most blaming key bindings are defined
-in `magit-blame-read-only-mode-map' instead.")
+in `magit-blame-read-only-mode-map' instead."
+  "C-c C-q" #'magit-blame-quit)
 
-(defvar magit-blame-read-only-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-m")   #'magit-show-commit)
-    (define-key map (kbd   "p")   #'magit-blame-previous-chunk)
-    (define-key map (kbd   "P")   #'magit-blame-previous-chunk-same-commit)
-    (define-key map (kbd   "n")   #'magit-blame-next-chunk)
-    (define-key map (kbd   "N")   #'magit-blame-next-chunk-same-commit)
-    (define-key map (kbd   "b")   #'magit-blame-addition)
-    (define-key map (kbd   "r")   #'magit-blame-removal)
-    (define-key map (kbd   "f")   #'magit-blame-reverse)
-    (define-key map (kbd   "B")   #'magit-blame)
-    (define-key map (kbd   "c")   #'magit-blame-cycle-style)
-    (define-key map (kbd   "q")   #'magit-blame-quit)
-    (define-key map (kbd "M-w")   #'magit-blame-copy-hash)
-    (define-key map (kbd "SPC")   #'magit-diff-show-or-scroll-up)
-    (define-key map (kbd "S-SPC") #'magit-diff-show-or-scroll-down)
-    (define-key map (kbd "DEL")   #'magit-diff-show-or-scroll-down)
-    map)
-  "Keymap for `magit-blame-read-only-mode'.")
+(defvar-keymap magit-blame-read-only-mode-map
+  :doc "Keymap for `magit-blame-read-only-mode'."
+  "C-m" #'magit-show-commit
+  "p"   #'magit-blame-previous-chunk
+  "P"   #'magit-blame-previous-chunk-same-commit
+  "n"   #'magit-blame-next-chunk
+  "N"   #'magit-blame-next-chunk-same-commit
+  "b"   #'magit-blame-addition
+  "r"   #'magit-blame-removal
+  "f"   #'magit-blame-reverse
+  "B"   #'magit-blame
+  "c"   #'magit-blame-cycle-style
+  "q"   #'magit-blame-quit
+  "M-w" #'magit-blame-copy-hash
+  "SPC"   #'magit-diff-show-or-scroll-up
+  "S-SPC" #'magit-diff-show-or-scroll-down
+  "DEL"   #'magit-diff-show-or-scroll-down)
 
 ;;; Modes
 ;;;; Base Mode

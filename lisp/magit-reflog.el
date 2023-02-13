@@ -130,13 +130,11 @@ If `HEAD' is detached, then show the reflog for that instead."
 
 ;;; Mode
 
-(defvar magit-reflog-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-log-mode-map)
-    (define-key map (kbd "C-c C-n") #'undefined)
-    (define-key map (kbd "L")       #'magit-margin-settings)
-    map)
-  "Keymap for `magit-reflog-mode'.")
+(defvar-keymap magit-reflog-mode-map
+  :doc "Keymap for `magit-reflog-mode'."
+  :parent magit-log-mode-map
+  "C-c C-n" #'undefined
+  "L"       #'magit-margin-settings)
 
 (define-derived-mode magit-reflog-mode magit-mode "Magit Reflog"
   "Mode for looking at Git reflog.

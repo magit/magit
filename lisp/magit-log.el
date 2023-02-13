@@ -610,11 +610,9 @@ commits before and half after."
 
 ;;;; Setup Commands
 
-(defvar magit-log-read-revs-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map crm-local-completion-map)
-    (define-key map "\s" #'self-insert-command)
-    map))
+(defvar-keymap magit-log-read-revs-map
+  :parent crm-local-completion-map
+  "SPC" #'self-insert-command)
 
 (defun magit-log-read-revs (&optional use-current)
   (or (and use-current (and-let* ((buf (magit-get-current-branch))) (list buf)))
@@ -1004,19 +1002,17 @@ of the current repository first; creating it if necessary."
   '("-G" "--grep" "--author")
   "Arguments which disable the graph speedup hack.")
 
-(defvar magit-log-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    (define-key map (kbd "C-c C-b") #'magit-go-backward)
-    (define-key map (kbd "C-c C-f") #'magit-go-forward)
-    (define-key map (kbd "C-c C-n") #'magit-log-move-to-parent)
-    (define-key map "j" #'magit-log-move-to-revision)
-    (define-key map "=" #'magit-log-toggle-commit-limit)
-    (define-key map "+" #'magit-log-double-commit-limit)
-    (define-key map "-" #'magit-log-half-commit-limit)
-    (define-key map "q" #'magit-log-bury-buffer)
-    map)
-  "Keymap for `magit-log-mode'.")
+(defvar-keymap magit-log-mode-map
+  :doc "Keymap for `magit-log-mode'."
+  :parent magit-mode-map
+  "C-c C-b" #'magit-go-backward
+  "C-c C-f" #'magit-go-forward
+  "C-c C-n" #'magit-log-move-to-parent
+  "j" #'magit-log-move-to-revision
+  "=" #'magit-log-toggle-commit-limit
+  "+" #'magit-log-double-commit-limit
+  "-" #'magit-log-half-commit-limit
+  "q" #'magit-log-bury-buffer)
 
 (define-derived-mode magit-log-mode magit-mode "Magit Log"
   "Mode for looking at Git log.
@@ -1169,11 +1165,9 @@ Do not add this to a hook variable."
     map)
   "Keymap for `commit' sections.")
 
-(defvar magit-module-commit-section-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-commit-section-map)
-    map)
-  "Keymap for `module-commit' sections.")
+(defvar-keymap magit-module-commit-section-map
+  :doc "Keymap for `module-commit' sections."
+  :parent magit-commit-section-map)
 
 (defconst magit-log-heading-re
   ;; Note: A form feed instead of a null byte is used as the delimiter
@@ -1595,19 +1589,16 @@ The shortstat style is experimental and rather slow."
 
 ;;; Select Mode
 
-(defvar magit-log-select-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-log-mode-map)
-    (define-key map (kbd "C-c C-b") #'undefined)
-    (define-key map (kbd "C-c C-f") #'undefined)
-    (define-key map (kbd ".")       #'magit-log-select-pick)
-    (define-key map (kbd "e")       #'magit-log-select-pick)
-    (define-key map (kbd "C-c C-c") #'magit-log-select-pick)
-    (define-key map (kbd "q")       #'magit-log-select-quit)
-    (define-key map (kbd "C-c C-k") #'magit-log-select-quit)
-    map)
-  "Keymap for `magit-log-select-mode'.")
-
+(defvar-keymap magit-log-select-mode-map
+  :doc "Keymap for `magit-log-select-mode'."
+  :parent magit-log-mode-map
+  "C-c C-b" #'undefined
+  "C-c C-f" #'undefined
+  "."       #'magit-log-select-pick
+  "e"       #'magit-log-select-pick
+  "C-c C-c" #'magit-log-select-pick
+  "q"       #'magit-log-select-quit
+  "C-c C-k" #'magit-log-select-quit)
 (put 'magit-log-select-pick :advertised-binding [?\C-c ?\C-c])
 (put 'magit-log-select-quit :advertised-binding [?\C-c ?\C-k])
 
@@ -1703,13 +1694,11 @@ Call `magit-log-select-quit-function' if set."
 
 ;;; Cherry Mode
 
-(defvar magit-cherry-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    (define-key map "q" #'magit-log-bury-buffer)
-    (define-key map "L" #'magit-margin-settings)
-    map)
-  "Keymap for `magit-cherry-mode'.")
+(defvar-keymap magit-cherry-mode-map
+  :doc "Keymap for `magit-cherry-mode'."
+  :parent magit-mode-map
+  "q" #'magit-log-bury-buffer
+  "L" #'magit-margin-settings)
 
 (define-derived-mode magit-cherry-mode magit-mode "Magit Cherry"
   "Mode for looking at commits not merged upstream.
@@ -1782,11 +1771,9 @@ The classes `magit-{unpulled,unpushed,unmerged}-section' derive
 from the abstract `magit-log-section' class.  Accordingly this
 keymap is the parent of their keymaps.")
 
-(defvar magit-unpulled-section-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-log-section-map)
-    map)
-  "Keymap for `unpulled' sections.")
+(defvar-keymap magit-unpulled-section-map
+  :doc "Keymap for `unpulled' sections."
+  :parent magit-log-section-map)
 
 (cl-defmethod magit-section-ident-value ((section magit-unpulled-section))
   "\"..@{push}\" cannot be used as the value because that is
@@ -1827,11 +1814,9 @@ in the pushremote case."
         (magit-insert-log (concat ".." it) magit-buffer-log-args)
         (magit-log-insert-child-count)))))
 
-(defvar magit-unpushed-section-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-log-section-map)
-    map)
-  "Keymap for `unpushed' sections.")
+(defvar-keymap magit-unpushed-section-map
+  :doc "Keymap for `unpushed' sections."
+  :parent magit-log-section-map)
 
 (cl-defmethod magit-section-ident-value ((section magit-unpushed-section))
   "\"..@{push}\" cannot be used as the value because that is

@@ -344,15 +344,13 @@ no effect.  This also has no effect for Emacs >= 28, where
 
 (defvar symbol-overlay-inhibit-map)
 
-(defvar magit-section-heading-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [double-down-mouse-1] #'ignore)
-    (define-key map [double-mouse-1] #'magit-mouse-toggle-section)
-    (define-key map [double-mouse-2] #'magit-mouse-toggle-section)
-    map)
-  "Keymap used in the heading line of all expandable sections.
+(defvar-keymap magit-section-heading-map
+  :doc "Keymap used in the heading line of all expandable sections.
 This keymap is used in addition to the section-specific keymap,
-if any.")
+if any."
+  "<double-down-mouse-1>" #'ignore
+  "<double-mouse-1>" #'magit-mouse-toggle-section
+  "<double-mouse-2>" #'magit-mouse-toggle-section)
 
 (defvar magit-section-mode-map
   (let ((map (make-keymap)))

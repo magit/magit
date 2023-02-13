@@ -332,13 +332,11 @@ init file: (global-set-key (kbd \"C-x g\") \\='magit-status-quick)."
 
 ;;; Mode
 
-(defvar magit-status-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    (define-key map "j" #'magit-status-jump)
-    (define-key map [remap dired-jump] #'magit-dired-jump)
-    map)
-  "Keymap for `magit-status-mode'.")
+(defvar-keymap magit-status-mode-map
+  :doc "Keymap for `magit-status-mode'."
+  :parent magit-mode-map
+  "j" #'magit-status-jump
+  "<remap> <dired-jump>" #'magit-dired-jump)
 
 (transient-define-prefix magit-status-jump ()
   "In a Magit-Status buffer, jump to a section."
