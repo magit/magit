@@ -1150,20 +1150,15 @@ Do not add this to a hook variable."
   (or (magit-diff--region-range)
       (oref (magit-current-section) value)))
 
-(defvar magit-commit-section-map
-  (let ((map (make-sparse-keymap)))
-    ;; The second remapping overrides the first but we still get two menu
-    ;; items, though only one of them will be available at any given time.
-    (magit-menu-set map [magit-visit-thing]
-      #'magit-diff-range   "Diff %x"
-      '(:visible (region-active-p)))
-    (magit-menu-set map [magit-visit-thing]
-      #'magit-show-commit  "Show commit %x"
-      '(:visible (not (region-active-p))))
-    (magit-menu-set map [magit-cherry-apply]
-      #'magit-cherry-apply "Apply %x")
-    map)
-  "Keymap for `commit' sections.")
+
+(defvar-keymap magit-commit-section-map
+  :doc "Keymap for `commit' sections."
+  "<remap> <magit-visit-thing>" #'magit-show-commit
+  "<3>" (magit-menu-item "Apply %x" #'magit-cherry-apply)
+  "<2>" (magit-menu-item "Show commit %x" #'magit-show-commit
+                         '(:visible (not (region-active-p))))
+  "<1>" (magit-menu-item "Diff %x" #'magit-diff-range
+                         '(:visible (region-active-p))))
 
 (defvar-keymap magit-module-commit-section-map
   :doc "Keymap for `module-commit' sections."
@@ -1762,14 +1757,13 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 ;;; Log Sections
 ;;;; Standard Log Sections
 
-(defvar magit-log-section-map
-  (let ((map (make-sparse-keymap)))
-    (magit-menu-set map [magit-visit-thing] #'magit-diff-dwim "Visit diff")
-    map)
-  "Keymap for log sections.
+(defvar-keymap magit-log-section-map
+  :doc "Keymap for log sections.
 The classes `magit-{unpulled,unpushed,unmerged}-section' derive
 from the abstract `magit-log-section' class.  Accordingly this
-keymap is the parent of their keymaps.")
+keymap is the parent of their keymaps."
+  "<remap> <magit-visit-thing>" #'magit-diff-dwim
+  "<1>" (magit-menu-item "Visit diff" #'magit-diff-dwim))
 
 (defvar-keymap magit-unpulled-section-map
   :doc "Keymap for `unpulled' sections."

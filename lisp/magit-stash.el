@@ -373,21 +373,23 @@ current branch or `HEAD' as the start-point."
 
 ;;; Sections
 
-(defvar magit-stashes-section-map
-  (let ((map (make-sparse-keymap)))
-    (magit-menu-set map [magit-visit-thing]  #'magit-stash-list  "List %t")
-    (magit-menu-set map [magit-delete-thing] #'magit-stash-clear "Clear %t")
-    map)
-  "Keymap for `stashes' section.")
+(defvar-keymap magit-stashes-section-map
+  :doc "Keymap for `stashes' section."
+  "<remap> <magit-delete-thing>" #'magit-stash-clear
+  "<remap> <magit-visit-thing>"  #'magit-stash-list
+  "<2>" (magit-menu-item "Clear %t" #'magit-stash-clear)
+  "<1>" (magit-menu-item "List %t"  #'magit-stash-list))
 
-(defvar magit-stash-section-map
-  (let ((map (make-sparse-keymap)))
-    (magit-menu-set map [magit-visit-thing]  #'magit-stash-show  "Visit %v")
-    (magit-menu-set map [magit-delete-thing] #'magit-stash-drop  "Delete %M")
-    (magit-menu-set map [magit-cherry-apply] #'magit-stash-apply "Apply %M")
-    (magit-menu-set map [magit-cherry-pick]  #'magit-stash-pop   "Pop %M")
-    map)
-  "Keymap for `stash' sections.")
+(defvar-keymap magit-stash-section-map
+  :doc "Keymap for `stash' sections."
+  "<remap> <magit-cherry-pick>"  #'magit-stash-pop
+  "<remap> <magit-cherry-apply>" #'magit-stash-apply
+  "<remap> <magit-delete-thing>" #'magit-stash-drop
+  "<remap> <magit-visit-thing>"  #'magit-stash-show
+  "<4>" (magit-menu-item "Pop %M"    #'magit-stash-pop)
+  "<3>" (magit-menu-item "Apply %M"  #'magit-stash-apply)
+  "<2>" (magit-menu-item "Delete %M" #'magit-stash-drop)
+  "<1>" (magit-menu-item "Visit %v"  #'magit-stash-show))
 
 (magit-define-section-jumper magit-jump-to-stashes
   "Stashes" stashes "refs/stash")

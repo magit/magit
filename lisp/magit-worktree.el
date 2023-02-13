@@ -145,14 +145,14 @@ then show it in Dired instead."
 
 ;;; Sections
 
-(defvar magit-worktree-section-map
-  (let ((map (make-sparse-keymap)))
-    (magit-menu-set map [magit-visit-thing]  #'magit-worktree-status "Visit %s")
-    (magit-menu-set map [magit-delete-thing] #'magit-worktree-delete "Delete %m")
-    (define-key-after map [separator-magit-worktree] menu-bar-separator)
-    (magit-menu-set map [magit-worktree] #'magit-worktree "Worktree commands...")
-    map)
-  "Keymap for `worktree' sections.")
+(defvar-keymap magit-worktree-section-map
+  :doc "Keymap for `worktree' sections."
+  "<remap> <magit-delete-thing>" #'magit-worktree-delete
+  "<remap> <magit-visit-thing>"  #'magit-worktree-status
+  "<4>" (magit-menu-item "Worktree commands..." #'magit-worktree)
+  "<3>" '(menu-item "--")
+  "<2>" (magit-menu-item "Delete %m" #'magit-worktree-delete)
+  "<1>" (magit-menu-item "Visit %s" #'magit-worktree-status))
 
 (defun magit-insert-worktrees ()
   "Insert sections for all worktrees.

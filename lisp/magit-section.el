@@ -599,55 +599,33 @@ The return value has the form (TYPE...)."
                     (magit--menu-bar-keymap map)))))
   menu)
 
-(defun magit-menu-set (keymap key def desc &optional props after)
-  "In KEYMAP, define KEY and a menu entry for DEF.
+(defun magit-menu-item (desc def &optional props)
+  "Return a menu item named DESC binding DEF and using PROPS.
 
-Add the menu item (menu-item DESC DEF . PROPS) at the end of
-KEYMAP, or if optional AFTER is non-nil, then after that.
+If DESC contains a supported %-spec, substitute the
+expression (magit-menu-format-desc DESC) for that.
+See `magit-menu-format-desc'."
+  `(menu-item
+    ,(if (and (stringp desc) (string-match-p "%[tTvsmMx]" desc))
+         (list 'magit-menu-format-desc desc)
+       desc)
+    ,def
+    ;; Without this, the keys for point would be shown instead
+    ;; of the relevant ones from where the click occurred.
+    :keys ,(apply-partially #'magit--menu-position-keys def)
+    ,@props))
 
-Because it is so common, and would otherwise result in overlong
-lines or else unsightly line wrapping, a definition [remap CMD]
-can be written as just [CMD].  As a result KEY might have to be
-a string when otherwise a vector would have worked.
-
-If DESC is a string that contains a supported %-spec, substitute
-the expression (magit-menu-format-desc DESC) for that.  See
-`magit-menu-format-desc'."
-  (declare (indent defun))
-  (when (vectorp key)
-    ;; Expand the short-hand.
-    (unless (eq (aref key 0) 'remap)
-      (setq key (vconcat [remap] key)))
-    ;; The default binding is RET, but in my configuration it
-    ;; is <return>.  In that case the displayed binding would
-    ;; be <CMD> instead of <return>, for unknown reasons. The
-    ;; same does not happen for similar events, such as <tab>.
-    (when (and (equal key [remap magit-visit-thing])
-               (boundp 'magit-mode-map)
-               (ignore-errors (eq (lookup-key magit-mode-map [return])
-                                  'magit-visit-thing)))
-      (setq key [return]))
-    ;; `define-key-after' cannot deal with [remap CMD],
-    ;; so we have to add the key binding separately.
-    (define-key keymap key def)
-    (unless (symbolp def)
-      (error "When KEY is a remapping, then DEF must be a symbol: %s" def))
-    (setq key (vector def)))
-  (when (and (stringp desc) (string-match-p "%[tTvsmMx]" desc))
-    (setq desc (list 'magit-menu-format-desc desc)))
-  (define-key-after keymap key
-    `( menu-item ,desc ,def ,@props
-       ;; Without this, the keys for point would be shown instead
-       ;; of the relevant ones from where the click occurred.
-       ,@(and (not (region-active-p))
-              (list :keys
-                    (lambda ()
-                      (or (ignore-errors
-                            (save-excursion
-                              (goto-char (magit-menu-position))
-                              (key-description (where-is-internal def nil t))))
-                          "")))))
-    after))
+(defun magit--menu-position-keys (def)
+  (or (ignore-errors
+        (save-excursion
+          (goto-char (magit-menu-position))
+          (and-let* ((key (cl-find-if-not
+                           (lambda (key)
+                             (string-match-p "\\`<[0-9]+>\\'"
+                                             (key-description key)))
+                           (where-is-internal def))))
+            (key-description key))))
+      ""))
 
 (defun magit-menu-position ()
   "Return the position where the context-menu was invoked.

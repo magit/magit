@@ -471,27 +471,28 @@ Branch %s already exists.
 
 ;;; Sections
 
-(defvar magit-remote-section-map
-  (let ((map (make-sparse-keymap)))
-    (magit-menu-set map [magit-delete-thing] #'magit-remote-remove "Remove %m")
-    (magit-menu-set map [magit-file-rename]  #'magit-remote-rename "Rename %s")
-    map)
-  "Keymap for `remote' sections.")
+(defvar-keymap magit-remote-section-map
+  :doc "Keymap for `remote' sections."
+  "<remap> <magit-file-rename>"  #'magit-remote-rename
+  "<remap> <magit-delete-thing>" #'magit-remote-remove
+  "<2>" (magit-menu-item "Rename %s" #'magit-remote-rename)
+  "<1>" (magit-menu-item "Remove %m" #'magit-remote-remove))
 
-(defvar magit-branch-section-map
-  (let ((map (make-sparse-keymap)))
-    (magit-menu-set map [magit-visit-thing]  #'magit-visit-ref     "Visit commit")
-    (magit-menu-set map [magit-delete-thing] #'magit-branch-delete "Delete %m")
-    (magit-menu-set map [magit-file-rename]  #'magit-branch-rename "Rename %s")
-    map)
-  "Keymap for `branch' sections.")
+(defvar-keymap magit-branch-section-map
+  :doc "Keymap for `branch' sections."
+  "<remap> <magit-file-rename>"  #'magit-branch-rename
+  "<remap> <magit-delete-thing>" #'magit-branch-delete
+  "<remap> <magit-visit-thing>"  #'magit-visit-ref
+  "<3>" (magit-menu-item "Rename %s"    #'magit-branch-rename)
+  "<2>" (magit-menu-item "Delete %m"    #'magit-branch-delete)
+  "<1>" (magit-menu-item "Visit commit" #'magit-visit-ref))
 
-(defvar magit-tag-section-map
-  (let ((map (make-sparse-keymap)))
-    (magit-menu-set map [magit-visit-thing]  #'magit-visit-ref  "Visit %s")
-    (magit-menu-set map [magit-delete-thing] #'magit-tag-delete "Delete %m")
-    map)
-  "Keymap for `tag' sections.")
+(defvar-keymap magit-tag-section-map
+  :doc "Keymap for `tag' sections."
+  "<remap> <magit-delete-thing>" #'magit-tag-delete
+  "<remap> <magit-visit-thing>"  #'magit-visit-ref
+  "<2>" (magit-menu-item "Delete %m" #'magit-tag-delete)
+  "<1>" (magit-menu-item "Visit %s"  #'magit-visit-ref))
 
 (defun magit--painted-branch-as-menu-section (section)
   (and-let* ((branch (and (magit-section-match 'commit)

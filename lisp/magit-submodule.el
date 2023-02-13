@@ -507,29 +507,25 @@ or, failing that, the abbreviated HEAD commit hash."
             (insert ?\n))))))
   (insert ?\n))
 
-(defvar magit-modules-section-map
-  (let ((map (make-sparse-keymap)))
-    (magit-menu-set map [magit-visit-thing]
-      #'magit-list-submodules "List %t")
-    map)
-  "Keymap for `modules' sections.")
+(defvar-keymap magit-modules-section-map
+  :doc "Keymap for `modules' sections."
+  "<remap> <magit-visit-thing>" #'magit-list-submodules
+  "<1>" (magit-menu-item "List %t" #'magit-list-submodules))
 
-(defvar magit-module-section-map
-  (let ((map (make-sparse-keymap)))
-    (keymap-set map "C-j" #'magit-submodule-visit)
-    (keymap-set map "C-<return>" #'magit-submodule-visit)
-    (magit-menu-set map [magit-visit-thing]
-      #'magit-submodule-visit "Visit %s")
-    (magit-menu-set map [magit-stage-file]
-      #'magit-stage "Stage %T"
-      '(:visible (eq (magit-diff-type) 'unstaged)))
-    (magit-menu-set map [magit-unstage-file]
-      #'magit-unstage "Unstage %T"
-      '(:visible (eq (magit-diff-type) 'staged)))
-    (define-key-after map [separator-magit-submodule] menu-bar-separator)
-    (magit-menu-set map [magit-submodule] #'magit-submodule "Module commands...")
-    map)
-  "Keymap for `module' sections.")
+(defvar-keymap magit-module-section-map
+  :doc "Keymap for `module' sections."
+  "C-j"        #'magit-submodule-visit
+  "C-<return>" #'magit-submodule-visit
+  "<remap> <magit-unstage-file>" #'magit-unstage
+  "<remap> <magit-stage-file>"   #'magit-stage
+  "<remap> <magit-visit-thing>"  #'magit-submodule-visit
+  "<5>" (magit-menu-item "Module commands..." #'magit-submodule)
+  "<4>" '(menu-item "--")
+  "<3>" (magit-menu-item "Unstage %T" #'magit-unstage
+                         '(:visible (eq (magit-diff-type) 'staged)))
+  "<2>" (magit-menu-item "Stage %T" #'magit-stage
+                         '(:visible (eq (magit-diff-type) 'unstaged)))
+  "<1>" (magit-menu-item "Visit %s" #'magit-submodule-visit))
 
 (defun magit-submodule-visit (module &optional other-window)
   "Visit MODULE by calling `magit-status' on it.
