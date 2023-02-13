@@ -516,8 +516,8 @@ or, failing that, the abbreviated HEAD commit hash."
 
 (defvar magit-module-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-j") #'magit-submodule-visit)
-    (define-key map [C-return]  #'magit-submodule-visit)
+    (keymap-set map "C-j" #'magit-submodule-visit)
+    (keymap-set map "C-<return>" #'magit-submodule-visit)
     (magit-menu-set map [magit-visit-thing]
       #'magit-submodule-visit "Visit %s")
     (magit-menu-set map [magit-stage-file]

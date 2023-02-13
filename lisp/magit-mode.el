@@ -446,8 +446,8 @@ which visits the thing at point using `browse-url'."
 
 (defvar bug-reference-map)
 (with-eval-after-load 'bug-reference
-  (define-key bug-reference-map [remap magit-visit-thing]
-    'bug-reference-push-button))
+  (keymap-set bug-reference-map "<remap> <magit-visit-thing>"
+              'bug-reference-push-button))
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"

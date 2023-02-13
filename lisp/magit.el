@@ -307,15 +307,14 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
   (defun magit-maybe-define-global-key-bindings (&optional force)
     (when magit-define-global-key-bindings
       (let ((map (current-global-map)))
-        (dolist (elt '(("C-x g"   . magit-status)
-                       ("C-x M-g" . magit-dispatch)
-                       ("C-c M-g" . magit-file-dispatch)))
-          (let ((key (kbd (car elt)))
-                (def (cdr elt)))
-            (when (or force
-                      (not (or (lookup-key map key)
-                               (where-is-internal def (make-sparse-keymap) t))))
-              (define-key map key def)))))))
+        (pcase-dolist (`(,key . ,def)
+                       '(("C-x g"   . magit-status)
+                         ("C-x M-g" . magit-dispatch)
+                         ("C-c M-g" . magit-file-dispatch)))
+          (when (or force
+                    (not (or (keymap-lookup map key)
+                             (where-is-internal def (make-sparse-keymap) t))))
+            (keymap-set map key def))))))
   (if after-init-time
       (magit-maybe-define-global-key-bindings)
     (add-hook 'after-init-hook #'magit-maybe-define-global-key-bindings t)))

@@ -204,15 +204,15 @@ To make this command available use something like:
 
   (add-hook \\='ido-setup-hook
             (lambda ()
-              (define-key ido-completion-map
-                (kbd \"C-x g\") \\='ido-enter-magit-status)))
+              (keymap-set ido-completion-map
+                          \"C-x g\" \\='ido-enter-magit-status)))
 
 Starting with Emacs 25.1 the Ido keymaps are defined just once
 instead of every time Ido is invoked, so now you can modify it
 like pretty much every other keymap:
 
-  (define-key ido-common-completion-map
-    (kbd \"C-x g\") \\='ido-enter-magit-status)"
+  (keymap-set ido-common-completion-map
+              \"C-x g\" \\='ido-enter-magit-status)"
   (interactive)
   (setq ido-exit 'fallback)
   (setq ido-fallback #'magit-status)                ; for Emacs >= 26.2
@@ -242,7 +242,7 @@ to nil before loading Magit to prevent \"m\" from being bound.")
              (equal project-switch-commands
                     (eval (car (get 'project-switch-commands 'standard-value))
                           t)))
-    (define-key project-prefix-map "m" #'magit-project-status)
+    (keymap-set project-prefix-map "m" #'magit-project-status)
     (add-to-list 'project-switch-commands '(magit-project-status "Magit") t)))
 
 ;;;###autoload
@@ -744,8 +744,7 @@ the minibuffer too."
               (backward-delete-char 1)))))
     (user-error "Revision stack is empty")))
 
-(define-key git-commit-mode-map
-  (kbd "C-c C-w") #'magit-pop-revision-stack)
+(keymap-set git-commit-mode-map "C-c C-w" #'magit-pop-revision-stack)
 
 ;;;###autoload
 (defun magit-copy-section-value (arg)

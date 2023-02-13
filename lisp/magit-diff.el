@@ -1243,8 +1243,7 @@ be committed."
     (user-error "No commit in progress"))
   (magit-commit-diff-1))
 
-(define-key git-commit-mode-map
-  (kbd "C-c C-d") #'magit-diff-while-committing)
+(keymap-set git-commit-mode-map "C-c C-d" #'magit-diff-while-committing)
 
 ;;;###autoload
 (defun magit-diff-buffer-file ()
@@ -1988,16 +1987,16 @@ Staging and applying changes is documented in info node
     (magit-menu-set map [magit-file-rename]
       #'magit-file-rename "Rename file"
       '(:enable (eq (magit-diff-scope) 'file)))
-    (define-key map (kbd "C-j")            #'magit-diff-visit-worktree-file)
-    (define-key map (kbd "C-<return>")     #'magit-diff-visit-worktree-file)
-    (define-key map (kbd "C-x 4 <return>") #'magit-diff-visit-file-other-window)
-    (define-key map (kbd "C-x 5 <return>") #'magit-diff-visit-file-other-frame)
-    (define-key map "&"             #'magit-do-async-shell-command)
-    (define-key map "C"             #'magit-commit-add-log)
-    (define-key map (kbd "C-x a")   #'magit-add-change-log-entry)
-    (define-key map (kbd "C-x 4 a") #'magit-add-change-log-entry-other-window)
-    (define-key map (kbd "C-c C-t") #'magit-diff-trace-definition)
-    (define-key map (kbd "C-c C-e") #'magit-diff-edit-hunk-commit)
+    (keymap-set map "C-j"            #'magit-diff-visit-worktree-file)
+    (keymap-set map "C-<return>"     #'magit-diff-visit-worktree-file)
+    (keymap-set map "C-x 4 <return>" #'magit-diff-visit-file-other-window)
+    (keymap-set map "C-x 5 <return>" #'magit-diff-visit-file-other-frame)
+    (keymap-set map "&"       #'magit-do-async-shell-command)
+    (keymap-set map "C"       #'magit-commit-add-log)
+    (keymap-set map "C-x a"   #'magit-add-change-log-entry)
+    (keymap-set map "C-x 4 a" #'magit-add-change-log-entry-other-window)
+    (keymap-set map "C-c C-t" #'magit-diff-trace-definition)
+    (keymap-set map "C-c C-e" #'magit-diff-edit-hunk-commit)
     map)
   "Keymap for diff sections.
 The classes `magit-file-section' and `magit-hunk-section' derive
@@ -2012,10 +2011,10 @@ keymap is the parent of their keymaps.")
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map magit-diff-section-base-map)
     (let ((m (make-sparse-keymap)))
-      (define-key m (kbd "RET") #'magit-smerge-keep-current)
-      (define-key m (kbd "u")   #'magit-smerge-keep-upper)
-      (define-key m (kbd "b")   #'magit-smerge-keep-base)
-      (define-key m (kbd "l")   #'magit-smerge-keep-lower)
+      (keymap-set m "RET" #'magit-smerge-keep-current)
+      (keymap-set m "u"   #'magit-smerge-keep-upper)
+      (keymap-set m "b"   #'magit-smerge-keep-base)
+      (keymap-set m "l"   #'magit-smerge-keep-lower)
       (define-key map smerge-command-prefix m))
     map)
   "Keymap for `hunk' sections.")

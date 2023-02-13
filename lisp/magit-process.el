@@ -771,7 +771,7 @@ Magit status buffer."
        (set-keymap-parent ,map minibuffer-local-map)
        ;; Note: Leaving (kbd ...) unevaluated leads to the
        ;; magit-process:password-prompt test failing.
-       (define-key ,map ,(kbd "C-g")
+       (keymap-set ,map "C-g"
          (lambda ()
            (interactive)
            (ignore-errors (kill-process ,proc))
