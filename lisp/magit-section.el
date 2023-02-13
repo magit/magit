@@ -566,7 +566,7 @@ The return value has the form (TYPE...)."
         (setq magit--context-menu-section section)
         (magit-section-update-highlight t)))
     (when (magit-section-content-p section)
-      (define-key-after menu [magit-section-toggle]
+      (keymap-set-after menu "<magit-section-toggle>"
         `(menu-item
           ,(if (oref section hidden) "Expand section" "Collapse section")
           magit-section-toggle))
@@ -574,18 +574,18 @@ The return value has the form (TYPE...)."
         (when-let ((children (oref section children)))
           (when (seq-some #'magit-section-content-p children)
             (when (seq-some (lambda (c) (oref c hidden)) children)
-              (define-key-after menu [magit-section-show-children]
+              (keymap-set-after menu "<magit-section-show-children>"
                 `(menu-item "Expand children"
                             magit-section-show-children)))
             (when (seq-some (lambda (c) (not (oref c hidden))) children)
-              (define-key-after menu [magit-section-hide-children]
+              (keymap-set-after menu "<magit-section-hide-children>"
                 `(menu-item "Collapse children"
                             magit-section-hide-children))))))
-      (define-key-after menu [separator-magit-1] menu-bar-separator))
-    (define-key-after menu [magit-describe-section]
+      (keymap-set-after menu "<separator-magit-1>" menu-bar-separator))
+    (keymap-set-after menu "<magit-describe-section>"
       `(menu-item "Describe section" magit-describe-section))
     (when-let ((map (oref section keymap)))
-      (define-key-after menu [separator-magit-2] menu-bar-separator)
+      (keymap-set-after menu "<separator-magit-2>" menu-bar-separator)
       (when (symbolp map)
         (setq map (symbol-value map)))
       (setq magit-menu-common-value (magit-menu-common-value section))
@@ -724,7 +724,7 @@ Slight trimmed down."
 (defun magit--context-menu-local (menu _click)
   "Backport of `context-menu-local' for Emacs < 28."
   (run-hooks 'activate-menubar-hook 'menu-bar-update-hook)
-  (define-key-after menu [separator-local] menu-bar-separator)
+  (keymap-set-after menu "<separator-local>" menu-bar-separator)
   (let ((keymap (local-key-binding [menu-bar])))
     (when keymap
       (map-keymap (lambda (key binding)
