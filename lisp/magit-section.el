@@ -612,7 +612,7 @@ lines or else unsightly line wrapping, a definition [remap CMD]
 can be written as just [CMD].  As a result KEY might have to be
 a string when otherwise a vector would have worked.
 
-If DESC is a string that contains a support %-spec, substitute
+If DESC is a string that contains a supported %-spec, substitute
 the expression (magit-menu-format-desc DESC) for that.  See
 `magit-menu-format-desc'."
   (declare (indent defun))
