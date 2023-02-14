@@ -892,11 +892,7 @@ and `:slant'."
 ;;; Commands
 ;;;; Prefix Commands
 
-;;;###autoload (autoload 'magit-diff "magit-diff" nil t)
-(transient-define-prefix magit-diff ()
-  "Show changes between different versions."
-  :man-page "git-diff"
-  :class 'magit-diff-prefix
+(transient-define-groups magit-diff-common-arguments
   ["Limit arguments"
    (magit:--)
    (magit-diff:--ignore-submodules)
@@ -905,7 +901,14 @@ and `:slant'."
    (5 "-D" "Omit preimage for deletes"    ("-D" "--irreversible-delete"))]
   ["Context arguments"
    (magit-diff:-U)
-   ("-W" "Show surrounding functions"     ("-W" "--function-context"))]
+   ("-W" "Show surrounding functions"     ("-W" "--function-context"))])
+
+;;;###autoload (autoload 'magit-diff "magit-diff" nil t)
+(transient-define-prefix magit-diff ()
+  "Show changes between different versions."
+  :man-page "git-diff"
+  :class 'magit-diff-prefix
+  magit-diff-common-arguments
   ["Tune arguments"
    (magit-diff:--diff-algorithm)
    (magit-diff:--diff-merges)
@@ -932,15 +935,7 @@ and `:slant'."
   "Change the arguments used for the diff(s) in the current buffer."
   :man-page "git-diff"
   :class 'magit-diff-refresh-prefix
-  ["Limit arguments"
-   (magit:--)
-   (magit-diff:--ignore-submodules)
-   ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
-   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))
-   (5 "-D" "Omit preimage for deletes"    ("-D" "--irreversible-delete"))]
-  ["Context arguments"
-   (magit-diff:-U)
-   ("-W" "Show surrounding functions"     ("-W" "--function-context"))]
+  magit-diff-common-arguments
   ["Tune arguments"
    (magit-diff:--diff-algorithm)
    (magit-diff:--diff-merges)
