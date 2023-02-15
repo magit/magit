@@ -302,6 +302,8 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
   :group 'magit-essentials
   :type 'boolean)
 
+;; This is autoloaded and thus is used before `compat' is
+;; loaded, so we cannot use `keymap-lookup' and `keymap-set'.
 ;;;###autoload
 (progn
   (defun magit-maybe-define-global-key-bindings (&optional force)
@@ -312,9 +314,9 @@ Also see info node `(magit)Commands for Buffers Visiting Files'."
                          ("C-x M-g" . magit-dispatch)
                          ("C-c M-g" . magit-file-dispatch)))
           (when (or force
-                    (not (or (keymap-lookup map key)
+                    (not (or (lookup-key map (kbd key))
                              (where-is-internal def (make-sparse-keymap) t))))
-            (keymap-set map key def))))))
+            (define-key map (kbd key) def))))))
   (if after-init-time
       (magit-maybe-define-global-key-bindings)
     (add-hook 'after-init-hook #'magit-maybe-define-global-key-bindings t)))
