@@ -111,12 +111,8 @@ own faces for the `header-line', or for parts of the
   :group 'magit-faces)
 
 (defface magit-hash
-  '((((class color) (background light))
-     :inherit fixed-pitch
-     :foreground "grey60")
-    (((class color) (background  dark))
-     :inherit fixed-pitch
-     :foreground "grey40"))
+  '((((class color) (background light)) :foreground "grey60")
+    (((class color) (background  dark)) :foreground "grey40"))
   "Face for the commit object name in the log output."
   :group 'magit-faces)
 
@@ -201,37 +197,37 @@ and/or `magit-branch-remote-head'."
   :group 'magit-faces)
 
 (defface magit-signature-good
-  '((t :inherit fixed-pitch :foreground "green"))
+  '((t :foreground "green"))
   "Face for good signatures."
   :group 'magit-faces)
 
 (defface magit-signature-bad
-  '((t :inherit fixed-pitch :foreground "red" :weight bold))
+  '((t :foreground "red" :weight bold))
   "Face for bad signatures."
   :group 'magit-faces)
 
 (defface magit-signature-untrusted
-  '((t :inherit fixed-pitch :foreground "medium aquamarine"))
+  '((t :foreground "medium aquamarine"))
   "Face for good untrusted signatures."
   :group 'magit-faces)
 
 (defface magit-signature-expired
-  '((t :inherit fixed-pitch :foreground "orange"))
+  '((t :foreground "orange"))
   "Face for signatures that have expired."
   :group 'magit-faces)
 
 (defface magit-signature-expired-key
-  '((t :inherit fixed-pitch :inherit magit-signature-expired))
+  '((t :inherit magit-signature-expired))
   "Face for signatures made by an expired key."
   :group 'magit-faces)
 
 (defface magit-signature-revoked
-  '((t :inherit fixed-pitch :foreground "violet red"))
+  '((t :foreground "violet red"))
   "Face for signatures made by a revoked key."
   :group 'magit-faces)
 
 (defface magit-signature-error
-  '((t :inherit fixed-pitch :foreground "light blue"))
+  '((t :foreground "light blue"))
   "Face for signatures that cannot be checked (e.g. missing key)."
   :group 'magit-faces)
 
