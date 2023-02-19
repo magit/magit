@@ -66,8 +66,11 @@
 
 ;;; Git implementations
 
-(defvar magit-inhibit-libgit nil
-  "Whether to inhibit the use of libgit.")
+(defvar magit-inhibit-libgit t
+  "Whether to inhibit the use of libgit.
+Use of libgit is inhibited by default because support for libgit
+in magit is only a stub for now.  There is no benefit in using
+it.")
 
 (defvar magit--libgit-available-p 'unknown
   "Whether libgit is available.
