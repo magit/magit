@@ -127,15 +127,15 @@
 (require 'with-editor)
 
 ;; For historic reasons Magit isn't a hard dependency.
-(unless (and (require 'magit-base nil t)
-             (require 'magit-git nil t))
-  (declare-function magit-completing-read "magit-base"
-                    ( prompt collection &optional predicate require-match
-                      initial-input hist def fallback))
-  (declare-function magit-expand-git-file-name "magit-git" (filename))
-  (declare-function magit-git-lines "magit-git" (&rest args))
-  (declare-function magit-hook-custom-get "magit-base" (symbol))
-  (declare-function magit-list-local-branch-names "magit-git" ()))
+(require 'magit-base nil t)
+(require 'magit-git nil t)
+(declare-function magit-completing-read "magit-base"
+                  ( prompt collection &optional predicate require-match
+                    initial-input hist def fallback))
+(declare-function magit-expand-git-file-name "magit-git" (filename))
+(declare-function magit-git-lines "magit-git" (&rest args))
+(declare-function magit-hook-custom-get "magit-base" (symbol))
+(declare-function magit-list-local-branch-names "magit-git" ())
 
 (defvar diff-default-read-only)
 (defvar flyspell-generic-check-word-predicate)
