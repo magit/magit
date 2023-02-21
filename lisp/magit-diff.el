@@ -2598,7 +2598,7 @@ or a ref which is not a branch, then it inserts nothing."
             (delete-region (match-beginning 0) (1+ (match-beginning 0)))))
         (when magit-revision-fill-summary-line
           (let ((fill-column (min magit-revision-fill-summary-line
-                                  (window-width))))
+                                  (window-width (get-buffer-window nil t)))))
             (fill-region (point) (line-end-position))))
         (when magit-revision-use-hash-sections
           (save-excursion
