@@ -377,13 +377,41 @@ subject to option `magit-revision-insert-related-refs'."
 `nil'   Don't show any related branches.
 `t'     Show related local branches.
 `all'   Show related local and remote branches.
-`mixed' Show all containing branches and local merged branches."
+`mixed' Show all containing branches and local merged branches.
+
+See user option `magit-revision-insert-related-refs-display-alist'
+to hide specific sets of related branches."
   :package-version '(magit . "2.1.0")
   :group 'magit-revision
   :type '(choice (const :tag "don't" nil)
                  (const :tag "local only" t)
                  (const :tag "all related" all)
                  (const :tag "all containing, local merged" mixed)))
+
+(defcustom magit-revision-insert-related-refs-display-alist nil
+  "How `magit-insert-revision-headers' displays related branch types.
+
+This is an alist, with recognised keys being the symbols
+`parents', `merged', `contained', `follows', and `precedes';
+and the supported values for each key being:
+
+`nil'   Hide these related branches.
+`t'     Show these related branches.
+
+Keys which are not present in the alist have an implicit value `t'
+\(so the default alist value of nil means all related branch types
+will be shown.)
+
+The types to be shown are additionally subject to user option
+`magit-revision-insert-related-refs'."
+  :package-version '(magit . "3.3.1")
+  :group 'magit-revision
+  :type '(alist :key-type (symbol :tag "Type of related branch")
+                :value-type (boolean :tag "Display"))
+  :options (mapcar (lambda (sym)
+                     `(,sym (choice (const :tag "Hide" nil)
+                                    (const :tag "Show" t))))
+                   '(parents merged contained follows precedes)))
 
 (defcustom magit-revision-use-hash-sections 'quicker
   "Whether to turn hashes inside the commit message into sections.
@@ -2700,38 +2728,50 @@ or a ref which is not a branch, then it inserts nothing."
                                magit-buffer-revision)
       (magit-insert-revision-gravatars magit-buffer-revision beg))
     (when magit-revision-insert-related-refs
-      (dolist (parent (magit-commit-parents magit-buffer-revision))
-        (magit-insert-section (commit parent)
-          (let ((line (magit-rev-format "%h %s" parent)))
-            (string-match "^\\([^ ]+\\) \\(.*\\)" line)
-            (magit-bind-match-strings (hash msg) line
-              (insert "Parent:     ")
-              (insert (propertize hash 'font-lock-face 'magit-hash))
-              (insert " " msg "\n")))))
-      (magit--insert-related-refs
-       magit-buffer-revision "--merged" "Merged"
-       (eq magit-revision-insert-related-refs 'all))
-      (magit--insert-related-refs
-       magit-buffer-revision "--contains" "Contained"
-       (memq magit-revision-insert-related-refs '(all mixed)))
-      (when-let ((follows (magit-get-current-tag magit-buffer-revision t)))
-        (let ((tag (car  follows))
-              (cnt (cadr follows)))
-          (magit-insert-section (tag tag)
-            (insert
-             (format "Follows:    %s (%s)\n"
-                     (propertize tag 'font-lock-face 'magit-tag)
-                     (propertize (number-to-string cnt)
-                                 'font-lock-face 'magit-branch-local))))))
-      (when-let ((precedes (magit-get-next-tag magit-buffer-revision t)))
-        (let ((tag (car  precedes))
-              (cnt (cadr precedes)))
-          (magit-insert-section (tag tag)
-            (insert (format "Precedes:   %s (%s)\n"
-                            (propertize tag 'font-lock-face 'magit-tag)
-                            (propertize (number-to-string cnt)
-                                        'font-lock-face 'magit-tag))))))
+      (when (magit-revision-insert-related-refs-display-p 'parents)
+        (dolist (parent (magit-commit-parents magit-buffer-revision))
+          (magit-insert-section (commit parent)
+            (let ((line (magit-rev-format "%h %s" parent)))
+              (string-match "^\\([^ ]+\\) \\(.*\\)" line)
+              (magit-bind-match-strings (hash msg) line
+                (insert "Parent:     ")
+                (insert (propertize hash 'font-lock-face 'magit-hash))
+                (insert " " msg "\n"))))))
+      (when (magit-revision-insert-related-refs-display-p 'merged)
+        (magit--insert-related-refs
+         magit-buffer-revision "--merged" "Merged"
+         (eq magit-revision-insert-related-refs 'all)))
+      (when (magit-revision-insert-related-refs-display-p 'contained)
+        (magit--insert-related-refs
+         magit-buffer-revision "--contains" "Contained"
+         (memq magit-revision-insert-related-refs '(all mixed))))
+      (when (magit-revision-insert-related-refs-display-p 'follows)
+        (when-let ((follows (magit-get-current-tag magit-buffer-revision t)))
+          (let ((tag (car  follows))
+                (cnt (cadr follows)))
+            (magit-insert-section (tag tag)
+              (insert
+               (format "Follows:    %s (%s)\n"
+                       (propertize tag 'font-lock-face 'magit-tag)
+                       (propertize (number-to-string cnt)
+                                   'font-lock-face 'magit-branch-local)))))))
+      (when (magit-revision-insert-related-refs-display-p 'precedes)
+        (when-let ((precedes (magit-get-next-tag magit-buffer-revision t)))
+          (let ((tag (car  precedes))
+                (cnt (cadr precedes)))
+            (magit-insert-section (tag tag)
+              (insert (format "Precedes:   %s (%s)\n"
+                              (propertize tag 'font-lock-face 'magit-tag)
+                              (propertize (number-to-string cnt)
+                                          'font-lock-face 'magit-tag)))))))
       (insert ?\n))))
+
+(defun magit-revision-insert-related-refs-display-p (sym)
+  "Whether to display related branches of type SYM.
+Refer to user option `magit-revision-insert-related-refs-display-alist'."
+  (if-let ((elt (assq sym magit-revision-insert-related-refs-display-alist)))
+      (cdr elt)
+    t))
 
 (defun magit--insert-related-refs (rev arg title remote)
   (when-let ((refs (magit-list-related-branches arg rev (and remote "-a"))))
