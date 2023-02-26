@@ -91,6 +91,15 @@ screenshots as presented in the preceding article.
 This article discusses Magit's properties in somewhat more abstract
 terms.
 
+#### [Some nice videos by SystemCrafters](https://www.youtube.com/@SystemCrafters)
+
+A series of three videos to enjoy in order:
+
+- [An Introduction to the Ultimate Git Interface, Magit!](https://www.youtube.com/watch?v=_zfvQkJsYwI)
+- [Everyday Git Workflow in Emacs with Magit](https://www.youtube.com/watch?v=qPfJoeQCIvA)
+- [Fix Your Git Commits Like a Rebase Expert with Magit](https://www.youtube.com/watch?v=zM7K1y4h6UQ)
+
+
 ***
 ### Support and Contributing
 
