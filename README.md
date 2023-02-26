@@ -91,6 +91,12 @@ screenshots as presented in the preceding article.
 This article discusses Magit's properties in somewhat more abstract
 terms.
 
+#### Video introductions
+
+If you prefer [video](https://magit.vc/screencasts/) introductions,
+head over to that page, where find a collection of such introductions
+and other videos about Magit, by various creators.
+
 ***
 ### Support and Contributing
 
