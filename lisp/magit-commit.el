@@ -563,7 +563,10 @@ See `magit-commit-absorb' for an alternative implementation."
       ;; replaced with the diff buffer.  See #2632.
       (unrecord-window-buffer nil diff-buffer))
     (message "Diffing changes to be committed (C-g to abort diffing)")
-    (let ((inhibit-quit nil))
+    (let ((inhibit-quit nil)
+	  (process-environment
+	   (append process-environment
+		   (frame-parameter nil 'environment))))
       (condition-case nil
           (magit-commit-diff-1)
         (quit)))))
