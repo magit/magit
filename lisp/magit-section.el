@@ -1973,7 +1973,8 @@ current section."
   (and section
        (>= pos (oref section start))
        (<  pos (or (oref section content)
-                   (oref section end)))
+                   (oref section end)
+                   pos))
        t))
 
 (defun magit-section-internal-region-p (&optional section)
