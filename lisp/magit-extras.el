@@ -724,7 +724,7 @@ the minibuffer too."
               (setq pnt-format
                     (string-replace "%N" idx pnt-format)))
             (magit-rev-insert-format pnt-format rev pnt-args)
-            (backward-delete-char 1))
+            (delete-char -1))
           (when eob-format
             (when idx-format
               (setq eob-format
@@ -741,7 +741,7 @@ the minibuffer too."
                   (insert ?\n)))
               (insert ?\n)
               (magit-rev-insert-format eob-format rev eob-args)
-              (backward-delete-char 1)))))
+              (delete-char -1)))))
     (user-error "Revision stack is empty")))
 
 (keymap-set git-commit-mode-map "C-c C-w" #'magit-pop-revision-stack)

@@ -2590,7 +2590,7 @@ or a ref which is not a branch, then it inserts nothing."
                 (magit-rev-insert-format "%B" rev)
                 (magit-revision--wash-message)))
       (if (= (point) (+ beg 2))
-          (progn (backward-delete-char 2)
+          (progn (delete-char -2)
                  (insert "(no message)\n"))
         (goto-char beg)
         (save-excursion

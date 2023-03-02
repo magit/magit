@@ -1363,7 +1363,7 @@ Do not add this to a hook variable."
               (forward-line)
               (magit-insert-heading)
               (re-search-forward "")
-              (backward-delete-char 1)
+              (delete-char -1)
               (forward-char)
               (insert ?\n))
             (delete-char 1))
