@@ -1970,11 +1970,12 @@ current section."
     (setq section (magit-current-section)))
   (unless pos
     (setq pos (point)))
-  (and section
-       (>= pos (oref section start))
-       (<  pos (or (oref section content)
-                   (oref section end)))
-       t))
+  (ignore-errors ; Allow navigating broken sections.
+    (and section
+         (>= pos (oref section start))
+         (<  pos (or (oref section content)
+                     (oref section end)))
+         t)))
 
 (defun magit-section-internal-region-p (&optional section)
   "Return t if the region is active and inside SECTION's body.
