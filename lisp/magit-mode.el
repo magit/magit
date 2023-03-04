@@ -1194,9 +1194,13 @@ argument (the prefix) non-nil means save all with no questions."
                   ;; places us in another repository, then the below
                   ;; let-binding is needed to prevent that file from
                   ;; being saved.
-                  (let ((default-directory
-                         (file-name-directory buffer-file-name)))
+                  (let* ((dir (file-name-directory buffer-file-name))
+                         (default-directory dir))
                     (and
+                     ;; - Ensure repository still on disk.
+                     ;;   Otherwise, subprocesses called from repo dir will fail.
+                     dir
+                     (file-exists-p dir)
                      ;; - Check whether refreshing is disabled.
                      (not magit-inhibit-refresh-save)
                      ;; - Check whether the visited file is either on the
