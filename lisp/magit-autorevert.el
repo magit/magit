@@ -141,7 +141,8 @@ seconds of user inactivity.  That is not desirable."
 Do not use this function elsewhere, and don't remove it from
 the `after-init-hook'.  For more information see the comments
 and code surrounding the definition of this function."
-  (if magit-auto-revert-mode
+  (if (and magit-auto-revert-mode
+           (not global-auto-revert-mode))
       (let ((start (current-time)))
         (magit-message "Turning on magit-auto-revert-mode...")
         (magit-auto-revert-mode 1)
