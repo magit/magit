@@ -1197,6 +1197,10 @@ argument (the prefix) non-nil means save all with no questions."
                   (let ((default-directory
                          (file-name-directory buffer-file-name)))
                     (and
+                     ;; - Check whether the repository still exists
+                     ;;   Necessary because  we call git inside of it.
+                     default-directory
+                     (file-exists-p default-directory)
                      ;; - Check whether refreshing is disabled.
                      (not magit-inhibit-refresh-save)
                      ;; - Check whether the visited file is either on the
