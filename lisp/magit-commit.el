@@ -566,7 +566,8 @@ See `magit-commit-absorb' for an alternative implementation."
     (let ((inhibit-quit nil)
 	  (process-environment
 	   (append process-environment
-		   (frame-parameter nil 'environment))))
+		   (if (eq 1 (length server-buffer-clients))
+                       (process-get (car server-buffer-clients) 'env)))))
       (condition-case nil
           (magit-commit-diff-1)
         (quit)))))
