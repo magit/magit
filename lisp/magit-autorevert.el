@@ -133,26 +133,30 @@ seconds of user inactivity.  That is not desirable."
 ;; - If the user has set the variable `magit-auto-revert-mode' to nil
 ;;   after loading magit (instead of doing so before loading magit or
 ;;   by using the function), then we should still respect that setting.
-;; - If the user sets one of these variables after loading magit and
-;;   after `after-init-hook' has run, then that won't have an effect
-;;   and there is nothing we can do about it.
+;; - If the user enables `global-auto-revert-mode' after loading magit
+;;   and after `after-init-hook' has run, then `magit-auto-revert-mode'
+;;   remains enabled; and there is nothing we can do about it.
+;; - However if the init file causes `magit-autorevert' to be loaded
+;;   and only later it enables `global-auto-revert-mode', then we can
+;;   and should leave `magit-auto-revert-mode' disabled.
 (defun magit-auto-revert-mode--init-kludge ()
   "This is an internal kludge to be used on `after-init-hook'.
 Do not use this function elsewhere, and don't remove it from
 the `after-init-hook'.  For more information see the comments
 and code surrounding the definition of this function."
-  (if magit-auto-revert-mode
-      (let ((start (current-time)))
-        (magit-message "Turning on magit-auto-revert-mode...")
-        (magit-auto-revert-mode 1)
-        (magit-message
-         "Turning on magit-auto-revert-mode...done%s"
-         (let ((elapsed (float-time (time-subtract nil start))))
-           (if (> elapsed 0.2)
-               (format " (%.3fs, %s buffers checked)" elapsed
-                       (length (buffer-list)))
-             ""))))
-    (magit-auto-revert-mode -1)))
+  (if (or (not magit-auto-revert-mode)
+          (and global-auto-revert-mode (not after-init-time)))
+      (magit-auto-revert-mode -1)
+    (let ((start (current-time)))
+      (magit-message "Turning on magit-auto-revert-mode...")
+      (magit-auto-revert-mode 1)
+      (magit-message
+       "Turning on magit-auto-revert-mode...done%s"
+       (let ((elapsed (float-time (time-subtract nil start))))
+         (if (> elapsed 0.2)
+             (format " (%.3fs, %s buffers checked)" elapsed
+                     (length (buffer-list)))
+           ""))))))
 (if after-init-time
     ;; Since `after-init-hook' has already been
     ;; run, turn the mode on or off right now.
