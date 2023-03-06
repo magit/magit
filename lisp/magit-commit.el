@@ -564,10 +564,10 @@ See `magit-commit-absorb' for an alternative implementation."
       (unrecord-window-buffer nil diff-buffer))
     (message "Diffing changes to be committed (C-g to abort diffing)")
     (let ((inhibit-quit nil)
-	  (process-environment
-	   (append process-environment
-		   (if (eq 1 (length server-buffer-clients))
-                       (process-get (car server-buffer-clients) 'env)))))
+          (process-environment
+           (append process-environment
+                   (and (eq (length server-buffer-clients) 1)
+                        (process-get (car server-buffer-clients) 'env)))))
       (condition-case nil
           (magit-commit-diff-1)
         (quit)))))
