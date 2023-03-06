@@ -1688,7 +1688,7 @@ the Magit-Status buffer for DIRECTORY."
 
 (defun magit-diff-visit--hunk ()
   (when-let* ((scope (magit-diff-scope)) ;debbugs#31840
-             (section (magit-current-section)))
+              (section (magit-current-section)))
     (cl-case scope
       ((file files)
        (setq section (car (oref section children))))

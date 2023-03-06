@@ -772,10 +772,10 @@ Magit status buffer."
        ;; Note: Leaving (kbd ...) unevaluated leads to the
        ;; magit-process:password-prompt test failing.
        (keymap-set ,map "C-g"
-         (lambda ()
-           (interactive)
-           (ignore-errors (kill-process ,proc))
-           (abort-recursive-edit)))
+                   (lambda ()
+                     (interactive)
+                     (ignore-errors (kill-process ,proc))
+                     (abort-recursive-edit)))
        (let ((minibuffer-local-map ,map))
          ,@body))))
 
