@@ -3236,7 +3236,7 @@ Files and Blobs from a Diff]] for more information and the key bindings.
 
   Neither the blob nor the file buffer are killed when finishing
   the rebase.  If that is undesirable, then it might be better to
-  use ~magit-rebase-edit-command~ instead of this command.
+  use ~magit-rebase-edit-commit~ instead of this command.
 
 - Key: j (magit-jump-to-diffstat-or-diff) ::
 

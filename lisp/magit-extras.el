@@ -506,7 +506,7 @@ to be visited.
 
 Neither the blob nor the file buffer are killed when finishing
 the rebase.  If that is undesirable, then it might be better to
-use `magit-rebase-edit-command' instead of this command."
+use `magit-rebase-edit-commit' instead of this command."
   (interactive (list (magit-file-at-point t t)))
   (let ((magit-diff-visit-previous-blob nil))
     (with-current-buffer
