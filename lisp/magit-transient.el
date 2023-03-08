@@ -37,12 +37,12 @@
 
 (defclass magit--git-variable (transient-variable)
   ((scope       :initarg :scope)
-   (global      :initarg :global      :initform nil)))
+   (global      :initarg :global      :initform nil)
+   (default     :initarg :default     :initform nil)))
 
 (defclass magit--git-variable:choices (magit--git-variable)
   ((choices     :initarg :choices)
-   (fallback    :initarg :fallback    :initform nil)
-   (default     :initarg :default     :initform nil)))
+   (fallback    :initarg :fallback    :initform nil)))
 
 (defclass magit--git-variable:boolean (magit--git-variable:choices)
   ((choices     :initarg :choices     :initform '("true" "false"))))
@@ -158,7 +158,11 @@
             (propertize (car value) 'face 'transient-value))
         (propertize (car (split-string value "\n"))
                     'face 'transient-value))
-    (propertize "unset" 'face 'transient-inactive-value)))
+    (if-let* ((default (oref obj default))
+              (default (if (functionp default) (funcall default) default)))
+        (concat (propertize "default:" 'face 'transient-inactive-value)
+                (propertize default 'face 'transient-value))
+      (propertize "unset" 'face 'transient-inactive-value))))
 
 (cl-defmethod transient-format-value ((obj magit--git-variable:choices))
   (let* ((variable (oref obj variable))
