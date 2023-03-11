@@ -881,7 +881,7 @@ limit.  Otherwise set it to 256."
          (arg (--first (string-match "^-n\\([0-9]+\\)?$" it) val))
          (num (and arg (string-to-number (match-string 1 arg))))
          (num (if num (funcall fn num 2) 256)))
-    (setq val (delete arg val))
+    (setq val (remove arg val))
     (setq magit-buffer-log-args
           (if (and num (> num 0))
               (cons (format "-n%i" num) val)
