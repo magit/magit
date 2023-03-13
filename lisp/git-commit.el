@@ -290,25 +290,6 @@ to consider doing so."
   :safe 'numberp
   :type 'number)
 
-(defcustom git-commit-fill-column nil
-  "Override `fill-column' in commit message buffers.
-
-If this is non-nil, then it should be an integer.  If that is the
-case and the buffer-local value of `fill-column' is not already
-set by the time `git-commit-turn-on-auto-fill' is called as a
-member of `git-commit-setup-hook', then that function sets the
-buffer-local value of `fill-column' to the value of this option.
-
-This option exists mostly for historic reasons.  If you are not
-already using it, then you probably shouldn't start doing so."
-  :group 'git-commit
-  :safe 'numberp
-  :type '(choice (const :tag "use regular fill-column")
-                 number))
-
-(make-obsolete-variable 'git-commit-fill-column 'fill-column
-                        "Magit 2.11.0" 'set)
-
 (defcustom git-commit-known-pseudo-headers
   '("Signed-off-by" "Acked-by" "Modified-by" "Cc"
     "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by"
@@ -630,13 +611,7 @@ Don't use it directly, instead enable `global-git-commit-mode'."
   (setq-local paragraph-start (concat paragraph-start "\\|\\*\\|(")))
 
 (defun git-commit-turn-on-auto-fill ()
-  "Unconditionally turn on Auto Fill mode.
-If `git-commit-fill-column' is non-nil, and `fill-column'
-doesn't already have a buffer-local value, then set that
-to `git-commit-fill-column'."
-  (when (and (numberp git-commit-fill-column)
-             (not (local-variable-p 'fill-column)))
-    (setq fill-column git-commit-fill-column))
+  "Unconditionally turn on Auto Fill mode."
   (setq-local comment-auto-fill-only-comments nil)
   (turn-on-auto-fill))
 
