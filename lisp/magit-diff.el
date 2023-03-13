@@ -1991,7 +1991,6 @@ Staging and applying changes is documented in info node
 (define-obsolete-variable-alias 'magit-diff-section-base-map
   'magit-diff-section-map "Magit-Section 4.0.0")
 
-
 (defvar-keymap magit-diff-section-map
   :doc "Keymap for diff sections.
 The classes `magit-file-section' and `magit-hunk-section' derive
