@@ -383,7 +383,7 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
 ;;; Status
 
 (defun magit-test-get-section (list file)
-  (magit-status-internal default-directory)
+  (magit-status-setup-buffer default-directory)
   (--first (equal (oref it value) file)
            (oref (magit-get-section `(,list (status)))
                  children)))
