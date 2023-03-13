@@ -28,12 +28,6 @@
 
 (require 'magit)
 
-(defvar magit-fetch-modules-jobs nil)
-(make-obsolete-variable
- 'magit-fetch-modules-jobs
- "invoke `magit-fetch-modules' with a prefix argument instead."
- "Magit 3.0.0")
-
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-fetch "magit-fetch" nil t)
@@ -172,10 +166,7 @@ are also fetched.
 To set and potentially save other arguments invoke this command
 with a prefix argument."
   :man-page "git-fetch"
-  :value (list "--verbose"
-               (cond (magit-fetch-modules-jobs
-                      (format "--jobs=%s" magit-fetch-modules-jobs))
-                     (t "--jobs=4")))
+  :value (list "--verbose" "--jobs=4")
   ["Arguments"
    ("-v" "verbose"        "--verbose")
    ("-j" "number of jobs" "--jobs=" :reader transient-read-number-N+)]

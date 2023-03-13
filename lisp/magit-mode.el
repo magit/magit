@@ -561,21 +561,11 @@ Magit is documented in info node `(magit)'."
 ;; function does not reinstate this.
 (put 'magit-buffer-diff-files-suspended 'permanent-local t)
 
-(defvar-local magit-refresh-args nil
-  "Obsolete.  Possibly the arguments used to refresh the current buffer.
-Some third-party packages might still use this, but Magit does not.")
-(put 'magit-refresh-args 'permanent-local t)
-(make-obsolete-variable 'magit-refresh-args nil "Magit 3.0.0")
-
-(defvar magit-buffer-lock-functions nil
-  "Obsolete buffer-locking support for third-party modes.
-Implement the generic function `magit-buffer-value' for
-your mode instead of adding an entry to this variable.")
-(make-obsolete-variable 'magit-buffer-lock-functions nil "Magit 3.0.0")
-
 (cl-defgeneric magit-buffer-value ()
-  (and-let* ((fn (cdr (assq major-mode magit-buffer-lock-functions))))
-    (funcall fn (with-no-warnings magit-refresh-args))))
+  "Return the value of the current buffer.
+The \"value\" identifies what is being displayed in the buffer.
+The buffer's major-mode should derive from `magit-section-mode'."
+  nil)
 
 (defvar-local magit-previous-section nil)
 (put 'magit-previous-section 'permanent-local t)
@@ -618,41 +608,6 @@ your mode instead of adding an entry to this variable.")
       (run-hooks 'magit-setup-buffer-hook)
       (magit-refresh-buffer))
     buffer))
-
-(defun magit-mode-setup (mode &rest args)
-  "Setup up a MODE buffer using ARGS to generate its content."
-  (declare (obsolete magit-setup-buffer "Magit 3.0.0"))
-  (with-no-warnings
-    (magit-mode-setup-internal mode args)))
-
-(defun magit-mode-setup-internal (mode args &optional locked)
-  "Setup up a MODE buffer using ARGS to generate its content.
-When optional LOCKED is non-nil, then create a buffer that is
-locked to its value, which is derived from MODE and ARGS."
-  (declare (obsolete magit-setup-buffer "Magit 3.0.0"))
-  (let* ((value   (and locked
-                       (with-temp-buffer
-                         (with-no-warnings
-                           (setq magit-refresh-args args))
-                         (let ((major-mode mode))
-                           (magit-buffer-value)))))
-         (buffer  (magit-get-mode-buffer mode value))
-         (section (and buffer (magit-current-section)))
-         (created (not buffer)))
-    (unless buffer
-      (setq buffer (magit-generate-new-buffer mode value)))
-    (with-current-buffer buffer
-      (setq magit-previous-section section)
-      (with-no-warnings
-        (setq magit-refresh-args args))
-      (funcall mode)
-      (magit-xref-setup 'magit-mode-setup-internal args)
-      (when created
-        (run-hooks 'magit-create-buffer-hook)))
-    (magit-display-buffer buffer)
-    (with-current-buffer buffer
-      (run-hooks 'magit-mode-setup-hook)
-      (magit-refresh-buffer))))
 
 ;;; Display Buffer
 
@@ -868,23 +823,6 @@ If a frame, then only consider buffers on that frame."
         ((or 'selected 't)      (seq-some #'w (window-list (selected-frame))))
         ((guard (framep frame)) (seq-some #'w (window-list frame)))))))
 
-(defun magit-mode-get-buffer (mode &optional create frame value)
-  (declare (obsolete magit-get-mode-buffer "Magit 3.0.0"))
-  (when create
-    (error "`magit-mode-get-buffer's CREATE argument is obsolete"))
-  (let ((topdir (magit--toplevel-safe)))
-    (--first (with-current-buffer it
-               (and (eq major-mode mode)
-                    (equal magit--default-directory topdir)
-                    (if value
-                        (and magit-buffer-locked-p
-                             (equal (magit-buffer-value) value))
-                      (not magit-buffer-locked-p))))
-             (if frame
-                 (mapcar #'window-buffer
-                         (window-list (unless (eq frame t) frame)))
-               (buffer-list)))))
-
 (defun magit-generate-new-buffer (mode &optional value directory)
   (let* ((default-directory (or directory (magit--toplevel-safe)))
          (name (funcall magit-generate-buffer-name-function mode value))
@@ -1091,7 +1029,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
         (let ((inhibit-read-only t))
           (erase-buffer)
           (save-excursion
-            (apply refresh (with-no-warnings magit-refresh-args))))
+            (funcall refresh)))
         (pcase-dolist (`(,window . ,args) windows)
           (if (eq buffer (window-buffer window))
               (with-selected-window window
