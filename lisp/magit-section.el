@@ -1064,11 +1064,12 @@ silently ignored."
 
 ;;;; Auxiliary
 
-(defun magit-describe-section-briefly (section &optional ident)
+(defun magit-describe-section-briefly (section &optional ident interactive)
   "Show information about the section at point.
 With a prefix argument show the section identity instead of the
-section lineage.  This command is intended for debugging purposes."
-  (interactive (list (magit-current-section) current-prefix-arg))
+section lineage.  This command is intended for debugging purposes.
+\n(fn SECTION &optional IDENT)"
+  (interactive (list (magit-current-section) current-prefix-arg t))
   (let ((str (format "#<%s %S %S %s-%s%s>"
                      (eieio-object-class section)
                      (let ((val (oref section value)))
@@ -1089,9 +1090,9 @@ section lineage.  This command is intended for debugging purposes."
                        "")
                      (and-let* ((m (oref section end)))
                        (marker-position m)))))
-    (if (called-interactively-p 'any)
-        (message "%s" str)
-      str)))
+    (when interactive
+      (message "%s" str))
+    str))
 
 (cl-defmethod cl-print-object ((section magit-section) stream)
   "Print `magit-describe-section' result of SECTION."

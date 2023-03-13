@@ -319,8 +319,10 @@ in `magit-blame-read-only-mode-map' instead."
 (define-minor-mode magit-blame-mode
   "Display blame information inline."
   :lighter magit-blame-mode-lighter
+  :interactive nil
   (cond (magit-blame-mode
-         (when (called-interactively-p 'any)
+         (unless arg
+           ;; Emacs < 28.1 doesn't support `:interactive'.
            (setq magit-blame-mode nil)
            (user-error
             (concat "Don't call `magit-blame-mode' directly; "
