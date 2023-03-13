@@ -1213,30 +1213,6 @@ See `magit-section-match' for the forms CONDITION can take."
     (and (magit-section-match condition section)
          (oref section value))))
 
-(defmacro magit-section-when (condition &rest body)
-  "If the section at point matches CONDITION, evaluate BODY.
-
-If the section matches, then evaluate BODY forms sequentially
-with `it' bound to the section and return the value of the last
-form.  If there are no BODY forms, then return the value of the
-section.  If the section does not match or if there is no section
-at point, then return nil.
-
-See `magit-section-match' for the forms CONDITION can take."
-  (declare (obsolete
-            "instead use `magit-section-match' or `magit-section-value-if'."
-            "Magit 2.90.0")
-           (indent 1)
-           (debug (sexp body)))
-  `(--when-let (magit-current-section)
-     ;; Quoting CONDITION here often leads to double-quotes, which
-     ;; isn't an issue because `magit-section-match-1' implicitly
-     ;; deals with that.  We shouldn't force users of this function
-     ;; to not quote CONDITION because that would needlessly break
-     ;; backward compatibility.
-     (when (magit-section-match ',condition it)
-       ,@(or body '((oref it value))))))
-
 (defmacro magit-section-case (&rest clauses)
   "Choose among clauses on the type of the section at point.
 
