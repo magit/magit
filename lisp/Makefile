@@ -53,7 +53,6 @@ magit-push.elc:            magit.elc
 magit-bisect.elc:          magit.elc
 magit-stash.elc:           magit.elc magit-sequence.elc magit-reflog.elc
 magit-blame.elc:           magit.elc
-magit-obsolete.elc:        magit.elc
 magit-submodule.elc:       magit.elc
 magit-patch.elc:           magit.elc
 magit-subtree.elc:         magit.elc
@@ -64,7 +63,6 @@ magit-bundle.elc:          magit.elc
 magit-extras.elc:          magit.elc magit-merge.elc
 git-rebase.elc:            magit.elc
 magit-bookmark.elc:        magit.elc
-magit-obsolete.elc:        magit.elc
 
 ## Build #############################################################
 

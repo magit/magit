@@ -724,7 +724,6 @@ For X11 something like ~/.xinitrc should work.\n"
   (require 'magit-bisect)
   (require 'magit-stash)
   (require 'magit-blame)
-  (require 'magit-obsolete)
   (require 'magit-submodule)
   (unless (load "magit-autoloads" t t)
     (require 'magit-patch)

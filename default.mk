@@ -82,7 +82,6 @@ ELS += magit-merge.el
 ELS += magit-tag.el
 ELS += magit-worktree.el
 ELS += magit-notes.el
-ELS += magit-obsolete.el
 ELS += magit-sequence.el
 ELS += magit-commit.el
 ELS += magit-remote.el
