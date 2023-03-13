@@ -338,9 +338,6 @@ no effect."
 In this context a \"keyword\" is text surrounded by brackets."
   :group 'git-commit-faces)
 
-(define-obsolete-face-alias 'git-commit-note
-  'git-commit-keyword "Git-Commit 3.0.0")
-
 (defface git-commit-pseudo-header
   '((t :inherit font-lock-string-face))
   "Face used for pseudo headers in commit messages."
@@ -357,9 +354,6 @@ In this context a \"keyword\" is text surrounded by brackets."
     '((t :inherit font-lock-variable-name-face)))
   "Face used for names of local branches in commit message comments."
   :group 'git-commit-faces)
-
-(define-obsolete-face-alias 'git-commit-comment-branch
-  'git-commit-comment-branch-local "Git-Commit 2.12.0")
 
 (defface git-commit-comment-branch-remote
   (if (featurep 'magit)
