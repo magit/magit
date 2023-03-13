@@ -268,6 +268,7 @@ All Contributors
 - Natalie Weizenbaum
 - Nguyễn Tuấn Anh
 - Nic Ferier
+- Nicholas Vollmer
 - Nick Alcock
 - Nick Alexander
 - Nick Dimiduk
