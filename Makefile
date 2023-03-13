@@ -72,6 +72,7 @@ help:
 
 lisp:
 	@$(MAKE) -C lisp lisp
+	@$(MAKE) -C test lisp
 
 docs:
 	@$(MAKE) -C docs all
@@ -127,7 +128,7 @@ clean: clean-lisp clean-docs clean-archives
 	@printf "Cleaning...\n"
 	@$(RM) *.elc $(ELGS) # temporary cleanup kludge
 	@$(RM) docs/*.texi~ docs/*.info-1 docs/*.info-2
-	@$(RM) magit-pkg.el t/magit-tests.elc
+	@$(RM) magit-pkg.el test/magit-tests.elc
 
 clean-lisp:
 	@$(MAKE) -C lisp clean
