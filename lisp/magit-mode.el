@@ -1299,9 +1299,8 @@ Later, when the buffer is buried, it may be restored by
     (when help-xref-stack-item
       (push (cons (point) help-xref-stack-item) help-xref-stack)
       (setq help-xref-forward-stack nil))
-    (when (called-interactively-p 'interactive)
-      (--when-let (nthcdr 10 help-xref-stack)
-        (setcdr it nil)))
+    (when-let ((tail (nthcdr 30 help-xref-stack)))
+      (setcdr tail nil))
     (setq help-xref-stack-item
           (list 'magit-xref-restore fn default-directory args))))
 
