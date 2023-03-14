@@ -178,10 +178,7 @@ When t, then rename the branch named OLD on the remote specified
 
 When `forge-only' and the `forge' package is available, then
   behave like `t' if the remote points to a repository on a forge
-  (currently Github or Gitlab), otherwise like `local-only'.
-
-Another supported but obsolete value is `github-only'.  It is a
-  misnomer because it now treated as an alias for `forge-only'."
+  (currently Github or Gitlab), otherwise like `local-only'."
   :package-version '(magit . "2.90.0")
   :group 'magit-commands
   :type '(choice
@@ -743,8 +740,7 @@ the remote."
       (when (and (equal (magit-get-push-remote new) remote)
                  ;; ...and if it does not, then we must abort.
                  (not (eq magit-branch-rename-push-target 'local-only))
-                 (or (not (memq magit-branch-rename-push-target
-                                '(forge-only github-only)))
+                 (or (not (eq magit-branch-rename-push-target 'forge-only))
                      (and (require (quote forge) nil t)
                           (fboundp 'forge--forge-remote-p)
                           (forge--forge-remote-p remote))))
