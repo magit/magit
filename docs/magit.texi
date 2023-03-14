@@ -920,18 +920,11 @@ if @code{magit-uniquify-buffer-names} is non-nil an abbreviation of that.
 If @code{magit-uniquify-buffer-names} is nil "*", otherwise the empty
 string.  Due to limitations of the @code{uniquify} package, buffer names
 must end with the path.
-
-@item
-@code{%T}
-
-Obsolete, use "%t%x" instead.  Like @code{%t}, but append an asterisk if
-and only if @code{magit-uniquify-buffer-names} is nil.
 @end itemize
 
-The value should always contain @code{%m} or @code{%M}, @code{%v} or @code{%V}, and @code{%t} (or the
-obsolete @code{%T}).  If @code{magit-uniquify-buffer-names} is non-nil, then the
-value must end with @code{%t} or @code{%t%x} (or the obsolete @code{%T}).  See issue
-#2841.
+The value should always contain @code{%m} or @code{%M}, @code{%v} or @code{%V}, and @code{%t}.  If
+@code{magit-uniquify-buffer-names} is non-nil, then the value must end with
+@code{%t} or @code{%t%x}.  See issue #2841.
 @end defopt
 
 @defopt magit-uniquify-buffer-names

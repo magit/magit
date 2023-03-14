@@ -163,15 +163,9 @@ The following %-sequences are supported:
      empty string.  Due to limitations of the `uniquify' package,
      buffer names must end with the path.
 
-`%T' Obsolete, use \"%t%x\" instead.  Like \"%t\", but append an
-     asterisk if and only if `magit-uniquify-buffer-names' is nil.
-
-The value should always contain \"%m\" or \"%M\", \"%v\" or
-\"%V\", and \"%t\" (or the obsolete \"%T\").
-
-If `magit-uniquify-buffer-names' is non-nil, then the value must
-end with \"%t\" or \"%t%x\" (or the obsolete \"%T\").  See issue
-#2841.
+The value should always contain \"%m\" or \"%M\", \"%v\" or \"%V\", and
+\"%t\".  If `magit-uniquify-buffer-names' is non-nil, then the
+value must end with \"%t\" or \"%t%x\".  See issue #2841.
 
 This is used by `magit-generate-buffer-name-default-function'.
 If another `magit-generate-buffer-name-function' is used, then
@@ -862,8 +856,7 @@ account."
        (?v . ,(or v ""))
        (?V . ,(if v (concat " " v) ""))
        (?t . ,n)
-       (?x . ,(if magit-uniquify-buffer-names "" "*"))
-       (?T . ,(if magit-uniquify-buffer-names n (concat n "*")))))))
+       (?x . ,(if magit-uniquify-buffer-names "" "*"))))))
 
 ;;; Buffer Lock
 
