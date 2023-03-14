@@ -190,6 +190,7 @@ Otherwise the value has to have one of these two forms:
 
 (define-obsolete-variable-alias 'magit-keep-region-overlay
   'magit-section-keep-region-overlay "Magit-Section 4.0.0")
+
 (defcustom magit-section-keep-region-overlay nil
   "Whether to keep the region overlay when there is a valid selection.
 
