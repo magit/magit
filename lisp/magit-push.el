@@ -218,7 +218,7 @@ only available for the part before the colon, or when no colon
 is used."
   (interactive
    (list (magit-read-remote "Push to remote")
-         (magit-completing-read-multiple*
+         (magit-completing-read-multiple
           "Push refspec,s: "
           (cons "HEAD" (magit-list-local-branch-names))
           nil nil nil 'magit-push-refspecs-history)

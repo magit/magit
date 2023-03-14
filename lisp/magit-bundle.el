@@ -59,8 +59,8 @@
                               (concat (file-name-nondirectory
                                        (directory-file-name (magit-toplevel)))
                                       ".bundle"))
-              (magit-completing-read-multiple* "Refnames (zero or more): "
-                                               (magit-list-refnames))
+              (magit-completing-read-multiple "Refnames (zero or more): "
+                                              (magit-list-refnames))
               (transient-args 'magit-bundle-create))))
   (if file
       (magit-git-bundle "create" file refs args)
@@ -72,7 +72,7 @@
   (interactive
    (let ((tag    (magit-read-tag "Track bundle using tag"))
          (branch (magit-read-branch "Bundle branch"))
-         (refs   (magit-completing-read-multiple*
+         (refs   (magit-completing-read-multiple
                   "Additional refnames (zero or more): "
                   (magit-list-refnames))))
      (list (read-file-name "File: " nil nil nil (concat tag ".bundle"))

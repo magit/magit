@@ -586,45 +586,10 @@ acts similarly to `completing-read', except for the following:
                        predicate require-match
                        initial-input hist def))))
 
+(define-obsolete-function-alias 'magit-completing-read-multiple*
+  'magit-completing-read-multiple "Magit-Section 4.0.0")
+
 (defun magit-completing-read-multiple
-    (prompt choices &optional sep default hist keymap)
-  "Read multiple items from CHOICES, separated by SEP.
-
-Set up the `crm' variables needed to read multiple values with
-`read-from-minibuffer'.
-
-SEP is a regexp matching characters that can separate choices.
-When SEP is nil, it defaults to `crm-separator'.  DEFAULT, HIST,
-and KEYMAP are passed to `read-from-minibuffer'.  When KEYMAP is
-nil, it defaults to `crm-local-completion-map'.
-
-Unlike `completing-read-multiple', the return value is not split
-into a list."
-  (declare (obsolete magit-completing-read-multiple* "Magit 3.1.0"))
-  (let* ((crm-separator (or sep crm-separator))
-         (crm-completion-table (magit--completion-table choices))
-         (choose-completion-string-functions
-          '(crm--choose-completion-string))
-         (minibuffer-completion-table #'crm--collection-fn)
-         (minibuffer-completion-confirm t)
-         (helm-completion-in-region-default-sort-fn nil)
-         (helm-crm-default-separator nil)
-         (ivy-sort-matches-functions-alist nil)
-         (input
-          (cl-letf (((symbol-function #'completion-pcm--all-completions)))
-            (when (< emacs-major-version 26)
-              (fset 'completion-pcm--all-completions
-                    'magit-completion-pcm--all-completions))
-            (read-from-minibuffer
-             (concat prompt (and default (format " (%s)" default)) ": ")
-             nil (or keymap crm-local-completion-map)
-             nil hist default))))
-    (when (string-equal input "")
-      (or (setq input default)
-          (user-error "Nothing selected")))
-    input))
-
-(defun magit-completing-read-multiple*
     (prompt table &optional predicate require-match initial-input
             hist def inherit-input-method
             no-split)

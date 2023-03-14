@@ -618,7 +618,7 @@ commits before and half after."
   (or (and use-current (and-let* ((buf (magit-get-current-branch))) (list buf)))
       (let ((crm-separator "\\(\\.\\.\\.?\\|[, ]\\)")
             (crm-local-completion-map magit-log-read-revs-map))
-        (split-string (magit-completing-read-multiple*
+        (split-string (magit-completing-read-multiple
                        "Log rev,s: "
                        (magit-list-refnames nil t)
                        nil nil nil 'magit-revision-history

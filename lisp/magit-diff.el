@@ -980,11 +980,11 @@ and `:slant'."
   :multi-value t)
 
 (defun magit-read-files (prompt initial-input history &optional list-fn)
-  (magit-completing-read-multiple* prompt
-                                   (funcall (or list-fn #'magit-list-files))
-                                   nil nil
-                                   (or initial-input (magit-file-at-point))
-                                   history))
+  (magit-completing-read-multiple prompt
+                                  (funcall (or list-fn #'magit-list-files))
+                                  nil nil
+                                  (or initial-input (magit-file-at-point))
+                                  history))
 
 (transient-define-argument magit-diff:-U ()
   :description "Context lines"

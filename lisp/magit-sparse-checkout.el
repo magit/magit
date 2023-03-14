@@ -98,7 +98,7 @@ See the `git sparse-checkout' manpage for details about
 To extend rather than override the currently configured
 directories, call `magit-sparse-checkout-add' instead."
   (interactive
-   (list (magit-completing-read-multiple*
+   (list (magit-completing-read-multiple
           "Include these directories: "
           ;; Note: Given that the appeal of sparse checkouts is
           ;; dealing with very large trees, listing all subdirectories
@@ -114,7 +114,7 @@ directories, call `magit-sparse-checkout-add' instead."
 To override rather than extend the currently configured
 directories, call `magit-sparse-checkout-set' instead."
   (interactive
-   (list (magit-completing-read-multiple*
+   (list (magit-completing-read-multiple
           "Add these directories: "
           ;; Same performance note as in `magit-sparse-checkout-set',
           ;; but even more so given the additional processing.
