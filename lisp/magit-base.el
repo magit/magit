@@ -483,9 +483,9 @@ and delay of your graphical environment or operating system."
 
 (defvar magit-completing-read--silent-default nil)
 
-(defun magit-completing-read (prompt collection &optional
-                                     predicate require-match initial-input
-                                     hist def fallback)
+(defun magit-completing-read ( prompt collection &optional
+                               predicate require-match initial-input
+                               hist def fallback)
   "Read a choice in the minibuffer, or use the default choice.
 
 This is the function that Magit commands use when they need the
@@ -590,9 +590,9 @@ acts similarly to `completing-read', except for the following:
   'magit-completing-read-multiple "Magit-Section 4.0.0")
 
 (defun magit-completing-read-multiple
-    (prompt table &optional predicate require-match initial-input
-            hist def inherit-input-method
-            no-split)
+    ( prompt table &optional predicate require-match initial-input
+      hist def inherit-input-method
+      no-split)
   "Read multiple strings in the minibuffer, with completion.
 Like `completing-read-multiple' but don't mess with order of
 TABLE and take an additional argument NO-SPLIT, which causes
@@ -678,8 +678,8 @@ back to built-in `completing-read' for now." :error)
   (setq defining-kbd-macro nil)
   (force-mode-line-update))
 
-(defun magit-read-string (prompt &optional initial-input history default-value
-                                 inherit-input-method no-whitespace)
+(defun magit-read-string ( prompt &optional initial-input history default-value
+                           inherit-input-method no-whitespace)
   "Read a string from the minibuffer, prompting with string PROMPT.
 
 This is similar to `read-string', but
@@ -715,8 +715,8 @@ This is similar to `read-string', but
            (user-error "Input contains whitespace"))
           (t val))))
 
-(defun magit-read-string-ns (prompt &optional initial-input history
-                                    default-value inherit-input-method)
+(defun magit-read-string-ns ( prompt &optional initial-input history
+                              default-value inherit-input-method)
   "Call `magit-read-string' with non-nil NO-WHITESPACE."
   (magit-read-string prompt initial-input history default-value
                      inherit-input-method t))
@@ -747,8 +747,8 @@ ACTION is a member of option `magit-slow-confirm'."
   '((safe-with-wip magit-wip-before-change-mode
                    discard reverse stage-all-changes unstage-all-changes)))
 
-(cl-defun magit-confirm (action &optional prompt prompt-n noabort
-                                (items nil sitems))
+(cl-defun magit-confirm ( action &optional prompt prompt-n noabort
+                          (items nil sitems))
   (declare (indent defun))
   (setq prompt-n (format (concat (or prompt-n prompt) "? ") (length items)))
   (setq prompt   (format (concat (or prompt (magit-confirm-make-prompt action))
