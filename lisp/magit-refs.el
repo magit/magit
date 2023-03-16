@@ -572,7 +572,12 @@ line is inserted at all."
           (pcase-let ((`(,head-branch ,branch ,ref ,msg)
                        (-replace "" nil (split-string line "\0"))))
             (if head-branch
-                (progn (cl-assert (equal branch (concat remote "/HEAD")))
+                ;; Note: Use `ref' instead of `branch' for the check
+                ;; below because 'refname:short' shortens the remote
+                ;; HEAD to '<remote>' instead of '<remote>/HEAD' as of
+                ;; Git v2.40.0.
+                (progn (cl-assert
+                        (equal ref (concat "refs/remotes/" remote "/HEAD")))
                        (setq head head-branch))
               (when (magit-refs--insert-refname-p branch)
                 (magit-insert-section (branch branch t)
