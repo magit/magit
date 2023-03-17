@@ -290,7 +290,9 @@ prefix arguments:
 
 ;;;###autoload
 (defalias 'magit #'magit-status
-  "An alias for `magit-status' for better discoverability.
+  "Begin using Magit.
+
+This alias for `magit-status' exists for better discoverability.
 
 Instead of invoking this alias for `magit-status' using
 \"M-x magit RET\", you should bind a key to `magit-status'
