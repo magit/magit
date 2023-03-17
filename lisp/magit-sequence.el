@@ -1041,10 +1041,12 @@ status buffer (i.e. the reverse of how they will be applied)."
                (cond
                 ;; ...but we could end up at the same tree just by committing.
                 ((or (magit-rev-equal staged   stop)
-                     (magit-rev-equal unstaged stop)) "goal")
+                     (magit-rev-equal unstaged stop))
+                 "goal")
                 ;; ...but the changes are still there, untainted.
                 ((or (equal (magit-patch-id staged)   id)
-                     (equal (magit-patch-id unstaged) id)) "same")
+                     (equal (magit-patch-id unstaged) id))
+                 "same")
                 ;; ...and some changes are gone and/or others were added.
                 (t "work")))
              stop 'magit-sequence-part))
