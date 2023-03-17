@@ -43,6 +43,7 @@
 (declare-function magit-refresh "magit-mode" ())
 (defvar magit-buffer-gitdir)
 (defvar magit-buffer-topdir)
+(defvar magit-buffer-diff-type)
 (defvar magit-buffer-diff-args)
 (defvar magit-buffer-file-name)
 (defvar magit-buffer-log-args)

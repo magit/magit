@@ -1222,7 +1222,7 @@ revisions (i.e., use a \"...\" range)."
   (interactive (cons (magit-diff-read-range-or-commit "Diff for range"
                                                       nil current-prefix-arg)
                      (magit-diff-arguments)))
-  (magit-diff-setup-buffer rev-or-range nil args files))
+  (magit-diff-setup-buffer rev-or-range nil args files 'committed))
 
 ;;;###autoload
 (defun magit-diff-working-tree (&optional rev args files)
@@ -1233,7 +1233,7 @@ a commit read from the minibuffer."
    (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff working tree and commit"))
          (magit-diff-arguments)))
-  (magit-diff-setup-buffer (or rev "HEAD") nil args files))
+  (magit-diff-setup-buffer (or rev "HEAD") nil args files 'unstaged))
 
 ;;;###autoload
 (defun magit-diff-staged (&optional rev args files)
@@ -1244,13 +1244,13 @@ a commit read from the minibuffer."
    (cons (and current-prefix-arg
               (magit-read-branch-or-commit "Diff index and commit"))
          (magit-diff-arguments)))
-  (magit-diff-setup-buffer rev "--cached" args files))
+  (magit-diff-setup-buffer rev "--cached" args files 'staged))
 
 ;;;###autoload
 (defun magit-diff-unstaged (&optional args files)
   "Show changes between the working tree and the index."
   (interactive (magit-diff-arguments))
-  (magit-diff-setup-buffer nil nil args files))
+  (magit-diff-setup-buffer nil nil args files 'unstaged))
 
 ;;;###autoload
 (defun magit-diff-unmerged (&optional args files)
@@ -1258,7 +1258,7 @@ a commit read from the minibuffer."
   (interactive (magit-diff-arguments))
   (unless (magit-merge-in-progress-p)
     (user-error "No merge is in progress"))
-  (magit-diff-setup-buffer (magit--merge-range) nil args files))
+  (magit-diff-setup-buffer (magit--merge-range) nil args files 'committed))
 
 ;;;###autoload
 (defun magit-diff-while-committing ()
@@ -1296,6 +1296,7 @@ the file or blob."
                                        nil
                                        (car (magit-diff-arguments))
                                        (list file)
+                                       'unstaged
                                        magit-diff-buffer-file-locked)
             (magit-diff--goto-position file line col))))
     (user-error "Buffer isn't visiting a file")))
@@ -1305,11 +1306,12 @@ the file or blob."
   "Show changes between any two files on disk."
   (interactive (list (read-file-name "First file: " nil nil t)
                      (read-file-name "Second file: " nil nil t)))
-  (magit-diff-setup-buffer nil "--no-index"
-                           nil (list (magit-convert-filename-for-git
-                                      (expand-file-name a))
-                                     (magit-convert-filename-for-git
-                                      (expand-file-name b)))))
+  (magit-diff-setup-buffer nil "--no-index" nil
+                           (list (magit-convert-filename-for-git
+                                  (expand-file-name a))
+                                 (magit-convert-filename-for-git
+                                  (expand-file-name b)))
+                           'undefined))
 
 (defun magit-show-commit--arguments ()
   (pcase-let ((`(,args ,diff-files)
@@ -1935,11 +1937,13 @@ Staging and applying changes is documented in info node
 (put 'magit-diff-mode 'magit-diff-default-arguments
      '("--stat" "--no-ext-diff"))
 
-(defun magit-diff-setup-buffer (range typearg args files &optional locked)
+(defun magit-diff-setup-buffer ( range typearg args files
+                                 &optional type locked)
   (require 'magit)
   (magit-setup-buffer #'magit-diff-mode locked
     (magit-buffer-range range)
     (magit-buffer-typearg typearg)
+    (magit-buffer-diff-type type)
     (magit-buffer-diff-args args)
     (magit-buffer-diff-files files)
     (magit-buffer-diff-files-suspended nil)))
@@ -2521,6 +2525,7 @@ Staging and applying changes is documented in info node
   (magit-setup-buffer #'magit-revision-mode nil
     (magit-buffer-revision rev)
     (magit-buffer-range (format "%s^..%s" rev rev))
+    (magit-buffer-diff-type 'committed)
     (magit-buffer-diff-args args)
     (magit-buffer-diff-files files)
     (magit-buffer-diff-files-suspended nil)))
@@ -2980,6 +2985,8 @@ It the SECTION has a different type, then do nothing."
 
 ;;; Diff Type
 
+(defvar magit--diff-use-recorded-type-p t)
+
 (defun magit-diff-type (&optional section)
   "Return the diff type of SECTION.
 
@@ -3008,8 +3015,11 @@ Do not confuse this with `magit-diff-scope' (which see)."
           ((derived-mode-p 'magit-diff-mode)
            (let ((range magit-buffer-range)
                  (const magit-buffer-typearg))
-             (cond ((equal const "--no-index") 'undefined)
+             (cond ((and magit--diff-use-recorded-type-p
+                         magit-buffer-diff-type))
+                   ((equal const "--no-index") 'undefined)
                    ((or (not range)
+                        (equal range "HEAD")
                         (magit-rev-eq range "HEAD"))
                     (if (equal const "--cached")
                         'staged

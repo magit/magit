@@ -625,7 +625,10 @@ See `magit-commit-absorb' for an alternative implementation."
         (when magit-commit-diff-inhibit-same-window
           (setq display-buffer-overriding-action
                 '(nil (inhibit-same-window . t))))
-        (magit-diff-setup-buffer rev arg (car (magit-diff-arguments)) nil)))))
+        (magit-diff-setup-buffer rev arg (car (magit-diff-arguments)) nil
+                                 (cond ((equal rev "HEAD") 'staged)
+                                       ((equal rev "HEAD^..HEAD") 'committed)
+                                       ('undefined)))))))
 
 (add-hook 'server-switch-hook #'magit-commit-diff)
 (add-hook 'with-editor-filter-visit-hook #'magit-commit-diff)
