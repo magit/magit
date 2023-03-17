@@ -1118,32 +1118,31 @@ argument (the prefix) non-nil means save all with no questions."
                  "to skip the current buffer and remember choice")
              ,@save-some-buffers-action-alist)))
       (save-some-buffers
-       arg (lambda ()
-             (and buffer-file-name
-                  ;; If the current file is modified and resides inside
-                  ;; a repository, and a let-binding is in effect, which
-                  ;; places us in another repository, then the below
-                  ;; let-binding is needed to prevent that file from
-                  ;; being saved.
-                  (let ((default-directory
-                         (file-name-directory buffer-file-name)))
-                    (and
-                     ;; - Check whether the repository still exists
-                     ;;   Necessary because  we call git inside of it.
-                     default-directory
-                     (file-exists-p default-directory)
-                     ;; - Check whether refreshing is disabled.
-                     (not magit-inhibit-refresh-save)
-                     ;; - Check whether the visited file is either on the
-                     ;;   same remote as the repository, or both are on
-                     ;;   the local system.
-                     (equal (file-remote-p buffer-file-name) remote)
-                     ;; Delayed checks that are more expensive for remote
-                     ;; repositories, due to the required network access.
-                     ;; - Check whether the file is inside the repository.
-                     (equal (magit-rev-parse-safe "--show-toplevel") topdir)
-                     ;; - Check whether the file is actually writable.
-                     (file-writable-p buffer-file-name)))))))))
+       arg
+       (lambda ()
+         ;; If the current file is modified and resides inside
+         ;; a repository, and a let-binding is in effect, which
+         ;; places us in another repository, then this binding
+         ;; is needed to prevent that file from being saved.
+         (and-let* ((default-directory
+                     (and buffer-file-name
+                          (file-name-directory buffer-file-name))))
+           (and
+            ;; Check whether the repository still exists.
+            (file-exists-p default-directory)
+            ;; Check whether refreshing is disabled.
+            (not magit-inhibit-refresh-save)
+            ;; Check whether the visited file is either on the
+            ;; same remote as the repository, or both are on
+            ;; the local system.
+            (equal (file-remote-p buffer-file-name) remote)
+            ;; Delayed checks that are more expensive for remote
+            ;; repositories, due to the required network access.
+            ;;
+            ;; Check whether the file is inside the repository.
+            (equal (magit-rev-parse-safe "--show-toplevel") topdir)
+            ;; Check whether the file is actually writable.
+            (file-writable-p buffer-file-name))))))))
 
 ;;; Restore Window Configuration
 
