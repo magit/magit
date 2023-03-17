@@ -872,67 +872,70 @@ tree is involved, or when called from within a sub-directory of
 the gitdir or from the toplevel of a gitdir, which itself is not
 located within the working tree, then it is not possible to avoid
 returning the truename."
-  (magit--with-refresh-cache
-      (cons (or directory default-directory) 'magit-toplevel)
-    (magit--with-safe-default-directory directory
-      (if-let ((topdir (magit-rev-parse-safe "--show-toplevel")))
-          (let (updir)
-            (setq topdir (magit-expand-git-file-name topdir))
-            (if (and
-                 ;; Always honor these settings.
-                 (not find-file-visit-truename)
-                 (not (getenv "GIT_WORK_TREE"))
-                 ;; `--show-cdup' is the relative path to the toplevel
-                 ;; from `(file-truename default-directory)'.  Here we
-                 ;; pretend it is relative to `default-directory', and
-                 ;; go to that directory.  Then we check whether
-                 ;; `--show-toplevel' still returns the same value and
-                 ;; whether `--show-cdup' now is the empty string.  If
-                 ;; both is the case, then we are at the toplevel of
-                 ;; the same working tree, but also avoided needlessly
-                 ;; following any symlinks.
-                 (progn
-                   (setq updir (file-name-as-directory
-                                (magit-rev-parse-safe "--show-cdup")))
-                   (setq updir (if (file-name-absolute-p updir)
-                                   (concat (file-remote-p default-directory) updir)
-                                 (expand-file-name updir)))
-                   (and-let*
-                       ((default-directory updir)
-                        (top (and (string-equal
-                                   (magit-rev-parse-safe "--show-cdup") "")
-                                  (magit-rev-parse-safe "--show-toplevel"))))
-                     (string-equal (magit-expand-git-file-name top) topdir))))
-                updir
-              (concat (file-remote-p default-directory)
-                      (file-name-as-directory topdir))))
-        (and-let* ((gitdir (magit-rev-parse-safe "--git-dir"))
-                   (gitdir (file-name-as-directory
-                            (if (file-name-absolute-p gitdir)
-                                ;; We might have followed a symlink.
-                                (concat (file-remote-p default-directory)
-                                        (magit-expand-git-file-name gitdir))
-                              (expand-file-name gitdir)))))
-          (if (magit-bare-repo-p)
-              gitdir
-            (let* ((link (expand-file-name "gitdir" gitdir))
-                   (wtree (and (file-exists-p link)
-                               (magit-file-line link))))
-              (cond
-               ((and wtree
-                     ;; Ignore .git/gitdir files that result from a
-                     ;; Git bug.  See #2364.
-                     (not (equal wtree ".git")))
-                ;; Return the linked working tree.
-                (concat (file-remote-p default-directory)
-                        (file-name-directory wtree)))
-               ;; The working directory may not be the parent directory of
-               ;; .git if it was set up with `git init --separate-git-dir'.
-               ;; See #2955.
-               ((car (rassoc gitdir magit--separated-gitdirs)))
-               (t
-                ;; Step outside the control directory to enter the working tree.
-                (file-name-directory (directory-file-name gitdir)))))))))))
+  (or
+   (magit--with-refresh-cache
+       (cons (or directory default-directory) 'magit-toplevel)
+     (magit--with-safe-default-directory directory
+       (if-let ((topdir (magit-rev-parse-safe "--show-toplevel")))
+           (let (updir)
+             (setq topdir (magit-expand-git-file-name topdir))
+             (cond
+              ((and
+                ;; Always honor these settings.
+                (not find-file-visit-truename)
+                (not (getenv "GIT_WORK_TREE"))
+                ;; `--show-cdup' is the relative path to the toplevel
+                ;; from `(file-truename default-directory)'.  Here we
+                ;; pretend it is relative to `default-directory', and
+                ;; go to that directory.  Then we check whether
+                ;; `--show-toplevel' still returns the same value and
+                ;; whether `--show-cdup' now is the empty string.  If
+                ;; both is the case, then we are at the toplevel of
+                ;; the same working tree, but also avoided needlessly
+                ;; following any symlinks.
+                (progn
+                  (setq updir (file-name-as-directory
+                               (magit-rev-parse-safe "--show-cdup")))
+                  (setq updir (if (file-name-absolute-p updir)
+                                  (concat (file-remote-p default-directory)
+                                          updir)
+                                (expand-file-name updir)))
+                  (and-let*
+                      ((default-directory updir)
+                       (top (and (string-equal
+                                  (magit-rev-parse-safe "--show-cdup") "")
+                                 (magit-rev-parse-safe "--show-toplevel"))))
+                    (string-equal (magit-expand-git-file-name top) topdir))))
+               updir)
+              ((concat (file-remote-p default-directory)
+                       (file-name-as-directory topdir)))))
+         (and-let* ((gitdir (magit-rev-parse-safe "--git-dir"))
+                    (gitdir (file-name-as-directory
+                             (if (file-name-absolute-p gitdir)
+                                 ;; We might have followed a symlink.
+                                 (concat (file-remote-p default-directory)
+                                         (magit-expand-git-file-name gitdir))
+                               (expand-file-name gitdir)))))
+           (if (magit-bare-repo-p)
+               gitdir
+             (let* ((link (expand-file-name "gitdir" gitdir))
+                    (wtree (and (file-exists-p link)
+                                (magit-file-line link))))
+               (cond
+                ((and wtree
+                      ;; Ignore .git/gitdir files that result from a
+                      ;; Git bug.  See #2364.
+                      (not (equal wtree ".git")))
+                 ;; Return the linked working tree.
+                 (concat (file-remote-p default-directory)
+                         (file-name-directory wtree)))
+                ;; The working directory may not be the parent
+                ;; directory of .git if it was set up with
+                ;; "git init --separate-git-dir".  See #2955.
+                ((car (rassoc gitdir magit--separated-gitdirs)))
+                (;; Step outside the control directory to enter the
+                 ;; working tree.
+                 (file-name-directory (directory-file-name gitdir))))))))))))
 
 (defun magit--toplevel-safe ()
   (or (magit-toplevel)
