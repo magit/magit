@@ -526,6 +526,8 @@ Magit is documented in info node `(magit)'."
 
 ;;; Local Variables
 
+(defvar-local magit-buffer-gitdir nil)
+(defvar-local magit-buffer-topdir nil)
 (defvar-local magit-buffer-arguments nil)
 (defvar-local magit-buffer-diff-args nil)
 (defvar-local magit-buffer-diff-files nil)
@@ -593,6 +595,8 @@ The buffer's major-mode should derive from `magit-section-mode'."
       (setq magit-previous-section section)
       (funcall mode)
       (magit-xref-setup #'magit-setup-buffer-internal bindings)
+      (setq magit-buffer-gitdir (magit-gitdir))
+      (setq magit-buffer-topdir (magit-toplevel))
       (pcase-dolist (`(,var ,val) bindings)
         (set (make-local-variable var) val))
       (when created
