@@ -1116,7 +1116,8 @@ argument (the prefix) non-nil means save all with no questions."
                    (with-current-buffer buffer
                      (setq magit-inhibit-refresh-save t)))
                  "to skip the current buffer and remember choice")
-             ,@save-some-buffers-action-alist)))
+             ,@save-some-buffers-action-alist))
+          (dirs nil))
       (save-some-buffers
        arg
        (lambda ()
@@ -1140,7 +1141,11 @@ argument (the prefix) non-nil means save all with no questions."
             ;; repositories, due to the required network access.
             ;;
             ;; Check whether the file is inside the repository.
-            (equal (magit-rev-parse-safe "--show-toplevel") topdir)
+            (equal (or (cdr (assoc default-directory dirs))
+                       (let ((dir (magit-rev-parse-safe "--show-toplevel")))
+                         (push (cons default-directory dir) dirs)
+                         dir))
+                   topdir)
             ;; Check whether the file is actually writable.
             (file-writable-p buffer-file-name))))))))
 
