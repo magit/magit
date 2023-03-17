@@ -734,7 +734,8 @@ running \"man git-rebase\" at the command line) for details."
       (magit-confirm 'abort-rebase "Abort this rebase" nil 'noabort)))
 
 (defun git-rebase-autostash-save ()
-  (--when-let (magit-file-line (magit-git-dir "rebase-merge/autostash"))
+  (--when-let (magit-file-line
+               (expand-file-name "rebase-merge/autostash" (magit-gitdir)))
     (push (cons 'stash it) with-editor-cancel-alist)))
 
 (defun git-rebase-autostash-apply ()

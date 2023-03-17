@@ -369,7 +369,7 @@ depending on the value of option `magit-commit-squash-confirm'."
     (setq this-command #'magit-rebase-continue)
     (magit-run-git-sequencer "rebase" "--continue")
     nil)
-   ((and (file-exists-p (magit-git-dir "MERGE_MSG"))
+   ((and (file-exists-p (expand-file-name "MERGE_MSG" (magit-gitdir)))
          (not (magit-anything-unstaged-p)))
     (or args (list "--")))
    ((not (magit-anything-unstaged-p))
@@ -578,7 +578,8 @@ See `magit-commit-absorb' for an alternative implementation."
          ;; requires a working tree.
          (magit-with-toplevel
            (magit-anything-unstaged-p)))
-        (squash (let ((f (magit-git-dir "rebase-merge/rewritten-pending")))
+        (squash (let ((f (expand-file-name "rebase-merge/rewritten-pending"
+                                           (magit-gitdir))))
                   (and (file-exists-p f) (length (magit-file-lines f)))))
         (noalt nil))
     (pcase (list staged unstaged command)
@@ -610,7 +611,8 @@ See `magit-commit-absorb' for an alternative implementation."
                    (equal arg (buffer-local-value 'magit-buffer-typearg buf)))))))
      ((eq command 'magit-commit-amend)
       (setq rev nil))
-     ((or squash (file-exists-p (magit-git-dir "rebase-merge/amend")))
+     ((or squash
+          (file-exists-p (expand-file-name "rebase-merge/amend" (magit-gitdir))))
       (setq rev "HEAD^"))
      (t
       (message "No alternative diff while committing")

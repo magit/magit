@@ -134,7 +134,8 @@ other actions from the bisect transient command (\
   (interactive)
   (magit-confirm 'reset-bisect)
   (magit-run-git "bisect" "reset")
-  (ignore-errors (delete-file (magit-git-dir "BISECT_CMD_OUTPUT"))))
+  (ignore-errors
+    (delete-file (expand-file-name "BISECT_CMD_OUTPUT" (magit-gitdir)))))
 
 ;;;###autoload
 (defun magit-bisect-good ()
@@ -197,7 +198,7 @@ bisect run'."
     ;; next `git bisect run' call requires the bisect to be started.
     (magit-with-toplevel
       (magit-process-git
-       (list :file (magit-git-dir "BISECT_CMD_OUTPUT"))
+       (list :file (expand-file-name "BISECT_CMD_OUTPUT" (magit-gitdir)))
        (magit-process-git-arguments
         (list "bisect" "start" bad good args)))
       (magit-refresh)))
@@ -225,7 +226,8 @@ bisect run'."
                          (output (buffer-substring-no-properties
                                   (oref section content)
                                   (oref section end))))
-               (with-temp-file (magit-git-dir "BISECT_CMD_OUTPUT")
+               (with-temp-file
+                   (expand-file-name "BISECT_CMD_OUTPUT" (magit-gitdir))
                  (insert output)))))
          (magit-refresh))
        (message "Bisecting...done")))))
@@ -233,16 +235,17 @@ bisect run'."
 ;;; Sections
 
 (defun magit-bisect-in-progress-p ()
-  (file-exists-p (magit-git-dir "BISECT_LOG")))
+  (file-exists-p (expand-file-name "BISECT_LOG" (magit-gitdir))))
 
 (defun magit-bisect-terms ()
-  (magit-file-lines (magit-git-dir "BISECT_TERMS")))
+  (magit-file-lines (expand-file-name "BISECT_TERMS" (magit-gitdir))))
 
 (defun magit-insert-bisect-output ()
   "While bisecting, insert section with output from `git bisect'."
   (when (magit-bisect-in-progress-p)
     (let* ((lines
-            (or (magit-file-lines (magit-git-dir "BISECT_CMD_OUTPUT"))
+            (or (magit-file-lines
+                 (expand-file-name "BISECT_CMD_OUTPUT" (magit-gitdir)))
                 (list "Bisecting: (no saved bisect output)"
                       "It appears you have invoked `git bisect' from a shell."
                       "There is nothing wrong with that, we just cannot display"

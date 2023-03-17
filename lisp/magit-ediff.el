@@ -221,9 +221,11 @@ See info node `(magit) Ediffing' for more information about this
 and alternative commands."
   (interactive (list (magit-read-unmerged-file)))
   (magit-with-toplevel
-    (let* ((revA  (or (magit-name-branch "HEAD")
+    (let* ((dir   (magit-gitdir))
+           (revA  (or (magit-name-branch "HEAD")
                       (magit-commit-p "HEAD")))
-           (revB  (cl-find-if (lambda (head) (file-exists-p (magit-git-dir head)))
+           (revB  (cl-find-if (lambda (head)
+                                (file-exists-p (expand-file-name head dir)))
                               '("MERGE_HEAD" "CHERRY_PICK_HEAD" "REVERT_HEAD")))
            (revB  (or (magit-name-branch revB)
                       (magit-commit-p revB)))

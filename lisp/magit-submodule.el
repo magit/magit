@@ -430,9 +430,10 @@ to recover from making a mistake here, but don't count on it."
             (if-let ((name (cadr (assoc module alist))))
                 ;; Disregard if `magit-delete-by-moving-to-trash'
                 ;; is nil.  Not doing so would be too dangerous.
-                (delete-directory (magit-git-dir
-                                   (convert-standard-filename
-                                    (concat "modules/" name)))
+                (delete-directory (convert-standard-filename
+                                   (expand-file-name
+                                    (concat "modules/" name)
+                                    (magit-gitdir)))
                                   t t)
               (error "BUG: Weird module name and/or path for %s" module)))))
       (magit-refresh))))
@@ -688,8 +689,9 @@ These sections can be expanded to show the respective commits."
 ;;; Utilities
 
 (defun magit-submodule--maybe-reuse-gitdir (name path)
-  (let ((gitdir
-         (magit-git-dir (convert-standard-filename (concat "modules/" name)))))
+  (let ((gitdir (convert-standard-filename
+                 (expand-file-name (concat "modules/" name)
+                                   (magit-gitdir)))))
     (when (and (file-exists-p gitdir)
                (not (file-exists-p path)))
       (pcase (read-char-choice

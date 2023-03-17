@@ -232,7 +232,7 @@ then also remove the respective remote branch."
   "Abort the current merge operation.
 \n(git merge --abort)"
   (interactive)
-  (unless (file-exists-p (magit-git-dir "MERGE_HEAD"))
+  (unless (file-exists-p (expand-file-name "MERGE_HEAD" (magit-gitdir)))
     (user-error "No merge in progress"))
   (magit-confirm 'abort-merge)
   (magit-run-git-async "merge" "--abort"))
@@ -266,12 +266,13 @@ then also remove the respective remote branch."
 ;;; Utilities
 
 (defun magit-merge-in-progress-p ()
-  (file-exists-p (magit-git-dir "MERGE_HEAD")))
+  (file-exists-p (expand-file-name "MERGE_HEAD" (magit-gitdir))))
 
 (defun magit--merge-range (&optional head)
   (unless head
     (setq head (magit-get-shortname
-                (car (magit-file-lines (magit-git-dir "MERGE_HEAD"))))))
+                (car (magit-file-lines
+                      (expand-file-name "MERGE_HEAD" (magit-gitdir)))))))
   (and head
        (concat (magit-git-string "merge-base" "--octopus" "HEAD" head)
                ".." head)))
@@ -299,7 +300,8 @@ Display the heads that are being merged.
 If no merge is in progress, do nothing."
   (when (magit-merge-in-progress-p)
     (let* ((heads (mapcar #'magit-get-shortname
-                          (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
+                          (magit-file-lines
+                           (expand-file-name "MERGE_HEAD" (magit-gitdir)))))
            (range (magit--merge-range (car heads))))
       (magit-insert-section (unmerged range)
         (magit-insert-heading

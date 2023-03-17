@@ -84,7 +84,7 @@ Also stage the file."
   "Add the Git ignore RULE to \"$GIT_DIR/info/exclude\".
 Rules in that file only affects this clone of the repository."
   (interactive (list (magit-gitignore-read-pattern)))
-  (magit--gitignore rule (magit-git-dir "info/exclude"))
+  (magit--gitignore rule (expand-file-name "info/exclude" (magit-gitdir)))
   (magit-refresh))
 
 ;;;###autoload

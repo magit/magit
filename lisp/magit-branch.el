@@ -794,8 +794,9 @@ and also rename the respective reflog file."
     (magit-run-git "update-ref" "-d" old)))
 
 (defun magit--rename-reflog-file (old new)
-  (let ((old (magit-git-dir (concat "logs/" old)))
-        (new (magit-git-dir (concat "logs/" new))))
+  (let* ((dir (magit-gitdir))
+         (old (expand-file-name (concat "logs/" old) dir))
+         (new (expand-file-name (concat "logs/" new) dir)))
     (when (file-exists-p old)
       (make-directory (file-name-directory new) t)
       (rename-file old new t))))

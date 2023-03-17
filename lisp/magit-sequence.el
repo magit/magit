@@ -353,11 +353,13 @@ the process manually."
 
 (defun magit-cherry-pick-in-progress-p ()
   ;; .git/sequencer/todo does not exist when there is only one commit left.
-  (or (file-exists-p (magit-git-dir "CHERRY_PICK_HEAD"))
-      ;; And CHERRY_PICK_HEAD does not exist when a conflict happens
-      ;; while picking a series of commits with --no-commit.
-      (when-let ((line (magit-file-line (magit-git-dir "sequencer/todo"))))
-        (string-prefix-p "pick" line))))
+  (let ((dir (magit-gitdir)))
+    (or (file-exists-p (expand-file-name "CHERRY_PICK_HEAD" dir))
+        ;; And CHERRY_PICK_HEAD does not exist when a conflict happens
+        ;; while picking a series of commits with --no-commit.
+        (and-let* ((line (magit-file-line
+                          (expand-file-name "sequencer/todo" dir))))
+          (string-prefix-p "pick" line)))))
 
 ;;; Revert
 
@@ -409,11 +411,13 @@ without prompting."
 
 (defun magit-revert-in-progress-p ()
   ;; .git/sequencer/todo does not exist when there is only one commit left.
-  (or (file-exists-p (magit-git-dir "REVERT_HEAD"))
-      ;; And REVERT_HEAD does not exist when a conflict happens while
-      ;; reverting a series of commits with --no-commit.
-      (when-let ((line (magit-file-line (magit-git-dir "sequencer/todo"))))
-        (string-prefix-p "revert" line))))
+  (let ((dir (magit-gitdir)))
+    (or (file-exists-p (expand-file-name "REVERT_HEAD" dir))
+        ;; And REVERT_HEAD does not exist when a conflict happens
+        ;; while reverting a series of commits with --no-commit.
+        (and-let* ((line (magit-file-line
+                          (expand-file-name "sequencer/todo" dir))))
+          (string-prefix-p "revert" line)))))
 
 ;;; Patch
 
@@ -506,7 +510,7 @@ This discards all changes made since the sequence started."
     (user-error "Not applying any patches")))
 
 (defun magit-am-in-progress-p ()
-  (file-exists-p (magit-git-dir "rebase-apply/applying")))
+  (file-exists-p (expand-file-name "rebase-apply/applying" (magit-gitdir))))
 
 ;;; Rebase
 
@@ -814,12 +818,14 @@ edit.  With a prefix argument the old message is reused as-is."
   (if (magit-rebase-in-progress-p)
       (if (magit-anything-unstaged-p t)
           (user-error "Cannot continue rebase with unstaged changes")
-        (when (and (magit-anything-staged-p)
-                   (file-exists-p (magit-git-dir "rebase-merge"))
-                   (not (member (magit-toplevel)
-                                magit--rebase-public-edit-confirmed)))
-          (magit-commit-amend-assert
-           (magit-file-line (magit-git-dir "rebase-merge/orig-head"))))
+        (let ((dir (magit-gitdir)))
+          (when (and (magit-anything-staged-p)
+                     (file-exists-p (expand-file-name "rebase-merge" dir))
+                     (not (member (magit-toplevel)
+                                  magit--rebase-public-edit-confirmed)))
+            (magit-commit-amend-assert
+             (magit-file-line
+              (expand-file-name "rebase-merge/orig-head" dir)))))
         (if noedit
             (with-environment-variables (("GIT_EDITOR" "true"))
               (magit-run-git-async (magit--rebase-resume-command) "--continue")
@@ -856,20 +862,25 @@ edit.  With a prefix argument the old message is reused as-is."
 
 (defun magit-rebase-in-progress-p ()
   "Return t if a rebase is in progress."
-  (or (file-exists-p (magit-git-dir "rebase-merge"))
-      (file-exists-p (magit-git-dir "rebase-apply/onto"))))
+  (let ((dir (magit-gitdir)))
+    (or (file-exists-p (expand-file-name "rebase-merge" dir))
+        (file-exists-p (expand-file-name "rebase-apply/onto" dir)))))
 
 (defun magit--rebase-resume-command ()
-  (if (file-exists-p (magit-git-dir "rebase-recursive")) "rbr" "rebase"))
+  (if (file-exists-p (expand-file-name "rebase-recursive" (magit-gitdir)))
+      "rbr"
+    "rebase"))
 
 (defun magit-rebase--get-state-lines (file)
   (and (magit-rebase-in-progress-p)
-       (magit-file-line
-        (magit-git-dir
-         (concat (if (file-directory-p (magit-git-dir "rebase-merge"))
-                     "rebase-merge/"
-                   "rebase-apply/")
-                 file)))))
+       (let ((dir (magit-gitdir)))
+         (magit-file-line
+          (expand-file-name
+           (concat (if (file-directory-p (expand-file-name "rebase-merge" dir))
+                       "rebase-merge/"
+                     "rebase-apply/")
+                   file)
+           dir)))))
 
 ;;; Sections
 
@@ -878,24 +889,25 @@ edit.  With a prefix argument the old message is reused as-is."
 If no such sequence is in progress, do nothing."
   (let ((picking (magit-cherry-pick-in-progress-p)))
     (when (or picking (magit-revert-in-progress-p))
-      (magit-insert-section (sequence)
-        (magit-insert-heading (if picking "Cherry Picking" "Reverting"))
-        (when-let ((lines
-                    (cdr (magit-file-lines (magit-git-dir "sequencer/todo")))))
-          (dolist (line (nreverse lines))
-            (when (string-match
-                   "^\\(pick\\|revert\\) \\([^ ]+\\) \\(.*\\)$" line)
-              (magit-bind-match-strings (cmd hash msg) line
-                (magit-insert-section (commit hash)
-                  (insert (propertize cmd 'font-lock-face 'magit-sequence-pick)
-                          " " (propertize hash 'font-lock-face 'magit-hash)
-                          " " msg "\n"))))))
-        (magit-sequence-insert-sequence
-         (magit-file-line (magit-git-dir (if picking
-                                             "CHERRY_PICK_HEAD"
-                                           "REVERT_HEAD")))
-         (magit-file-line (magit-git-dir "sequencer/head")))
-        (insert "\n")))))
+      (let ((dir (magit-gitdir)))
+        (magit-insert-section (sequence)
+          (magit-insert-heading (if picking "Cherry Picking" "Reverting"))
+          (when-let ((lines (cdr (magit-file-lines
+                                  (expand-file-name "sequencer/todo" dir)))))
+            (dolist (line (nreverse lines))
+              (when (string-match
+                     "^\\(pick\\|revert\\) \\([^ ]+\\) \\(.*\\)$" line)
+                (magit-bind-match-strings (cmd hash msg) line
+                  (magit-insert-section (commit hash)
+                    (insert (propertize cmd 'font-lock-face 'magit-sequence-pick)
+                            " " (propertize hash 'font-lock-face 'magit-hash)
+                            " " msg "\n"))))))
+          (magit-sequence-insert-sequence
+           (magit-file-line
+            (expand-file-name (if picking "CHERRY_PICK_HEAD" "REVERT_HEAD")
+                              dir))
+           (magit-file-line (expand-file-name "sequencer/head" dir)))
+          (insert "\n"))))))
 
 (defun magit-insert-am-sequence ()
   "Insert section for the on-going patch applying sequence.
@@ -941,13 +953,15 @@ If no such sequence is in progress, do nothing."
   "Insert section for the on-going rebase sequence.
 If no such sequence is in progress, do nothing."
   (when (magit-rebase-in-progress-p)
-    (let* ((interactive (file-directory-p (magit-git-dir "rebase-merge")))
+    (let* ((gitdir (magit-gitdir))
+           (interactive
+            (file-directory-p (expand-file-name "rebase-merge" gitdir)))
            (dir  (if interactive "rebase-merge/" "rebase-apply/"))
            (name (thread-first (concat dir "head-name")
-                   magit-git-dir
+                   (expand-file-name gitdir)
                    magit-file-line))
            (onto (thread-first (concat dir "onto")
-                   magit-git-dir
+                   (expand-file-name gitdir)
                    magit-file-line))
            (onto (or (magit-rev-name onto name)
                      (magit-rev-name onto "refs/heads/*") onto))
@@ -966,7 +980,8 @@ status buffer (i.e. the reverse of how they will be applied)."
   (let ((comment-start (or (magit-get "core.commentChar") "#"))
         lines)
     (with-temp-buffer
-      (insert-file-contents (magit-git-dir "rebase-merge/git-rebase-todo"))
+      (insert-file-contents
+       (expand-file-name "rebase-merge/git-rebase-todo" (magit-gitdir)))
       (while (not (eobp))
         (let ((ln (git-rebase-current-line)))
           (when (oref ln action-type)
@@ -993,28 +1008,34 @@ status buffer (i.e. the reverse of how they will be applied)."
                  "\s"
                  (magit-format-rev-summary hash) "\n"))
            (error "failed to parse merge message hash"))))))
-  (magit-sequence-insert-sequence
-   (magit-file-line (magit-git-dir "rebase-merge/stopped-sha"))
-   onto
-   (and-let* ((lines (magit-file-lines (magit-git-dir "rebase-merge/done"))))
-     (cadr (split-string (car (last lines)))))))
+  (let ((dir (magit-gitdir)))
+    (magit-sequence-insert-sequence
+     (magit-file-line (expand-file-name "rebase-merge/stopped-sha" dir))
+     onto
+     (and-let* ((lines (magit-file-lines
+                        (expand-file-name "rebase-merge/done" dir))))
+       (cadr (split-string (car (last lines))))))))
 
 (defun magit-rebase-insert-apply-sequence (onto)
-  (let ((rewritten
-         (--map (car (split-string it))
-                (magit-file-lines (magit-git-dir "rebase-apply/rewritten"))))
-        (stop (magit-file-line (magit-git-dir "rebase-apply/original-commit"))))
+  (let* ((dir (magit-gitdir))
+         (rewritten
+          (--map (car (split-string it))
+                 (magit-file-lines
+                  (expand-file-name "rebase-apply/rewritten" dir))))
+         (stop (magit-file-line
+                (expand-file-name "rebase-apply/original-commit" dir))))
     (dolist (patch (nreverse (cdr (magit-rebase-patches))))
       (let ((hash (cadr (split-string (magit-file-line patch)))))
         (unless (or (member hash rewritten)
                     (equal hash stop))
-          (magit-sequence-insert-commit "pick" hash 'magit-sequence-pick)))))
-  (magit-sequence-insert-sequence
-   (magit-file-line (magit-git-dir "rebase-apply/original-commit"))
-   onto))
+          (magit-sequence-insert-commit "pick" hash 'magit-sequence-pick))))
+    (magit-sequence-insert-sequence
+     (magit-file-line (expand-file-name "rebase-apply/original-commit" dir))
+     onto)))
 
 (defun magit-rebase-patches ()
-  (directory-files (magit-git-dir "rebase-apply") t "^[0-9]\\{4\\}$"))
+  (directory-files (expand-file-name "rebase-apply" (magit-gitdir))
+                   t "^[0-9]\\{4\\}$"))
 
 (defun magit-sequence-insert-sequence (stop onto &optional orig)
   (let ((head (magit-rev-parse "HEAD")) done)

@@ -203,7 +203,8 @@ is done using `magit-find-index-noselect'."
     (unless (equal magit-buffer-refname "{index}")
       (user-error "%s isn't visiting the index" file))
     (if (y-or-n-p (format "Update index with contents of %s" (buffer-name)))
-        (let ((index (make-temp-name (magit-git-dir "magit-update-index-")))
+        (let ((index (make-temp-name
+                      (expand-file-name "magit-update-index-" (magit-gitdir))))
               (buffer (current-buffer)))
           (when magit-wip-before-change-mode
             (magit-wip-commit-before-change (list file) " before un-/stage"))
@@ -243,7 +244,7 @@ This command is like `find-file', except that it temporarily
 binds `default-directory' to the actual git directory, while
 reading the FILENAME."
   (interactive
-   (let ((default-directory (magit-git-dir)))
+   (let ((default-directory (magit-gitdir)))
      (find-file-read-args "Find file: "
                           (confirm-nonexistent-file-or-buffer))))
   (find-file filename wildcards))
@@ -259,7 +260,7 @@ This command is like `find-file-other-window', except that it
 temporarily binds `default-directory' to the actual git
 directory, while reading the FILENAME."
   (interactive
-   (let ((default-directory (magit-git-dir)))
+   (let ((default-directory (magit-gitdir)))
      (find-file-read-args "Find file in other window: "
                           (confirm-nonexistent-file-or-buffer))))
   (find-file-other-window filename wildcards))
@@ -275,7 +276,7 @@ This command is like `find-file-other-frame', except that it
 temporarily binds `default-directory' to the actual git
 directory, while reading the FILENAME."
   (interactive
-   (let ((default-directory (magit-git-dir)))
+   (let ((default-directory (magit-gitdir)))
      (find-file-read-args "Find file in other frame: "
                           (confirm-nonexistent-file-or-buffer))))
   (find-file-other-frame filename wildcards))

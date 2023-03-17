@@ -61,7 +61,7 @@
    ("a" "Abort merge"  magit-notes-merge-abort)])
 
 (defun magit-notes-merging-p ()
-  (let ((dir (magit-git-dir "NOTES_MERGE_WORKTREE")))
+  (let ((dir (expand-file-name "NOTES_MERGE_WORKTREE" (magit-gitdir))))
     (and (file-directory-p dir)
          (directory-files dir nil "^[^.]"))))
 

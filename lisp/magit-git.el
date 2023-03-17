@@ -810,6 +810,14 @@ Also see `magit-git-config-p'."
   `(when-let ((default-directory (magit--safe-default-directory ,file)))
      ,@body))
 
+(defun magit-git-dir (&optional path)
+  "Like (expand-file-name PATH (magit-gitdir)) or just (magit-gitdir)."
+  (declare (obsolete 'magit-gitdir "Magit 4.0.0"))
+  (and-let* ((dir (magit-gitdir)))
+    (if path
+        (expand-file-name (convert-standard-filename path) dir)
+      dir)))
+
 (defun magit-gitdir (&optional directory)
   "Return the absolute and resolved path of the .git directory.
 
@@ -818,29 +826,20 @@ Otherwise return the .git directory for DIRECTORY, or if that is
 nil, then for `default-directory' instead.  If the directory is
 not located inside a Git repository, then return nil."
   (let ((default-directory (or directory default-directory)))
-    (magit-git-dir)))
-
-(defun magit-git-dir (&optional path)
-  "Return the absolute and resolved path of the .git directory.
-
-If the `GIT_DIR' environment variable is define then return that.
-Otherwise return the .git directory for `default-directory'.  If
-the directory is not located inside a Git repository, then return
-nil."
-  (magit--with-refresh-cache (list default-directory 'magit-git-dir path)
-    (magit--with-safe-default-directory nil
-      (and-let* ((dir (magit-rev-parse-safe "--git-dir"))
-                 (dir (file-name-as-directory (magit-expand-git-file-name dir)))
-                 (dir (if (file-remote-p dir)
-                          dir
-                        (concat (file-remote-p default-directory) dir))))
-        (if path (expand-file-name (convert-standard-filename path) dir) dir)))))
+    (magit--with-refresh-cache (list default-directory 'magit-gitdir)
+      (magit--with-safe-default-directory nil
+        (and-let*
+            ((dir (magit-rev-parse-safe "--git-dir"))
+             (dir (file-name-as-directory (magit-expand-git-file-name dir))))
+          (if (file-remote-p dir)
+              dir
+            (concat (file-remote-p default-directory) dir)))))))
 
 (defvar magit--separated-gitdirs nil)
 
 (defun magit--record-separated-gitdir ()
   (let ((topdir (magit-toplevel))
-        (gitdir (magit-git-dir)))
+        (gitdir (magit-gitdir)))
     ;; Kludge: git-annex converts submodule gitdirs to symlinks. See #3599.
     (when (file-symlink-p (directory-file-name gitdir))
       (setq gitdir (file-truename gitdir)))
@@ -976,7 +975,7 @@ is non-nil, in which case return nil."
        ;; Below a repository directory that is not located below the
        ;; working directory "git rev-parse --is-inside-git-dir" prints
        ;; "false", which is wrong.
-       (let ((gitdir (magit-git-dir)))
+       (let ((gitdir (magit-gitdir)))
          (cond (gitdir (file-in-directory-p default-directory gitdir))
                (noerror nil)
                (t (signal 'magit-outside-git-repo default-directory))))))
@@ -2384,7 +2383,8 @@ and this option only controls what face is used.")
   (let ((file (cl-gensym "file")))
     `(let ((magit--refresh-cache nil)
            (,file (magit-convert-filename-for-git
-                   (make-temp-name (magit-git-dir "index.magit.")))))
+                   (make-temp-name
+                    (expand-file-name "index.magit." (magit-gitdir))))))
        (unwind-protect
            (magit-with-toplevel
              (--when-let ,tree
@@ -2424,7 +2424,8 @@ and this option only controls what face is used.")
                                    (or (magit-rev-verify ref) "")))
           ;; `--create-reflog' didn't exist before v2.6.0
           (let ((oldrev  (magit-rev-verify ref))
-                (logfile (magit-git-dir (concat "logs/" ref))))
+                (logfile (expand-file-name (concat "logs/" ref)
+                                           (magit-gitdir))))
             (unless (file-exists-p logfile)
               (when oldrev
                 (magit-git-success "update-ref" "-d" ref oldrev))
@@ -2685,7 +2686,7 @@ out.  Only existing branches can be selected."
                " starting at")
        (nconc (list "HEAD")
               (magit-list-refnames)
-              (directory-files (magit-git-dir) nil "_HEAD\\'"))
+              (directory-files (magit-gitdir) nil "_HEAD\\'"))
        nil nil nil 'magit-revision-history
        (or default (magit--default-starting-point)))
       (user-error "Nothing selected")))
