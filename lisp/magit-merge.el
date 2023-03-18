@@ -306,12 +306,12 @@ If no merge is in progress, do nothing."
       (magit-insert-section (unmerged range)
         (magit-insert-heading
           (format "Merging %s:" (mapconcat #'identity heads ", ")))
-        (magit-insert-log
-         range
-         (let ((args magit-buffer-log-args))
-           (unless (member "--decorate=full" magit-buffer-log-args)
-             (push "--decorate=full" args))
-           args))))))
+        (magit--insert-log nil
+          range
+          (let ((args magit-buffer-log-args))
+            (unless (member "--decorate=full" magit-buffer-log-args)
+              (push "--decorate=full" args))
+            args))))))
 
 ;;; _
 (provide 'magit-merge)

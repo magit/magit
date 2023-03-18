@@ -1083,7 +1083,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                      revs
                    (format "%s~%s..%s" revs limit revs))))
     (magit-insert-section (logbuf)
-      (magit-insert-log revs args files))))
+      (magit--insert-log t revs args files))))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-log-mode))
   (append magit-buffer-revisions
@@ -1113,11 +1113,16 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                   args)))
 
 (defun magit-insert-log (revs &optional args files)
+  (declare (obsolete magit--insert-log "Magit 4.0.0"))
+  (magit--insert-log nil revs args files))
+
+(defun magit--insert-log (keep-error revs &optional args files)
   "Insert a log section.
 Do not add this to a hook variable."
+  (declare (indent defun))
   (let ((magit-git-global-arguments
          (remove "--literal-pathspecs" magit-git-global-arguments)))
-    (magit-git-wash (apply-partially #'magit-log-wash-log 'log)
+    (magit--git-wash (apply-partially #'magit-log-wash-log 'log) keep-error
       "log"
       (format "--format=%s%%h%%x0c%s%%x0c%s%%x0c%%aN%%x0c%s%%x0c%%s%s"
               (if (and (member "--left-right" args)
@@ -1621,8 +1626,7 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
 
 (defun magit-log-select-refresh-buffer ()
   (magit-insert-section (logbuf)
-    (magit-insert-log magit-buffer-revisions
-                      magit-buffer-log-args)))
+    (magit--insert-log t magit-buffer-revisions magit-buffer-log-args)))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-log-select-mode))
   magit-buffer-revisions)
@@ -1787,7 +1791,7 @@ in the pushremote case."
         (format (propertize "Unpulled from %s."
                             'font-lock-face 'magit-section-heading)
                 upstream))
-      (magit-insert-log "..@{upstream}" magit-buffer-log-args)
+      (magit--insert-log nil "..@{upstream}" magit-buffer-log-args)
       (magit-log-insert-child-count))))
 
 (magit-define-section-jumper magit-jump-to-unpulled-from-pushremote
@@ -1803,7 +1807,7 @@ in the pushremote case."
           (format (propertize "Unpulled from %s."
                               'font-lock-face 'magit-section-heading)
                   (propertize it 'font-lock-face 'magit-branch-remote)))
-        (magit-insert-log (concat ".." it) magit-buffer-log-args)
+        (magit--insert-log nil (concat ".." it) magit-buffer-log-args)
         (magit-log-insert-child-count)))))
 
 (defvar-keymap magit-unpushed-section-map
@@ -1843,7 +1847,7 @@ then show the last `magit-log-section-commit-count' commits."
         (format (propertize "Unmerged into %s."
                             'font-lock-face 'magit-section-heading)
                 (magit-get-upstream-branch)))
-      (magit-insert-log "@{upstream}.." magit-buffer-log-args)
+      (magit--insert-log nil "@{upstream}.." magit-buffer-log-args)
       (magit-log-insert-child-count))))
 
 (defun magit-insert-recent-commits (&optional type value)
@@ -1856,10 +1860,10 @@ Show the last `magit-log-section-commit-count' commits."
                            (or value range)
                            t)
       (magit-insert-heading "Recent commits")
-      (magit-insert-log range
-                        (cons (format "-n%d" magit-log-section-commit-count)
-                              (--remove (string-prefix-p "-n" it)
-                                        magit-buffer-log-args))))))
+      (magit--insert-log nil range
+        (cons (format "-n%d" magit-log-section-commit-count)
+              (--remove (string-prefix-p "-n" it)
+                        magit-buffer-log-args))))))
 
 (magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
   "Unpushed to <push-remote>" unpushed
@@ -1874,7 +1878,7 @@ Show the last `magit-log-section-commit-count' commits."
           (format (propertize "Unpushed to %s."
                               'font-lock-face 'magit-section-heading)
                   (propertize it 'font-lock-face 'magit-branch-remote)))
-        (magit-insert-log (concat it "..") magit-buffer-log-args)
+        (magit--insert-log nil (concat it "..") magit-buffer-log-args)
         (magit-log-insert-child-count)))))
 
 (defun magit--insert-pushremote-log-p ()
