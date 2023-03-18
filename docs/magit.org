@@ -5142,6 +5142,12 @@ The variables are described in [[*Branch Git Variables]].
   branches, then offer to delete those.  Otherwise, prompt for a single
   branch to be deleted, defaulting to the branch at point.
 
+  Require confirmation when deleting branches is dangerous in some
+  way.  Option ~magit-no-confirm~ can be customized to not require
+  confirmation in certain cases.  See its docstring to learn why
+  confirmation is required by default in certain cases or if a
+  prompt is confusing.
+
 - Key: b m (magit-branch-rename) ::
 
   Rename a branch.  The branch and the new name are read in the
