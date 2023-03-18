@@ -566,6 +566,8 @@ message and add a section in the respective process buffer."
     (apply #'magit-git-insert args)
     (split-string (buffer-string) "\0" t)))
 
+(defvar magit--git-wash-keep-error nil) ; experimental
+
 (defun magit-git-wash (washer &rest args)
   "Execute Git with ARGS, inserting washed output at point.
 Actually first insert the raw output at point.  If there is no
@@ -573,21 +575,29 @@ output, call `magit-cancel-section'.  Otherwise temporarily narrow
 the buffer to the inserted text, move to its beginning, and then
 call function WASHER with ARGS as its sole argument."
   (declare (indent 1))
-  (let ((beg (point)))
-    (setq args (flatten-tree args))
-    (magit-git-insert args)
+  (apply #'magit--git-wash washer magit--git-wash-keep-error args))
+
+(defun magit--git-wash (washer keep-error &rest args)
+  (declare (indent 2))
+  (setq args (flatten-tree args))
+  (let ((beg (point))
+        (exit (if keep-error
+                  (magit-process-git t args)
+                (magit-git-insert args))))
     (if (= (point) beg)
         (magit-cancel-section)
       (unless (bolp)
         (insert "\n"))
-      (save-restriction
-        (narrow-to-region beg (point))
-        (goto-char beg)
-        (funcall washer args))
-      (when (or (= (point) beg)
-                (= (point) (1+ beg)))
-        (magit-cancel-section))
-      (magit-maybe-make-margin-overlay))))
+      (when (zerop exit)
+        (save-restriction
+          (narrow-to-region beg (point))
+          (goto-char beg)
+          (funcall washer args))
+        (when (or (= (point) beg)
+                  (= (point) (1+ beg)))
+          (magit-cancel-section))
+        (magit-maybe-make-margin-overlay)))
+    exit))
 
 (defun magit-git-executable-find (command)
   "Search for COMMAND in Git's exec path, falling back to `exec-path'.
