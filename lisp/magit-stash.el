@@ -524,8 +524,9 @@ If there is no stash buffer in the same frame, then do nothing."
 (defun magit-stash-insert-section (commit range message &optional files)
   (magit-insert-section (commit commit)
     (magit-insert-heading message)
-    (magit--insert-diff "diff" range "-p" "--no-prefix" magit-buffer-diff-args
-                        "--" (or files magit-buffer-diff-files))))
+    (magit--insert-diff nil
+      "diff" range "-p" "--no-prefix" magit-buffer-diff-args
+      "--" (or files magit-buffer-diff-files))))
 
 (defun magit-insert-stash-notes ()
   "Insert section showing notes for a stash.

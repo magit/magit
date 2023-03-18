@@ -2093,15 +2093,15 @@ keymap is the parent of their keymaps."
 
 (defun magit-insert-diff ()
   "Insert the diff into this `magit-diff-mode' buffer."
-  (magit--insert-diff
+  (magit--insert-diff t
     "diff" magit-buffer-range "-p" "--no-prefix"
     (and (member "--stat" magit-buffer-diff-args) "--numstat")
     magit-buffer-typearg
     magit-buffer-diff-args "--"
     magit-buffer-diff-files))
 
-(defun magit--insert-diff (&rest args)
-  (declare (indent 0))
+(defun magit--insert-diff (keep-error &rest args)
+  (declare (indent 1))
   (pcase-let ((`(,cmd . ,args)
                (flatten-tree args))
               (magit-git-global-arguments
@@ -2118,7 +2118,7 @@ keymap is the parent of their keymaps."
       (setq magit-git-global-arguments
             (append magit-diff--reset-non-color-moved
                     magit-git-global-arguments)))
-    (magit-git-wash #'magit-diff-wash-diffs cmd args)))
+    (magit--git-wash #'magit-diff-wash-diffs keep-error cmd args)))
 
 (defun magit-diff--maybe-add-stat-arguments (args)
   (if (member "--stat" args)
@@ -2548,7 +2548,7 @@ Staging and applying changes is documented in info node
 
 (defun magit-insert-revision-diff ()
   "Insert the diff into this `magit-revision-mode' buffer."
-  (magit--insert-diff
+  (magit--insert-diff t
     "show" "-p" "--cc" "--format=" "--no-prefix"
     (and (member "--stat" magit-buffer-diff-args) "--numstat")
     magit-buffer-diff-args
@@ -2879,7 +2879,7 @@ Refer to user option `magit-revision-insert-related-refs-display-alist'."
                                           magit-buffer-revision
                                           (or branch "HEAD")))
     (magit-insert-section (diffbuf)
-      (magit--insert-diff
+      (magit--insert-diff t
         "merge-tree" (magit-git-string "merge-base" head magit-buffer-revision)
         head magit-buffer-revision))))
 
@@ -2956,7 +2956,7 @@ It the SECTION has a different type, then do nothing."
   "Insert section showing unstaged changes."
   (magit-insert-section (unstaged)
     (magit-insert-heading "Unstaged changes:")
-    (magit--insert-diff
+    (magit--insert-diff nil
       "diff" magit-buffer-diff-args "--no-prefix"
       "--" magit-buffer-diff-files)))
 
@@ -2979,7 +2979,7 @@ It the SECTION has a different type, then do nothing."
   (unless (magit-bare-repo-p)
     (magit-insert-section (staged)
       (magit-insert-heading "Staged changes:")
-      (magit--insert-diff
+      (magit--insert-diff nil
         "diff" "--cached" magit-buffer-diff-args "--no-prefix"
         "--" magit-buffer-diff-files))))
 
