@@ -143,10 +143,10 @@ variant `magit-wip-after-save-mode'."
     (remove-hook 'after-save-hook #'magit-wip-commit-buffer-file t)))
 
 (defun magit-wip-after-save-local-mode-turn-on ()
-  (and buffer-file-name
-       (magit-inside-worktree-p t)
-       (magit-file-tracked-p buffer-file-name)
-       (magit-wip-after-save-local-mode)))
+  (when (and buffer-file-name
+             (magit-inside-worktree-p t)
+             (magit-file-tracked-p buffer-file-name))
+    (magit-wip-after-save-local-mode)))
 
 ;;;###autoload
 (define-globalized-minor-mode magit-wip-after-save-mode
@@ -160,11 +160,11 @@ variant `magit-wip-after-save-mode'."
 Also see `magit-wip-after-save-mode' which calls this function
 automatically whenever a buffer visiting a tracked file is saved."
   (interactive (list "wip-save %s after save"))
-  (--when-let (magit-wip-get-ref)
+  (when-let ((ref (magit-wip-get-ref)))
     (magit-with-toplevel
       (let ((file (file-relative-name buffer-file-name)))
         (magit-wip-commit-worktree
-         it (list file)
+         ref (list file)
          (format (or msg "autosave %s after save") file))))))
 
 ;;;###autoload
@@ -268,9 +268,9 @@ commit message."
   (interactive (list nil (if current-prefix-arg
                              (magit-read-string "Wip commit message")
                            "wip-save tracked files")))
-  (--when-let (magit-wip-get-ref)
-    (magit-wip-commit-index it files msg)
-    (magit-wip-commit-worktree it files msg)))
+  (when-let ((ref (magit-wip-get-ref)))
+    (magit-wip-commit-index ref files msg)
+    (magit-wip-commit-worktree ref files msg)))
 
 (defun magit-wip-commit-index (ref files msg)
   (let* ((wipref (magit--wip-index-ref ref))
