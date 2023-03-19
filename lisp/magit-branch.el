@@ -593,7 +593,9 @@ prompt is confusing."
              (offset (1+ (length remote))))
         (cond
          ((magit-confirm 'delete-branch-on-remote
-            "Delete %s on the remote (not just locally)"
+            (format "Deleting local %s.  Also delete on %s"
+                    (magit-ref-fullname (car branches))
+                    remote)
             "Delete %i branches on the remote (not just locally)"
             'noabort branches)
           ;; The ref may actually point at another rev on the remote,
