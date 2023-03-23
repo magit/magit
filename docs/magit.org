@@ -2707,7 +2707,7 @@ the status buffer.
   future sessions.  Other existing buffers of the same type are not
   affected because their local values have already been initialized.
 
-- Key: L t (magit-toggle-margin) ::
+- Key: L L (magit-toggle-margin) ::
 
   Show or hide the margin.
 

@@ -3370,8 +3370,8 @@ the same type as that of the current buffer, and saves the value for
 future sessions.  Other existing buffers of the same type are not
 affected because their local values have already been initialized.
 
-@item @kbd{L t} (@code{magit-toggle-margin})
-@kindex L t
+@item @kbd{L L} (@code{magit-toggle-margin})
+@kindex L L
 @findex magit-toggle-margin
 Show or hide the margin.
 @end table
