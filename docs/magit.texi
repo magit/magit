@@ -947,11 +947,14 @@ control how buffer names are uniquified.
 @item @kbd{q} (@code{magit-mode-bury-buffer})
 @kindex q
 @findex magit-mode-bury-buffer
-This command buries the current Magit buffer.
+This command buries or kills the current Magit buffer.  The function
+specified by option @code{magit-bury-buffer-function} is used to bury the
+buffer when called without a prefix argument or to kill it when
+called with a single prefix argument.
 
-With a prefix argument, it instead kills the buffer.  With a double
-prefix argument, also kills all other Magit buffers associated with
-the current project.
+When called with two or more prefix arguments then it always kills
+all Magit buffers, associated with the current project, including
+the current buffer.
 @end table
 
 @defopt magit-bury-buffer-function
