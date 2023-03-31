@@ -446,6 +446,45 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
     (should (equal (get-text-property 0 'font-lock-face str) '(bold highlight)))
     (should (equal (get-text-property 2 'font-lock-face str) '(bold)))))
 
+(ert-deftest magit-base:ellipsis-default-values ()
+  (cl-letf (((symbol-function 'char-displayable-p) (lambda (_) t)))
+    (should (equal "…" (magit--ellipsis 'margin)))
+    (should (equal "…" (magit--ellipsis))))
+  (cl-letf (((symbol-function 'char-displayable-p) (lambda (_) nil)))
+    (should (equal ">" (magit--ellipsis 'margin)))
+    (should (equal "..." (magit--ellipsis)))))
+
+(ert-deftest magit-base:ellipsis-customisations-are-respected ()
+  (let ((magit-ellipsis '((margin (?· . "!")) (t (?. . ">")))))
+    (cl-letf (((symbol-function 'char-displayable-p) (lambda (_) t)))
+      (should (equal "·" (magit--ellipsis 'margin)))
+      (should (equal "." (magit--ellipsis))))
+    (cl-letf (((symbol-function 'char-displayable-p) (lambda (_) nil)))
+      (should (equal "!" (magit--ellipsis 'margin)))
+      (should (equal ">" (magit--ellipsis))))))
+
+(ert-deftest magit-base:ellipsis-fancy-nil-defaults-to-universal ()
+  (let ((magit-ellipsis '((margin (nil . "...")) (t (nil . "^^^")))))
+    (should (equal "..." (magit--ellipsis 'margin)))
+    (should (equal "^^^" (magit--ellipsis)))))
+
+(ert-deftest magit-base:ellipsis-legacy-type-allowed ()
+  (let ((magit-ellipsis "⋮"))
+    (should (equal "⋮" (magit--ellipsis 'margin)))
+    (should (equal "⋮" (magit--ellipsis)))))
+
+(ert-deftest magit-base:ellipsis-malformed-customisation-no-default ()
+  (let ((magit-ellipsis '((margin (?· . "!")))))
+    (should-error (magit--ellipsis)
+                  :type 'user-error)))
+
+(ert-deftest magit-base:ellipsis-unknown-use-case-defaults-to-default ()
+  (let ((magit-ellipsis '((margin (?· . "!")) (t (?. . ">")))))
+    (cl-letf (((symbol-function 'char-displayable-p) (lambda (_) t)))
+      (should (equal (magit--ellipsis 'foo) (magit--ellipsis))))
+    (cl-letf (((symbol-function 'char-displayable-p) (lambda (_) nil)))
+      (should (equal (magit--ellipsis 'foo) (magit--ellipsis))))))
+
 ;;; magit-tests.el ends soon
 (provide 'magit-tests)
 ;; Local Variables:

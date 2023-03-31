@@ -384,21 +384,30 @@ Messages which can currently be suppressed using this option are:
   :group 'magit-miscellaneous
   :type '(repeat string))
 
-(defcustom magit-ellipsis (if (char-displayable-p ?…) "…" "...")
-  "String used to abbreviate text in process buffers.
+(defcustom magit-ellipsis
+  '((margin (?… . ">"))
+    (t      (?… . "...")))
+  "Characters or strings used to abbreviate text in some buffers.
 
-Currently this is only used to elide `magit-git-global-arguments'
-in process buffers.  In the future it may be used in other places
-as well, but not the following:
+Each element has the form (WHERE (FANCY . UNIVERSAL)).
 
-- Author names in the log margin are always abbreviated using
-  \"…\" or if that is not displayable, then \">\".
+FANCY is a single character or nil whereas UNIVERSAL is a string
+of any length.  The ellipsis produced by `magit--ellipsis' will
+be FANCY if it's a non-nil character that can be displayed with
+the available fonts, otherwise UNIVERSAL will be used.  FANCY is
+meant to be a rich character like a horizontal ellipsis symbol or
+an emoji whereas UNIVERSAL something simpler available in a less
+rich environment like the CLI.  WHERE determines the use-case for
+the ellipsis definition.  Currently the only acceptable values
+for WHERE are `margin' or t (representing the default).
 
-- Whether collapsed sections are indicated using ellipsis is
-  controlled by `magit-section-visibility-indicator'."
-  :package-version '(magit . "3.0.0")
+Whether collapsed sections are indicated using ellipsis is
+controlled by `magit-section-visibility-indicator'."
+  :package-version '(magit . "4.0.0")
   :group 'magit-miscellaneous
-  :type 'string)
+  :type '(repeat (list (symbol :tag "Where")
+                       (cons (choice :tag "Fancy" character (const nil))
+                             (string :tag "Universal")))))
 
 (defcustom magit-update-other-window-delay 0.2
   "Delay before automatically updating the other window.
@@ -1214,6 +1223,22 @@ Like `message', except that `message-log-max' is bound to nil."
          (widen)
          (goto-char (or ,pos 1))
          ,@body))))
+
+(defun magit--ellipsis (&optional where)
+  "Build an ellipsis always as string, depending on WHERE."
+  (if (stringp magit-ellipsis)
+      magit-ellipsis
+    (if-let ((pair (car (or
+                         (alist-get (or where t) magit-ellipsis)
+                         (alist-get t magit-ellipsis)))))
+        (pcase-let ((`(,fancy . ,universal) pair))
+          (let ((ellipsis (if (and fancy (char-displayable-p fancy))
+                              fancy
+                            universal)))
+            (if (characterp ellipsis)
+                (char-to-string ellipsis)
+              ellipsis)))
+      (user-error "Variable magit-ellipsis is invalid"))))
 
 ;;; _
 (provide 'magit-base)

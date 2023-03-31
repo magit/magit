@@ -1531,7 +1531,7 @@ The shortstat style is experimental and rather slow."
                             (or author "")
                             details-width
                             nil ?\s
-                            (if (char-displayable-p ?…) "…" ">"))
+                            (magit--ellipsis 'margin))
                            'magit-log-author)
                           " "))
              (magit--propertize-face

@@ -664,10 +664,7 @@ Magit status buffer."
     (concat (propertize (file-name-nondirectory program)
                         'font-lock-face 'magit-section-heading)
             " "
-            (propertize (if (stringp magit-ellipsis)
-                            magit-ellipsis
-                          ;; For backward compatibility.
-                          (char-to-string magit-ellipsis))
+            (propertize (magit--ellipsis)
                         'font-lock-face 'magit-section-heading
                         'help-echo (mapconcat #'identity (car args) " "))
             " "
