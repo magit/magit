@@ -104,6 +104,7 @@ is used as `branch-ref'."
 ;;; Modes
 
 (defvar magit--wip-activation-cache nil)
+(defvar magit--wip-inhibit-autosave nil)
 
 ;;;###autoload
 (define-minor-mode magit-wip-mode
@@ -185,12 +186,13 @@ variant `magit-wip-after-save-mode'."
 Also see `magit-wip-after-save-mode' which calls this function
 automatically whenever a buffer visiting a tracked file is saved."
   (interactive (list "wip-save %s after save"))
-  (when-let ((ref (magit-wip-get-ref)))
-    (magit-with-toplevel
-      (let ((file (file-relative-name buffer-file-name)))
-        (magit-wip-commit-worktree
-         ref (list file)
-         (format (or msg "autosave %s after save") file))))))
+  (unless magit--wip-inhibit-autosave
+    (when-let ((ref (magit-wip-get-ref)))
+      (magit-with-toplevel
+        (let ((file (file-relative-name buffer-file-name)))
+          (magit-wip-commit-worktree
+           ref (list file)
+           (format (or msg "autosave %s after save") file)))))))
 
 ;;;###autoload
 (define-minor-mode magit-wip-after-apply-mode

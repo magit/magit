@@ -36,6 +36,10 @@
 (require 'transient)
 
 (defvar bookmark-make-record-function)
+(defvar magit--wip-inhibit-autosave)
+(defvar magit-wip-after-save-local-mode)
+(declare-function magit-wip-get-ref "magit-wip" ())
+(declare-function magit-wip-commit-worktree "magit-wip" (ref files msg))
 
 ;;; Options
 
@@ -1121,37 +1125,53 @@ argument (the prefix) non-nil means save all with no questions."
                      (setq magit-inhibit-refresh-save t)))
                  "to skip the current buffer and remember choice")
              ,@save-some-buffers-action-alist))
-          (dirs nil))
-      (save-some-buffers
-       arg
-       (lambda ()
-         ;; If the current file is modified and resides inside
-         ;; a repository, and a let-binding is in effect, which
-         ;; places us in another repository, then this binding
-         ;; is needed to prevent that file from being saved.
-         (and-let* ((default-directory
-                     (and buffer-file-name
-                          (file-name-directory buffer-file-name))))
-           (and
-            ;; Check whether the repository still exists.
-            (file-exists-p default-directory)
-            ;; Check whether refreshing is disabled.
-            (not magit-inhibit-refresh-save)
-            ;; Check whether the visited file is either on the
-            ;; same remote as the repository, or both are on
-            ;; the local system.
-            (equal (file-remote-p buffer-file-name) remote)
-            ;; Delayed checks that are more expensive for remote
-            ;; repositories, due to the required network access.
-            ;;
-            ;; Check whether the file is inside the repository.
-            (equal (or (cdr (assoc default-directory dirs))
-                       (let ((dir (magit-rev-parse-safe "--show-toplevel")))
-                         (push (cons default-directory dir) dirs)
-                         dir))
-                   topdir)
-            ;; Check whether the file is actually writable.
-            (file-writable-p buffer-file-name))))))))
+          (topdirs nil)
+          (unwiped nil)
+          (magit--wip-inhibit-autosave t))
+      (unwind-protect
+          (save-some-buffers
+           arg
+           (lambda ()
+             ;; If the current file is modified and resides inside
+             ;; a repository, and a let-binding is in effect, which
+             ;; places us in another repository, then this binding
+             ;; is needed to prevent that file from being saved.
+             (and-let* ((default-directory
+                         (and buffer-file-name
+                              (file-name-directory buffer-file-name))))
+               (and
+                ;; Check whether the repository still exists.
+                (file-exists-p default-directory)
+                ;; Check whether refreshing is disabled.
+                (not magit-inhibit-refresh-save)
+                ;; Check whether the visited file is either on the
+                ;; same remote as the repository, or both are on
+                ;; the local system.
+                (equal (file-remote-p buffer-file-name) remote)
+                ;; Delayed checks that are more expensive for remote
+                ;; repositories, due to the required network access.
+                ;;
+                ;; Check whether the file is inside the repository.
+                (equal (or (cdr (assoc default-directory topdirs))
+                           (let ((top (magit-rev-parse-safe "--show-toplevel")))
+                             (push (cons default-directory top) topdirs)
+                             top))
+                       topdir)
+                ;; Check whether the file is actually writable.
+                (file-writable-p buffer-file-name)
+                (prog1 t
+                  ;; Schedule for wip commit, if appropriate.
+                  (when magit-wip-after-save-local-mode
+                    (push (expand-file-name buffer-file-name) unwiped)))))))
+        (when unwiped
+          (let ((default-directory topdir))
+            (magit-wip-commit-worktree
+             (magit-wip-get-ref)
+             unwiped
+             (if (cdr unwiped)
+                 (format "autosave %s files after save" (length unwiped))
+               (format "autosave %s after save"
+                       (file-relative-name (car unwiped)))))))))))
 
 ;;; Restore Window Configuration
 
