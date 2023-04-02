@@ -96,6 +96,7 @@ All Contributors
 - Chris Shoemaker
 - Christian Dietrich
 - Christian Kluge
+- Christian Tietze
 - Christophe Junke
 - Christopher Carlile
 - Christopher Monsanto
