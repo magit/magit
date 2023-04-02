@@ -596,8 +596,10 @@ prompt is confusing."
             (format "Deleting local %s.  Also delete on %s"
                     (magit-ref-fullname (car branches))
                     remote)
-            "Delete %i branches on the remote (not just locally)"
-            'noabort branches)
+            (format "Deleting %i local refs.  Also delete on %s"
+                    (length refs)
+                    remote)
+            'noabort refs)
           ;; The ref may actually point at another rev on the remote,
           ;; but this is better than nothing.
           (dolist (ref refs)
