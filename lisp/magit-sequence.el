@@ -726,7 +726,7 @@ START has to be selected from a list of recent commits."
             (m2 ".\nDo you really want to modify them"))
         (magit-confirm (or magit--rebase-published-symbol 'rebase-published)
           (concat m1 "%s" m2)
-          (concat m1 "%i public branches" m2)
+          (concat m1 "%d public branches" m2)
           nil branches))
       (push (magit-toplevel) magit--rebase-public-edit-confirmed)))
   (if (and (magit-git-lines "rev-list" "--merges" (concat since "..HEAD"))

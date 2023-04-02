@@ -261,7 +261,7 @@ and forgo removing the stash."
 When the region is active offer to drop all contained stashes."
   (interactive
    (list (--if-let (magit-region-values 'stash)
-             (magit-confirm 'drop-stashes nil "Drop %i stashes" nil it)
+             (magit-confirm 'drop-stashes nil "Drop %d stashes" nil it)
            (magit-read-stash "Drop stash"))))
   (dolist (stash (if (listp stash)
                      (nreverse (prog1 stash (setq stash (car stash))))

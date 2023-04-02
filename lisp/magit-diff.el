@@ -1476,7 +1476,7 @@ instead."
          (num (--if-let (and arg (match-string 1 arg)) (string-to-number it) def))
          (val (delete arg val))
          (num (funcall fn num))
-         (arg (and num (not (= num def)) (format "-U%i" num)))
+         (arg (and num (not (= num def)) (format "-U%d" num)))
          (val (if arg (cons arg val) val)))
     (setq magit-buffer-diff-args val))
   (magit-refresh))

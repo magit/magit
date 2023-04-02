@@ -1651,7 +1651,7 @@ The amount of time spent searching is limited by
         (i 1) prev)
     (while (if (> (- (float-time) t0) magit-get-previous-branch-timeout)
                (setq prev nil) ;; Timed out.
-             (and (setq prev (magit-rev-verify (format "@{-%i}" i)))
+             (and (setq prev (magit-rev-verify (format "@{-%d}" i)))
                   (or (not (setq prev (magit-rev-branch prev)))
                       (equal prev current))))
       (cl-incf i))
@@ -2812,7 +2812,7 @@ out.  Only existing branches can be selected."
         (unless modules
           (user-error "No modules satisfying %s selected" predicate))))
     (if (length> modules 1)
-        (magit-confirm t nil (format "%s %%i modules" verb) nil modules)
+        (magit-confirm t nil (format "%s %%d modules" verb) nil modules)
       (list (magit-read-module-path (format "%s module" verb) predicate)))))
 
 ;;; _

@@ -207,10 +207,10 @@ the now stale refspecs.  Other stale branches are not removed."
                 (pcase-let ((`(,refspec . ,refs) (car stale)))
                   (magit-confirm 'prune-stale-refspecs
                     (format "Prune stale refspec %s and branch %%s" refspec)
-                    (format "Prune stale refspec %s and %%i branches" refspec)
+                    (format "Prune stale refspec %s and %%d branches" refspec)
                     nil refs))
               (magit-confirm 'prune-stale-refspecs nil
-                (format "Prune %%i stale refspecs and %i branches"
+                (format "Prune %%d stale refspecs and %d branches"
                         (length (cl-mapcan (lambda (s) (copy-sequence (cdr s)))
                                            stale)))
                 nil
@@ -224,7 +224,7 @@ the now stale refspecs.  Other stale branches are not removed."
                               (regexp-quote refspec))
               (magit--log-action
                (lambda (refs)
-                 (format "Deleting %i branches" (length refs)))
+                 (format "Deleting %d branches" (length refs)))
                (lambda (ref)
                  (format "Deleting branch %s (was %s)" ref
                          (magit-rev-parse "--short" ref)))

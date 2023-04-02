@@ -791,7 +791,7 @@ ACTION is a member of option `magit-slow-confirm'."
       (setq prompt (magit-confirm-make-prompt action)))
     (magit-confirm action
       (concat prompt " %s")
-      (concat prompt " %i files")
+      (concat prompt " %d files")
       nil files)))
 
 (defun magit-confirm-make-prompt (action)

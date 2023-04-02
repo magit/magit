@@ -583,7 +583,7 @@ of a side, then keep that side without prompting."
 (defun magit-discard-files--resolve (files)
   (if-let ((arg (and (cdr files)
                      (magit-read-char-case
-                         (format "For these %i files\n%s\ncheckout:\n"
+                         (format "For these %d files\n%s\ncheckout:\n"
                                  (length files)
                                  (mapconcat (lambda (file)
                                               (concat "  " file))
@@ -630,7 +630,7 @@ of a side, then keep that side without prompting."
              (magit-call-git "rm" "--cached" "--force" "--" file))))))
 
 (defun magit-discard-files--rename (files status)
-  (magit-confirm 'rename "Undo rename %s" "Undo %i renames" nil
+  (magit-confirm 'rename "Undo rename %s" "Undo %d renames" nil
     (mapcar (lambda (file)
               (setq file (assoc file status))
               (format "%s -> %s" (cadr file) (car file)))

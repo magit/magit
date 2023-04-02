@@ -377,7 +377,7 @@ are additional safety precautions in place, so you might be able
 to recover from making a mistake here, but don't count on it."
   (interactive
    (list (if-let ((modules (magit-region-values 'magit-module-section t)))
-             (magit-confirm 'remove-modules nil "Remove %i modules" nil modules)
+             (magit-confirm 'remove-modules nil "Remove %d modules" nil modules)
            (list (magit-read-module-path "Remove module")))
          (magit-submodule-arguments "--force")
          current-prefix-arg))
@@ -397,7 +397,7 @@ to recover from making a mistake here, but don't count on it."
       (if (member "--force" args)
           (if (magit-confirm 'remove-dirty-modules
                 "Remove dirty module %s"
-                "Remove %i dirty modules"
+                "Remove %d dirty modules"
                 t modified)
               (dolist (module modified)
                 (let ((default-directory (file-name-as-directory
@@ -424,7 +424,7 @@ to recover from making a mistake here, but don't count on it."
         (when (and trash-gitdirs
                    (magit-confirm 'trash-module-gitdirs
                      "Trash gitdir of module %s"
-                     "Trash gitdirs of %i modules"
+                     "Trash gitdirs of %d modules"
                      t modules))
           (dolist (module modules)
             (if-let ((name (cadr (assoc module alist))))
@@ -481,10 +481,10 @@ or, failing that, the abbreviated HEAD commit hash."
 (defun magit--insert-modules-overview (&optional _section)
   (magit-with-toplevel
     (let* ((modules (magit-list-module-paths))
-           (path-format (format "%%-%is "
+           (path-format (format "%%-%ds "
                                 (min (apply #'max (mapcar #'length modules))
                                      (/ (window-width) 2))))
-           (branch-format (format "%%-%is " (min 25 (/ (window-width) 3)))))
+           (branch-format (format "%%-%ds " (min 25 (/ (window-width) 3)))))
       (dolist (module modules)
         (let ((default-directory
                (expand-file-name (file-name-as-directory module))))

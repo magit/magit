@@ -884,7 +884,7 @@ limit.  Otherwise set it to 256."
     (setq val (remove arg val))
     (setq magit-buffer-log-args
           (if (and num (> num 0))
-              (cons (format "-n%i" num) val)
+              (cons (format "-n%d" num) val)
             val)))
   (magit-refresh))
 
@@ -1541,7 +1541,7 @@ The shortstat style is experimental and rather slow."
                    (seconds-to-time (string-to-number date)))
                 (pcase-let* ((abbr (eq style 'age-abbreviated))
                              (`(,cnt ,unit) (magit--age date abbr)))
-                  (format (format (if abbr "%%2i%%-%ic" "%%2i %%-%is")
+                  (format (format (if abbr "%%2d%%-%dc" "%%2d %%-%ds")
                                   (- width (if details (1+ details-width) 0)))
                           cnt unit)))
               'magit-log-date))
