@@ -284,20 +284,23 @@ bisect run'."
 (defun magit-wash-bisect-log (_args)
   (let (beg)
     (while (progn (setq beg (point-marker))
-                  (re-search-forward "^\\(git bisect [^\n]+\n\\)" nil t))
-      (magit-bind-match-strings (heading) nil
-        (magit-delete-match)
-        (save-restriction
-          (narrow-to-region beg (point))
-          (goto-char (point-min))
-          (magit-insert-section (bisect-item heading t)
-            (insert (propertize heading 'font-lock-face
-                                'magit-section-secondary-heading))
-            (magit-insert-heading)
-            (magit-wash-sequence
-             (apply-partially #'magit-log-wash-rev 'bisect-log
-                              (magit-abbrev-length)))
-            (insert ?\n)))))
+                  (re-search-forward
+                   "^\\(\\(?:git bisect\\|# status:\\) [^\n]+\n\\)" nil t))
+      (if (string-prefix-p "# status:" (match-string 1))
+          (magit-delete-match)
+        (magit-bind-match-strings (heading) nil
+          (magit-delete-match)
+          (save-restriction
+            (narrow-to-region beg (point))
+            (goto-char (point-min))
+            (magit-insert-section (bisect-item heading t)
+              (insert (propertize heading 'font-lock-face
+                                  'magit-section-secondary-heading))
+              (magit-insert-heading)
+              (magit-wash-sequence
+               (apply-partially #'magit-log-wash-rev 'bisect-log
+                                (magit-abbrev-length)))
+              (insert ?\n))))))
     (when (re-search-forward
            "# first bad commit: \\[\\([a-z0-9]\\{40,\\}\\)\\] [^\n]+\n" nil t)
       (magit-bind-match-strings (hash) nil
