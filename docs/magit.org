@@ -120,7 +120,7 @@ yourself with it by reading the documentation in the Emacs manual, see
 #+begin_src emacs-lisp
   (require 'package)
   (add-to-list 'package-archives
-               '("melpa" . "http://melpa.org/packages/") t)
+               '("melpa" . "https://melpa.org/packages/") t)
 #+end_src
 
 - To use Melpa-Stable:
@@ -128,7 +128,7 @@ yourself with it by reading the documentation in the Emacs manual, see
 #+begin_src emacs-lisp
   (require 'package)
   (add-to-list 'package-archives
-               '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+               '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 #+end_src
 
 Once you have added your preferred archive, you need to update the
@@ -7875,7 +7875,7 @@ When showing logs, Magit limits the number of commits initially shown
 in the hope that this avoids unnecessary work.  When ~--graph~ is
 used, then this unfortunately does not have the desired effect for
 large histories.  Junio, Git's maintainer, said on the git mailing
-list (http://www.spinics.net/lists/git/msg232230.html): "~--graph~ wants
+list (https://www.spinics.net/lists/git/msg232230.html): "~--graph~ wants
 to compute the whole history and the max-count only affects the output
 phase after ~--graph~ does its computation".
 
@@ -8867,7 +8867,7 @@ also affects the diffs displayed inside Magit.
 
 *** How does branching and pushing work?
 
-Please see [[*Branching]] and http://emacsair.me/2016/01/17/magit-2.4
+Please see [[*Branching]] and https://emacsair.me/2016/01/17/magit-2.4
 
 *** Should I disable VC?
 

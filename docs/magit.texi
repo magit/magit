@@ -447,7 +447,7 @@ To use Melpa:
 @lisp
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/") t)
+             '("melpa" . "https://melpa.org/packages/") t)
 @end lisp
 
 @itemize
@@ -458,7 +458,7 @@ To use Melpa-Stable:
 @lisp
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 @end lisp
 
 Once you have added your preferred archive, you need to update the
@@ -9774,7 +9774,7 @@ When showing logs, Magit limits the number of commits initially shown
 in the hope that this avoids unnecessary work.  When @code{--graph} is
 used, then this unfortunately does not have the desired effect for
 large histories.  Junio, Git's maintainer, said on the git mailing
-list (@uref{http://www.spinics.net/lists/git/msg232230.html}): "@code{--graph} wants
+list (@uref{https://www.spinics.net/lists/git/msg232230.html}): "@code{--graph} wants
 to compute the whole history and the max-count only affects the output
 phase after @code{--graph} does its computation".
 
@@ -10825,7 +10825,7 @@ echo "*.gpg filter=gpg diff=gpg" > .gitattributes
 @node How does branching and pushing work?
 @appendixsubsec How does branching and pushing work?
 
-Please see @ref{Branching} and @uref{http://emacsair.me/2016/01/17/magit-2.4}
+Please see @ref{Branching} and @uref{https://emacsair.me/2016/01/17/magit-2.4}
 
 @node Should I disable VC@?
 @appendixsubsec Should I disable VC@?
