@@ -2146,8 +2146,7 @@ PATH has to be relative to the super-repository."
             ((string-prefix-p "HEAD" line)
              (setf (nth 2 worktree) (substring line 5)))
             ((string-prefix-p "branch" line)
-             (setf (nth 3 worktree) (substring line 18)))
-            ((string-equal line "detached"))))
+             (setf (nth 3 worktree) (substring line 18)))))
     (nreverse worktrees)))
 
 (defun magit-symbolic-ref-p (name)
