@@ -39,6 +39,16 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
   :group 'magit-commands
   :type 'function)
 
+(defcustom magit-worktree-section-details-function
+  #'magit-insert-worktree-path
+  "A function used to insert details about a given worktree.
+This function takes two arguments: the current HEAD of the
+worktree and the path to the worktree itself. It is respected by
+`magit-insert-worktrees'."
+  :package-version '(magit . "3.3.0")
+  :type 'function
+  :group 'magit-commands)
+
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-worktree "magit-worktree" nil t)
@@ -180,14 +190,23 @@ If there is only one worktree, then insert nothing."
             (magit-insert-section (worktree path)
               (insert head)
               (insert (make-string (- align (length head)) ?\s))
-              (insert (let ((r (file-relative-name path))
-                            (a (abbreviate-file-name path)))
-                        (if (or (> (string-width r) (string-width a))
-                                (equal r "./"))
-                            a
-                          r)))
+              (funcall magit-worktree-section-details-function
+                       (substring-no-properties head)
+                       path)
               (insert ?\n))))
         (insert ?\n)))))
+
+(defun magit-insert-worktree-path (_head path)
+  "Insert the given PATH at point.
+Use the shortest unambiguous representation of the given worktree
+PATH."
+  (insert
+   (let ((r (file-relative-name path))
+         (a (abbreviate-file-name path)))
+     (if (or (> (string-width r) (string-width a))
+             (equal r "./"))
+         a
+       r))))
 
 ;;; _
 (provide 'magit-worktree)

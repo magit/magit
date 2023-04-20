@@ -7145,6 +7145,13 @@ Also see [[man:git-worktree]]
   If the worktree at point is the one whose status is already being
   displayed in the current buffer, then show it in Dired instead.
 
+- User Option: magit-worktree-section-details-function ::
+
+  The function used to insert worktree details in
+  ~magit-insert-worktrees~. The default is to insert the worktree path,
+  but it can be used to extract ticket information from commit data,
+  for example.
+
 ** Sparse checkouts
 
 Sparse checkouts provide a way to restrict the working tree to a
