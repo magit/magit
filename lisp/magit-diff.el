@@ -1842,6 +1842,10 @@ commit or stash at point, then prompt for a commit."
          (setq rev (oref it value))
          (setq cmd #'magit-show-commit)
          (setq buf (magit-get-mode-buffer 'magit-revision-mode)))
+        (tag
+         (setq rev (magit-rev-hash (oref it value)))
+         (setq cmd #'magit-show-commit)
+         (setq buf (magit-get-mode-buffer 'magit-revision-mode)))
         (stash
          (setq rev (oref it value))
          (setq cmd #'magit-stash-show)
