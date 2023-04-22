@@ -1550,7 +1550,7 @@ to the line that point is on in the diff.
 
 Note that this command only works if point is inside a diff.
 In other cases `magit-find-file' (which see) has to be used."
-  (interactive (list (magit-file-at-point t t) current-prefix-arg))
+  (interactive (list (magit-diff--file-at-point t t) current-prefix-arg))
   (magit-diff-visit-file--internal file nil
                                    (if other-window
                                        #'switch-to-buffer-other-window
@@ -1560,14 +1560,14 @@ In other cases `magit-find-file' (which see) has to be used."
   "From a diff visit the appropriate version of FILE in another window.
 Like `magit-diff-visit-file' but use
 `switch-to-buffer-other-window'."
-  (interactive (list (magit-file-at-point t t)))
+  (interactive (list (magit-diff--file-at-point t t)))
   (magit-diff-visit-file--internal file nil #'switch-to-buffer-other-window))
 
 (defun magit-diff-visit-file-other-frame (file)
   "From a diff visit the appropriate version of FILE in another frame.
 Like `magit-diff-visit-file' but use
 `switch-to-buffer-other-frame'."
-  (interactive (list (magit-file-at-point t t)))
+  (interactive (list (magit-diff--file-at-point t t)))
   (magit-diff-visit-file--internal file nil #'switch-to-buffer-other-frame))
 
 ;;;;; Worktree Variants
@@ -1655,7 +1655,7 @@ the Magit-Status buffer for DIRECTORY."
 
 (defun magit-diff-visit-file--noselect (&optional file goto-worktree)
   (unless file
-    (setq file (magit-file-at-point t t)))
+    (setq file (magit-diff--file-at-point t t)))
   (let* ((hunk (magit-diff-visit--hunk))
          (goto-from (and hunk
                          (magit-diff-visit--goto-from-p hunk goto-worktree)))
@@ -1687,6 +1687,22 @@ the Magit-Status buffer for DIRECTORY."
                       (move-to-column col)
                       (point))))
       (list buf nil))))
+
+(defun magit-diff--file-at-point (&optional expand assert)
+  ;; This is a variation of magit-file-at-point.
+  (if-let* ((file-section (magit-section-case
+                            (file it)
+                            (hunk (oref it parent))))
+            (file (if (and (magit-section-match 'hunk)
+                           (magit-diff-visit--goto-from-p
+                            (magit-current-section) nil))
+                      (oref file-section source)
+                    (oref file-section value))))
+      (if expand
+          (expand-file-name file (magit-toplevel))
+        file)
+    (when assert
+      (user-error "No file at point"))))
 
 (defun magit-diff-visit--hunk ()
   (when-let* ((scope (magit-diff-scope)) ;debbugs#31840
