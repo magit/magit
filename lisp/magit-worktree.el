@@ -39,15 +39,15 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
   :group 'magit-commands
   :type 'function)
 
-(defcustom magit-worktree-section-details-function
-  #'magit-insert-worktree-path
-  "A function used to insert details about a given worktree.
-This function takes two arguments: the current HEAD of the
-worktree and the path to the worktree itself. It is respected by
-`magit-insert-worktrees'."
-  :package-version '(magit . "3.3.0")
-  :type 'function
-  :group 'magit-commands)
+(defcustom magit-worktree-section-summary-function
+  #'magit-worktree-format-path
+  "Function used to format information about a given worktree.
+`magit-insert-worktrees' calls this function with two arguments,
+the current HEAD of the worktree and the path to the worktree
+itself."
+  :package-version '(magit . "4.0.0")
+  :group 'magit-commands
+  :type '(choice (function-item magit-worktree-format-path) function))
 
 ;;; Commands
 
@@ -190,23 +190,19 @@ If there is only one worktree, then insert nothing."
             (magit-insert-section (worktree path)
               (insert head)
               (insert (make-string (- align (length head)) ?\s))
-              (funcall magit-worktree-section-details-function
-                       (substring-no-properties head)
-                       path)
+              (insert (funcall magit-worktree-section-summary-function
+                               (substring-no-properties head)
+                               path))
               (insert ?\n))))
         (insert ?\n)))))
 
-(defun magit-insert-worktree-path (_head path)
-  "Insert the given PATH at point.
-Use the shortest unambiguous representation of the given worktree
-PATH."
-  (insert
-   (let ((r (file-relative-name path))
-         (a (abbreviate-file-name path)))
-     (if (or (> (string-width r) (string-width a))
-             (equal r "./"))
-         a
-       r))))
+(defun magit-worktree-format-path (_head path)
+  "Return shortest unambiguous representation of PATH."
+  (let ((r (file-relative-name path))
+        (a (abbreviate-file-name path)))
+    (if (or (> (string-width r) (string-width a)) (equal r "./"))
+        a
+      r)))
 
 ;;; _
 (provide 'magit-worktree)
