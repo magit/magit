@@ -245,25 +245,6 @@ implement such functions."
   :group 'magit-process
   :type 'boolean)
 
-(defcustom magit-process-margin '(nil "%H:%M:%S" 8)
-  "Format of the margin in `magit-process-mode' buffers.
-
-When this is enabled, the start time of the process is
-displayed in the margin.
-
-The value has the form (INIT TIME-FORMAT WIDTH).  If INIT is
-non-nil, then the margin is shown initially.  TIME-FORMAT is
-a string suitable for `format-time-string', and WIDTH should
-be the number of characters needed to display the string that
-that function returns for TIME-FORMAT."
-  :package-version '(magit . "4.0.0")
-  :group 'magit-process
-  :group 'magit-margin
-  :set (apply-partially #'magit-margin-set-variable 'magit-process-mode)
-  :type '(list (boolean :tag "Show margin initially")
-               (string  :tag "Time format string")
-               (number  :tag "Time format string width")))
-
 (defface magit-process-ok
   '((t :inherit magit-section-heading :foreground "green"))
   "Face for zero exit-status."
@@ -291,8 +272,7 @@ Used when `magit-process-display-mode-line-error' is non-nil."
 (defvar-keymap magit-process-mode-map
   :doc "Keymap for `magit-process-mode'."
   :parent magit-mode-map
-  "<remap> <magit-delete-thing>" #'magit-process-kill
-  "L" #'magit-toggle-margin)
+  "<remap> <magit-delete-thing>" #'magit-process-kill)
 
 (define-derived-mode magit-process-mode magit-mode "Magit Process"
   "Mode for looking at Git process output."
@@ -326,7 +306,6 @@ optional NODISPLAY is non-nil also display it."
             (when magit-process-log-max
               (magit-process-truncate-log))
           (magit-process-mode)
-          (magit-set-buffer-margin)
           (let ((inhibit-read-only t)
                 (magit-insert-section--parent  nil)
                 (magit-insert-section--oldroot nil))
@@ -671,8 +650,6 @@ Magit status buffer."
         (insert (file-relative-name pwd default-directory) ?\s))
       (insert (magit-process--format-arguments program args))
       (magit-insert-heading)
-      (magit-make-margin-overlay
-       (format-time-string (cadr magit-buffer-margin)) t)
       (when errlog
         (if (bufferp errlog)
             (insert (with-current-buffer errlog
