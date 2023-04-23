@@ -114,6 +114,7 @@ does not carry to other options."
     ('magit-cherry-mode     'magit-cherry-margin)
     ('magit-log-mode        'magit-log-margin)
     ('magit-log-select-mode 'magit-log-select-margin)
+    ('magit-process-mode    'magit-process-margin)
     ('magit-reflog-mode     'magit-reflog-margin)
     ('magit-refs-mode       'magit-refs-margin)
     ('magit-stashes-mode    'magit-stashes-margin)
