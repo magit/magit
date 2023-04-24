@@ -8680,8 +8680,8 @@ the super-repository by adding @code{magit-insert-modules} to the hook
 @code{magit-status-sections-hook} as described in @ref{Status Module Sections}.
 
 @deffn Command magit-list-submodules
-This command displays a list of the current repository's submodules
-in a separate buffer.
+This command displays a list of the current repository's populated
+submodules in a separate buffer.
 
 It can be invoked by pressing @code{RET} on the section titled "Modules".
 @end deffn
@@ -8781,7 +8781,7 @@ This command displays a list of the current repository's modules.
 @item @kbd{o f} (@code{magit-fetch-modules})
 @kindex o f
 @findex magit-fetch-modules
-This command fetches all modules.
+This command fetches all populated modules.
 
 Option @code{magit-fetch-modules-jobs} controls how many submodules are
 being fetched in parallel.  Also fetch the super-repository, because

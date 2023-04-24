@@ -172,9 +172,9 @@ and also setting this variable to t will lead to tears."
    ("s" magit-submodule-synchronize)
    ("d" magit-submodule-unpopulate)
    ("k" "Remove" magit-submodule-remove)]
-  ["All modules actions"
-   ("l" "List all modules"  magit-list-submodules)
-   ("f" "Fetch all modules" magit-fetch-modules)])
+  ["Populated modules actions"
+   ("l" "List modules"  magit-list-submodules)
+   ("f" "Fetch modules" magit-fetch-modules)])
 
 (defun magit-submodule-arguments (&rest filters)
   (--filter (and (member it filters) it)
@@ -625,7 +625,7 @@ These sections can be expanded to show the respective commits."
 
 ;;;###autoload
 (defun magit-list-submodules ()
-  "Display a list of the current repository's submodules."
+  "Display a list of the current repository's populated submodules."
   (interactive)
   (magit-submodule-list-setup magit-submodule-list-columns))
 

@@ -157,7 +157,7 @@ removed on the respective remote."
 
 ;;;###autoload (autoload 'magit-fetch-modules "magit-fetch" nil t)
 (transient-define-prefix magit-fetch-modules (&optional transient args)
-  "Fetch all submodules.
+  "Fetch all populated submodules.
 
 Fetching is done using \"git fetch --recurse-submodules\", which
 means that the super-repository and recursively all submodules
