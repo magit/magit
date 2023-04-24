@@ -163,7 +163,7 @@ If there is only one worktree, then insert nothing."
         (magit-insert-heading "Worktrees:")
         (let* ((cols
                 (mapcar
-                 (pcase-lambda (`(,path ,barep ,commit ,branch))
+                 (pcase-lambda (`(,path ,commit ,branch ,barep))
                    (cons (cond
                           (branch (propertize
                                    branch 'font-lock-face

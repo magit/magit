@@ -2114,6 +2114,8 @@ PATH has to be relative to the super-repository."
     (magit-git-string "submodule--helper" "name" path)))
 
 (defun magit-list-worktrees ()
+  "Return list of the worktrees of this repository.
+The returned list has the form (PATH COMMIT BRANCH BARE)."
   (let ((remote (file-remote-p default-directory))
         worktrees worktree)
     (dolist (line (let ((magit-git-global-arguments
@@ -2134,6 +2136,10 @@ PATH has to be relative to the super-repository."
                (setq path (or (magit-toplevel path) path))
                (setq worktree (list path nil nil nil))
                (push worktree worktrees)))
+            ((string-prefix-p "HEAD" line)
+             (setf (nth 1 worktree) (substring line 5)))
+            ((string-prefix-p "branch" line)
+             (setf (nth 2 worktree) (substring line 18)))
             ((string-equal line "bare")
              (let* ((default-directory (car worktree))
                     (wt (and (not (magit-get-boolean "core.bare"))
@@ -2142,11 +2148,8 @@ PATH has to be relative to the super-repository."
                    (progn (setf (nth 0 worktree) (expand-file-name wt))
                           (setf (nth 2 worktree) (magit-rev-parse "HEAD"))
                           (setf (nth 3 worktree) (magit-get-current-branch)))
-                 (setf (nth 1 worktree) t))))
-            ((string-prefix-p "HEAD" line)
-             (setf (nth 2 worktree) (substring line 5)))
-            ((string-prefix-p "branch" line)
-             (setf (nth 3 worktree) (substring line 18)))))
+                 (setf (nth 3 worktree) t))))
+            ))
     (nreverse worktrees)))
 
 (defun magit-symbolic-ref-p (name)
