@@ -2115,7 +2115,7 @@ PATH has to be relative to the super-repository."
 
 (defun magit-list-worktrees-raw ()
   "Get a list of worktrees in this repository.
-The return value is a list of hashmaps with keys defined by
+The return value is a list of alists with keys defined by
 
     git worktree list --porcelain
 
@@ -2131,26 +2131,24 @@ need more robust handling (e.g., fixes to known bugs in
     (when (length> raw 0)
       (mapcar
        (lambda (chunk)
-         (let ((hashmap (make-hash-table :test 'equal)))
-           (seq-do
-            (lambda (line)
-              (if-let ((idx (string-match-p " " line)))
-                  (puthash (substring line 0 idx)
-                           (substring line (1+ idx))
-                           hashmap)
-                ;; Some lines are one-word only; these are
-                ;; flags. Put them in our hashmap as `t'.
-                (puthash line t hashmap)))
-            (string-split chunk "\0" 'omit-nulls))
+         (let ((worktree
+                (mapcar
+                 (lambda (line)
+                   (if-let ((idx (string-match-p " " line)))
+                       (cons (intern (substring line 0 idx))
+                             (substring line (1+ idx)))
+                     ;; Some lines are one-word only; these are
+                     ;; flags. Put them in our hashmap as `t'.
+                     (cons line t)))
+                 (string-split chunk "\0" 'omit-nulls))))
 
            ;; ensure the worktree path is at least usable if this was
            ;; executed remotely
            (when remote
-             (puthash "worktree"
-                      (concat remote (gethash "worktree" hashmap))
-                      hashmap))
+             (setf (alist-get 'worktree worktree)
+                   (concat remote (alist-get 'worktree worktree))))
 
-           hashmap))
+           worktree))
        (string-split raw "\0\0" 'omit-nulls)))))
 
 (defun magit-list-worktrees-fix-worktree (worktree)
@@ -2159,28 +2157,28 @@ The Git command behind `magit-list-worktrees-raw' is known to
 make mistakes, so fix these mistakes here by modifying
 WORKTREE (which is then returned).
 
-WORKTREE should be a hashmap as returned by
+WORKTREE should be an alist as returned by
 `magit-list-worktrees-raw'."
-  (let ((path (gethash "worktree" worktree)))
+  (let ((path (alist-get 'worktree worktree)))
     ;; If the git directory is separate from the main worktree, then
     ;; "git worktree" returns the git directory instead of the
     ;; worktree, which isn't what it is supposed to do and not what we
     ;; want. However, if the worktree has been removed, then we want
     ;; to return it anyway; instead of nil.
     (setq path (or (magit-toplevel path) path))
-    (puthash "worktree" path worktree)
+    (setf (alist-get 'worktree worktree) path)
 
     ;; Correct a situation where the worktree is reported as 'bare'
     ;; but the working copy is actually specified in core.worktree
-    (when (gethash "bare" worktree)
+    (when (alist-get 'bare worktree)
       (let* ((default-directory path)
              (wt (and (not (magit-get-boolean "core.bare"))
                       (magit-get "core.worktree"))))
         (when (and wt (file-exists-p (expand-file-name wt)))
-          (puthash "worktree" (expand-file-name wt) worktree)
-          (puthash "bare" nil worktree)
-          (puthash "HEAD" (magit-rev-parse "HEAD") worktree)
-          (puthash "branch" (magit-get-current-branch) worktree))))
+          (setf (alist-get 'worktree worktree) (expand-file-name wt))
+          (setf (alist-get 'bare worktree) nil)
+          (setf (alist-get 'HEAD worktree) (magit-rev-parse "HEAD"))
+          (setf (alist-get 'branch worktree) (magit-get-current-branch)))))
 
     worktree))
 
@@ -2196,10 +2194,10 @@ one for each worktree."
     (mapcar #'magit-list-worktrees-fix-worktree)
     (mapcar
      (lambda (wt)
-       (list (gethash "worktree" wt)
-             (gethash "bare" wt)
-             (gethash "HEAD" wt)
-             (string-remove-prefix "refs/heads/" (gethash "branch" wt)))))))
+       (list (alist-get 'worktree wt)
+             (alist-get 'bare wt)
+             (alist-get 'HEAD wt)
+             (string-remove-prefix "refs/heads/" (alist-get 'branch wt)))))))
 
 (defun magit-symbolic-ref-p (name)
   (magit-git-success "symbolic-ref" "--quiet" name))
