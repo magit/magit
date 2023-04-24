@@ -2119,7 +2119,11 @@ PATH has to be relative to the super-repository."
 The returned list has the form (PATH COMMIT BRANCH BARE DETACHED
 LOCKED PRUNABLE).  The last four elements are booleans, with the
 exception of LOCKED and PRUNABLE, which may also be strings.
-See git-worktree(1) manpage for the meaning of the various parts."
+See git-worktree(1) manpage for the meaning of the various parts.
+
+This function corrects a situation where \"git worktree list\"
+would claim a worktree is bare, even though the working tree is
+specified using `core.worktree'."
   (let ((remote (file-remote-p default-directory))
         worktrees worktree)
     (dolist (line (let ((magit-git-global-arguments
