@@ -2130,7 +2130,7 @@ specified using `core.worktree'."
                          ;; KLUDGE At least in Git v2.8.3 this argument
                          ;; would trigger a segfault.
                          (remove "--no-pager" magit-git-global-arguments)))
-                    (magit-git-lines "worktree" "list" "--porcelain")))
+                    (magit-git-items "worktree" "list" "--porcelain" "-z")))
       (cond ((string-prefix-p "worktree" line)
              (let ((path (substring line 9)))
                (when remote
