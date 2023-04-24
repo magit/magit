@@ -258,15 +258,19 @@ changes.
                      (magit-branch-arguments)))
   (when (string-match "\\`heads/\\(.+\\)" revision)
     (setq revision (match-string 1 revision)))
-  (magit-run-git "checkout" args revision))
+  (magit-run-git-async "checkout" args revision))
 
 ;;;###autoload
 (defun magit-branch-create (branch start-point)
   "Create BRANCH at branch or revision START-POINT."
   (interactive (magit-branch-read-args "Create branch"))
-  (magit-call-git "branch" branch start-point)
-  (magit-branch-maybe-adjust-upstream branch start-point)
-  (magit-refresh))
+  (magit-run-git-async "branch" branch start-point)
+  (set-process-sentinel
+   magit-this-process
+   (lambda (process event)
+     (when (memq (process-status process) '(exit signal))
+       (magit-branch-maybe-adjust-upstream branch start-point)
+       (magit-process-sentinel process event)))))
 
 ;;;###autoload
 (defun magit-branch-and-checkout (branch start-point &optional args)
@@ -275,9 +279,13 @@ changes.
                        (list (magit-branch-arguments))))
   (if (string-match-p "^stash@{[0-9]+}$" start-point)
       (magit-run-git "stash" "branch" branch start-point)
-    (magit-call-git "checkout" args "-b" branch start-point)
-    (magit-branch-maybe-adjust-upstream branch start-point)
-    (magit-refresh)))
+    (magit-run-git-async "checkout" args "-b" branch start-point)
+    (set-process-sentinel
+     magit-this-process
+     (lambda (process event)
+       (when (memq (process-status process) '(exit signal))
+         (magit-branch-maybe-adjust-upstream branch start-point)
+         (magit-process-sentinel process event))))))
 
 ;;;###autoload
 (defun magit-branch-or-checkout (arg &optional start-point)
@@ -355,15 +363,20 @@ when using `magit-branch-and-checkout'."
       (magit-checkout branch (magit-branch-arguments))
     (when (magit-anything-modified-p t)
       (user-error "Cannot checkout when there are uncommitted changes"))
-    (let ((magit-inhibit-refresh t))
-      (magit-branch-and-checkout branch start-point))
-    (when (magit-remote-branch-p start-point)
-      (pcase-let ((`(,remote . ,remote-branch)
-                   (magit-split-branch-name start-point)))
-        (when (and (equal branch remote-branch)
-                   (not (equal remote (magit-get "remote.pushDefault"))))
-          (magit-set remote "branch" branch "pushRemote"))))
-    (magit-refresh)))
+    (magit-run-git-async "checkout" (magit-branch-arguments)
+                         "-b" branch start-point)
+    (set-process-sentinel
+     magit-this-process
+     (lambda (process event)
+       (when (memq (process-status process) '(exit signal))
+         (magit-branch-maybe-adjust-upstream branch start-point)
+         (when (magit-remote-branch-p start-point)
+           (pcase-let ((`(,remote . ,remote-branch)
+                        (magit-split-branch-name start-point)))
+             (when (and (equal branch remote-branch)
+                        (not (equal remote (magit-get "remote.pushDefault"))))
+               (magit-set remote "branch" branch "pushRemote"))))
+         (magit-process-sentinel process event))))))
 
 (defun magit-branch-maybe-adjust-upstream (branch start-point)
   (--when-let
