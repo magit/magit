@@ -2115,7 +2115,11 @@ PATH has to be relative to the super-repository."
 
 (defun magit-list-worktrees ()
   "Return list of the worktrees of this repository.
-The returned list has the form (PATH COMMIT BRANCH BARE)."
+
+The returned list has the form (PATH COMMIT BRANCH BARE DETACHED
+LOCKED PRUNABLE).  The last four elements are booleans, with the
+exception of LOCKED and PRUNABLE, which may also be strings.
+See git-worktree(1) manpage for the meaning of the various parts."
   (let ((remote (file-remote-p default-directory))
         worktrees worktree)
     (dolist (line (let ((magit-git-global-arguments
@@ -2134,7 +2138,7 @@ The returned list has the form (PATH COMMIT BRANCH BARE)."
                ;; However, if the worktree has been removed, then
                ;; we want to return it anyway; instead of nil.
                (setq path (or (magit-toplevel path) path))
-               (setq worktree (list path nil nil nil))
+               (setq worktree (list path nil nil nil nil nil nil))
                (push worktree worktrees)))
             ((string-prefix-p "HEAD" line)
              (setf (nth 1 worktree) (substring line 5)))
@@ -2149,7 +2153,14 @@ The returned list has the form (PATH COMMIT BRANCH BARE)."
                           (setf (nth 2 worktree) (magit-rev-parse "HEAD"))
                           (setf (nth 3 worktree) (magit-get-current-branch)))
                  (setf (nth 3 worktree) t))))
-            ))
+            ((string-equal line "detached")
+             (setf (nth 4 worktree) t))
+            ((string-prefix-p line "locked")
+             (setf (nth 5 worktree)
+                   (if (> (length line) 6) (substring line 7) t)))
+            ((string-prefix-p line "prunable")
+             (setf (nth 6 worktree)
+                   (if (> (length line) 8) (substring line 9) t)))))
     (nreverse worktrees)))
 
 (defun magit-symbolic-ref-p (name)
