@@ -1693,11 +1693,11 @@ the Magit-Status buffer for DIRECTORY."
   (if-let* ((file-section (magit-section-case
                             (file it)
                             (hunk (oref it parent))))
-            (file (if (and (magit-section-match 'hunk)
+            (file (or (and (magit-section-match 'hunk)
                            (magit-diff-visit--goto-from-p
-                            (magit-current-section) nil))
-                      (oref file-section source)
-                    (oref file-section value))))
+                            (magit-current-section) nil)
+                           (oref file-section source))
+                      (oref file-section value))))
       (if expand
           (expand-file-name file (magit-toplevel))
         file)
