@@ -493,6 +493,8 @@ is run in the top-level directory of the current working tree."
   :shortarg "-S"
   :argument "--gpg-sign="
   :allow-empty t
+  :init-value (lambda (obj)
+                (oset obj value (magit-git-string "config" "user.signingKey")))
   :reader #'magit-read-gpg-signing-key)
 
 (defvar magit-gpg-secret-key-hist nil)
