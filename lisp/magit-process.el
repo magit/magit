@@ -245,6 +245,15 @@ implement such functions."
   :group 'magit-process
   :type 'boolean)
 
+(defcustom magit-process-timestamp-format "%H:%M"
+  "Format of timestamp for each process in the process buffer.
+If non-nil, pass this to `format-time-string' when creating a
+process section in the process buffer, and insert the returned
+string in the heading of its section."
+  :package-version '(magit . "4.0.0")
+  :group 'magit-process
+  :type '(choice (const :tag "none" nil) string))
+
 (defface magit-process-ok
   '((t :inherit magit-section-heading :foreground "green"))
   "Face for zero exit-status."
@@ -645,6 +654,8 @@ Magit status buffer."
                   (format "%3s " (propertize (number-to-string errcode)
                                              'font-lock-face 'magit-process-ng))
                 "run "))
+      (when magit-process-timestamp-format
+        (insert (format-time-string magit-process-timestamp-format) " "))
       (unless (equal (expand-file-name pwd)
                      (expand-file-name default-directory))
         (insert (file-relative-name pwd default-directory) ?\s))
