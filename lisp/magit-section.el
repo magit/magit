@@ -43,6 +43,7 @@
 
 (require 'cl-lib)
 (require 'compat)
+(require 'cursor-sensor)
 (require 'dash)
 (require 'eieio)
 (require 'format-spec)
