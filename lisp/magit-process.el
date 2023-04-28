@@ -245,7 +245,7 @@ implement such functions."
   :group 'magit-process
   :type 'boolean)
 
-(defcustom magit-process-timestamp-format "%H:%M"
+(defcustom magit-process-timestamp-format nil
   "Format of timestamp for each process in the process buffer.
 If non-nil, pass this to `format-time-string' when creating a
 process section in the process buffer, and insert the returned
