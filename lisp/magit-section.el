@@ -883,7 +883,8 @@ With a prefix argument also expand it." heading)
         (remove-overlays beg end 'invisible t)
         (let ((o (make-overlay beg end)))
           (overlay-put o 'evaporate t)
-          (overlay-put o 'invisible t))))
+          (overlay-put o 'invisible t)
+          (overlay-put o 'cursor-intangible t))))
     (magit-section-maybe-update-visibility-indicator section)
     (magit-section-maybe-cache-visibility section)))
 
@@ -1549,6 +1550,7 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
   (setq magit-section-pre-command-section (magit-current-section)))
 
 (defun magit-section-post-command-hook ()
+  (cursor-sensor-move-to-tangible (selected-window))
   (unless (bound-and-true-p transient--prefix)
     (when (or magit--context-menu-buffer
               magit--context-menu-section)
