@@ -1598,7 +1598,10 @@ to, or to some other symbolic-ref that points to the same ref."
                           (magit-branch-p
                            (forge--pullreq-branch (oref it value))))
                      (magit-ref-p (format "refs/pullreqs/%s"
-                                          (oref (oref it value) number))))))
+                                          (oref (oref it value) number)))))
+        ((unpulled unpushed)
+         (magit-ref-abbrev
+          (replace-regexp-in-string "\\.\\.\\.?" "" (oref it value)))))
       (magit-thing-at-point 'git-revision t)
       (and-let* ((chunk (and (bound-and-true-p magit-blame-mode)
                              (fboundp 'magit-current-blame-chunk)
