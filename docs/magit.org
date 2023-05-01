@@ -4857,8 +4857,7 @@ The following functions are suitable for this hook:
 
 - Function: git-commit-turn-on-auto-fill ::
 
-  Turn on ~auto-fill-mode~ and set ~fill-column~ to the value of
-  ~git-commit-fill-column~.
+  Turn on ~auto-fill-mode~.
 
 - Function: git-commit-turn-on-flyspell ::
 
@@ -4913,11 +4912,6 @@ who has to waste some time telling you to fix your commits.
   The intended maximal length of the summary line of commit messages.
   Characters beyond this column are colorized to indicate that this
   preference has been violated.
-
-- User Option: git-commit-fill-column ::
-
-  Column beyond which automatic line-wrapping should happen in commit
-  message buffers.
 
 - User Option: git-commit-finish-query-functions ::
 

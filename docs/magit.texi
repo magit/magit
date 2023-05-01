@@ -6013,8 +6013,7 @@ paragraphs.
 @end defun
 
 @defun git-commit-turn-on-auto-fill
-Turn on @code{auto-fill-mode} and set @code{fill-column} to the value of
-@code{git-commit-fill-column}.
+Turn on @code{auto-fill-mode}.
 @end defun
 
 @defun git-commit-turn-on-flyspell
@@ -6070,11 +6069,6 @@ who has to waste some time telling you to fix your commits.
 The intended maximal length of the summary line of commit messages.
 Characters beyond this column are colorized to indicate that this
 preference has been violated.
-@end defopt
-
-@defopt git-commit-fill-column
-Column beyond which automatic line-wrapping should happen in commit
-message buffers.
 @end defopt
 
 @defopt git-commit-finish-query-functions
