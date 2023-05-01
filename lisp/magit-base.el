@@ -384,6 +384,26 @@ Messages which can currently be suppressed using this option are:
   :group 'magit-miscellaneous
   :type '(repeat string))
 
+(defcustom magit-verbose-messages nil
+  "Whether to make certain prompts and messages more verbose.
+
+Occationally a user suggests that a certain prompt or message
+should be more verbose, but I would refer to keep it as-is
+because I don't think that the fact that that one user did not
+understand the existing prompt/message means that a large number
+of users would have the same difficulty, and that making it more
+verbose would actually do a disservice to user who understand
+the shorter prompt well enough.
+
+Going forward I will start offing both messages when I feel the
+suggested longer message is reasonable enough, and the value of
+this option decides which will be used.  Note that changing the
+value of this option affects all such messages and that I do not
+intend to add an option per prompt."
+  :package-version '(magit . "4.0.0")
+  :group 'magit-miscellaneous
+  :type 'boolean)
+
 (defcustom magit-ellipsis
   '((margin (?… . ">"))
     (t      (?… . "...")))
