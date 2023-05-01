@@ -286,7 +286,8 @@ then also remove the respective remote branch."
   (magit-read-char-case (format "For %s checkout: " file) t
     (?o "[o]ur stage"   "--ours")
     (?t "[t]heir stage" "--theirs")
-    (?c "[c]onflict"    "--merge")))
+    (?c (if magit-verbose-messages "restore [c]onflict" "[c]onflict")
+        "--merge")))
 
 ;;; Sections
 
