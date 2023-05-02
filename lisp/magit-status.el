@@ -722,25 +722,27 @@ value of that variable can be set using \"D -- DIRECTORY RET g\"."
   (let* ((show (or (magit-get "status.showUntrackedFiles") "normal"))
          (base (car magit-buffer-diff-files))
          (base (and base (file-directory-p base) base)))
-    (unless (equal show "no")
-      (if (equal show "all")
-          (when-let ((files (magit-untracked-files nil base)))
-            (magit-insert-section (untracked)
-              (magit-insert-heading "Untracked files:")
-              (magit-insert-files files base)
-              (insert ?\n)))
-        (when-let ((files
-                    (--mapcat (and (eq (aref it 0) ??)
-                                   (list (substring it 3)))
-                              (magit-git-items "status" "-z" "--porcelain"
-                                               (magit-ignore-submodules-p t)
-                                               "--" base))))
-          (magit-insert-section (untracked)
-            (magit-insert-heading "Untracked files:")
-            (dolist (file files)
-              (magit-insert-section (file file)
-                (insert (propertize file 'font-lock-face 'magit-filename) ?\n)))
-            (insert ?\n)))))))
+    (pcase show
+      ("no" nil)
+      ("all"
+       (when-let ((files (magit-untracked-files nil base)))
+         (magit-insert-section (untracked)
+           (magit-insert-heading "Untracked files:")
+           (magit-insert-files files base)
+           (insert ?\n))))
+      (_
+       (when-let ((files
+                   (--mapcat (and (eq (aref it 0) ??)
+                                  (list (substring it 3)))
+                             (magit-git-items "status" "-z" "--porcelain"
+                                              (magit-ignore-submodules-p t)
+                                              "--" base))))
+         (magit-insert-section (untracked)
+           (magit-insert-heading "Untracked files:")
+           (dolist (file files)
+             (magit-insert-section (file file)
+               (insert (propertize file 'font-lock-face 'magit-filename) ?\n)))
+           (insert ?\n)))))))
 
 (magit-define-section-jumper magit-jump-to-tracked "Tracked files" tracked)
 
