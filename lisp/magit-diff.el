@@ -2184,7 +2184,10 @@ section or a child thereof."
     (user-error "No diffstat in this buffer")))
 
 (defun magit-diff-wash-signature (object)
-  (when (looking-at "^gpg: ")
+  (cond
+   ((looking-at "^No signature")
+    (delete-line))
+   ((looking-at "^gpg: ")
     (let (title end)
       (save-excursion
         (while (looking-at "^gpg: ")
@@ -2204,7 +2207,7 @@ section or a child thereof."
           (magit-insert-heading title))
         (goto-char end)
         (set-marker end nil)
-        (insert "\n")))))
+        (insert "\n"))))))
 
 (defun magit-diff-wash-diffstat ()
   (let (heading (beg (point)))
