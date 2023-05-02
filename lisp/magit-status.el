@@ -723,7 +723,14 @@ value of that variable can be set using \"D -- DIRECTORY RET g\"."
          (base (car magit-buffer-diff-files))
          (base (and base (file-directory-p base) base)))
     (pcase show
-      ("no" nil)
+      ("no"
+       (magit-insert-section (untracked 'unlisted)
+         (magit-insert-heading "Untracked files")
+         (insert (substitute-command-keys
+                  (concat
+                   "Untracked files are currently hidden (\"status.showUntrackedFiles=no\").\n"
+                   "Press `\\<magit-mode-map>\\[magit-stage-file]' to search for and stage them.\n")))
+         (insert ?\n)))
       ("all"
        (when-let ((files (magit-untracked-files nil base)))
          (magit-insert-section (untracked)
