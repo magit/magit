@@ -961,6 +961,8 @@ and `:slant'."
     ("r" "switch range type"        magit-diff-switch-range-type)
     ("f" "flip revisions"           magit-diff-flip-revs)]]
   (interactive)
+  (when (derived-mode-p 'magit-merge-preview-mode)
+    (user-error "Cannot use %s in %s" this-command major-mode))
   (if (not (eq transient-current-command 'magit-diff-refresh))
       (transient-setup 'magit-diff-refresh)
     (pcase-let ((`(,args ,files) (magit-diff-arguments)))
@@ -1470,6 +1472,8 @@ instead."
   (magit-diff-set-context #'ignore))
 
 (defun magit-diff-set-context (fn)
+  (when (derived-mode-p 'magit-merge-preview-mode)
+    (user-error "Cannot use %s in %s" this-command major-mode))
   (let* ((def (--if-let (magit-get "diff.context") (string-to-number it) 3))
          (val magit-buffer-diff-args)
          (arg (--first (string-match "^-U\\([0-9]+\\)?$" it) val))

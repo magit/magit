@@ -3108,6 +3108,10 @@ change the diff arguments used in the current buffer, without changing
 which diff is shown.  This works in dedicated diff buffers, but also
 in the status buffer.
 
+(There is one exception; diff arguments cannot be changed in buffers
+created by ~magit-merge-preview~ because the underlying Git command does
+not support these arguments.)
+
 - Key: D (magit-diff-refresh) ::
 
   This transient prefix command binds the following suffix commands
@@ -5520,6 +5524,10 @@ following suffix commands.
 
   This command shows a preview of merging another branch or an
   arbitrary revision into the current branch.
+
+  Note that commands, that normally change how a diff is displayed, do
+  not work in buffers created by this command, because the underlying
+  Git command does not support diff arguments.
 
 When a merge is in progress, then the transient instead features the
 following suffix commands.
