@@ -346,10 +346,9 @@ ignored) files."
                   ('file  (list (oref section value)))
                   ('files (magit-region-values nil t))
                   ('list  (if (eq 'unlisted (magit-section-value-if 'untracked))
-                              (let ((files (magit-untracked-files)))
-                                (if files
-                                    (magit-completing-read-multiple "Stage file(s): " files)
-                                  (user-error "No untracked files found")))
+                              (--if-let (magit-untracked-files)
+                                  (magit-completing-read-multiple "Stage file(s): " it)
+                                (user-error "No untracked files found"))
                             (magit-untracked-files)))))
          plain repos)
     (dolist (file files)
