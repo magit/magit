@@ -3100,8 +3100,7 @@ buffers.
 @deffn Command magit-list-repositories
 This command displays a list of repositories in a separate buffer.
 
-The options @code{magit-repository-directories} and
-@code{magit-repository-directories-depth} control which repositories are
+The option @code{magit-repository-directories} controls which repositories are
 displayed.
 @end deffn
 
@@ -3181,6 +3180,14 @@ By default this indicates whether there are uncommitted changes.
 @end itemize
 
 Only the first one of these that applies is shown.
+@end defun
+
+@defun magit-repolist-column-flags
+This functions insert all flags as specified by
+@code{magit-repolist-column-flag-alist}.
+
+This is an alternative to function @code{magit-repolist-column-flag},
+which only lists the first one found.
 @end defun
 
 @defun magit-repolist-column-unpulled-from-upstream

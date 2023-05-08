@@ -2487,8 +2487,7 @@ buffers.
 
   This command displays a list of repositories in a separate buffer.
 
-  The options ~magit-repository-directories~ and
-  ~magit-repository-directories-depth~ control which repositories are
+  The option ~magit-repository-directories~ controls which repositories are
   displayed.
 
 - User Option: magit-repolist-columns ::
@@ -2563,6 +2562,14 @@ The following functions can be added to the above option:
   - ~S~ if there is at least one staged file.
 
   Only the first one of these that applies is shown.
+
+- Function: magit-repolist-column-flags ::
+
+  This functions insert all flags as specified by
+  ~magit-repolist-column-flag-alist~.
+
+  This is an alternative to function ~magit-repolist-column-flag~,
+  which only lists the first one found.
 
 - Function: magit-repolist-column-unpulled-from-upstream ::
 
