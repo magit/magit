@@ -149,7 +149,7 @@ non-nil, means to invert the resulting sort."
 (defun magit-list-repositories ()
   "Display a list of repositories.
 
-Use the options `magit-repository-directories' to control which
+Use the option `magit-repository-directories' to control which
 repositories are displayed."
   (interactive)
   (magit-repolist-setup (default-value 'magit-repolist-columns)))
