@@ -480,7 +480,7 @@ Now see @ref{Post-Installation Tasks}.
 @node Installing from the Git Repository
 @section Installing from the Git Repository
 
-Magit depends on the @code{dash}, @code{transient} and @code{with-editor} libraries
+Magit depends on the @code{compat}, @code{dash}, @code{transient} and @code{with-editor} libraries
 which are available from Melpa and Melpa-Stable.  Install them using
 @code{M-x package-install RET <package> RET}.  Of course you may also install
 them manually from their repository.
@@ -498,7 +498,7 @@ Then compile the libraries and generate the info manuals:
 $ make
 @end example
 
-If you haven't installed @code{dash}, @code{transient} and @code{with-editor} from
+If you haven't installed @code{compat}, @code{dash}, @code{transient} and @code{with-editor} from
 Melpa or at @code{/path/to/magit/../<package>}, then you have to tell @code{make}
 where to find them.  To do so create the file @code{/path/to/magit/config.mk}
 with the following content before running @code{make}:
@@ -507,7 +507,8 @@ with the following content before running @code{make}:
 LOAD_PATH  = -L ~/.emacs.d/site-lisp/magit/lisp
 LOAD_PATH += -L ~/.emacs.d/site-lisp/dash
 LOAD_PATH += -L ~/.emacs.d/site-lisp/transient/lisp
-LOAD_PATH += -L ~/.emacs.d/site-lisp/with-editor
+LOAD_PATH += -L ~/.emacs.d/site-lisp/with-editor/lisp
+LOAD_PATH += -L ~/.emacs.d/site-lisp/compat
 @end example
 
 Finally add this to your init file:
