@@ -309,6 +309,16 @@ no effect."
   :safe 'booleanp
   :type 'boolean)
 
+(defcustom git-commit-usage-hint 'message
+  "Control the hint about relevant key bindings in Git commit buffers.
+The `message' displays an echo area message.  The `header-line'
+adds a persistent header line to the top of the buffer.  A nil
+value disables such a hint."
+  :group 'git-commit
+  :type '(choice (const nil)
+                 (const message)
+                 (const header-line)))
+
 ;;;; Faces
 
 (defgroup git-commit-faces nil
@@ -496,6 +506,26 @@ Type \\[with-editor-finish] to finish, \
 \\[git-commit-prev-message] and \\[git-commit-next-message] \
 to recover older messages")
 
+(defconst git-commit-usage-header-line
+  "\\<with-editor-mode-map>Type \\[with-editor-finish] to finish, \
+\\[with-editor-cancel] to cancel, and\
+\\<git-commit-mode-map> \\[git-commit-prev-message] and \\[git-commit-next-message] \
+to recover older messages")
+
+(defun git-commit--usage-hint ()
+  "Determine which hint to use, per `git-commit-usage-hint'."
+  (pcase git-commit-usage-hint
+    ('message
+     ;; Show our own message using our hook.
+     (setq with-editor-show-usage nil)
+     (setq with-editor-usage-message git-commit-usage-message))
+    ('header-line
+     (setq with-editor-usage-message nil)
+     (setq header-line-format (substitute-command-keys git-commit-usage-header-line)))
+    ('nil
+     (setq with-editor-show-usage nil)
+     (setq with-editor-usage-message nil))))
+
 (defun git-commit-setup ()
   (when (fboundp 'magit-toplevel)
     ;; `magit-toplevel' is autoloaded and defined in magit-git.el,
@@ -529,9 +559,7 @@ to recover older messages")
           (git-commit-mode t)
           (with-editor-mode t))
       (normal-mode t)))
-  ;; Show our own message using our hook.
-  (setq with-editor-show-usage nil)
-  (setq with-editor-usage-message git-commit-usage-message)
+  (git-commit--usage-hint)
   (unless with-editor-mode
     ;; Maybe already enabled when using `shell-command' or an Emacs shell.
     (with-editor-mode 1))
