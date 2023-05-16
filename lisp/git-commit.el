@@ -488,11 +488,13 @@ This is only used if Magit is available."
 (when (eq system-type 'windows-nt)
   (add-hook 'find-file-not-found-functions #'git-commit-file-not-found))
 
-(defvar git-commit-usage-message "\
+(defconst git-commit-default-usage-message "\
 Type \\[with-editor-finish] to finish, \
 \\[with-editor-cancel] to cancel, and \
 \\[git-commit-prev-message] and \\[git-commit-next-message] \
-to recover older messages"
+to recover older messages")
+
+(defvar git-commit-usage-message git-commit-default-usage-message
   "Message displayed when editing a commit message.
 When this is nil, then `with-editor-usage-message' is displayed
 instead.  One of these messages has to be displayed; otherwise
@@ -500,6 +502,14 @@ the users gets to see the message displayed by `server-execute'.
 That message is misleading and because we cannot prevent it from
 being displayed, we have to immediately show another message to
 prevent the user from seeing it.")
+
+(defvar git-commit-header-line-format nil
+  "If non-nil, header line format used by `git-commit-mode'.
+Used as the local value of `header-line-format', in buffer using
+`git-commit-mode'.  If it is a string, then it is passed through
+`substitute-command-keys' first.  A useful setting may be:
+  (setq git-commit-header-line-format git-commit-default-usage-message)
+  (setq git-commit-usage-message nil) ; show a shorter message")
 
 (defun git-commit-setup ()
   (when (fboundp 'magit-toplevel)
@@ -578,6 +588,9 @@ prevent the user from seeing it.")
   (when git-commit-usage-message
     (setq with-editor-usage-message git-commit-usage-message))
   (with-editor-usage-message)
+  (when-let ((format git-commit-header-line-format))
+    (setq header-line-format
+          (if (stringp format) (substitute-command-keys format) format)))
   (set-buffer-modified-p nil))
 
 (defun git-commit-run-post-finish-hook (previous)
