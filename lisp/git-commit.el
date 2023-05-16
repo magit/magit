@@ -204,8 +204,7 @@ The major mode configured here is turned on by the minor mode
     git-commit-setup-changelog-support
     git-commit-turn-on-auto-fill
     git-commit-propertize-diff
-    bug-reference-mode
-    with-editor-usage-message)
+    bug-reference-mode)
   "Hook run at the end of `git-commit-setup'."
   :group 'git-commit
   :type 'hook
@@ -217,8 +216,7 @@ The major mode configured here is turned on by the minor mode
              git-commit-turn-on-orglink
              git-commit-turn-on-flyspell
              git-commit-propertize-diff
-             bug-reference-mode
-             with-editor-usage-message))
+             bug-reference-mode))
 
 (defcustom git-commit-post-finish-hook nil
   "Hook run after the user finished writing a commit message.
@@ -490,11 +488,18 @@ This is only used if Magit is available."
 (when (eq system-type 'windows-nt)
   (add-hook 'find-file-not-found-functions #'git-commit-file-not-found))
 
-(defconst git-commit-usage-message "\
+(defvar git-commit-usage-message "\
 Type \\[with-editor-finish] to finish, \
 \\[with-editor-cancel] to cancel, and \
 \\[git-commit-prev-message] and \\[git-commit-next-message] \
-to recover older messages")
+to recover older messages"
+  "Message displayed when editing a commit message.
+When this is nil, then `with-editor-usage-message' is displayed
+instead.  One of these messages has to be displayed; otherwise
+the users gets to see the message displayed by `server-execute'.
+That message is misleading and because we cannot prevent it from
+being displayed, we have to immediately show another message to
+prevent the user from seeing it.")
 
 (defun git-commit-setup ()
   (when (fboundp 'magit-toplevel)
@@ -529,9 +534,8 @@ to recover older messages")
           (git-commit-mode t)
           (with-editor-mode t))
       (normal-mode t)))
-  ;; Show our own message using our hook.
+  ;; Below we instead explicitly show a message.
   (setq with-editor-show-usage nil)
-  (setq with-editor-usage-message git-commit-usage-message)
   (unless with-editor-mode
     ;; Maybe already enabled when using `shell-command' or an Emacs shell.
     (with-editor-mode 1))
@@ -571,6 +575,9 @@ to recover older messages")
       (open-line 1)))
   (with-demoted-errors "Error running git-commit-setup-hook: %S"
     (run-hooks 'git-commit-setup-hook))
+  (when git-commit-usage-message
+    (setq with-editor-usage-message git-commit-usage-message))
+  (with-editor-usage-message)
   (set-buffer-modified-p nil))
 
 (defun git-commit-run-post-finish-hook (previous)
