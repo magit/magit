@@ -1097,6 +1097,10 @@ tracked file."
                       (directory-file-name (file-name-directory file))))))
       (file-relative-name file dir))))
 
+(defun magit-file-ignored-p (file)
+  (magit-git-string-p "ls-files" "--others" "--ignored" "--exclude-standard"
+                      "--" file))
+
 (defun magit-file-tracked-p (file)
   (magit-git-success "ls-files" "--error-unmatch" file))
 
