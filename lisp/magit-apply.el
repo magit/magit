@@ -298,18 +298,20 @@ at point, stage the file but not its content."
     (call-interactively #'magit-stage-file)))
 
 ;;;###autoload
-(defun magit-stage-file (file)
-  "Read a file and stage all changes to that file."
+(defun magit-stage-file (files)
+  "Read one or more files and stage all changes in those files."
   (interactive
    (let* ((choices (nconc (magit-unstaged-files)
                           (magit-untracked-files)))
           (default (or (magit-section-value-if 'file)
                        (magit-file-relative-name)))
           (default (car (member default choices))))
-     (list (magit-completing-read "Stage file" choices
-                                  nil t nil nil default))))
+     (list (magit-completing-read-multiple "Stage file,s" choices
+                                           nil t nil nil default))))
   (magit-with-toplevel
-    (magit-stage-1 nil (list file))))
+    ;; For backward compatibility, and because of
+    ;; the function's name, don't require a list.
+    (magit-stage-1 nil (if (listp files) files (list files)))))
 
 ;;;###autoload
 (defun magit-stage-modified (&optional all)
@@ -412,17 +414,19 @@ ignored) files."
       (`(undefined     ,_  ,_) (user-error "Cannot unstage this change")))))
 
 ;;;###autoload
-(defun magit-unstage-file (file)
-  "Read a file and unstage all changes to that file."
+(defun magit-unstage-file (files)
+  "Read one or more files and unstage all changes to those files."
   (interactive
    (let* ((choices (magit-staged-files))
           (default (or (magit-section-value-if 'file)
                        (magit-file-relative-name)))
           (default (car (member default choices))))
-     (list (magit-completing-read "Unstage file" choices
-                                  nil t nil nil default))))
+     (list (magit-completing-read-multiple "Unstage file,s" choices
+                                           nil t nil nil default))))
   (magit-with-toplevel
-    (magit-unstage-1 (list file))))
+    ;; For backward compatibility, and because of
+    ;; the function's name, don't require a list.
+    (magit-unstage-1 (if (listp files) files (list files)))))
 
 (defun magit-unstage-1 (files)
   (magit-wip-commit-before-change files " before unstage")
