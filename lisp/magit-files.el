@@ -289,7 +289,8 @@ directory, while reading the FILENAME."
 When invoked outside a file-visiting buffer, then fall back
 to `magit-dispatch'."
   :info-manual "(magit) Minor Mode for Buffers Visiting Files"
-  ["Actions"
+  ["File actions"
+   :if magit-file-relative-name
    [("s" "Stage"      magit-stage-file)
     ("u" "Unstage"    magit-unstage-file)
     ("c" "Commit"     magit-commit)
@@ -311,15 +312,18 @@ to `magit-dispatch'."
     ("n" "Next blob"  magit-blob-next)
     ("v" "Goto blob"  magit-find-file)
     ("V" "Goto file"  magit-blob-visit-file)]
-   [(5 "C-c r" "Rename file"   magit-file-rename)
-    (5 "C-c d" "Delete file"   magit-file-delete)
-    (5 "C-c u" "Untrack file"  magit-file-untrack)
-    (5 "C-c c" "Checkout file" magit-file-checkout)]]
-  (interactive)
-  (transient-setup
-   (if (magit-file-relative-name)
-       'magit-file-dispatch
-     'magit-dispatch)))
+   [(", r" "Rename file"   magit-file-rename)
+    (", k" "Delete file"   magit-file-delete)
+    (", x" "Untrack file"  magit-file-untrack)
+    (", c" "Checkout file" magit-file-checkout)]]
+  ["File actions"
+   :if-not magit-file-relative-name
+   [("s" "Stage"    magit-stage-file)
+    ("u" "Unstage"  magit-unstage-file)
+    ("x" "Untrack"  magit-file-untrack)]
+   [("r" "Rename"   magit-file-rename)
+    ("k" "Delete"   magit-file-delete)
+    ("c" "Checkout" magit-file-checkout)]])
 
 ;;; Blob Mode
 
