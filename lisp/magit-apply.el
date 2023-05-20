@@ -299,20 +299,15 @@ at point, stage the file but not its content."
 
 ;;;###autoload
 (defun magit-stage-file (file)
-  "Stage all changes to FILE.
-With a prefix argument or when there is no file at point ask for
-the file to be staged.  Otherwise stage the file at point without
-requiring confirmation."
+  "Read a file and stage all changes to that file."
   (interactive
-   (let* ((atpoint (magit-section-value-if 'file))
-          (current (magit-file-relative-name))
-          (choices (nconc (magit-unstaged-files)
+   (let* ((choices (nconc (magit-unstaged-files)
                           (magit-untracked-files)))
-          (default (car (member (or atpoint current) choices))))
-     (list (if (or current-prefix-arg (not default))
-               (magit-completing-read "Stage file" choices
-                                      nil t nil nil default)
-             default))))
+          (default (or (magit-section-value-if 'file)
+                       (magit-file-relative-name)))
+          (default (car (member default choices))))
+     (list (magit-completing-read "Stage file" choices
+                                  nil t nil nil default))))
   (magit-with-toplevel
     (magit-stage-1 nil (list file))))
 
@@ -418,19 +413,14 @@ ignored) files."
 
 ;;;###autoload
 (defun magit-unstage-file (file)
-  "Unstage all changes to FILE.
-With a prefix argument or when there is no file at point ask for
-the file to be unstaged.  Otherwise unstage the file at point
-without requiring confirmation."
+  "Read a file and unstage all changes to that file."
   (interactive
-   (let* ((atpoint (magit-section-value-if 'file))
-          (current (magit-file-relative-name))
-          (choices (magit-staged-files))
-          (default (car (member (or atpoint current) choices))))
-     (list (if (or current-prefix-arg (not default))
-               (magit-completing-read "Unstage file" choices
-                                      nil t nil nil default)
-             default))))
+   (let* ((choices (magit-staged-files))
+          (default (or (magit-section-value-if 'file)
+                       (magit-file-relative-name)))
+          (default (car (member default choices))))
+     (list (magit-completing-read "Unstage file" choices
+                                  nil t nil nil default))))
   (magit-with-toplevel
     (magit-unstage-1 (list file))))
 
