@@ -298,6 +298,19 @@ at point, stage the file but not its content."
     (call-interactively #'magit-stage-file)))
 
 ;;;###autoload
+(defun magit-stage-buffer-file ()
+  "Stage all changes to the file being visited in the current buffer."
+  (interactive)
+  (unless buffer-file-name
+    (user-error "Not visiting a file"))
+  (magit-with-toplevel
+    (magit-stage-1 (and (magit-file-ignored-p buffer-file-name)
+                        (if (y-or-n-p "Visited file is ignored; stage anyway?")
+                            "--force"
+                          (user-error "Abort")))
+                   (list (magit-file-relative-name)))))
+
+;;;###autoload
 (defun magit-stage-file (files)
   "Read one or more files and stage all changes in those files.
 With a prefix argument offer ignored files for completion."
@@ -384,7 +397,10 @@ ignored) files."
     (magit-wip-commit-after-apply files " after stage")))
 
 (defvar magit-post-stage-hook-commands
-  '(magit-stage magit-stage-file magit-stage-modified))
+  '(magit-stage
+    magit-stage-buffer-file
+    magit-stage-file
+    magit-stage-modified))
 
 (defun magit-run-post-stage-hook ()
   (when (memq this-command magit-post-stage-hook-commands)
@@ -416,6 +432,15 @@ ignored) files."
                                    (magit-reverse-in-index)
                                  (user-error "Cannot unstage committed changes")))
       (`(undefined     ,_  ,_) (user-error "Cannot unstage this change")))))
+
+;;;###autoload
+(defun magit-unstage-buffer-file ()
+  "Unstage all changes to the file being visited in the current buffer."
+  (interactive)
+  (unless buffer-file-name
+    (user-error "Not visiting a file"))
+  (magit-with-toplevel
+    (magit-unstage-1 (list (magit-file-relative-name)))))
 
 ;;;###autoload
 (defun magit-unstage-file (files)
@@ -459,7 +484,10 @@ ignored) files."
   (magit-wip-commit-after-apply nil " after unstage"))
 
 (defvar magit-post-unstage-hook-commands
-  '(magit-unstage magit-unstage-file magit-unstage-all))
+  '(magit-unstage
+    magit-unstage-buffer-file
+    magit-unstage-file
+    magit-unstage-all))
 
 (defun magit-run-post-unstage-hook ()
   (when (memq this-command magit-post-unstage-hook-commands)

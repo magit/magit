@@ -291,8 +291,8 @@ to `magit-dispatch'."
   :info-manual "(magit) Minor Mode for Buffers Visiting Files"
   ["File actions"
    :if magit-file-relative-name
-   [("s" "Stage"      magit-stage-file)
-    ("u" "Unstage"    magit-unstage-file)
+   [("s" "Stage"      magit-stage-buffer-file)
+    ("u" "Unstage"    magit-unstage-buffer-file)
     ("c" "Commit"     magit-commit)
     ("e" "Edit line"  magit-edit-line-commit)]
    [("D" "Diff..."    magit-diff)
