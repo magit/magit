@@ -1102,7 +1102,7 @@ tracked file."
                       "--" file))
 
 (defun magit-file-tracked-p (file)
-  (magit-git-success "ls-files" "--error-unmatch" file))
+  (magit-git-success "ls-files" "--error-unmatch" "--" file))
 
 (defun magit-list-files (&rest args)
   (apply #'magit-git-items "ls-files" "-z" "--full-name" args))
