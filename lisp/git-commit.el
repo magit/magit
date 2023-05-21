@@ -498,7 +498,7 @@ to recover older messages")
   "Message displayed when editing a commit message.
 When this is nil, then `with-editor-usage-message' is displayed
 instead.  One of these messages has to be displayed; otherwise
-the users gets to see the message displayed by `server-execute'.
+the user gets to see the message displayed by `server-execute'.
 That message is misleading and because we cannot prevent it from
 being displayed, we have to immediately show another message to
 prevent the user from seeing it.")
