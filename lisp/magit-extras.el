@@ -468,7 +468,7 @@ points at it) otherwise."
         (if rebase
             (let ((magit--rebase-published-symbol 'edit-published))
               (magit-rebase-edit-commit rev (magit-rebase-arguments)))
-          (magit-checkout (or (magit-rev-branch rev) rev)))
+          (magit--checkout (or (magit-rev-branch rev) rev)))
         (unless (and buffer-file-name
                      (file-equal-p file buffer-file-name))
           (let ((blame-type (and magit-blame-mode magit-blame-type)))

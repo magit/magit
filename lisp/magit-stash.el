@@ -282,20 +282,23 @@ When the region is active offer to drop all contained stashes."
 
 ;;;###autoload
 (defun magit-stash-branch (stash branch)
-  "Create and checkout a new BRANCH from STASH."
+  "Create and checkout a new BRANCH from an existing STASH.
+The new branch starts at the commit that was current when the
+stash was created.  If the stash applies cleanly, then drop it."
   (interactive (list (magit-read-stash "Branch stash")
                      (magit-read-string-ns "Branch name")))
   (magit-run-git "stash" "branch" branch stash))
 
 ;;;###autoload
 (defun magit-stash-branch-here (stash branch)
-  "Create and checkout a new BRANCH and apply STASH.
-The branch is created using `magit-branch-and-checkout', using the
-current branch or `HEAD' as the start-point."
+  "Create and checkout a new BRANCH from an existing STASH.
+Use the current branch or `HEAD' as the starting-point of BRANCH.
+Then apply STASH, dropping it if it applies cleanly."
   (interactive (list (magit-read-stash "Branch stash")
                      (magit-read-string-ns "Branch name")))
-  (let ((magit-inhibit-refresh t))
-    (magit-branch-and-checkout branch (or (magit-get-current-branch) "HEAD")))
+  (let ((start-point (or (magit-get-current-branch) "HEAD")))
+    (magit-call-git "checkout" "-b" branch start-point)
+    (magit-branch-maybe-adjust-upstream branch start-point))
   (magit-stash-apply stash))
 
 ;;;###autoload

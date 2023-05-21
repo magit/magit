@@ -6372,14 +6372,15 @@ Also see [[man:git-stash]]
 
 - Key: z b (magit-stash-branch) ::
 
-  Create and checkout a new BRANCH from STASH.  The branch starts at
-  the commit that was current when the stash was created.
+  Create and checkout a new branch from an existing stash.  The new
+  branch starts at the commit that was current when the stash was
+  created.
 
 - Key: z B (magit-stash-branch-here) ::
 
-  Create and checkout a new BRANCH using ~magit-branch~ with the current
-  branch or ~HEAD~ as the starting-point.  Then apply STASH, dropping it
-  if it applies cleanly.
+  Create and checkout a new branch from an existing stash.  Use the
+  current branch or ~HEAD~ as the starting-point of the new branch.
+  Then apply the stash, dropping it if it applies cleanly.
 
 - Key: z f (magit-stash-format-patch) ::
 

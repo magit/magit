@@ -7851,15 +7851,16 @@ Show all diffs of a stash in a buffer.
 @item @kbd{z b} (@code{magit-stash-branch})
 @kindex z b
 @findex magit-stash-branch
-Create and checkout a new BRANCH from STASH@.  The branch starts at
-the commit that was current when the stash was created.
+Create and checkout a new branch from an existing stash.  The new
+branch starts at the commit that was current when the stash was
+created.
 
 @item @kbd{z B} (@code{magit-stash-branch-here})
 @kindex z B
 @findex magit-stash-branch-here
-Create and checkout a new BRANCH using @code{magit-branch} with the current
-branch or @code{HEAD} as the starting-point.  Then apply STASH, dropping it
-if it applies cleanly.
+Create and checkout a new branch from an existing stash.  Use the
+current branch or @code{HEAD} as the starting-point of the new branch.
+Then apply the stash, dropping it if it applies cleanly.
 
 @item @kbd{z f} (@code{magit-stash-format-patch})
 @kindex z f

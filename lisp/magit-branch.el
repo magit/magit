@@ -254,15 +254,22 @@ branch.  If it is something else, then `HEAD' becomes detached.
 Checkout fails if the working tree or the staging area contain
 changes.
 \n(git checkout REVISION)."
+  (declare (interactive-only magit--checkout))
   (interactive (list (magit-read-other-branch-or-commit "Checkout")
                      (magit-branch-arguments)))
   (when (string-match "\\`heads/\\(.+\\)" revision)
     (setq revision (match-string 1 revision)))
   (magit-run-git-async "checkout" args revision))
 
+(defun magit--checkout (revision &optional args)
+  (when (string-match "\\`heads/\\(.+\\)" revision)
+    (setq revision (match-string 1 revision)))
+  (magit-call-git "checkout" args revision))
+
 ;;;###autoload
 (defun magit-branch-create (branch start-point)
   "Create BRANCH at branch or revision START-POINT."
+  (declare (interactive-only magit-call-git))
   (interactive (magit-branch-read-args "Create branch"))
   (magit-run-git-async "branch" branch start-point)
   (set-process-sentinel
@@ -275,6 +282,7 @@ changes.
 ;;;###autoload
 (defun magit-branch-and-checkout (branch start-point &optional args)
   "Create and checkout BRANCH at branch or revision START-POINT."
+  (declare (interactive-only magit-call-git))
   (interactive (append (magit-branch-read-args "Create and checkout branch")
                        (list (magit-branch-arguments))))
   (if (string-match-p "^stash@{[0-9]+}$" start-point)
@@ -299,6 +307,7 @@ Otherwise create and checkout a new branch using the input as
 its name.  Before doing so read the starting-point for the new
 branch.  This is similar to what `magit-branch-and-checkout'
 does."
+  (declare (interactive-only magit-call-git))
   (interactive
    (let ((arg (magit-read-other-branch-or-commit "Checkout")))
      (list arg
@@ -307,8 +316,10 @@ does."
   (when (string-match "\\`heads/\\(.+\\)" arg)
     (setq arg (match-string 1 arg)))
   (if start-point
-      (magit-branch-and-checkout arg start-point)
-    (magit-checkout arg)))
+      (with-suppressed-warnings ((interactive-only magit-branch-and-checkout))
+        (magit-branch-and-checkout arg start-point))
+    (magit--checkout arg)
+    (magit-refresh)))
 
 ;;;###autoload
 (defun magit-branch-checkout (branch &optional start-point)
@@ -334,6 +345,7 @@ In the latter two cases the upstream is also set.  Whether it is
 set to the chosen START-POINT or something else depends on the
 value of `magit-branch-adjust-remote-upstream-alist', just like
 when using `magit-branch-and-checkout'."
+  (declare (interactive-only magit-call-git))
   (interactive
    (let* ((current (magit-get-current-branch))
           (local   (magit-list-local-branch-names))
@@ -359,8 +371,11 @@ when using `magit-branch-and-checkout'."
             (list choice))
            (t
             (list choice (magit-read-starting-point "Create" choice))))))
-  (if (not start-point)
-      (magit-checkout branch (magit-branch-arguments))
+  (cond
+   ((not start-point)
+    (magit--checkout branch (magit-branch-arguments))
+    (magit-refresh))
+   (t
     (when (magit-anything-modified-p t)
       (user-error "Cannot checkout when there are uncommitted changes"))
     (magit-run-git-async "checkout" (magit-branch-arguments)
@@ -376,7 +391,7 @@ when using `magit-branch-and-checkout'."
              (when (and (equal branch remote-branch)
                         (not (equal remote (magit-get "remote.pushDefault"))))
                (magit-set remote "branch" branch "pushRemote"))))
-         (magit-process-sentinel process event))))))
+         (magit-process-sentinel process event)))))))
 
 (defun magit-branch-maybe-adjust-upstream (branch start-point)
   (--when-let
