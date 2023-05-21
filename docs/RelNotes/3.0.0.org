@@ -463,7 +463,7 @@ This release also contains numerous other improvements.
   replacement that never uses an outdated cache.
 
 - ~magit-log-trace-definition~ didn't account for Git treating "-"
-  differently from e.g. "_", leading to false-positives like
+  differently from, e.g., "_", leading to false-positives like
   "foo-suffix" being considered a match for "foo".
 
 - ~magit-log-trace-definition~ didn't do the escaping that Git expects
@@ -506,7 +506,7 @@ This release also contains numerous other improvements.
 - ~magit-blame-echo~ was broken.  #3720
 
 - ~magit-rev-name~ sometimes returned ~nil~ even when it could return a
-  name and it returned e.g. "origin/HEAD" instead of "origin/master".
+  name and it returned, e.g., "origin/HEAD" instead of "origin/master".
   2042957a7, d500c442
 
 - ~magit-insert-*-branch-header~ did not account for empty commit

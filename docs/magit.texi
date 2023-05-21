@@ -367,7 +367,7 @@ noisy, but, since sections are collapsible, it's not.
 
 To stage or unstage a change one places the cursor on the change and
 then types @code{s} or @code{u}.  The change can be a file or a hunk, or when the
-region is active (i.e. when there is a selection) several files or
+region is active (i.e., when there is a selection) several files or
 hunks, or even just part of a hunk.  The change or changes that these
 commands - and many others - would act on are highlighted.
 
@@ -1086,7 +1086,7 @@ intervention.  If it is @code{t} then the user has to confirm each save.
 By default Magit automatically reverts buffers that are visiting files
 that are being tracked in a Git repository, after they have changed on
 disk.  When using Magit one often changes files on disk by running
-Git, i.e. "outside Emacs", making this a rather important feature.
+Git, i.e., "outside Emacs", making this a rather important feature.
 
 For example, if you discard a change in the status buffer, then that
 is done by running @code{git apply --reverse ...}, and Emacs considers the
@@ -1197,7 +1197,7 @@ located in the @code{magit} group.
 For the vast majority of users, automatically reverting file-visiting
 buffers after they have changed on disk is harmless.
 
-If a buffer is modified (i.e. it contains changes that haven't been
+If a buffer is modified (i.e., it contains changes that haven't been
 saved yet), then Emacs will refuse to automatically revert it.  If
 you save a previously modified buffer, then that results in what is
 seen by Git as an uncommitted change.  Git will then refuse to carry
@@ -1568,9 +1568,9 @@ doing so is kinda ugly.
 
 Which sections are inserted into certain buffers is controlled with
 hooks.  This includes the status and the refs buffers.  For other
-buffers, e.g. log and diff buffers, this is not possible.  The command
-@code{magit-describe-section} can be used to see which hook (if any) was
-responsible for inserting the section at point.
+buffers, e.g., log and diff buffers, this is not possible.  The
+command @code{magit-describe-section} can be used to see which hook (if any)
+was responsible for inserting the section at point.
 
 For buffers whose sections can be customized by the user, a hook
 variable called @code{magit-TYPE-sections-hook} exists.  This hook should be
@@ -1761,7 +1761,7 @@ by this option.
 
 @defopt magit-direct-use-buffer-arguments
 This option controls whether certain commands, when invoked directly
-(i.e. not as the suffix of a transient prefix command), use the
+(i.e., not as the suffix of a transient prefix command), use the
 arguments that are currently active in the buffer that they are
 about to update.  The alternative is to use the default value for
 these arguments, which might change the arguments that are used in
@@ -1875,7 +1875,7 @@ Applying changes:
 
 @itemize
 @item
-@code{discard} Discarding one or more changes (i.e. hunks or the
+@code{discard} Discarding one or more changes (i.e., hunks or the
 complete diff for a file) loses that change, obviously.
 
 @item
@@ -2129,7 +2129,7 @@ begins and ends on the same line.
 For a region to qualify as a Magit selection, it must begin in the
 heading of one section and end in the heading of a sibling section.
 Note that if the end of the region is at the very beginning of section
-heading (i.e. at the very beginning of a line) then that section is
+heading (i.e., at the very beginning of a line) then that section is
 considered to be @strong{inside} the selection.
 
 This is not consistent with how the region is normally treated in
@@ -2316,8 +2316,8 @@ older Emacs release, set @code{magit-section-show-context-menu-for-emacs<28}.
 @node Viewing Git Output
 @subsection Viewing Git Output
 
-Magit runs Git either for side-effects (e.g. when pushing) or to get
-some value (e.g. the name of the current branch).
+Magit runs Git either for side-effects (e.g., when pushing) or to get
+some value (e.g., the name of the current branch).
 
 When Git is run for side-effects, the process output is logged in a
 per-repository log buffer, which can be consulted using the
@@ -2598,7 +2598,7 @@ the next two with manipulating and transferring it.  Then follows a
 section about miscellaneous functionality, which cannot easily be fit
 into this distinction.
 
-Of course other distinctions make sense too, e.g. Git's distinction
+Of course other distinctions make sense too, e.g., Git's distinction
 between porcelain and plumbing commands, which for the most part is
 equivalent to Emacs' distinction between interactive commands and
 non-interactive functions.  All of the sections mentioned before are
@@ -2620,7 +2620,7 @@ described later.
 @node Status Buffer
 @section Status Buffer
 
-While other Magit buffers contain e.g. one particular diff or one
+While other Magit buffers contain, e.g., one particular diff or one
 particular log, the status buffer contains the diffs for staged and
 unstaged changes, logs for unpushed and unpulled commits, lists of
 stashes and untracked files, and information related to the current
@@ -2902,7 +2902,7 @@ unpulled commits) show.
 @defun magit-insert-unpulled-cherries
 Insert section showing unpulled commits.
 Like @code{magit-insert-unpulled-commits} but prefix each commit
-that has not been applied yet (i.e. a commit with a patch-id
+that has not been applied yet (i.e., a commit with a patch-id
 not shared with any local commit) with "+", and all others
 with "-".
 @end defun
@@ -2910,7 +2910,7 @@ with "-".
 @defun magit-insert-unpushed-cherries
 Insert section showing unpushed commits.
 Like @code{magit-insert-unpushed-commits} but prefix each commit
-which has not been applied to upstream yet (i.e. a commit with
+which has not been applied to upstream yet (i.e., a commit with
 a patch-id not shared with any upstream commit) with "+" and
 all others with "-".
 @end defun
@@ -3729,7 +3729,7 @@ is shown, then this specifies how much space is used to do so.
 
 Cherries are commits that haven't been applied upstream (yet), and are
 usually visualized using a log.  Each commit is prefixed with @code{-} if it
-has an equivalent in the upstream and @code{+} if it does not, i.e. if it is
+has an equivalent in the upstream and @code{+} if it does not, i.e., if it is
 a cherry.
 
 The command @code{magit-cherry} shows cherries for a single branch, but the
@@ -4937,15 +4937,15 @@ about.
 
 @enumerate
 @item
-If the diff shows uncommitted changes (i.e. staged or unstaged
-changes), then visit the file in the working tree (i.e. the
+If the diff shows uncommitted changes (i.e., staged or unstaged
+changes), then visit the file in the working tree (i.e., the
 same "real" file that @code{find-file} would visit.  In all other
-cases visit a "blob" (i.e. the version of a file as stored
+cases visit a "blob" (i.e., the version of a file as stored
 in some commit).
 
 @item
 If point is on a removed line, then visit the blob for the
-first parent of the commit that removed that line, i.e. the
+first parent of the commit that removed that line, i.e., the
 last commit where that line still exists.
 
 @item
@@ -5618,7 +5618,7 @@ the change to be applied to the index as well.
 @end table
 
 With a prefix argument all apply variants attempt a 3-way merge when
-appropriate (i.e. when @code{git apply} is used internally).
+appropriate (i.e., when @code{git apply} is used internally).
 
 @node Committing
 @section Committing
@@ -5899,8 +5899,8 @@ stack.
 
 When reading the revision from the minibuffer, then it might not
 be possible to guess the correct repository.  When this command
-is called inside a repository (e.g. while composing a commit
-message), then that repository is used.  Otherwise (e.g. while
+is called inside a repository (e.g., while composing a commit
+message), then that repository is used.  Otherwise (e.g., while
 composing an email) then the repository recorded for the top
 element of the stack is used (even though we insert another
 revision).  If not called inside a repository and with an empty
@@ -6174,7 +6174,7 @@ also possible to set the push-remote or upstream while pushing (see
 
 The transient prefix command @code{magit-branch} is used to create and
 checkout branches, and to make changes to existing branches.  It is
-not used to fetch, pull, merge, rebase, or push branches, i.e. this
+not used to fetch, pull, merge, rebase, or push branches, i.e., this
 command deals with branches themselves, not with the commits reachable
 from them.  Those features are available from separate transient
 command.
@@ -6390,7 +6390,7 @@ have to match exactly unless they contain a character that makes
 them invalid as a branch name.  Recommended characters to use
 to trigger interpretation as a regexp are "*" and "^".  Some
 other characters which you might expect to be invalid, actually
-are not, e.g. ".+$" are all perfectly valid.  More precisely,
+are not, e.g., ".+$" are all perfectly valid.  More precisely,
 if @code{git check-ref-format --branch STRING} exits with a non-zero
 status, then treat STRING as a regexp.
 
@@ -6417,7 +6417,7 @@ The value of this option is an alist of branches to be used as
 the upstream when branching a remote branch.
 
 When creating a local branch from an ephemeral branch located on a
-remote, e.g. a feature or hotfix branch, then that remote branch
+remote, e.g., a feature or hotfix branch, then that remote branch
 should usually not be used as the upstream branch, since the
 push-remote already allows accessing it and having both the upstream
 and the push-remote reference the same related branch would be
@@ -6551,7 +6551,7 @@ is undefined.
 
 @defvar branch.NAME.description
 This variable can be used to describe the branch named NAME@.  That
-description is used e.g. when turning the branch into a series of
+description is used, e.g., when turning the branch into a series of
 patches.
 @end defvar
 
@@ -7288,8 +7288,8 @@ as the commits that still have to be applied.
 The commits are split in two halves.  When rebase stops at a commit,
 either because the user has to deal with a conflict or because s/he
 explicitly requested that rebase stops at that commit, then point is
-placed on the commit that separates the two groups, i.e. on @code{HEAD}.  The
-commits above it have not been applied yet, while the @code{HEAD} and the
+placed on the commit that separates the two groups, i.e., on @code{HEAD}.
+The commits above it have not been applied yet, while the @code{HEAD} and the
 commits below it have already been applied.  In between these two
 groups of applied and yet-to-be applied commits, there sometimes is a
 commit which has been dropped.
@@ -7317,7 +7317,7 @@ The blue commit is the @code{HEAD} commit.
 
 @item
 The green commit is the commit the rebase sequence stopped at.  If
-this is the same commit as @code{HEAD} (e.g. because you haven't done
+this is the same commit as @code{HEAD} (e.g., because you haven't done
 anything yet after rebase stopped at the commit, then this commit is
 shown in blue, not green).  There can only be a green @strong{and} a blue
 commit at the same time, if you create one or more new commits after
@@ -7325,7 +7325,7 @@ rebase stops at a commit.
 
 @item
 Red commits have been dropped.  They are shown for reference only,
-e.g. to make it easier to diff.
+e.g., to make it easier to diff.
 @end itemize
 
 Of course these colors are subject to the color-theme in use.
@@ -7364,7 +7364,7 @@ are in some way related to the commit at which rebase stopped.
 To determine whether a commit is related to the stopped-at commit
 their hashes, trees and patch-ids @footnote{The patch-id is a hash of the @emph{changes} introduced by a
 commit.  It differs from the hash of the commit itself, which is a
-hash of the result of applying that change (i.e. the resulting trees
+hash of the result of applying that change (i.e., the resulting trees
 and blobs) as well as author and committer information, the commit
 message, and the hashes of the parents of the commit.  The patch-id
 hash on the other hand is created only from the added and removed
@@ -9122,7 +9122,7 @@ nothing is saved before the first commit has been created).
 Two separate work-in-progress references are used to track the state
 of the index and of the working tree: @code{refs/wip/index/<branchref>} and
 @code{refs/wip/wtree/<branchref>}, where @code{<branchref>} is the full ref of the
-current branch, e.g. @code{refs/heads/master}.  When the @code{HEAD} is detached
+current branch, e.g., @code{refs/heads/master}.  When the @code{HEAD} is detached
 then @code{HEAD} is used in place of @code{<branchref>}.
 
 Checking out another branch (or detaching @code{HEAD}) causes the use of
@@ -9130,7 +9130,7 @@ different wip refs for subsequent changes.
 
 @defopt magit-wip-mode
 When this mode is enabled, then uncommitted changes are committed
-to dedicated work-in-progress refs whenever appropriate (i.e. when
+to dedicated work-in-progress refs whenever appropriate (i.e., when
 dataloss would be a possibility otherwise).
 
 Setting this variable directly does not take effect; either use the
@@ -9296,7 +9296,7 @@ to the working tree wip ref for the current branch.
 @end defopt
 
 @defopt magit-wip-after-apply-mode
-When this mode is enabled, then applying (i.e. staging, unstaging,
+When this mode is enabled, then applying (i.e., staging, unstaging,
 discarding, reversing, and regularly applying) a change to a file
 tracked in a Git repository causes its current state to be committed
 to the index and/or working tree wip refs for the current branch.
@@ -9632,7 +9632,7 @@ repository.  It is only intended for use in @code{.dir-locals.el} and
 If you want to apply the same settings to several, but not all,
 repositories then keeping the repository-local config files in sync
 would quickly become annoying.  To avoid that you can create config
-files for certain classes of repositories (e.g. "huge repositories")
+files for certain classes of repositories (e.g., "huge repositories")
 and then include those files in the per-repository config files.
 For example:
 
@@ -10098,7 +10098,7 @@ the call and ensures unix eol conversion.
 @end defun
 
 If an error occurs when using one of the above functions, then that
-is usually due to a bug, i.e. using an argument which is not
+is usually due to a bug, i.e., using an argument which is not
 actually supported.  Such errors are usually not reported, but when
 they occur we need to be able to debug them.
 
@@ -10131,7 +10131,7 @@ buffer, which can be shown using @code{$} from a Magit buffer or @code{M-x
 magit-process} elsewhere.
 
 These functions can have an effect in two distinct ways.  Firstly,
-running git may change something, i.e. create or push a new commit.
+running git may change something, i.e., create or push a new commit.
 Secondly, that change may require that Magit buffers are refreshed to
 reflect the changed state of the repository.  But refreshing isn't
 always desirable, so only some of these functions do perform such a
@@ -10283,7 +10283,7 @@ Optional VALUE is the value of the section, usually a string that is
 required when acting on the section.
 
 When optional HIDE is non-nil collapse the section body by default,
-i.e. when first creating the section, but not when refreshing the
+i.e., when first creating the section, but not when refreshing the
 buffer.  Otherwise, expand it by default.  This can be overwritten using
 @code{magit-section-set-visibility-hook}.  When a section is recreated
 during a refresh, then the visibility of predecessor is inherited
@@ -10520,7 +10520,7 @@ If optional SECTION is non-nil, then return the scope of that,
 ignoring the sections selected by the region.  Otherwise return the
 scope of the current section, or if the region is active and selects
 a valid group of diff related sections, the type of these sections,
-i.e. @code{hunks} or @code{files}.  If SECTION (or if the current section that
+i.e., @code{hunks} or @code{files}.  If SECTION (or if the current section that
 is nil) is a @code{hunk} section and the region starts and ends inside
 the body of a that section, then the type is @code{region}.
 
@@ -10658,7 +10658,7 @@ select lines within a single hunk section.  In all other cases, the
 section is considered invalid and Magit won't act on it.  But such
 invalid sections happen, either because the user has not moved point
 enough yet to make it valid or because she wants to use a non-magit
-command to act on the region, e.g. @code{kill-region}.
+command to act on the region, e.g., @code{kill-region}.
 
 So using the regular @code{region} face for invalid sections is a feature.  It
 tells the user that Magit won't be able to act on it.  It's acceptable
@@ -10688,7 +10688,7 @@ complications, and there are already enough we cannot get around.
 always be bold, but only for sections that have subsections).
 
 When there is a valid region selecting diff-related sibling sections,
-i.e. multiple files or hunks, then the bodies of all these sections
+i.e., multiple files or hunks, then the bodies of all these sections
 use the respective highlight faces, but additionally the headings
 instead use one of the faces @code{magit-diff-file-heading-selection} or
 @code{magit-diff-hunk-heading-selection}.  These faces have to be different
@@ -10713,7 +10713,7 @@ same for the removed lines, context lines, lines added by us, and
 lines added by them.  Also make sure the respective added, removed,
 and context faces use approximately the same saturation for both the
 highlighted and unhighlighted variants.  Also make sure the file and
-diff headings work nicely with context lines (e.g. make them look
+diff headings work nicely with context lines (e.g., make them look
 different).  Line faces should set both the foreground and the
 background color.  For example, for added lines use two different
 greens.
@@ -10744,7 +10744,7 @@ all.
 @appendix FAQ
 
 The next two nodes lists frequently asked questions.  For a list of
-frequently @strong{and recently} asked questions, i.e. questions that haven't
+frequently @strong{and recently} asked questions, i.e., questions that haven't
 made it into the manual yet, see
 @uref{https://github.com/magit/magit/wiki/FAQ}.
 
@@ -11073,9 +11073,9 @@ Magit used to use Magit-Popup to implement the transient popup menus.
 Now it used Transient instead, which is Magit-Popup's successor.
 
 In the older Magit-Popup menus, it was possible to save user settings
-(e.g. setting the gpg signing key for commits) by using @code{C-c C-c} in the
-popup buffer.  This would dismiss the popup, but save the settings as
-the defaults for future popups.
+(e.g., setting the gpg signing key for commits) by using @code{C-c C-c} in
+the popup buffer.  This would dismiss the popup, but save the settings
+as the defaults for future popups.
 
 When switching to Transient menus, this functionality is now available
 via @code{C-x C-s} instead; the @code{C-x} prefix has other options as well when

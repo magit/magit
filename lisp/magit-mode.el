@@ -231,7 +231,7 @@ and Buffer Variables'."
 
 This affects certain commands such as `magit-show-commit' that
 are suffixes of the diff or log transient prefix commands, but
-only if they are invoked directly, i.e. *not* as a suffix.
+only if they are invoked directly, i.e., *not* as a suffix.
 
 Valid values are:
 

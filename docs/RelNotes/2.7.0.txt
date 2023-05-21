@@ -45,7 +45,7 @@ Changes since v2.6.0
   blocking Emacs and allows handling password prompts.
 
 * The command `magit-stage' learned to stage an untracked file while
-  leaving its content unstaged (i.e. `git add --intent-to-add') when
+  leaving its content unstaged (i.e., `git add --intent-to-add') when
   called with a prefix argument.
 
 * The command `magit-reverse' learned to use `--reject' to ensure that

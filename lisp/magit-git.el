@@ -902,7 +902,7 @@ to another directory, while another buffer was current.
 When optional DIRECTORY is non-nil then return the toplevel for
 that directory instead of the one for `default-directory'.
 
-Try to respect the option `find-file-visit-truename', i.e.  when
+Try to respect the option `find-file-visit-truename', i.e.,  when
 the value of that option is nil, then avoid needlessly returning
 the truename.  When a symlink to a sub-directory of the working
 tree is involved, or when called from within a sub-directory of
@@ -1713,7 +1713,7 @@ Otherwise UPSTREAM has to be an existing branch."
 It BRANCH is nil, then return the upstream of the current branch,
 if any, nil otherwise.  If the upstream is not configured, the
 configured remote is an url, or the named branch does not exist,
-then return nil.  I.e.  return an existing local or
+then return nil.  I.e.,  return an existing local or
 remote-tracking branch ref."
   (and-let* ((branch (or branch (magit-get-current-branch))))
     (magit-ref-fullname (concat branch "@{upstream}"))))
@@ -1723,7 +1723,7 @@ remote-tracking branch ref."
 It BRANCH is nil, then return the upstream of the current branch
 if any, nil otherwise.  If the upstream is not configured, the
 configured remote is an url, or the named branch does not exist,
-then return nil.  I.e. return the name of an existing local or
+then return nil.  I.e., return the name of an existing local or
 remote-tracking branch.  The returned string is colorized
 according to the branch type."
   (magit--with-refresh-cache

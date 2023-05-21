@@ -33,7 +33,7 @@
 (defcustom magit-worktree-read-directory-name-function #'read-directory-name
   "Function used to read a directory for worktree commands.
 This is called with one argument, the prompt, and can be used
-to e.g. use a base directory other than `default-directory'.
+to, e.g., use a base directory other than `default-directory'.
 Used by `magit-worktree-checkout' and `magit-worktree-branch'."
   :package-version '(magit . "3.0.0")
   :group 'magit-commands

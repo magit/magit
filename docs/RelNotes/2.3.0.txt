@@ -14,7 +14,7 @@ Changes since v2.2.0
   to perform an interactive rebase too.  #2186
 
 * Commands that perform an interactive rebase should no longer be used
-  non-interactively (i.e. they should only be used as commands).  #2187
+  non-interactively (i.e., they should only be used as commands).  #2187
 
 * Rebasing commands now can start with a root commit.  Root commits
   are detected automatically, so users don't have to use the `--root'
@@ -25,7 +25,7 @@ Changes since v2.2.0
 * Added new option `magit-bury-buffer-function' to give users more
   control over how Magit buffers are buried, replacing the old binary
   option `magit-restore-window-configuration'.  The default is still
-  the same, i.e. `magit-restore-window-configuration' is used.  #2193
+  the same, i.e., `magit-restore-window-configuration' is used.  #2193
 
 * Added new function `magit-mode-quit-window' as a simpler variant to
   `magit-restore-window-configuration'.  #2193

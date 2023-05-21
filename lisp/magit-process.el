@@ -222,7 +222,7 @@ hook allows users to deal with such questions explicitly.
 Each function is called with the process and the output string
 as arguments until one of the functions returns non-nil.  The
 function is responsible for asking the user the appropriate
-question using e.g. `read-char-choice' and then forwarding the
+question using, e.g., `read-char-choice' and then forwarding the
 answer to the process using `process-send-string'.
 
 While functions such as `magit-process-yes-or-no-prompt' may not
@@ -955,7 +955,7 @@ as argument."
                                  (magit-git-executable)
                                  "credential-cache--daemon"
                                  magit-credential-cache-daemon-socket)
-                ;; Some Git implementations (e.g. Windows) won't have
+                ;; Some Git implementations (e.g., Windows) won't have
                 ;; this program; if we fail the first time, stop trying.
                 ((debug error)
                  (remove-hook 'magit-credential-hook

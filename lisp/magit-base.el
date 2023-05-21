@@ -183,7 +183,7 @@ so we don't use the command names but more generic symbols.
 
 Applying changes:
 
-  `discard' Discarding one or more changes (i.e. hunks or the
+  `discard' Discarding one or more changes (i.e., hunks or the
   complete diff for a file) loses that change, obviously.
 
   `reverse' Reverting one or more changes can usually be undone
@@ -974,7 +974,7 @@ with the text area."
 
 This combines the benefits of `buffer-string', `buffer-substring'
 and `buffer-substring-no-properties' into one function that is
-not as painful to use as the latter.  I.e. you can write
+not as painful to use as the latter.  I.e., you can write
   (magit--buffer-string)
 instead of
   (buffer-substring-no-properties (point-min)

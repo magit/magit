@@ -79,7 +79,7 @@ diff-related sections being the only exception.")
   "Hook used to set the initial visibility of a section.
 Stop at the first function that returns non-nil.  The returned
 value should be `show', `hide' or nil.  If no function returns
-non-nil, determine the visibility as usual, i.e. use the
+non-nil, determine the visibility as usual, i.e., use the
 hardcoded section specific default (see `magit-insert-section').")
 
 ;;; Options
@@ -1275,7 +1275,7 @@ appropriate package prefix.  This works due to some undocumented
 kludges, which are not available to other packages.
 
 When optional HIDE is non-nil collapse the section body by
-default, i.e. when first creating the section, but not when
+default, i.e., when first creating the section, but not when
 refreshing the buffer.  Else expand it by default.  This can be
 overwritten using `magit-section-set-visibility-hook'.  When a
 section is recreated during a refresh, then the visibility of

@@ -110,7 +110,7 @@ Also see https://emacsair.me/2018/11/08/magit-2.90.
 - Added new option ~magit-status-initial-section~, which controls which
   section point is placed on when a status buffer is created.  The new
   default is to place point on the section that follows the headers,
-  i.e. the second section.  This is quite flexible, you might want to
+  i.e., the second section.  This is quite flexible, you might want to
   read the doc-string.  87de83da8, #3562, #3518
 
 - Added new commands ~magit-commit-absorb~ and ~magit-commit-absorb-popup~.

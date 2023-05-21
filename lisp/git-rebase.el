@@ -25,7 +25,7 @@
 ;; This package assists the user in editing the list of commits to be
 ;; rewritten during an interactive rebase.
 
-;; When the user initiates an interactive rebase, e.g. using "r e" in
+;; When the user initiates an interactive rebase, e.g., using "r e" in
 ;; a Magit buffer or on the command line using "git rebase -i REV",
 ;; Git invokes the `$GIT_SEQUENCE_EDITOR' (or if that is undefined
 ;; `$GIT_EDITOR' or even `$EDITOR') letting the user rearrange, drop,
@@ -36,7 +36,7 @@
 ;; providing the following commands:
 ;;
 ;;   C-c C-c  Tell Git to make it happen.
-;;   C-c C-k  Tell Git that you changed your mind, i.e. abort.
+;;   C-c C-k  Tell Git that you changed your mind, i.e., abort.
 ;;
 ;;   p        Move point to previous line.
 ;;   n        Move point to next line.
@@ -199,7 +199,7 @@
 
 (defvar git-rebase-command-descriptions
   '((with-editor-finish           . "tell Git to make it happen")
-    (with-editor-cancel           . "tell Git that you changed your mind, i.e. abort")
+    (with-editor-cancel           . "tell Git that you changed your mind, i.e., abort")
     (git-rebase-backward-line     . "move point to previous line")
     (forward-line                 . "move point to next line")
     (git-rebase-move-line-up      . "move the commit at point up")

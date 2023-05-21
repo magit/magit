@@ -1907,7 +1907,7 @@ Show the last `magit-log-section-commit-count' commits."
 (defun magit-insert-unpulled-cherries ()
   "Insert section showing unpulled commits.
 Like `magit-insert-unpulled-from-upstream' but prefix each commit
-which has not been applied yet (i.e. a commit with a patch-id
+which has not been applied yet (i.e., a commit with a patch-id
 not shared with any local commit) with \"+\", and all others with
 \"-\"."
   (when (magit-git-success "rev-parse" "@{upstream}")
@@ -1920,7 +1920,7 @@ not shared with any local commit) with \"+\", and all others with
 (defun magit-insert-unpushed-cherries ()
   "Insert section showing unpushed commits.
 Like `magit-insert-unpushed-to-upstream' but prefix each commit
-which has not been applied to upstream yet (i.e. a commit with
+which has not been applied to upstream yet (i.e., a commit with
 a patch-id not shared with any upstream commit) with \"+\", and
 all others with \"-\"."
   (when (magit-git-success "rev-parse" "@{upstream}")

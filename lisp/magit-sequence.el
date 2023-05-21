@@ -976,7 +976,7 @@ If no such sequence is in progress, do nothing."
 (defun magit-rebase--todo ()
   "Return `git-rebase-action' instances for remaining rebase actions.
 These are ordered in that the same way they'll be sorted in the
-status buffer (i.e. the reverse of how they will be applied)."
+status buffer (i.e., the reverse of how they will be applied)."
   (let ((comment-start (or (magit-get "core.commentChar") "#"))
         lines)
     (with-temp-buffer

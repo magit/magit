@@ -77,7 +77,7 @@ have to match exactly unless they contain a character that makes
 them invalid as a branch name.  Recommended characters to use
 to trigger interpretation as a regexp are \"*\" and \"^\".  Some
 other characters which you might expect to be invalid, actually
-are not, e.g. \".+$\" are all perfectly valid.  More precisely,
+are not, e.g., \".+$\" are all perfectly valid.  More precisely,
 if `git check-ref-format --branch STRING' exits with a non-zero
 status, then treat STRING as a regexp.
 
@@ -101,7 +101,7 @@ prefer the former, then you should add branches such as \"master\",
   "Alist of upstreams to be used when branching from remote branches.
 
 When creating a local branch from an ephemeral branch located
-on a remote, e.g. a feature or hotfix branch, then that remote
+on a remote, e.g., a feature or hotfix branch, then that remote
 branch should usually not be used as the upstream branch, since
 the push-remote already allows accessing it and having both the
 upstream and the push-remote reference the same related branch
@@ -775,11 +775,11 @@ the remote."
                      (not new-target)
                      (magit-y-or-n-p (format "Also rename %S to %S on \"%s\""
                                              old new remote)))
-            ;; Rename on (i.e. within) the remote, but only if the
+            ;; Rename on (i.e., within) the remote, but only if the
             ;; destination ref doesn't exist yet.  If that ref already
             ;; exists, then it probably is of some value and we better
             ;; not touch it.  Ignore what the local ref points at,
-            ;; i.e. if the local and the remote ref didn't point at
+            ;; i.e., if the local and the remote ref didn't point at
             ;; the same commit before the rename then keep it that way.
             (magit-call-git "push" "-v" remote
                             (format "%s:refs/heads/%s" old-target new)
