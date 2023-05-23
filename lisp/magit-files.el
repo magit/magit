@@ -330,7 +330,7 @@ to `magit-dispatch'."
     ("k" "Delete"   magit-file-delete)
     ("c" "Checkout" magit-file-checkout)]
    ["Navigate"
-    ("g" "Goto status" magit-status-here)]])
+    ("g" "Goto status" magit-status-here :if-not-mode magit-status-mode)]])
 
 ;;; Blob Mode
 
