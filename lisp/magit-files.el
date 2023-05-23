@@ -289,41 +289,48 @@ directory, while reading the FILENAME."
 When invoked outside a file-visiting buffer, then fall back
 to `magit-dispatch'."
   :info-manual "(magit) Minor Mode for Buffers Visiting Files"
-  ["File actions"
-   :if magit-file-relative-name
-   [("s" "Stage"      magit-stage-buffer-file)
-    ("u" "Unstage"    magit-unstage-buffer-file)
-    ("c" "Commit"     magit-commit)
-    ("e" "Edit line"  magit-edit-line-commit)]
-   [("D" "Diff..."    magit-diff)
-    ("d" "Diff"       magit-diff-buffer-file)
-    ("g" "Status"     magit-status-here)]
-   [("L" "Log..."     magit-log)
+  [:if magit-file-relative-name
+   ["File actions"
+    ("  s" "Stage"    magit-stage-buffer-file)
+    ("  u" "Unstage"  magit-unstage-buffer-file)
+    (", x" "Untrack"  magit-file-untrack)
+    (", r" "Rename"   magit-file-rename)
+    (", k" "Delete"   magit-file-delete)
+    (", c" "Checkout" magit-file-checkout)]
+   ["Inspect"
+    ("D" "Diff..."    magit-diff)
+    ("d" "Diff"       magit-diff-buffer-file)]
+   [""
+    ("L" "Log..."     magit-log)
     ("l" "Log"        magit-log-buffer-file)
     ("t" "Trace"      magit-log-trace-definition)
     (7 "M" "Merged"   magit-log-merged)]
-   [("B" "Blame..."   magit-blame)
+   [""
+    ("B" "Blame..."   magit-blame)
     ("b" "Blame"      magit-blame-addition)
     ("r" "...removal" magit-blame-removal)
     ("f" "...reverse" magit-blame-reverse)
     ("m" "Blame echo" magit-blame-echo)
     ("q" "Quit blame" magit-blame-quit)]
-   [("p" "Prev blob"  magit-blob-previous)
-    ("n" "Next blob"  magit-blob-next)
-    ("v" "Goto blob"  magit-find-file)
-    ("V" "Goto file"  magit-blob-visit-file)]
-   [(", r" "Rename file"   magit-file-rename)
-    (", k" "Delete file"   magit-file-delete)
-    (", x" "Untrack file"  magit-file-untrack)
-    (", c" "Checkout file" magit-file-checkout)]]
-  ["File actions"
-   :if-not magit-file-relative-name
-   [("s" "Stage"    magit-stage-file)
+   ["Navigate"
+    ("p" "Prev blob"   magit-blob-previous)
+    ("n" "Next blob"   magit-blob-next)
+    ("v" "Goto blob"   magit-find-file)
+    ("V" "Goto file"   magit-blob-visit-file)
+    ("g" "Goto status" magit-status-here)]
+   ["More actions"
+    ("c" "Commit"     magit-commit)
+    ("e" "Edit line"  magit-edit-line-commit)]]
+  [:if-not magit-file-relative-name
+   ["File actions"
+    ("s" "Stage"    magit-stage-file)
     ("u" "Unstage"  magit-unstage-file)
-    ("x" "Untrack"  magit-file-untrack)]
-   [("r" "Rename"   magit-file-rename)
+    ("x" "Untrack"  magit-file-untrack)
+    ("r" "Rename"   magit-file-rename)
     ("k" "Delete"   magit-file-delete)
-    ("c" "Checkout" magit-file-checkout)]])
+    ("c" "Checkout" magit-file-checkout)]
+   ["Navigate"
+    ("g" "Goto status" magit-status-here)]])
 
 ;;; Blob Mode
 
