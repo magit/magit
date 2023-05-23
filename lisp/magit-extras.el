@@ -859,7 +859,7 @@ abbreviated revision to the `kill-ring' and the
 The buffer is displayed using `magit-display-buffer', which see."
   (interactive (list (magit--read-repository-buffer
                       "Display magit buffer: ")))
-  (magit-display-buffer buffer))
+  (magit-display-buffer (get-buffer buffer)))
 
 ;;;###autoload
 (defun magit-switch-to-repository-buffer (buffer)
