@@ -317,7 +317,8 @@ to `magit-dispatch'."
     ("n" "Next blob"   magit-blob-next)
     ("v" "Goto blob"   magit-find-file)
     ("V" "Goto file"   magit-blob-visit-file)
-    ("g" "Goto status" magit-status-here)]
+    ("g" "Goto status" magit-status-here)
+    ("G" "Goto magit"  magit-display-repository-buffer)]
    ["More actions"
     ("c" "Commit"     magit-commit)
     ("e" "Edit line"  magit-edit-line-commit)]]
@@ -330,7 +331,8 @@ to `magit-dispatch'."
     ("k" "Delete"   magit-file-delete)
     ("c" "Checkout" magit-file-checkout)]
    ["Navigate"
-    ("g" "Goto status" magit-status-here :if-not-mode magit-status-mode)]])
+    ("g" "Goto status" magit-status-here :if-not-mode magit-status-mode)
+    ("G" "Goto magit"  magit-display-repository-buffer)]])
 
 ;;; Blob Mode
 
