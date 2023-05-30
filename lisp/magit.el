@@ -551,7 +551,8 @@ is run in the top-level directory of the current working tree."
                                   "magit-bind-match-strings"
                                   "magit-with-temp-index"
                                   "magit-with-blob"
-                                  "magit-with-toplevel") t)
+                                  "magit-with-toplevel")
+                                t)
                 "\\_>")
        . 1))))
 
