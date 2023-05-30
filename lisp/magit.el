@@ -569,7 +569,7 @@ Use the function by the same name instead of this variable.")
   "Return the version of Magit currently in use.
 
 If optional argument PRINT-DEST is non-nil, also print the used
-versions of Magit, Git and Emacs to the output stream
+versions of Magit, Transient, Git and Emacs to the output stream
 selected by that argument.  Interactively use the echo area, or
 with a prefix argument use the current buffer.  Additionally put
 the output in the kill ring.
@@ -643,7 +643,7 @@ the output in the kill ring.
     (if (stringp magit-version)
         (when print-dest
           (let ((str (format
-                      "Magit %s%s, Git %s, Emacs %s, %s"
+                      "Magit %s%s, Transient %s, Git %s, Emacs %s, %s"
                       (or magit-version "(unknown)")
                       (or (and (ignore-errors
                                  (magit--version>= magit-version "2008"))
@@ -657,6 +657,14 @@ the output in the kill ring.
                                           (locate-library "magit.el" t))
                                          (lm-header "Package-Version"))))))
                           "")
+                      (or (ignore-errors
+                            (require 'lisp-mnt)
+                            (and (fboundp 'lm-header)
+                                 (with-temp-buffer
+                                   (insert-file-contents
+                                    (locate-library "transient.el" t))
+                                   (lm-header "Package-Version"))))
+                          "(unknown)")
                       (magit--safe-git-version)
                       emacs-version
                       system-type)))
