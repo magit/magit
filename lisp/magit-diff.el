@@ -2752,6 +2752,40 @@ or a ref which is not a branch, then it inserts nothing."
   "<1>" (magit-menu-item "Visit %t" #'magit-show-commit
                          '(:enable (magit-thing-at-point 'git-revision t))))
 
+(defun magit--propertize-hashes (&optional bound)
+  (while (if bound (< (point) bound) (not (eobp)))
+    (re-search-forward "\\_<" nil 'move)
+    (let ((beg (point)))
+      (re-search-forward "\\_>" nil t)
+      (when (> (point) beg)
+        (let ((text (buffer-substring-no-properties beg (point))))
+          (when (pcase magit-revision-use-hash-sections
+                  ('quickest ; false negatives and positives
+                   (and (>= (length text) 7)
+                        (string-match-p "[0-9]" text)
+                        (string-match-p "[a-z]" text)))
+                  ('quicker  ; false negatives (number-less hashes)
+                   (and (>= (length text) 7)
+                        (string-match-p "[0-9]" text)
+                        (magit-commit-p text)))
+                  ('quick    ; false negatives (short hashes)
+                   (and (>= (length text) 7)
+                        (magit-commit-p text)))
+                  ('slow
+                   (magit-commit-p text)))
+            (put-text-property beg (point)
+                               'font-lock-face 'magit-hash)
+            (let ((end (point)))
+              (goto-char beg)
+              (if (derived-mode-p 'magit-mode)
+                  (magit-insert-section (commit text)
+                    (goto-char end))
+                (make-text-button
+                 beg end
+                 'button-data (buffer-substring-no-properties beg end)
+                 'action #'magit-show-commit)
+                (goto-char end)))))))))
+
 (defun magit-insert-revision-message ()
   "Insert the commit message into a revision buffer."
   (magit-insert-section section (commit-message)
@@ -2778,32 +2812,7 @@ or a ref which is not a branch, then it inserts nothing."
             ;; starting at the same point as the (commit-message)
             ;; section.
             (goto-char (1+ beg))
-            (while (not (eobp))
-              (re-search-forward "\\_<" nil 'move)
-              (let ((beg (point)))
-                (re-search-forward "\\_>" nil t)
-                (when (> (point) beg)
-                  (let ((text (buffer-substring-no-properties beg (point))))
-                    (when (pcase magit-revision-use-hash-sections
-                            ('quickest ; false negatives and positives
-                             (and (>= (length text) 7)
-                                  (string-match-p "[0-9]" text)
-                                  (string-match-p "[a-z]" text)))
-                            ('quicker  ; false negatives (number-less hashes)
-                             (and (>= (length text) 7)
-                                  (string-match-p "[0-9]" text)
-                                  (magit-commit-p text)))
-                            ('quick    ; false negatives (short hashes)
-                             (and (>= (length text) 7)
-                                  (magit-commit-p text)))
-                            ('slow
-                             (magit-commit-p text)))
-                      (put-text-property beg (point)
-                                         'font-lock-face 'magit-hash)
-                      (let ((end (point)))
-                        (goto-char beg)
-                        (magit-insert-section (commit text)
-                          (goto-char end))))))))))
+            (magit--propertize-hashes)))
         (save-excursion
           (forward-line)
           (magit--add-face-text-property
