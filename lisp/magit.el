@@ -249,62 +249,75 @@ and/or `magit-branch-remote-head'."
 ;;; Global Bindings
 
 ;;;###autoload
-(defcustom magit-define-global-key-bindings t
-  "Whether to bind some Magit commands in the global keymap.
+(defcustom magit-define-global-key-bindings 'default
+  "Which set of key bindings to add to the global keymap, if any.
 
-If this variable is non-nil, then the following bindings may
-be added to the global keymap.  The default is t.
+This option controls which set of Magit key bindings, if any, may
+be added to the global keymap, even before Magit is first used in
+the current Emacs session.
 
-key             binding
----             -------
-C-x g           magit-status
-C-x M-g         magit-dispatch
-C-c M-g         magit-file-dispatch
+If the value is nil, no bindings are added.
 
-These bindings may be added when `after-init-hook' is run.
-Each binding is added if and only if at that time no other key
-is bound to the same command and no other command is bound to
-the same key.  In other words we try to avoid adding bindings
-that are unnecessary, as well as bindings that conflict with
-other bindings.
+If `default', maybe add:
 
-Adding the above bindings is delayed until `after-init-hook'
-is called to allow users to set the variable anywhere in their
-init file (without having to make sure to do so before `magit'
-is loaded or autoloaded) and to increase the likelihood that
-all the potentially conflicting user bindings have already
-been added.
+    C-x g     `magit-status'
+    C-x M-g   `magit-dispatch'
+    C-c M-g   `magit-file-dispatch'
+
+If `recommended', maybe add:
+
+    C-x g     `magit-status'
+    C-c g     `magit-dispatch'
+    C-c f     `magit-file-dispatch'
+
+    These bindings are strongly recommended, but we cannot use
+    them by default, because the \"C-c <LETTER>\" namespace is
+    strictly reserved for bindings added by the user.
+
+The bindings in the chosen set may be added when
+`after-init-hook' is run.  Each binding is added if, and only
+if, at that time no other key is bound to the same command,
+and no other command is bound to the same key.  In other words
+we try to avoid adding bindings that are unnecessary, as well
+as bindings that conflict with other bindings.
+
+Adding these bindings is delayed until `after-init-hook' is
+run to allow users to set the variable anywhere in their init
+file (without having to make sure to do so before `magit' is
+loaded or autoloaded) and to increase the likelihood that all
+the potentially conflicting user bindings have already been
+added.
 
 To set this variable use either `setq' or the Custom interface.
 Do not use the function `customize-set-variable' because doing
-that would cause Magit to be loaded immediately when that form
+that would cause Magit to be loaded immediately, when that form
 is evaluated (this differs from `custom-set-variables', which
 doesn't load the libraries that define the customized variables).
 
-Setting this variable to nil has no effect if that is done after
-the key bindings have already been added.
-
-We recommend that you bind \"C-c g\" instead of \"C-c M-g\" to
-`magit-file-dispatch'.  The former is a much better binding
-but the \"C-c <letter>\" namespace is strictly reserved for
-users; preventing Magit from using it by default.
-
-Also see info node `(magit)Commands for Buffers Visiting Files'."
-  :package-version '(magit . "3.0.0")
+Setting this variable has no effect if `after-init-hook' has
+already been run."
+  :package-version '(magit . "4.0.0")
   :group 'magit-essentials
-  :type 'boolean)
+  :type '(choice (const :tag "Add no binding" nil)
+                 (const :tag "Use default bindings" default)
+                 (const :tag "Use recommended bindings" recommended)))
 
 ;; This is autoloaded and thus is used before `compat' is
 ;; loaded, so we cannot use `keymap-lookup' and `keymap-set'.
 ;;;###autoload
 (progn
   (defun magit-maybe-define-global-key-bindings (&optional force)
+    "See variable `magit-define-global-key-bindings'."
     (when magit-define-global-key-bindings
       (let ((map (current-global-map)))
         (pcase-dolist (`(,key . ,def)
-                       '(("C-x g"   . magit-status)
-                         ("C-x M-g" . magit-dispatch)
-                         ("C-c M-g" . magit-file-dispatch)))
+                       (cond ((eq magit-define-global-key-bindings 'recommended)
+                              '(("C-x g"   . magit-status)
+                                ("C-c g"   . magit-dispatch)
+                                ("C-c f"   . magit-file-dispatch)))
+                             ('(("C-x g"   . magit-status)
+                                ("C-x M-g" . magit-dispatch)
+                                ("C-c M-g" . magit-file-dispatch)))))
           (when (or force
                     (not (or (lookup-key map (kbd key))
                              (where-is-internal def (make-sparse-keymap) t))))

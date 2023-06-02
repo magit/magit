@@ -348,17 +348,25 @@ commands" or just "transients".)
 The key bindings in that menu correspond to the bindings in Magit
 buffers, including but not limited to the status buffer.  So you could
 type ~h d~ to bring up the diff menu, but once you remember that "d"
-stands for "diff", you would usually do so by just typing ~d~.  But this
-"prefix of prefixes" is useful even once you have memorized all the
-bindings, as it can provide easy access to Magit commands from
-non-Magit buffers.  The global binding is ~C-x M-g~.
+stands for "diff", you would usually do so by just typing ~d~.
 
-In file visiting buffers ~C-c M-g~ brings up a similar menu featuring
-commands that act on just the visited file, see [[*Commands for Buffers
-Visiting Files]].
+This "prefix of prefixes" is useful even once you have memorized all
+the bindings, as it can provide easy access to Magit commands from
+non-Magit buffers.  So, by default, it is globally bound to ~C-x M-g~.
 
-Magit also provides a context menu and other mouse commands, see
-[[*Mouse Support]].
+A similar menu featuring (for the most part) commands that act on just
+the file being visited in the current buffer, is globally bound to ~C-c
+M-g~.  That binding can also be used in buffers, which do not visit a
+file, but then only a subset of the commands is available.
+
+The global key bindings mentioned in the previous two paragraphs are
+quite inconvenient.  We recommend using ~C-c g~ and ~C-c f~ instead, but
+cannot use those key sequences by default because they are strickly
+reserved for bindings added by the user.  See [[*Global Bindings]], if you
+want to explicitly opt-in to the recommended key bindings.
+
+Magit also provides context menus and other mouse commands, see [[*Mouse
+Support]].
 
 It is not necessary that you do so now, but if you stick with Magit,
 then it is highly recommended that you read the next section too.
@@ -1242,7 +1250,8 @@ used the package ~magit-popup~ and even earlier versions library
 
 Transient is documented in [[info:transient]].
 
-- Key: C-c C-c (magit-dispatch) ::
+- Key: C-x M-g (magit-dispatch) ::
+- Key: C-c g (magit-dispatch) ::
 
   This transient prefix command binds most of Magit's other prefix
   commands as suffix commands and displays them in a temporary buffer
@@ -1250,12 +1259,11 @@ Transient is documented in [[info:transient]].
   suffixes of that command to be bound and displayed instead of those
   of ~magit-dispatch~.
 
-This command is also, or especially, useful outside Magit buffers, so
-you should setup a global binding:
-
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-x M-g") 'magit-dispatch)
-#+end_src
+  This command is also, or especially, useful outside Magit buffers,
+  so Magit by default binds it to ~C-c M-g~ in the global keymap.
+  ~C-c g~ would be a better binding, but we cannot use that by default,
+  because that key sequence is reserved for the user.  See [[*Global
+  Bindings]] to learn more default and recommended key bindings.
 
 ** Transient Arguments and Buffer Variables
 
@@ -4040,15 +4048,31 @@ argument.
 
 Also see [[man:git-blame]]
 
-To start blaming invoke the ~magit-file-dispatch~ transient prefix
-command by pressing ~C-c M-g~.
+To start blaming, invoke the ~magit-file-dispatch~ transient prefix
+command.  When using the default key bindings, that can be done
+by pressing ~C-c M-g~.  When using the recommended bindings, this
+command is instead bound to ~C-c f~.  Also see [[*Global Bindings]].
 
-The blaming suffix commands can be invoked from the dispatch
-transient.  However if you want to set an infix argument, then you
-have to enter the blaming sub-transient first.
+The blaming suffix commands can be invoked directly from the file
+dispatch transient.  However if you want to set an infix argument,
+then you have to enter the blaming sub-prefix first.
 
-The key bindings shown below assume that you enter the dispatch
-transient using the default binding.
+- Key: C-c f B (magit-blame) ::
+- Key: C-c f b (magit-blame-addition) ::
+- Key: C-c f B b ::
+- Key: C-c f r (magit-blame-removal) ::
+- Key: C-c f B r ::
+- Key: C-c f f (magit-blame-reverse) ::
+- Key: C-c f B f ::
+- Key: C-c f e (magit-blame-echo) ::
+- Key: C-c f B e ::
+- Key: C-c f q (magit-blame-quit) ::
+- Key: C-c f B q ::
+
+  Each of these commands is documented individually right below,
+  alongside their default key bindings.  The bindings shown above
+  are the recommended bindings, which you can enable by following
+  the instructions in [[*Global Bindings]].
 
 - Key: C-c M-g B (magit-blame) ::
 
@@ -4106,6 +4130,12 @@ The following key bindings are available when Magit-Blame mode is
 enabled and Read-Only mode is not enabled.  These commands are also
 available in other buffers; here only the behavior is described that
 is relevant in file-visiting buffers that are being blamed.
+
+- Key: C-c M-g q (magit-blame-quit) ::
+- Key: C-c M-g B q ::
+
+  This command turns off Magit-Blame mode.  If the buffer was created
+  during a recursive blame, then it also kills the buffer.
 
 - Key: RET (magit-show-commit) ::
 
@@ -7517,45 +7547,101 @@ before making changes that could cause the loss of earlier changes.
 
 ** Commands for Buffers Visiting Files
 
-Magit defines a few global key bindings unless the user sets
-~magit-define-global-key-bindings~ to ~nil~.  This includes binding ~C-c
-M-g~ to ~magit-file-dispatch~.  ~C-c g~ would be a much better binding
-but the ~C-c <letter>~ namespace is reserved for users, meaning that
-packages are not allowed to use it.  If you want to use ~C-c g~, then
-you have to add that binding yourself.  Also see [[*Default Bindings]]
-and [[info:elisp#Key Binding Conventions]].
+By default Magit defines a few global key bindings.  These bindings
+are a compromise between providing no bindings at all and providing
+the better bindings I would have liked to use instead.  Magit cannot
+provide the set of recommended bindings by default because those key
+sequences are stricktly reserved for bindings added by the user.
+Also see [[*Global Bindings]] and [[info:elisp#Key Binding Conventions]].
 
-If you want a better binding, you have to add it yourself:
+To use the recommended bindings, add this to your init file and
+restart Emacs.
 
 #+begin_src emacs-lisp
-  (global-set-key (kbd "C-c g") 'magit-file-dispatch)
+  (setq magit-define-global-key-bindings 'recommended)
 #+end_src
 
-The key bindings shown below assume that you have not improved the
-binding for ~magit-file-dispatch~.
+If you don't want Magit to add any bindings to the global keymap at
+all, add this to your init file and restart Emacs.
+
+#+begin_src emacs-lisp
+  (setq magit-define-global-key-bindings nil)
+#+end_src
+
+- Key: C-c f (magit-file-dispatch) ::
+- Key: C-c f s (magit-stage-file) ::
+- Key: C-c f s (magit-stage-buffer-file) ::
+- Key: C-c f u (magit-unstage-file) ::
+- Key: C-c f u (magit-unstage-buffer-file) ::
+- Key: C-c f , x (magit-file-untrack) ::
+- Key: C-c f , r (magit-file-rename) ::
+- Key: C-c f , k (magit-file-delete) ::
+- Key: C-c f , c (magit-file-checkout) ::
+- Key: C-c f D (magit-diff) ::
+- Key: C-c f d (magit-diff-buffer-file) ::
+- Key: C-c f L (magit-log) ::
+- Key: C-c f l (magit-log-buffer-file) ::
+- Key: C-c f t (magit-log-trace-definition) ::
+- Key: C-c f M (magit-log-merged) ::
+- Key: C-c f B (magit-blame) ::
+- Key: C-c f b (magit-blame-additions) ::
+- Key: C-c f r (magit-blame-removal) ::
+- Key: C-c f f (magit-blame-reverse) ::
+- Key: C-c f m (magit-blame-echo) ::
+- Key: C-c f q (magit-blame-quit) ::
+- Key: C-c f p (magit-blob-previous) ::
+- Key: C-c f n (magit-blob-next) ::
+- Key: C-c f v (magit-find-file) ::
+- Key: C-c f V (magit-blob-visit-file) ::
+- Key: C-c f g (magit-status-here) ::
+- Key: C-c f G (magit-display-repository-buffer) ::
+- Key: C-c f c (magit-commit) ::
+- Key: C-c f e (magit-edit-line-commit) ::
+
+  Each of these commands is documented individually right below,
+  alongside their default key bindings.  The bindings shown above
+  are the recommended bindings, which you can enable by following
+  the instructions further up.
 
 - Key: C-c M-g (magit-file-dispatch) ::
 
   This transient prefix command binds the following suffix commands
   and displays them in a temporary buffer until a suffix is invoked.
 
-  When invoked in a buffer that does not visit a file, then it falls
-  back to regular ~magit-dispatch~.
-
 - Key: C-c M-g s (magit-stage-file) ::
+- Key: C-c M-g s (magit-stage-buffer-file) ::
 
   Stage all changes to the file being visited in the current buffer.
+  When not visiting a file, then the first command is used, which
+  prompts for a file.
 
 - Key: C-c M-g u (magit-unstage-file) ::
+- Key: C-c M-g u (magit-unstage-buffer-file) ::
 
   Unstage all changes to the file being visited in the current buffer.
+  When not visiting a file, then the first command is used, which
+  prompts for a file.
 
-- Key: C-c M-g c (magit-commit) ::
+- Key: C-c M-g , x (magit-file-untrack) ::
 
-  This transient prefix command binds the following suffix commands
-  along with the appropriate infix arguments and displays them in a
-  temporary buffer until a suffix is invoked.  See [[*Initiating a
-  Commit]].
+  This command untracks a file read from the user, defaulting to the
+  visited file.
+
+- Key: C-c M-g , r (magit-file-rename) ::
+
+  This command renames a file read from the user, defaulting to the
+  visited file.
+
+- Key: C-c M-g , k (magit-file-delete) ::
+
+  This command deletes a file read from the user, defaulting to the
+  visited file.
+
+- Key: C-c M-g , c (magit-file-checkout) ::
+
+  This command updates a file in the working tree and index to the
+  contents from a revision.  Both the revision and file are read
+  from the user.
 
 - Key: C-c M-g D (magit-diff) ::
 
@@ -7596,14 +7682,20 @@ binding for ~magit-file-dispatch~.
   or when ~--follow~ is an active log argument.  When the region is
   active, the log is restricted to the selected line range.
 
-- Key: C-c M-g t (magit-log-trace-definition) ::
-
-  This command shows the log for the definition at point.
-
 - User Option: magit-log-buffer-file-locked ::
 
   This option controls whether ~magit-log-buffer-file~ uses a dedicated
   buffer.  See [[*Modes and Buffers]].
+
+- Key: C-c M-g t (magit-log-trace-definition) ::
+
+  This command shows the log for the definition at point.
+
+- Key: C-c M-g M (magit-log-merged) ::
+
+  This command reads a commit and a branch in shows a log concerning
+  the merge of the former into the latter.  This shows multiple commits
+  even in case of a fast-forward merge.
 
 - Key: C-c M-g B (magit-blame) ::
 
@@ -7614,9 +7706,49 @@ binding for ~magit-file-dispatch~.
   For more information about this and the following commands also see
   [[*Blaming]].
 
-In addition to the ~magit-blame~ sub-transient, the dispatch transient
-also binds several blaming suffix commands directly.  See [[*Blaming]] for
-information about those commands and bindings.
+  In addition to the ~magit-blame~ sub-transient, the dispatch transient
+  also binds several blaming suffix commands directly.  See [[*Blaming]]
+  for information about those commands and bindings.
+
+- Key: C-c M-g p (magit-blob-previous) ::
+
+  This command visits the previous blob which modified the current
+  file.
+
+- Key: C-c M-g n (magit-blob-next) ::
+
+  This command visits the next blob which modified the current file.
+
+- Key: C-c M-g v (magit-find-file) ::
+
+  This command reads a revision and file and visits the respective
+  blob.
+
+- Key: C-c M-g V (magit-blob-visit-file) ::
+
+  This command visits the file from the working tree, corresponding
+  to the current blob.  When visiting a blob or the version from the
+  index, then it goes to the same location in the respective file in
+  the working tree.
+
+- Key: C-c M-g g (magit-status-here) ::
+
+  This command displays the status of the current repository in a
+  buffer, like ~magit-status~ does.  Additionally it tries to go to
+  the position in that buffer, which corresponds to the position
+  in the current file-visiting buffer (if any).
+
+- Key: C-c M-g G (magit-display-repository-buffer) ::
+
+  This command reads and displays a Magit buffer belonging to the
+  current repository, without refreshing it.
+
+- Key: C-c M-g c (magit-commit) ::
+
+  This transient prefix command binds the following suffix commands
+  along with the appropriate infix arguments and displays them in a
+  temporary buffer until a suffix is invoked.  See [[*Initiating a
+  Commit]].
 
 - Key: C-c M-g e (magit-edit-line-commit) ::
 
@@ -7627,35 +7759,6 @@ information about those commands and bindings.
   editable using ~git rebase --interactive~ if it is reachable from
   ~HEAD~, or by checking out the commit (or a branch that points at it)
   otherwise.
-
-- Key: C-c M-g p (magit-blob-previous) ::
-
-  Visit the previous blob which modified the current file.
-
-There are a few additional commands that operate on a single file but
-are not enabled in the file transient command by default:
-
-- Command: magit-file-rename ::
-
-  This command renames a file read from the user.
-
-- Command: magit-file-delete ::
-
-  This command deletes a file read from the user.
-
-- Command: magit-file-untrack ::
-
-  This command untracks a file read from the user.
-
-- Command: magit-file-checkout ::
-
-  This command updates a file in the working tree and index to the
-  contents from a revision.  Both the revision and file are read
-  from the user.
-
-To enable them invoke the transient (~C-c M-g~), enter "edit mode" (~C-x
-l~), set the "transient level" (~C-x l~ again), enter ~5~, and leave edit
-mode (~C-g~).  Also see [[info:transient#Enabling and Disabling Suffixes]].
 
 ** Minor Mode for Buffers Visiting Blobs
 
@@ -8027,55 +8130,55 @@ you notice a notable difference try using the latter as
 
 [fn:mac1] https://lists.gnu.org/archive/html/bug-gnu-emacs/2017-04/msg00201.html
 
-*** Default Bindings
+*** Global Bindings
 
 - User Option: magit-define-global-key-bindings ::
 
-  This option controls whether some Magit commands are automatically
-  bound in the global keymap even before Magit is used for the first
-  time in the current session.
+  This option controls which set of Magit key bindings, if any, may
+  be added to the global keymap, even before Magit is first used in
+  the current Emacs session.
 
-  If this variable is non-nil, which it is by default, then the
-  following bindings may be added to the global keymap.
+  - If the value is ~nil~, no bindings are added.
 
-  | ~C-x g~   | ~magit-status~        |
-  | ~C-x M-g~ | ~magit-dispatch~      |
-  | ~C-c M-g~ | ~magit-file-dispatch~ |
+  - If ~default~, maybe add:
 
-  These bindings may be added when ~after-init-hook~ is run.
-  Each binding is added if and only if at that time no other key
-  is bound to the same command and no other command is bound to
-  the same key.  In other words we try to avoid adding bindings
-  that are unnecessary, as well as bindings that conflict with
-  other bindings.
+    | ~C-x g~   | ~magit-status~        |
+    | ~C-x M-g~ | ~magit-dispatch~      |
+    | ~C-c M-g~ | ~magit-file-dispatch~ |
 
-  Adding the above bindings is delayed until ~after-init-hook~
-  is called to allow users to set the variable anywhere in their
-  init file (without having to make sure to do so before ~magit~
-  is loaded or autoloaded) and to increase the likelihood that
-  all the potentially conflicting user bindings have already
-  been added.
+  - If ~recommended~, maybe add:
+
+    | ~C-x g~ | ~magit-status~        |
+    | ~C-c g~ | ~magit-dispatch~      |
+    | ~C-c f~ | ~magit-file-dispatch~ |
+
+    These bindings are strongly recommended, but we cannot use
+    them by default, because the ~C-c <LETTER>~ namespace is
+    strictly reserved for bindings added by the user (see
+    [[info:elisp#Key Binding Conventions]]).
+
+  The bindings in the chosen set may be added when
+  ~after-init-hook~ is run.  Each binding is added if, and only
+  if, at that time no other key is bound to the same command,
+  and no other command is bound to the same key.  In other words
+  we try to avoid adding bindings that are unnecessary, as well
+  as bindings that conflict with other bindings.
+
+  Adding these bindings is delayed until ~after-init-hook~ is
+  run to allow users to set the variable anywhere in their init
+  file (without having to make sure to do so before ~magit~ is
+  loaded or autoloaded) and to increase the likelihood that all
+  the potentially conflicting user bindings have already been
+  added.
 
   To set this variable use either ~setq~ or the Custom interface.
   Do not use the function ~customize-set-variable~ because doing
-  that would cause Magit to be loaded immediately when that form
+  that would cause Magit to be loaded immediately, when that form
   is evaluated (this differs from ~custom-set-variables~, which
   doesn't load the libraries that define the customized variables).
 
-  Setting this variable to nil has no effect if that is done after
-  the key bindings have already been added.
-
-  We recommend that you bind ~C-c g~ instead of ~C-c M-g~ to
-  ~magit-file-dispatch~.  The former is a much better binding
-  but the ~C-c <letter>~ namespace is strictly reserved for
-  users; preventing Magit from using it by default.
-
-  #+BEGIN_SRC emacs-lisp
-    (global-set-key (kbd "C-c g") 'magit-file-dispatch)
-  #+END_SRC
-
-  Also see [[*Commands for Buffers Visiting Files]] and [[info:elisp#Key
-  Binding Conventions]].
+  Setting this variable has no effect if ~after-init-hook~ has
+  already been run.
 
 * Plumbing
 
