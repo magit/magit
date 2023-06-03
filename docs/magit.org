@@ -3947,6 +3947,8 @@ of a file that is stored in a certain commit).  Actually it provides
 several *groups* of such commands and the several *variants* within each
 group.
 
+Also see [[*Commands for Buffers Visiting Files]].
+
 *** General-Purpose Visit Commands
 
 These commands can be used anywhere to open any blob.  Currently no

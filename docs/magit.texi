@@ -4896,6 +4896,8 @@ of a file that is stored in a certain commit).  Actually it provides
 several @strong{groups} of such commands and the several @strong{variants} within each
 group.
 
+Also see @ref{Commands for Buffers Visiting Files}.
+
 @menu
 * General-Purpose Visit Commands::
 * Visiting Files and Blobs from a Diff::
