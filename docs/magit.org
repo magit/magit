@@ -7881,7 +7881,7 @@ For example:
 
 ** Essential Settings
 
-The next two sections list and discuss several variables that many
+The next three sections list and discuss several variables that many
 users might want to customize, for safety and/or performance reasons.
 
 *** Safety
