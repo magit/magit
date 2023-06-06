@@ -35,8 +35,8 @@ with-editor	node	${MAGIT}/with-editor/
 
 MIRROR = https://emacsmirror.net/manual
 
-borg		mono	${MAGIT}/borg.html
-borg		node	${MAGIT}/borg/
+borg		mono	${MIRROR}/borg.html
+borg		node	${MIRROR}/borg/
 
-epkg		mono	${MAGIT}/epkg.html
-epkg		node	${MAGIT}/epkg/
+epkg		mono	${MIRROR}/epkg.html
+epkg		node	${MIRROR}/epkg/
