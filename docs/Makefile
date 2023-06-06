@@ -196,10 +196,7 @@ export ORG_MAN_EXPORT
 # Templates ##########################################################
 
 define AUTHORS_HEADER
-The following people have contributed to Magit, including the
-libraries `git-commit.el`, `magit-popup.el`, and `with-editor.el`
-which are distributed as separate Elpa packages.
-
+The following people have contributed to Magit.
 For statistics see https://magit.vc/stats/magit/authors.html.
 
 Authors
