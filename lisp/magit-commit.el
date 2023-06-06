@@ -398,7 +398,7 @@ The current time is used as the initial minibuffer input and the
 original author or committer date is available as the previous
 history element.
 
-Both the author and the committer dates are changes, unless one
+Both the author and the committer dates are changed, unless one
 of the following is true, in which case only the committer date
 is updated:
 - You are not the author of the commit that is being reshelved.
