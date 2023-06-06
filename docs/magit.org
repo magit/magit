@@ -9042,21 +9042,20 @@ tag signing", then you'll also need to synchronize ~$GPG_AGENT_INFO~.
 
 *** Expanding a file to show the diff causes it to disappear
 
-This is probably caused by a change of a ~diff.*~ Git variable.  You
-probably set that variable for a reason, and should therefore
-only undo that setting in Magit by customizing
-~magit-git-global-arguments~.
+This is probably caused by a customization of a ~diff.*~ Git variable.
+You probably set that variable for a reason, and should therefore only
+undo that setting in Magit by customizing ~magit-git-global-arguments~.
 
 *** Point is wrong in the ~COMMIT_EDITMSG~ buffer
 
 Neither Magit nor `git-commit` fiddle with point in the buffer used to
 write commit messages, so something else must be doing it.
 
-You have probably globally enabled a mode which does restore point in
+You have probably globally enabled a mode which restores point in
 file-visiting buffers.  It might be a bit surprising, but when you
 write a commit message, then you are actually editing a file.
 
-So you have to figure out which package is doing.  ~saveplace~,
+So you have to figure out which package is doing it.  ~saveplace~,
 ~pointback~, and ~session~ are likely candidates.  These snippets might
 help:
 
@@ -9102,7 +9101,7 @@ the names remain unique when those prefixes are stripped).  We
 consider ambiguous refnames unsupported and recommend that you use a
 non-ambiguous naming scheme.  However, if you do work with a
 repository that has ambiguous refnames, please report any issues you
-encounter so that we can investigate whether there is a simple fix.
+encounter, so that we can investigate whether there is a simple fix.
 
 *** My Git hooks work on the command-line but not inside Magit
 
