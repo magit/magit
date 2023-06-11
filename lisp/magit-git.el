@@ -41,8 +41,6 @@
 (declare-function magit-get-mode-buffer "magit-mode"
                   (mode &optional value frame))
 (declare-function magit-refresh "magit-mode" ())
-(defvar magit-buffer-gitdir)
-(defvar magit-buffer-topdir)
 (defvar magit-buffer-diff-type)
 (defvar magit-buffer-diff-args)
 (defvar magit-buffer-file-name)
@@ -844,29 +842,19 @@ Also see `magit-git-config-p'."
 (defun magit-gitdir (&optional directory)
   "Return the absolute and resolved path of the .git directory.
 
-As a special-case, if the `GIT_DIR' environment variable is set,
-return its value.  It is usually a bad idea to set this variable
-when using Magit.
-
-Otherwise if `magit-buffer-gitdir' is set, return that.  The
-value of this buffer-local variable is set to the value returned
-by this function, when a Magit buffer is first created.  So this
-effectively memorizes the value returned by this function.
-
+If the `GIT_DIR' environment variable is define then return that.
 Otherwise return the .git directory for DIRECTORY, or if that is
 nil, then for `default-directory' instead.  If the directory is
 not located inside a Git repository, then return nil."
-  (or (getenv "GIT_DIR")
-      magit-buffer-gitdir
-      (let ((default-directory (or directory default-directory)))
-        (magit--with-refresh-cache (list default-directory 'magit-gitdir)
-          (magit--with-safe-default-directory nil
-            (and-let* ((dir (magit-rev-parse-safe "--git-dir"))
-                       (dir (file-name-as-directory
-                             (magit-expand-git-file-name dir))))
-              (if (file-remote-p dir)
-                  dir
-                (concat (file-remote-p default-directory) dir))))))))
+  (let ((default-directory (or directory default-directory)))
+    (magit--with-refresh-cache (list default-directory 'magit-gitdir)
+      (magit--with-safe-default-directory nil
+        (and-let*
+            ((dir (magit-rev-parse-safe "--git-dir"))
+             (dir (file-name-as-directory (magit-expand-git-file-name dir))))
+          (if (file-remote-p dir)
+              dir
+            (concat (file-remote-p default-directory) dir)))))))
 
 (defvar magit--separated-gitdirs nil)
 
@@ -895,10 +883,6 @@ tree.  As a special case, from within a bare repository return
 the control directory instead.  When called outside a repository
 then return nil.
 
-When `magit-buffer-toplevel' is non-nil, then return its value,
-unless DIRECTORY is non-nil, or `default-directory' was let-bound
-to another directory, while another buffer was current.
-
 When optional DIRECTORY is non-nil then return the toplevel for
 that directory instead of the one for `default-directory'.
 
@@ -910,12 +894,6 @@ the gitdir or from the toplevel of a gitdir, which itself is not
 located within the working tree, then it is not possible to avoid
 returning the truename."
   (or
-   (and magit-buffer-topdir
-        (not directory)
-        (equal (expand-file-name default-directory)
-               (expand-file-name
-                (buffer-local-value 'default-directory (current-buffer))))
-        magit-buffer-topdir)
    (magit--with-refresh-cache
        (cons (or directory default-directory) 'magit-toplevel)
      (magit--with-safe-default-directory directory
