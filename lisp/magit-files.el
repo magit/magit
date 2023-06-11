@@ -500,7 +500,8 @@ Git, then fallback to using `delete-file'."
 
 (defun magit-read-file (prompt &optional tracked-only)
   (let ((choices (nconc (magit-list-files)
-                        (unless tracked-only (magit-untracked-files)))))
+                        (and (not tracked-only)
+                             (magit-untracked-files)))))
     (magit-completing-read
      prompt choices nil t nil nil
      (car (member (or (magit-section-value-if '(file submodule))
