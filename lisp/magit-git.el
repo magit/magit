@@ -980,11 +980,8 @@ returning the truename."
                  ;; working tree.
                  (file-name-directory (directory-file-name gitdir))))))))))))
 
-(defun magit--toplevel-safe (&optional nocache)
-  (or (if nocache
-          (let ((magit-buffer-topdir nil))
-            (magit-toplevel))
-        (magit-toplevel))
+(defun magit--toplevel-safe ()
+  (or (magit-toplevel)
       (magit--not-inside-repository-error)))
 
 (defmacro magit-with-toplevel (&rest body)

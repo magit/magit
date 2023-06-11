@@ -805,7 +805,7 @@ If `visible', then only consider buffers on all visible frames.
 If `selected' or t, then only consider buffers on the selected
   frame.
 If a frame, then only consider buffers on that frame."
-  (let ((topdir (magit--toplevel-safe 'nocache)))
+  (let ((topdir (magit--toplevel-safe)))
     (cl-flet* ((b (buffer)
                  (with-current-buffer buffer
                    (and (eq major-mode mode)
@@ -827,7 +827,7 @@ If a frame, then only consider buffers on that frame."
         ((guard (framep frame)) (seq-some #'w (window-list frame)))))))
 
 (defun magit-generate-new-buffer (mode &optional value directory)
-  (let* ((default-directory (or directory (magit--toplevel-safe 'nocache)))
+  (let* ((default-directory (or directory (magit--toplevel-safe)))
          (name (funcall magit-generate-buffer-name-function mode value))
          (buffer (generate-new-buffer name)))
     (with-current-buffer buffer
