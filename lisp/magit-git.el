@@ -682,7 +682,7 @@ needs at least MINIMAL, otherwise it defaults to \"Magit\"."
     (let* ((host (file-remote-p default-directory))
            (msg (format-spec
                  (cond (host "\
-%w requires Git %m or greater, but on %h the version is %m.
+%w requires Git %m or greater, but on %h the version is %v.
 
 If multiple Git versions are installed on the host, then the
 problem might be that TRAMP uses the wrong executable.
