@@ -93,12 +93,12 @@ The `:sort' function has a weird interface described in the
 docstring of `tabulated-list--get-sort'.  Alternatively `<' and
 `magit-repolist-version<' can be used as those functions are
 automatically replaced with functions that satisfy the interface.
-Set `:sort' to nil to inhibit sorting; if unspecifed, then the
+Set `:sort' to nil to inhibit sorting; if unspecified, then the
 column is sortable using the default sorter.
 
 You may wish to display a range of numeric columns using just one
 character per column and without any padding between columns, in
-which case you should use an appropriat HEADER, set WIDTH to 1,
+which case you should use an appropriate HEADER, set WIDTH to 1,
 and set `:pad-right' to 0.  \"+\" is substituted for numbers higher
 than 9."
   :package-version '(magit . "2.12.0")
