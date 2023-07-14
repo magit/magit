@@ -495,7 +495,7 @@ repositories known to contain bad commit messages.
 
 The body of the message is left alone because (a) most people who
 write excessively long summary lines usually don't add a body and
-(b) even people who have the decency to wrap their lines may have
+\(b) even people who have the decency to wrap their lines may have
 a good reason to include a long line in the body sometimes."
   :package-version '(magit . "2.90.0")
   :group 'magit-revision
