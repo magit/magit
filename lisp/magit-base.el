@@ -387,7 +387,7 @@ Messages which can currently be suppressed using this option are:
 (defcustom magit-verbose-messages nil
   "Whether to make certain prompts and messages more verbose.
 
-Occationally a user suggests that a certain prompt or message
+Occasionally a user suggests that a certain prompt or message
 should be more verbose, but I would prefer to keep it as-is
 because I don't think that the fact that that one user did not
 understand the existing prompt/message means that a large number
