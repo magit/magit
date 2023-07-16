@@ -7707,8 +7707,8 @@ When a cherry-pick or revert is in progress, then the transient
 instead features the following suffix commands.
 
 @table @asis
-@item @kbd{V A} (@code{magit-sequence-continue})
-@kindex V A
+@item @kbd{V V} (@code{magit-sequence-continue})
+@kindex V V
 @findex magit-sequence-continue
 Resume the current cherry-pick or revert sequence.
 

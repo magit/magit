@@ -6262,7 +6262,7 @@ features the following suffix commands.
 When a cherry-pick or revert is in progress, then the transient
 instead features the following suffix commands.
 
-- Key: V A (magit-sequence-continue) ::
+- Key: V V (magit-sequence-continue) ::
 
   Resume the current cherry-pick or revert sequence.
 
