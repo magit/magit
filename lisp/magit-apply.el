@@ -450,7 +450,7 @@ ignored) files."
           (default (or (magit-section-value-if 'file)
                        (magit-file-relative-name)))
           (default (car (member default choices))))
-     (list (magit-completing-read-multiple "Unstage file,s" choices
+     (list (magit-completing-read-multiple "Unstage file,s: " choices
                                            nil t nil nil default))))
   (magit-with-toplevel
     ;; For backward compatibility, and because of
