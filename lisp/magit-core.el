@@ -37,7 +37,8 @@
 (require 'magit-transient)
 (require 'magit-autorevert)
 
-(when (magit--libgit-available-p)
+(when (and (not magit-inhibit-libgit)
+           (magit--libgit-available-p))
   (condition-case err
       (require 'magit-libgit)
     (error
