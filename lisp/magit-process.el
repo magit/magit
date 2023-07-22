@@ -802,17 +802,14 @@ Magit status buffer."
 (defun magit-process-yes-or-no-prompt (process string)
   "Forward Yes-or-No prompts to the user."
   (when-let ((beg (string-match magit-process-yes-or-no-prompt-regexp string)))
-    (let ((max-mini-window-height 30))
-      (process-send-string
-       process
-       (downcase
-        (concat
-         (match-string
-          (if (save-match-data
-                (magit-process-kill-on-abort process
-                  (yes-or-no-p (substring string 0 beg)))) 1 2)
-          string)
-         "\n"))))))
+    (process-send-string
+     process
+     (if (save-match-data
+           (let ((max-mini-window-height 30))
+             (magit-process-kill-on-abort process
+               (yes-or-no-p (substring string 0 beg)))))
+         (concat (downcase (match-string 1 string)) "\n")
+       (concat (downcase (match-string 2 string)) "\n")))))
 
 (defun magit-process-password-auth-source (key)
   "Use `auth-source-search' to get a password.
