@@ -902,11 +902,12 @@ from the user."
 
 (defun magit-process-username-prompt (process string)
   "Forward username prompts to the user."
-  (--when-let (magit-process-match-prompt
-               magit-process-username-prompt-regexps string)
+  (when-let ((prompt (magit-process-match-prompt
+                      magit-process-username-prompt-regexps string)))
     (process-send-string
-     process (magit-process-kill-on-abort process
-               (concat (read-string it nil nil (user-login-name)) "\n")))))
+     process
+     (magit-process-kill-on-abort process
+       (concat (read-string process nil nil (user-login-name)) "\n")))))
 
 (defun magit-process-match-prompt (prompts string)
   "Match STRING against PROMPTS and set match data.
