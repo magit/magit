@@ -237,23 +237,23 @@ specifying a list of files to be stashed."
 ;;;###autoload
 (defun magit-stash-apply (stash)
   "Apply a stash to the working tree.
-Try to preserve the stash index.  If that fails because there
-are staged changes, apply without preserving the stash index."
+If nothing is staged, then try to reinstate the stashed index.
+Doing so is not possible if there are staged changes."
   (interactive (list (magit-read-stash "Apply stash")))
-  (if (= (magit-call-git "stash" "apply" "--index" stash) 0)
-      (magit-refresh)
-    (magit-run-git "stash" "apply" stash)))
+  (magit-run-git "stash" "apply" stash
+                 (and (not (magit-anything-staged-p))
+                      "--index")))
 
 ;;;###autoload
 (defun magit-stash-pop (stash)
   "Apply a stash to the working tree and remove it from stash list.
-Try to preserve the stash index.  If that fails because there
-are staged changes, apply without preserving the stash index
-and forgo removing the stash."
+If nothing is staged, then try to reinstate the stashed index.
+Doing so is not possible if there are staged changes.  Do not
+remove the stash, if it cannot be applied."
   (interactive (list (magit-read-stash "Pop stash")))
-  (if (= (magit-call-git "stash" "apply" "--index" stash) 0)
-      (magit-stash-drop stash)
-    (magit-run-git "stash" "apply" stash)))
+  (magit-run-git "stash" "apply" stash
+                 (and (not (magit-anything-staged-p))
+                      "--index")))
 
 ;;;###autoload
 (defun magit-stash-drop (stash)
