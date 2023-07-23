@@ -773,20 +773,24 @@ Magit status buffer."
       (run-hook-with-args-until-success 'magit-process-prompt-functions
                                         proc string))))
 
-(defmacro magit-process-kill-on-abort (proc &rest body)
-  (declare (indent 1) (debug (form body)))
-  (let ((map (cl-gensym)))
-    `(let ((,map (make-sparse-keymap)))
-       (set-keymap-parent ,map minibuffer-local-map)
-       ;; Note: Leaving (kbd ...) unevaluated leads to the
-       ;; magit-process:password-prompt test failing.
-       (keymap-set ,map "C-g"
-                   (lambda ()
-                     (interactive)
-                     (ignore-errors (kill-process ,proc))
-                     (abort-recursive-edit)))
-       (let ((minibuffer-local-map ,map))
-         ,@body))))
+(defun magit-process-make-keymap (process parent)
+  "Remap `abort-minibuffers' to a command that also kills PROCESS.
+PARENT is used as the parent of the returned keymap."
+  (let ((cmd (lambda ()
+               (interactive)
+               (ignore-errors (kill-process process))
+               (abort-minibuffers))))
+    (define-keymap :parent parent
+      "C-g" cmd
+      "<remap> <abort-minibuffers>" cmd)))
+
+(defmacro magit-process-kill-on-abort (process &rest body)
+  (declare (indent 1)
+           (debug (form body))
+           (obsolete magit-process-make-keymap "Magit 4.0.0"))
+  `(let ((minibuffer-local-map
+          (magit-process-make-keymap ,process minibuffer-local-map)))
+     ,@body))
 
 (defun magit-process-remove-bogus-errors (str)
   (save-match-data
@@ -805,9 +809,14 @@ Magit status buffer."
     (process-send-string
      process
      (if (save-match-data
-           (let ((max-mini-window-height 30))
-             (magit-process-kill-on-abort process
-               (yes-or-no-p (substring string 0 beg)))))
+           (let ((max-mini-window-height 30)
+                 (minibuffer-local-map
+                  (magit-process-make-keymap process minibuffer-local-map))
+                 ;; In case yes-or-no-p is fset to that, but does
+                 ;; not cover use-dialog-box-p and y-or-n-p-read-key.
+                 (y-or-n-p-map
+                  (magit-process-make-keymap process y-or-n-p-map)))
+             (yes-or-no-p (substring string 0 beg))))
          (concat (downcase (match-string 1 string)) "\n")
        (concat (downcase (match-string 2 string)) "\n")))))
 
@@ -890,12 +899,14 @@ from the user."
   (when-let ((prompt (magit-process-match-prompt
                       magit-process-password-prompt-regexps string)))
     (process-send-string
-     process (magit-process-kill-on-abort process
-               (concat (or (and-let* ((key (match-string 99 string)))
-                             (run-hook-with-args-until-success
-                              'magit-process-find-password-functions key))
-                           (read-passwd prompt))
-                       "\n")))))
+     process
+     (concat (or (and-let* ((key (match-string 99 string)))
+                   (run-hook-with-args-until-success
+                    'magit-process-find-password-functions key))
+                 (let ((read-passwd-map
+                        (magit-process-make-keymap process read-passwd-map)))
+                   (read-passwd prompt)))
+             "\n"))))
 
 (defun magit-process-username-prompt (process string)
   "Forward username prompts to the user."
@@ -903,8 +914,9 @@ from the user."
                       magit-process-username-prompt-regexps string)))
     (process-send-string
      process
-     (magit-process-kill-on-abort process
-       (concat (read-string process nil nil (user-login-name)) "\n")))))
+     (let ((minibuffer-local-map
+            (magit-process-make-keymap process minibuffer-local-map)))
+       (concat (read-string prompt nil nil (user-login-name)) "\n")))))
 
 (defun magit-process-match-prompt (prompts string)
   "Match STRING against PROMPTS and set match data.
