@@ -1118,6 +1118,9 @@ tracked file."
   (magit-git-items "ls-files" "-z" "--others" "--ignored"
                    "--exclude-standard" "--directory"))
 
+(defun magit-stashed-files (stash)
+  (apply #'magit-git-items "stash" "show" "-z" "--name-only" stash))
+
 (defun magit-skip-worktree-files ()
   (--keep (and (= (aref it 0) ?S)
                (substring it 2))

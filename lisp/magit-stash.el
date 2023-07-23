@@ -241,7 +241,8 @@ If nothing is staged, then try to reinstate the stashed index.
 Doing so is not possible if there are staged changes."
   (interactive (list (magit-read-stash "Apply stash")))
   (magit-run-git "stash" "apply" stash
-                 (and (not (magit-anything-staged-p))
+                 (and (not (apply #'magit-anything-staged-p nil
+                                  (magit-stashed-files stash)))
                       "--index")))
 
 ;;;###autoload
@@ -252,7 +253,8 @@ Doing so is not possible if there are staged changes.  Do not
 remove the stash, if it cannot be applied."
   (interactive (list (magit-read-stash "Pop stash")))
   (magit-run-git "stash" "apply" stash
-                 (and (not (magit-anything-staged-p))
+                 (and (not (apply #'magit-anything-staged-p nil
+                                  (magit-stashed-files stash)))
                       "--index")))
 
 ;;;###autoload
