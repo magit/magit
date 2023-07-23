@@ -37,6 +37,8 @@
 (require 'ansi-color)
 (require 'with-editor)
 
+(defvar y-or-n-p-map)
+
 ;;; Options
 
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
