@@ -431,7 +431,7 @@ Git, fallback to using `rename-file'."
       (user-error "%s already exists" dstfile))
     (unless (file-exists-p dstdir)
       (user-error "Destination directory %s does not exist" dstdir))
-    (if (magit-file-tracked-p (magit-convert-filename-for-git file))
+    (if (magit-file-tracked-p file)
         (magit-call-git "mv"
                         (magit-convert-filename-for-git file)
                         (magit-convert-filename-for-git newname))

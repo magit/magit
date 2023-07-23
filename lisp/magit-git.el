@@ -1074,10 +1074,11 @@ tracked file."
 
 (defun magit-file-ignored-p (file)
   (magit-git-string-p "ls-files" "--others" "--ignored" "--exclude-standard"
-                      "--" file))
+                      "--" (magit-convert-filename-for-git file)))
 
 (defun magit-file-tracked-p (file)
-  (magit-git-success "ls-files" "--error-unmatch" "--" file))
+  (magit-git-success "ls-files" "--error-unmatch"
+                     "--" (magit-convert-filename-for-git file)))
 
 (defun magit-list-files (&rest args)
   (apply #'magit-git-items "ls-files" "-z" "--full-name" args))
