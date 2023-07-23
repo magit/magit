@@ -779,10 +779,13 @@ PARENT is used as the parent of the returned keymap."
   (let ((cmd (lambda ()
                (interactive)
                (ignore-errors (kill-process process))
-               (abort-minibuffers))))
+               (if (fboundp 'abort-minibuffers)
+                   (abort-minibuffers)
+                 (abort-recursive-edit)))))
     (define-keymap :parent parent
       "C-g" cmd
-      "<remap> <abort-minibuffers>" cmd)))
+      "<remap> <abort-minibuffers>" cmd
+      "<remap> <abort-recursive-edit>" cmd)))
 
 (defmacro magit-process-kill-on-abort (process &rest body)
   (declare (indent 1)
