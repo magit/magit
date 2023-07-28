@@ -383,7 +383,7 @@ range)."
                         "Compare range or commit"
                         nil mbase))))
     (--if-let (magit-split-range input)
-        (-cons-to-list it)
+        (list (car it) (cdr it))
       (list input nil))))
 
 (defun magit-ediff-read-files (revA revB &optional fileB)
