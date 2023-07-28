@@ -1068,11 +1068,11 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                             (setq revs (car revs))
                             (not (string-search ".." revs))
                             (not (member revs '("--all" "--branches")))
-                            (-none-p (lambda (arg)
-                                       (--any-p
-                                        (string-prefix-p it arg)
-                                        magit-log-disable-graph-hack-args))
-                                     args)
+                            (not (seq-some
+                                  (lambda (arg)
+                                    (--any-p (string-prefix-p it arg)
+                                             magit-log-disable-graph-hack-args))
+                                  args))
                             (magit-git-string "rev-list" "--count"
                                               "--first-parent" args revs))))
       (setq revs (if (< (string-to-number count) limit)
