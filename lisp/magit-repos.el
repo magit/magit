@@ -291,8 +291,8 @@ If it contains \"%s\" then the directory is substituted for that."
                       (caar magit-repolist-columns))
                   flip))))
   (setq tabulated-list-format
-        (vconcat (-map-indexed
-                  (lambda (idx column)
+        (vconcat (seq-map-indexed
+                  (lambda (column idx)
                     (pcase-let* ((`(,title ,width ,_fn ,props) column)
                                  (sort-set (assoc :sort props))
                                  (sort-fn (cadr sort-set)))
