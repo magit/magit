@@ -130,9 +130,10 @@ the upstream."
               (not (or (magit-get-upstream-branch branch)
                        (magit--unnamed-upstream-p remote merge)
                        (magit--valid-upstream-p remote merge))))
-      (let* ((branches (-union (--map (concat it "/" branch)
-                                      (magit-list-remotes))
-                               (magit-list-remote-branch-names)))
+      (let* ((branches (cl-union (--map (concat it "/" branch)
+                                        (magit-list-remotes))
+                                 (magit-list-remote-branch-names)
+                                 :test #'equal))
              (upstream (magit-completing-read
                         (format "Set upstream of %s and push there" branch)
                         branches nil nil nil 'magit-revision-history

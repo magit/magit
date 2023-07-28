@@ -2606,12 +2606,13 @@ and this option only controls what face is used.")
     (prompt &optional remote default local-branch require-match)
   (let ((choice (magit-completing-read
                  prompt
-                 (-union (and local-branch
-                              (if remote
-                                  (concat remote "/" local-branch)
-                                (--map (concat it "/" local-branch)
-                                       (magit-list-remotes))))
-                         (magit-list-remote-branch-names remote t))
+                 (cl-union (and local-branch
+                                (if remote
+                                    (concat remote "/" local-branch)
+                                  (--map (concat it "/" local-branch)
+                                         (magit-list-remotes))))
+                           (magit-list-remote-branch-names remote t)
+                           :test #'equal)
                  nil require-match nil 'magit-revision-history default)))
     (if (or remote (string-match "\\`\\([^/]+\\)/\\(.+\\)" choice))
         choice
