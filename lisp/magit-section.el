@@ -2049,7 +2049,7 @@ Configuration'."
   (let ((entries (symbol-value hook)))
     (unless (listp entries)
       (setq entries (list entries)))
-    (--when-let (-remove #'functionp entries)
+    (--when-let (seq-remove #'functionp entries)
       (message "`%s' contains entries that are no longer valid.
 %s\nUsing standard value instead.  Please re-configure hook variable."
                hook

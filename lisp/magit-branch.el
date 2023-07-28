@@ -593,7 +593,7 @@ prompt is confusing."
              (list (magit-read-branch-prefer-other
                     (if force "Force delete branch" "Delete branch")))))
      (unless force
-       (when-let ((unmerged (-remove #'magit-branch-merged-p branches)))
+       (when-let ((unmerged (seq-remove #'magit-branch-merged-p branches)))
          (if (magit-confirm 'delete-unmerged-branch
                "Delete unmerged branch %s"
                "Delete %d unmerged branches"
