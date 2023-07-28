@@ -126,10 +126,10 @@ Rules that are defined in that file affect all local repositories."
                    ;; The untracked section of the status buffer lists
                    ;; directories containing only untracked files.
                    ;; Add those as candidates.
-                   (-filter #'directory-name-p
-                            (magit-list-files
-                             "--other" "--exclude-standard" "--directory"
-                             "--no-empty-directory" "--" base)))
+                   (seq-filter #'directory-name-p
+                               (magit-list-files
+                                "--other" "--exclude-standard" "--directory"
+                                "--no-empty-directory" "--" base)))
                   #'string-lessp)))))
     (when default
       (setq default (concat "/" default))

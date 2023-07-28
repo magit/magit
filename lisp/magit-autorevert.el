@@ -251,8 +251,8 @@ defaults to nil) for any BUFFER."
           (not auto-revert-buffer-list-filter))
       (funcall fn)
     (let ((auto-revert-buffer-list
-           (-filter auto-revert-buffer-list-filter
-                    auto-revert-buffer-list)))
+           (seq-filter auto-revert-buffer-list-filter
+                       auto-revert-buffer-list)))
       (funcall fn))
     (unless auto-revert-timer
       (auto-revert-set-timer))))

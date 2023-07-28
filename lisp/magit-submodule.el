@@ -388,12 +388,12 @@ to recover from making a mistake here, but don't count on it."
   (magit-with-toplevel
     (when-let
         ((modified
-          (-filter (lambda (module)
-                     (let ((default-directory (file-name-as-directory
-                                               (expand-file-name module))))
-                       (and (cddr (directory-files default-directory))
-                            (magit-anything-modified-p))))
-                   modules)))
+          (seq-filter (lambda (module)
+                        (let ((default-directory (file-name-as-directory
+                                                  (expand-file-name module))))
+                          (and (cddr (directory-files default-directory))
+                               (magit-anything-modified-p))))
+                      modules)))
       (if (member "--force" args)
           (if (magit-confirm 'remove-dirty-modules
                 "Remove dirty module %s"

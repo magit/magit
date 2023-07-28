@@ -729,9 +729,9 @@ See info node `(magit)Debugging Tools' for more information."
              (format " (%s)\n" (magit--safe-git-version))))
     (insert (format "exec-path: %S\n" exec-path))
     (--when-let (cl-set-difference
-                 (-filter #'file-exists-p (remq nil (parse-colon-path
-                                                     (getenv "PATH"))))
-                 (-filter #'file-exists-p (remq nil exec-path))
+                 (seq-filter #'file-exists-p (remq nil (parse-colon-path
+                                                        (getenv "PATH"))))
+                 (seq-filter #'file-exists-p (remq nil exec-path))
                  :test #'file-equal-p)
       (insert (format "  entries in PATH, but not in exec-path: %S\n" it)))
     (dolist (execdir exec-path)
@@ -2807,7 +2807,7 @@ out.  Only existing branches can be selected."
         (progn
           (setq modules (magit-list-module-paths))
           (when predicate
-            (setq modules (-filter predicate modules)))
+            (setq modules (seq-filter predicate modules)))
           (unless modules
             (if predicate
                 (user-error "No modules satisfying %s available" predicate)
@@ -2815,7 +2815,7 @@ out.  Only existing branches can be selected."
       (setq modules (magit-region-values 'magit-module-section))
       (when modules
         (when predicate
-          (setq modules (-filter predicate modules)))
+          (setq modules (seq-filter predicate modules)))
         (unless modules
           (user-error "No modules satisfying %s selected" predicate))))
     (if (length> modules 1)

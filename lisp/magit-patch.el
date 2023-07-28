@@ -107,7 +107,7 @@ which creates patches for all commits that are reachable from
                    range
                  (format "%s~..%s" range range))))
            (let ((args (transient-args 'magit-patch-create)))
-             (list (-filter #'stringp args)
+             (list (seq-filter #'stringp args)
                    (cdr (assoc "--" args)))))))
   (if (not range)
       (transient-setup 'magit-patch-create)
