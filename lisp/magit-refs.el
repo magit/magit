@@ -570,7 +570,9 @@ line is inserted at all."
                                        (concat "refs/remotes/" remote)
                                        magit-buffer-arguments))
           (pcase-let ((`(,head-branch ,branch ,ref ,msg)
-                       (-replace "" nil (split-string line "\0"))))
+                       (cl-substitute "" nil
+                                      (split-string line "\0")
+                                      :test #'equal)))
             (if head-branch
                 ;; Note: Use `ref' instead of `branch' for the check
                 ;; below because 'refname:short' shortens the remote
@@ -657,7 +659,7 @@ line is inserted at all."
 (defun magit-refs--format-local-branch (line)
   (pcase-let ((`(,head ,branch ,ref ,upstream ,u:ref ,u:track
                        ,push ,p:ref ,p:track ,msg)
-               (-replace "" nil (split-string line "\0"))))
+               (cl-substitute "" nil (split-string line "\0") :test #'equal)))
     (when (or (not branch)
               (magit-refs--insert-refname-p branch))
       (let* ((headp (equal head "*"))
