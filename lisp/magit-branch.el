@@ -611,7 +611,7 @@ prompt is confusing."
        (let ((len (length ambiguous)))
          (cond
           ((= len 1)
-           (format "%s is" (-first #'magit-ref-ambiguous-p branches)))
+           (format "%s is" (seq-find #'magit-ref-ambiguous-p branches)))
           ((= len (length refs))
            (format "These %s names are" len))
           (t

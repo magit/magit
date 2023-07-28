@@ -560,11 +560,11 @@ acts similarly to `completing-read', except for the following:
   `magit-builtin-completing-read'."
   (setq magit-completing-read--silent-default nil)
   (if-let ((dwim (and def
-                      (nth 2 (-first (pcase-lambda (`(,cmd ,re ,_))
-                                       (and (eq this-command cmd)
-                                            (or (not re)
-                                                (string-match-p re prompt))))
-                                     magit-dwim-selection)))))
+                      (nth 2 (seq-find (pcase-lambda (`(,cmd ,re ,_))
+                                         (and (eq this-command cmd)
+                                              (or (not re)
+                                                  (string-match-p re prompt))))
+                                       magit-dwim-selection)))))
       (if (eq dwim 'ask)
           (if (y-or-n-p (format "%s %s? " prompt def))
               def
