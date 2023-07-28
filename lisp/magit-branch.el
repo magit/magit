@@ -599,7 +599,8 @@ prompt is confusing."
                "Delete %d unmerged branches"
                'noabort unmerged)
              (setq force branches)
-           (or (setq branches (-difference branches unmerged))
+           (or (setq branches
+                     (cl-set-difference branches unmerged :test #'equal))
                (user-error "Abort")))))
      (list branches force)))
   (let* ((refs (mapcar #'magit-ref-fullname branches))

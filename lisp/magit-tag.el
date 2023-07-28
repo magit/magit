@@ -95,8 +95,8 @@ defaulting to the tag at point.
           (rtags  (prog2 (message "Determining remote tags...")
                       (magit-remote-list-tags remote)
                     (message "Determining remote tags...done")))
-          (ltags  (-difference tags rtags))
-          (rtags  (-difference rtags tags)))
+          (ltags  (cl-set-difference tags rtags :test #'equal))
+          (rtags  (cl-set-difference rtags tags :test #'equal)))
      (unless (or ltags rtags)
        (message "Same tags exist locally and remotely"))
      (unless (magit-confirm t
