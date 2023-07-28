@@ -348,9 +348,7 @@ commits before and half after."
 (defun magit-log-arguments (&optional mode)
   "Return the current log arguments."
   (if (memq transient-current-command '(magit-log magit-log-refresh))
-      (pcase-let ((`(,args ,alist)
-                   (-separate #'atom (transient-get-value))))
-        (list args (cdr (assoc "--" alist))))
+      (magit--transient-args-and-files)
     (magit-log--get-value (or mode 'magit-log-mode))))
 
 (defun magit-log--get-value (mode &optional use-buffer-args)
@@ -383,9 +381,7 @@ commits before and half after."
   (pcase-let* ((obj  (oref obj prototype))
                (mode (or (oref obj major-mode) major-mode))
                (key  (intern (format "magit-log:%s" mode)))
-               (`(,args ,alist)
-                (-separate #'atom (transient-get-value)))
-               (files (cdr (assoc "--" alist))))
+               (`(,args ,files) (magit--transient-args-and-files)))
     (put mode 'magit-log-current-arguments args)
     (when save
       (setf (alist-get key transient-values) args)

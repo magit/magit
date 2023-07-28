@@ -219,6 +219,15 @@
                                       'transient-value))))))
      (propertize "]" 'face 'transient-inactive-value))))
 
+;;; Utilities
+
+(defun magit--transient-args-and-files ()
+  "Return (args files) for use by log and diff functions.
+The value derives from that returned by `transient-get-value'."
+  (let ((args (transient-get-value)))
+    (list (seq-filter #'atom args)
+          (cdr (assoc "--" args)))))
+
 ;;; _
 (provide 'magit-transient)
 ;;; magit-transient.el ends here

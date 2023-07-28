@@ -836,9 +836,7 @@ and `:slant'."
 (defun magit-diff-arguments (&optional mode)
   "Return the current diff arguments."
   (if (memq transient-current-command '(magit-diff magit-diff-refresh))
-      (pcase-let ((`(,args ,alist)
-                   (-separate #'atom (transient-get-value))))
-        (list args (cdr (assoc "--" alist))))
+      (magit--transient-args-and-files)
     (magit-diff--get-value (or mode 'magit-diff-mode))))
 
 (defun magit-diff--get-value (mode &optional use-buffer-args)
@@ -871,9 +869,7 @@ and `:slant'."
   (pcase-let* ((obj  (oref obj prototype))
                (mode (or (oref obj major-mode) major-mode))
                (key  (intern (format "magit-diff:%s" mode)))
-               (`(,args ,alist)
-                (-separate #'atom (transient-get-value)))
-               (files (cdr (assoc "--" alist))))
+               (`(,args ,files) (magit--transient-args-and-files)))
     (put mode 'magit-diff-current-arguments args)
     (when save
       (setf (alist-get key transient-values) args)
