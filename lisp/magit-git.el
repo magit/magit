@@ -2357,21 +2357,22 @@ and this option only controls what face is used.")
               (magit-branch-remote  (push name remotes))
               (t                    (push name other)))))
         (setq remotes
-              (-keep
-               (lambda (name)
-                 (if (string-match "\\`\\([^/]*\\)/\\(.*\\)\\'" name)
-                     (let ((r (match-string 1 name))
-                           (b (match-string 2 name)))
-                       (and (not (equal b "HEAD"))
-                            (if (equal (concat "refs/remotes/" name)
-                                       (magit-git-string
-                                        "symbolic-ref"
-                                        (format "refs/remotes/%s/HEAD" r)))
-                                (magit--propertize-face
-                                 name 'magit-branch-remote-head)
-                              name)))
-                   name))
-               remotes))
+              (delq nil
+                    (mapcar
+                     (lambda (name)
+                       (if (string-match "\\`\\([^/]*\\)/\\(.*\\)\\'" name)
+                           (let ((r (match-string 1 name))
+                                 (b (match-string 2 name)))
+                             (and (not (equal b "HEAD"))
+                                  (if (equal (concat "refs/remotes/" name)
+                                             (magit-git-string
+                                              "symbolic-ref"
+                                              (format "refs/remotes/%s/HEAD" r)))
+                                      (magit--propertize-face
+                                       name 'magit-branch-remote-head)
+                                    name)))
+                         name))
+                     remotes)))
         (let* ((current (magit-get-current-branch))
                (target  (magit-get-upstream-branch current)))
           (dolist (name branches)

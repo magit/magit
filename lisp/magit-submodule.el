@@ -658,7 +658,12 @@ These sections can be expanded to show the respective commits."
 
 (defun magit-submodule-list-refresh ()
   (setq tabulated-list-entries
-        (-keep (lambda (module)
+        ;; Backport version 2.23 of seq lacks seq-keep.  Once that is
+        ;; available trace this commment to find more instances where
+        ;; it should be used.
+        (delq nil
+              (mapcar
+               (lambda (module)
                  (let ((default-directory
                         (expand-file-name (file-name-as-directory module))))
                    (and (file-exists-p ".git")
@@ -673,7 +678,7 @@ These sections can be expanded to show the respective commits."
                                                            ,@props))
                                              ""))
                                        magit-repolist-columns))))))
-               (magit-list-module-paths)))
+               (magit-list-module-paths))))
   (message "Listing submodules...")
   (tabulated-list-init-header)
   (tabulated-list-print t)
