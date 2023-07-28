@@ -674,16 +674,17 @@ Magit status buffer."
 (defun magit-process--format-arguments (program args)
   (cond
    ((and args (equal program (magit-git-executable)))
-    (setq args (-split-at (length magit-git-global-arguments) args))
-    (concat (propertize (file-name-nondirectory program)
-                        'font-lock-face 'magit-section-heading)
-            " "
-            (propertize (magit--ellipsis)
-                        'font-lock-face 'magit-section-heading
-                        'help-echo (mapconcat #'identity (car args) " "))
-            " "
-            (propertize (mapconcat #'shell-quote-argument (cadr args) " ")
-                        'font-lock-face 'magit-section-heading)))
+    (let ((global (length magit-git-global-arguments)))
+      (concat
+       (propertize (file-name-nondirectory program)
+                   'font-lock-face 'magit-section-heading)
+       " "
+       (propertize (magit--ellipsis)
+                   'font-lock-face 'magit-section-heading
+                   'help-echo (mapconcat #'identity (seq-take args global) " "))
+       " "
+       (propertize (mapconcat #'shell-quote-argument (seq-drop args global) " ")
+                   'font-lock-face 'magit-section-heading))))
    ((and args (equal program shell-file-name))
     (propertize (cadr args)
                 'font-lock-face 'magit-section-heading))
@@ -745,10 +746,10 @@ Magit status buffer."
         (--when-let
             (magit-get-section
              `((commit . ,(magit-rev-parse "HEAD"))
-               (,(pcase (car (cadr (-split-at
-                                    (1+ (length magit-git-global-arguments))
-                                    (process-command process))))
-                   ((or "rebase" "am")   'rebase-sequence)
+               (,(pcase (car (seq-drop
+                              (process-command process)
+                              (1+ (length magit-git-global-arguments))))
+                   ((or "rebase" "am") 'rebase-sequence)
                    ((or "cherry-pick" "revert") 'sequence)))
                (status)))
           (goto-char (oref it start))
