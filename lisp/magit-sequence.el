@@ -335,12 +335,11 @@ the process manually."
                       (list commits))))
     (magit-run-git-sequencer
      (if revert "revert" "cherry-pick")
-     (pcase-let ((`(,merge ,non-merge)
-                  (-separate #'magit-merge-commit-p commits)))
+     (let ((merges (seq-filter #'magit-merge-commit-p commits)))
        (cond
-        ((not merge)
+        ((not merges)
          (--remove (string-prefix-p "--mainline=" it) args))
-        (non-merge
+        ((cl-set-difference commits merges :test #'equal)
          (user-error "Cannot %s merge and non-merge commits at once"
                      command))
         ((--first (string-prefix-p "--mainline=" it) args)
