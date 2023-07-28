@@ -314,9 +314,8 @@ depending on the value of option `magit-commit-squash-confirm'."
               (magit-with-editor
                 (magit-call-git
                  "commit" "--no-gpg-sign"
-                 (-remove-first
-                  (apply-partially #'string-prefix-p "--gpg-sign=")
-                  args)))
+                 (seq-remove (apply-partially #'string-prefix-p "--gpg-sign=")
+                             args)))
             (magit-run-git-with-editor "commit" args))
           t) ; The commit was created; used by below lambda.
       (let ((winconf (and magit-commit-show-diff
