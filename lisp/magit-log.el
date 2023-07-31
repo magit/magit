@@ -619,8 +619,8 @@ commits before and half after."
                        (magit-list-refnames nil t)
                        nil nil nil 'magit-revision-history
                        (or (magit-branch-or-commit-at-point)
-                           (unless use-current
-                             (magit-get-previous-branch)))
+                           (and (not use-current)
+                                (magit-get-previous-branch)))
                        nil t)
                       "[, ]" t))))
 

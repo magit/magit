@@ -1087,7 +1087,9 @@ tracked file."
   (magit-list-files "--cached"))
 
 (defun magit-untracked-files (&optional all files)
-  (magit-list-files "--other" (unless all "--exclude-standard") "--" files))
+  (magit-list-files "--other"
+                    (and (not all) "--exclude-standard")
+                    "--" files))
 
 (defun magit-modified-files (&optional nomodules files)
   (magit-git-items "diff-index" "-z" "--name-only"
@@ -1788,14 +1790,15 @@ according to the branch type."
 (defun magit-get-@{push}-branch (&optional branch)
   (let ((ref (magit-rev-parse "--symbolic-full-name"
                               (concat branch "@{push}"))))
-    (when (and ref (string-prefix-p "refs/remotes/" ref))
-      (substring ref 13))))
+    (and ref
+         (string-prefix-p "refs/remotes/" ref)
+         (substring ref 13))))
 
 (defun magit-get-remote (&optional branch)
-  (when (or branch (setq branch (magit-get-current-branch)))
-    (let ((remote (magit-get "branch" branch "remote")))
-      (unless (equal remote ".")
-        remote))))
+  (and (or branch (setq branch (magit-get-current-branch)))
+       (let ((remote (magit-get "branch" branch "remote")))
+         (and (not (equal remote "."))
+              remote))))
 
 (defun magit-get-some-remote (&optional branch)
   (or (magit-get-remote branch)

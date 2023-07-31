@@ -791,12 +791,13 @@ Save current message first."
       (unless (eq (char-before) ?\n)
         (insert ?\n))
       (setq str (buffer-string)))
-    (unless (string-match "\\`[ \t\n\r]*\\'" str)
-      (when (string-match "\\`\n\\{2,\\}" str)
-        (setq str (replace-match "\n" t t str)))
-      (when (string-match "\n\\{2,\\}\\'" str)
-        (setq str (replace-match "\n" t t str)))
-      str)))
+    (and (not (string-match "\\`[ \t\n\r]*\\'" str))
+         (progn
+           (when (string-match "\\`\n\\{2,\\}" str)
+             (setq str (replace-match "\n" t t str)))
+           (when (string-match "\n\\{2,\\}\\'" str)
+             (setq str (replace-match "\n" t t str)))
+           str))))
 
 ;;; Utilities
 

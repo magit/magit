@@ -1346,9 +1346,9 @@ anything this time around.
              (magit-insert-section--parent  ,s)
              (magit-insert-section--oldroot
               (or magit-insert-section--oldroot
-                  (unless magit-insert-section--parent
-                    (prog1 magit-root-section
-                      (setq magit-root-section ,s))))))
+                  (and (not magit-insert-section--parent)
+                       (prog1 magit-root-section
+                         (setq magit-root-section ,s))))))
          (catch 'cancel-section
            ,@(if s*
                  `((let ((,s* ,s))
