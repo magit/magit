@@ -339,13 +339,13 @@ depending on the value of option `magit-commit-squash-confirm'."
           (apply #'magit-diff-staged nil (magit-diff-arguments)))))))
 
 (defun magit-commit-amend-assert (&optional commit)
-  (--when-let (magit-list-publishing-branches commit)
+  (when-let ((branches (magit-list-publishing-branches commit)))
     (let ((m1 "This commit has already been published to ")
           (m2 ".\nDo you really want to modify it"))
       (magit-confirm 'amend-published
         (concat m1 "%s" m2)
         (concat m1 "%d public branches" m2)
-        nil it))))
+        nil branches))))
 
 (defun magit-commit-assert (args &optional strict)
   (cond

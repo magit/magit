@@ -629,12 +629,12 @@ the output in the kill ring.
             (when (featurep 'package)
               (push 'elpa debug)
               (ignore-errors
-                (--when-let (assq 'magit package-alist)
+                (when-let ((version (cadr (assq 'magit package-alist))))
                   (push t debug)
                   (setq magit-version
                         (and (fboundp 'package-desc-version)
                              (package-version-join
-                              (package-desc-version (cadr it))))))))
+                              (package-desc-version version)))))))
             (progn
               (push 'dirname debug)
               (let ((dirname (file-name-nondirectory

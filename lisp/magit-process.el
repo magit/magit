@@ -743,16 +743,16 @@ Magit status buffer."
                 (status-buf (with-current-buffer process-buf
                               (magit-get-mode-buffer 'magit-status-mode))))
       (with-current-buffer status-buf
-        (--when-let
-            (magit-get-section
-             `((commit . ,(magit-rev-parse "HEAD"))
-               (,(pcase (car (seq-drop
-                              (process-command process)
-                              (1+ (length magit-git-global-arguments))))
-                   ((or "rebase" "am") 'rebase-sequence)
-                   ((or "cherry-pick" "revert") 'sequence)))
-               (status)))
-          (goto-char (oref it start))
+        (when-let ((section
+                    (magit-get-section
+                     `((commit . ,(magit-rev-parse "HEAD"))
+                       (,(pcase (car (seq-drop
+                                      (process-command process)
+                                      (1+ (length magit-git-global-arguments))))
+                           ((or "rebase" "am") 'rebase-sequence)
+                           ((or "cherry-pick" "revert") 'sequence)))
+                       (status)))))
+          (goto-char (oref section start))
           (magit-section-update-highlight))))))
 
 (defun magit-process-filter (proc string)

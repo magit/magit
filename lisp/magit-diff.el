@@ -2747,8 +2747,9 @@ or a ref which is not a branch, then it inserts nothing."
 (defun magit-insert-revision-headers ()
   "Insert headers about the commit into a revision buffer."
   (magit-insert-section (headers)
-    (--when-let (magit-rev-format "%D" magit-buffer-revision "--decorate=full")
-      (insert (magit-format-ref-labels it) ?\s))
+    (when-let ((string (magit-rev-format "%D" magit-buffer-revision
+                                         "--decorate=full")))
+      (insert (magit-format-ref-labels string) ?\s))
     (insert (propertize
              (magit-rev-parse (magit--rev-dereference magit-buffer-revision))
              'font-lock-face 'magit-hash))
@@ -2828,10 +2829,10 @@ Refer to user option `magit-revision-insert-related-refs-display-alist'."
                    ('author '("^Author:     " . nil))
                    ('committer '(nil . "^Commit:     "))
                    (_ magit-revision-show-gravatars))))
-      (--when-let (and author (magit-rev-format "%aE" rev))
-        (magit-insert-revision-gravatar beg rev it author))
-      (--when-let (and committer (magit-rev-format "%cE" rev))
-        (magit-insert-revision-gravatar beg rev it committer)))))
+      (when-let ((email (and author (magit-rev-format "%aE" rev))))
+        (magit-insert-revision-gravatar beg rev email author))
+      (when-let ((email (and committer (magit-rev-format "%cE" rev))))
+        (magit-insert-revision-gravatar beg rev email committer)))))
 
 (defun magit-insert-revision-gravatar (beg rev email regexp)
   (save-excursion
@@ -3036,7 +3037,7 @@ is determined using other means.  In `magit-revision-mode'
 buffers the type is always `committed'.
 
 Do not confuse this with `magit-diff-scope' (which see)."
-  (--when-let (or section (magit-current-section))
+  (when-let ((section (or section (magit-current-section))))
     (cond ((derived-mode-p 'magit-revision-mode 'magit-stash-mode) 'committed)
           ((derived-mode-p 'magit-diff-mode)
            (let ((range magit-buffer-range)
@@ -3056,24 +3057,24 @@ Do not confuse this with `magit-diff-scope' (which see)."
                       'undefined)) ; i.e., committed and staged
                    (t 'committed))))
           ((derived-mode-p 'magit-status-mode)
-           (let ((stype (oref it type)))
+           (let ((stype (oref section type)))
              (if (memq stype '(staged unstaged tracked untracked))
                  stype
                (pcase stype
                  ((or 'file 'module)
-                  (let* ((parent (oref it parent))
+                  (let* ((parent (oref section parent))
                          (type   (oref parent type)))
                     (if (memq type '(file module))
                         (magit-diff-type parent)
                       type)))
-                 ('hunk (thread-first it
+                 ('hunk (thread-first section
                           (oref parent)
                           (oref parent)
                           (oref type)))))))
           ((derived-mode-p 'magit-log-mode)
-           (if (or (and (magit-section-match 'commit it)
-                        (oref it children))
-                   (magit-section-match [* file commit] it))
+           (if (or (and (magit-section-match 'commit section)
+                        (oref section children))
+                   (magit-section-match [* file commit] section))
                'committed
              'undefined))
           (t 'undefined))))
@@ -3104,8 +3105,8 @@ actually a `diff' but a `diffstat' section."
     (when (and section
                (or (not strict)
                    (and (not (eq (magit-diff-type section) 'untracked))
-                        (not (eq (--when-let (oref section parent)
-                                   (oref it type))
+                        (not (eq (and-let* ((parent (oref section parent)))
+                                   (oref parent type))
                                  'diffstat)))))
       (pcase (list (oref section type)
                    (and siblings t)

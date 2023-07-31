@@ -2049,11 +2049,11 @@ Configuration'."
   (let ((entries (symbol-value hook)))
     (unless (listp entries)
       (setq entries (list entries)))
-    (--when-let (seq-remove #'functionp entries)
+    (when-let ((invalid (seq-remove #'functionp entries)))
       (message "`%s' contains entries that are no longer valid.
 %s\nUsing standard value instead.  Please re-configure hook variable."
                hook
-               (mapconcat (lambda (sym) (format "  `%s'" sym)) it "\n"))
+               (mapconcat (lambda (sym) (format "  `%s'" sym)) invalid "\n"))
       (sit-for 5)
       (setq entries (eval (car (get hook 'standard-value)))))
     (dolist (entry entries)

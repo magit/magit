@@ -227,8 +227,9 @@ is done using `magit-find-index-noselect'."
           (when magit-wip-after-apply-mode
             (magit-wip-commit-after-apply (list file) " after un-/stage")))
       (message "Abort")))
-  (--when-let (magit-get-mode-buffer 'magit-status-mode)
-    (with-current-buffer it (magit-refresh)))
+  (when-let ((buffer (magit-get-mode-buffer 'magit-status-mode)))
+    (with-current-buffer buffer
+      (magit-refresh)))
   t)
 
 ;;; Find Config File

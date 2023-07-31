@@ -99,8 +99,8 @@ seconds of user inactivity.  That is not desirable."
 
 (defun magit-turn-on-auto-revert-mode-if-desired (&optional file)
   (if file
-      (--when-let (find-buffer-visiting file)
-        (with-current-buffer it
+      (when-let ((buffer (find-buffer-visiting file)))
+        (with-current-buffer buffer
           (magit-turn-on-auto-revert-mode-if-desired)))
     (when (and (not auto-revert-mode)        ; see #3014
                (not global-auto-revert-mode) ; see #3460

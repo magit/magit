@@ -394,19 +394,20 @@ when using `magit-branch-and-checkout'."
          (magit-process-sentinel process event)))))))
 
 (defun magit-branch-maybe-adjust-upstream (branch start-point)
-  (--when-let
-      (or (and (magit-get-upstream-branch branch)
-               (magit-get-indirect-upstream-branch start-point))
-          (and (magit-remote-branch-p start-point)
-               (let ((name (cdr (magit-split-branch-name start-point))))
-                 (seq-some (pcase-lambda (`(,upstream . ,rule))
-                             (and (magit-branch-p upstream)
-                                  (if (listp rule)
-                                      (not (member name rule))
-                                    (string-match-p rule name))
-                                  upstream))
-                           magit-branch-adjust-remote-upstream-alist))))
-    (magit-call-git "branch" (concat "--set-upstream-to=" it) branch)))
+  (when-let ((upstream
+              (or (and (magit-get-upstream-branch branch)
+                       (magit-get-indirect-upstream-branch start-point))
+                  (and (magit-remote-branch-p start-point)
+                       (let ((name (cdr (magit-split-branch-name start-point))))
+                         (seq-some
+                          (pcase-lambda (`(,upstream . ,rule))
+                            (and (magit-branch-p upstream)
+                                 (if (listp rule)
+                                     (not (member name rule))
+                                   (string-match-p rule name))
+                                 upstream))
+                          magit-branch-adjust-remote-upstream-alist))))))
+    (magit-call-git "branch" (concat "--set-upstream-to=" upstream) branch)))
 
 ;;;###autoload
 (defun magit-branch-orphan (branch start-point)
@@ -506,8 +507,8 @@ from the source branch's upstream, then an error is raised."
           (if checkout
               (magit-call-git "checkout" "-b" branch current)
             (magit-call-git "branch" branch current)))
-        (--when-let (magit-get-indirect-upstream-branch current)
-          (magit-call-git "branch" "--set-upstream-to" it branch))
+        (when-let ((upstream (magit-get-indirect-upstream-branch current)))
+          (magit-call-git "branch" "--set-upstream-to" upstream branch))
         (when (and tracked
                    (setq base
                          (if from

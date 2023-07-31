@@ -503,8 +503,8 @@ or, failing that, the abbreviated HEAD commit hash."
                                     (string-match-p "\\`[0-9]" it))
                            (insert ?\s))
                          (insert (propertize it 'font-lock-face 'magit-tag)))
-                (--when-let (magit-rev-format "%h")
-                  (insert (propertize it 'font-lock-face 'magit-hash)))))
+                (when-let ((abbrev (magit-rev-format "%h")))
+                  (insert (propertize abbrev 'font-lock-face 'magit-hash)))))
             (insert ?\n))))))
   (insert ?\n))
 

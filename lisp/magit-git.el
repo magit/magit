@@ -728,12 +728,12 @@ See info node `(magit)Debugging Tools' for more information."
                   (format " [%S]" (executable-find magit-git-executable)))
              (format " (%s)\n" (magit--safe-git-version))))
     (insert (format "exec-path: %S\n" exec-path))
-    (--when-let (cl-set-difference
-                 (seq-filter #'file-exists-p (remq nil (parse-colon-path
-                                                        (getenv "PATH"))))
-                 (seq-filter #'file-exists-p (remq nil exec-path))
-                 :test #'file-equal-p)
-      (insert (format "  entries in PATH, but not in exec-path: %S\n" it)))
+    (when-let ((diff (cl-set-difference
+                      (seq-filter #'file-exists-p (remq nil (parse-colon-path
+                                                             (getenv "PATH"))))
+                      (seq-filter #'file-exists-p (remq nil exec-path))
+                      :test #'file-equal-p)))
+      (insert (format "  entries in PATH, but not in exec-path: %S\n" diff)))
     (dolist (execdir exec-path)
       (insert (format "  %s (%s)\n" execdir (car (file-attributes execdir))))
       (when (file-directory-p execdir)
@@ -2448,10 +2448,10 @@ and this option only controls what face is used.")
                     (expand-file-name "index.magit." (magit-gitdir))))))
        (unwind-protect
            (magit-with-toplevel
-             (--when-let ,tree
-               (or (magit-git-success "read-tree" ,arg it
-                                      (concat "--index-output=" ,file))
-                   (error "Cannot read tree %s" it)))
+             (when-let ((tree ,tree))
+               (unless (magit-git-success "read-tree" ,arg tree
+                                          (concat "--index-output=" ,file))
+                 (error "Cannot read tree %s" tree)))
              (if (file-remote-p default-directory)
                  (let ((magit-tramp-process-environment
                         (cons (concat "GIT_INDEX_FILE=" ,file)
@@ -2593,9 +2593,9 @@ and this option only controls what face is used.")
 (defun magit-read-range-or-commit (prompt &optional secondary-default)
   (magit-read-range
    prompt
-   (or (--when-let (magit-region-values '(commit branch) t)
+   (or (when-let ((revs (magit-region-values '(commit branch) t)))
          (deactivate-mark)
-         (concat (car (last it)) ".." (car it)))
+         (concat (car (last revs)) ".." (car revs)))
        (magit-branch-or-commit-at-point)
        secondary-default
        (magit-get-current-branch))))

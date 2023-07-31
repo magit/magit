@@ -400,10 +400,12 @@ modes is toggled, then this mode also gets toggled automatically.
 
 (defun magit-blame-put-keymap-before-view-mode ()
   "Put `magit-blame-read-only-mode' ahead of `view-mode' in `minor-mode-map-alist'."
-  (--when-let (assq 'magit-blame-read-only-mode
-                    (cl-member 'view-mode minor-mode-map-alist :key #'car))
+  (when-let ((entry (assq 'magit-blame-read-only-mode
+                          (cl-member 'view-mode minor-mode-map-alist
+                                     :key #'car))))
     (setq minor-mode-map-alist
-          (cons it (delq it minor-mode-map-alist))))
+          (cons entry
+                (delq entry minor-mode-map-alist))))
   (remove-hook 'view-mode-hook #'magit-blame-put-keymap-before-view-mode))
 
 (add-hook 'view-mode-hook #'magit-blame-put-keymap-before-view-mode)
@@ -885,9 +887,9 @@ then also kill the buffer."
                                      #'previous-single-char-property-change
                                    #'next-single-char-property-change)
                                  pos 'magit-blame-chunk)))
-            (--when-let (magit-blame--overlay-at pos)
+            (when-let ((o (magit-blame--overlay-at pos)))
               (when (equal (oref (magit-blame-chunk-at pos) orig-rev) rev)
-                (setq ov it)))))
+                (setq ov o)))))
         (if ov
             (goto-char (overlay-start ov))
           (user-error "No more chunks from same commit")))

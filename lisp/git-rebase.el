@@ -734,13 +734,13 @@ running \"man git-rebase\" at the command line) for details."
       (magit-confirm 'abort-rebase "Abort this rebase" nil 'noabort)))
 
 (defun git-rebase-autostash-save ()
-  (--when-let (magit-file-line
-               (expand-file-name "rebase-merge/autostash" (magit-gitdir)))
-    (push (cons 'stash it) with-editor-cancel-alist)))
+  (when-let ((rev (magit-file-line
+                   (expand-file-name "rebase-merge/autostash" (magit-gitdir)))))
+    (push (cons 'stash rev) with-editor-cancel-alist)))
 
 (defun git-rebase-autostash-apply ()
-  (--when-let (cdr (assq 'stash with-editor-cancel-alist))
-    (magit-stash-apply it)))
+  (when-let ((rev (cdr (assq 'stash with-editor-cancel-alist))))
+    (magit-stash-apply rev)))
 
 (defun git-rebase-match-comment-line (limit)
   (re-search-forward (concat git-rebase-comment-re ".*") limit t))

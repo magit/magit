@@ -1136,9 +1136,10 @@ Do not add this to a hook variable."
                     (concat "\n" magit-log-revision-headers-format "\n"))
                 ""))
       (progn
-        (--when-let (--first (string-match "^\\+\\+order=\\(.+\\)$" it) args)
-          (setq args (cons (format "--%s-order" (match-string 1 it))
-                           (remove it args))))
+        (when-let ((order (--first (string-match "^\\+\\+order=\\(.+\\)$" it)
+                                   args)))
+          (setq args (cons (format "--%s-order" (match-string 1 order))
+                           (remove order args))))
         (when (member "--decorate" args)
           (setq args (cons "--decorate=full" (remove "--decorate" args))))
         (when (member "--reverse" args)
@@ -1796,14 +1797,15 @@ in the pushremote case."
 
 (defun magit-insert-unpulled-from-pushremote ()
   "Insert commits that haven't been pulled from the push-remote yet."
-  (--when-let (magit-get-push-branch)
+  (when-let* ((target (magit-get-push-branch))
+              (range  (concat ".." target)))
     (when (magit--insert-pushremote-log-p)
-      (magit-insert-section (unpulled (concat ".." it) t)
+      (magit-insert-section (unpulled range t)
         (magit-insert-heading
           (format (propertize "Unpulled from %s."
                               'font-lock-face 'magit-section-heading)
-                  (propertize it 'font-lock-face 'magit-branch-remote)))
-        (magit--insert-log nil (concat ".." it) magit-buffer-log-args)
+                  (propertize target 'font-lock-face 'magit-branch-remote)))
+        (magit--insert-log nil range magit-buffer-log-args)
         (magit-log-insert-child-count)))))
 
 (defvar-keymap magit-unpushed-section-map
@@ -1867,14 +1869,15 @@ Show the last `magit-log-section-commit-count' commits."
 
 (defun magit-insert-unpushed-to-pushremote ()
   "Insert commits that haven't been pushed to the push-remote yet."
-  (--when-let (magit-get-push-branch)
+  (when-let* ((target (magit-get-push-branch))
+              (range  (concat target "..")))
     (when (magit--insert-pushremote-log-p)
-      (magit-insert-section (unpushed (concat it "..") t)
+      (magit-insert-section (unpushed range t)
         (magit-insert-heading
           (format (propertize "Unpushed to %s."
                               'font-lock-face 'magit-section-heading)
-                  (propertize it 'font-lock-face 'magit-branch-remote)))
-        (magit--insert-log nil (concat it "..") magit-buffer-log-args)
+                  (propertize target 'font-lock-face 'magit-branch-remote)))
+        (magit--insert-log nil range magit-buffer-log-args)
         (magit-log-insert-child-count)))))
 
 (defun magit--insert-pushremote-log-p ()

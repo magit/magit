@@ -963,10 +963,10 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                  (magit-refresh-buffer))
                 ((derived-mode-p 'tabulated-list-mode)
                  (revert-buffer)))
-          (--when-let (and magit-refresh-status-buffer
-                           (not (derived-mode-p 'magit-status-mode))
-                           (magit-get-mode-buffer 'magit-status-mode))
-            (with-current-buffer it
+          (when-let ((buffer (and magit-refresh-status-buffer
+                                  (not (derived-mode-p 'magit-status-mode))
+                                  (magit-get-mode-buffer 'magit-status-mode))))
+            (with-current-buffer buffer
               (magit-refresh-buffer)))
           (magit-run-hook-with-benchmark 'magit-post-refresh-hook)
           (when magit-refresh-verbose
@@ -1075,8 +1075,9 @@ If you are not satisfied with Magit's performance, then you
 should obviously not add this function to that hook."
   (when (and (not magit--disable-save-buffers)
              (magit-inside-worktree-p t))
-    (--when-let (ignore-errors (magit-get-mode-buffer 'magit-status-mode))
-      (add-to-list 'magit-after-save-refresh-buffers it)
+    (when-let ((buffer (ignore-errors
+                         (magit-get-mode-buffer 'magit-status-mode))))
+      (add-to-list 'magit-after-save-refresh-buffers buffer)
       (add-hook 'post-command-hook #'magit-after-save-refresh-buffers))))
 
 (defun magit-maybe-save-repository-buffers ()
