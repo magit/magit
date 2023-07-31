@@ -24,6 +24,7 @@
 ;;     (dash "2.19.1")
 ;;     (git-commit "3.3.0")
 ;;     (magit-section "3.3.0")
+;;     (seq "2.23")
 ;;     (transient "0.3.6")
 ;;     (with-editor "3.0.5"))
 

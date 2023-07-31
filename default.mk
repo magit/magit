@@ -121,6 +121,7 @@ LIBGIT_VERSION        = 0
 MAGIT_VERSION         = $(VERSION)
 MAGIT_LIBGIT_VERSION  = $(VERSION)
 MAGIT_SECTION_VERSION = $(VERSION)
+SEQ_VERSION           = 2.23
 TRANSIENT_VERSION     = 0.3.6
 WITH_EDITOR_VERSION   = 3.0.5
 
@@ -131,6 +132,7 @@ LIBGIT_MELPA_SNAPSHOT        = 0
 MAGIT_MELPA_SNAPSHOT         = $(TIMESTAMP)
 MAGIT_LIBGIT_MELPA_SNAPSHOT  = $(TIMESTAMP)
 MAGIT_SECTION_MELPA_SNAPSHOT = $(TIMESTAMP)
+SEQ_MELPA_SNAPSHOT           = $(SEQ_VERSION)
 TRANSIENT_MELPA_SNAPSHOT     = 20230201
 WITH_EDITOR_MELPA_SNAPSHOT   = 20230118
 
@@ -182,6 +184,13 @@ ifeq "$(LIBGIT_DIR)" ""
   LIBGIT_DIR = $(TOP)../libgit
 endif
 
+SEQ_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/seq-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(SEQ_DIR)" ""
+  SEQ_DIR = $(TOP)../seq
+endif
+
 TRANSIENT_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/transient-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
@@ -216,6 +225,7 @@ ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(COMPAT_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(LIBGIT_DIR))
+  LOAD_PATH += -L $(shell cygpath --mixed $(SEQ_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(TRANSIENT_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(WITH_EDITOR_DIR))
   ifneq "$(MAGIT_SECTION_DIR)" ""
@@ -225,6 +235,7 @@ else
   LOAD_PATH += -L $(COMPAT_DIR)
   LOAD_PATH += -L $(DASH_DIR)
   LOAD_PATH += -L $(LIBGIT_DIR)
+  LOAD_PATH += -L $(SEQ_DIR)
   LOAD_PATH += -L $(TRANSIENT_DIR)
   LOAD_PATH += -L $(WITH_EDITOR_DIR)
   ifneq "$(MAGIT_SECTION_DIR)" ""
@@ -244,6 +255,7 @@ endif
 
 DEPS  = compat
 DEPS += dash
+DEPS += seq
 DEPS += transient/lisp
 DEPS += vterm
 DEPS += with-editor/lisp
