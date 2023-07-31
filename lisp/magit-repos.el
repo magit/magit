@@ -159,8 +159,8 @@ repositories are displayed."
 (defun magit-repolist-status (&optional _button)
   "Show the status for the repository at point."
   (interactive)
-  (--if-let (tabulated-list-get-id)
-      (magit-status-setup-buffer (expand-file-name it))
+  (if-let ((id (tabulated-list-get-id)))
+      (magit-status-setup-buffer (expand-file-name id))
     (user-error "There is no repository at point")))
 
 (defun magit-repolist-mark ()

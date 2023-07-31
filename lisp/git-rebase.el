@@ -464,9 +464,9 @@ If the region is active, act on all lines touched by the region."
   "Read an arbitrary commit and insert it below current line."
   (interactive (list (magit-read-branch-or-commit "Insert revision")))
   (forward-line)
-  (--if-let (magit-rev-format "%h %s" rev)
+  (if-let ((info (magit-rev-format "%h %s" rev)))
       (let ((inhibit-read-only t))
-        (insert "pick " it ?\n))
+        (insert "pick " info ?\n))
     (user-error "Unknown revision")))
 
 (defun git-rebase-set-noncommit-action (action value-fn arg)
@@ -653,13 +653,14 @@ Like `undo' but works in read-only buffers."
   (let ((magit--disable-save-buffers t))
     (save-excursion
       (goto-char (line-beginning-position))
-      (--if-let (with-slots (action-type target) (git-rebase-current-line)
-                  (and (eq action-type 'commit)
-                       target))
+      (if-let ((rev (with-slots (action-type target)
+                        (git-rebase-current-line)
+                      (and (eq action-type 'commit)
+                           target))))
           (pcase scroll
             ('up   (magit-diff-show-or-scroll-up))
             ('down (magit-diff-show-or-scroll-down))
-            (_     (apply #'magit-show-commit it
+            (_     (apply #'magit-show-commit rev
                           (magit-diff-arguments 'magit-revision-mode))))
         (ding)))))
 

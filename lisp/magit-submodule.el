@@ -493,16 +493,17 @@ or, failing that, the abbreviated HEAD commit hash."
                                 'font-lock-face 'magit-diff-file-heading))
             (if (not (file-exists-p ".git"))
                 (insert "(unpopulated)")
-              (insert (format
-                       branch-format
-                       (--if-let (magit-get-current-branch)
-                           (propertize it 'font-lock-face 'magit-branch-local)
-                         (propertize "(detached)" 'font-lock-face 'warning))))
-              (--if-let (magit-git-string "describe" "--tags")
+              (insert
+               (format
+                branch-format
+                (if-let ((branch (magit-get-current-branch)))
+                    (propertize branch 'font-lock-face 'magit-branch-local)
+                  (propertize "(detached)" 'font-lock-face 'warning))))
+              (if-let ((desc (magit-git-string "describe" "--tags")))
                   (progn (when (and magit-modules-overview-align-numbers
-                                    (string-match-p "\\`[0-9]" it))
+                                    (string-match-p "\\`[0-9]" desc))
                            (insert ?\s))
-                         (insert (propertize it 'font-lock-face 'magit-tag)))
+                         (insert (propertize desc 'font-lock-face 'magit-tag)))
                 (when-let ((abbrev (magit-rev-format "%h")))
                   (insert (propertize abbrev 'font-lock-face 'magit-hash)))))
             (insert ?\n))))))

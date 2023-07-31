@@ -1147,8 +1147,8 @@ If no DWIM context is found, nil is returned."
       (branch (let ((current (magit-get-current-branch))
                     (atpoint (oref it value)))
                 (if (equal atpoint current)
-                    (--if-let (magit-get-upstream-branch)
-                        (format "%s...%s" it current)
+                    (if-let ((upstream (magit-get-upstream-branch)))
+                        (format "%s...%s" upstream current)
                       (if (magit-anything-modified-p)
                           current
                         (cons 'commit current)))
@@ -1472,10 +1472,14 @@ instead."
 (defun magit-diff-set-context (fn)
   (when (derived-mode-p 'magit-merge-preview-mode)
     (user-error "Cannot use %s in %s" this-command major-mode))
-  (let* ((def (--if-let (magit-get "diff.context") (string-to-number it) 3))
+  (let* ((def (if-let ((context (magit-get "diff.context")))
+                  (string-to-number context)
+                3))
          (val magit-buffer-diff-args)
          (arg (--first (string-match "^-U\\([0-9]+\\)?$" it) val))
-         (num (--if-let (and arg (match-string 1 arg)) (string-to-number it) def))
+         (num (if-let ((str (and arg (match-string 1 arg))))
+                  (string-to-number str)
+                def))
          (val (delete arg val))
          (num (funcall fn num))
          (arg (and num (not (= num def)) (format "-U%d" num)))
@@ -2172,14 +2176,13 @@ keymap is the parent of their keymaps."
 When point is on a file inside the diffstat section, then jump
 to the respective diff section, otherwise jump to the diffstat
 section or a child thereof."
-  (interactive)
-  (--if-let (magit-get-section
-             (append (magit-section-case
-                       ([file diffstat] `((file . ,(oref it value))))
-                       (file `((file . ,(oref it value)) (diffstat)))
-                       (t '((diffstat))))
-                     (magit-section-ident magit-root-section)))
-      (magit-section-goto it)
+  (if-let ((section (magit-get-section
+                     (append (magit-section-case
+                               ([file diffstat] `((file . ,(oref it value))))
+                               (file `((file . ,(oref it value)) (diffstat)))
+                               (t '((diffstat))))
+                             (magit-section-ident magit-root-section)))))
+      (magit-section-goto section)
     (user-error "No diffstat in this buffer")))
 
 (defun magit-diff-wash-signature (object)

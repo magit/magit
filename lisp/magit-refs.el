@@ -750,12 +750,12 @@ line is inserted at all."
      branch (if head-face (list face head-face) face))))
 
 (defun magit-refs--insert-refname-p (refname)
-  (--if-let (seq-find (pcase-lambda (`(,key . ,_))
-                        (if (functionp key)
-                            (funcall key refname)
-                          (string-match-p key refname)))
-                      magit-refs-filter-alist)
-      (cdr it)
+  (if-let ((entry (seq-find (pcase-lambda (`(,key . ,_))
+                              (if (functionp key)
+                                  (funcall key refname)
+                                (string-match-p key refname)))
+                            magit-refs-filter-alist)))
+      (cdr entry)
     t))
 
 (defun magit-refs--insert-cherry-commits (ref)

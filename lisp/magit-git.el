@@ -299,12 +299,13 @@ See info node `(magit)Debugging Tools' for more information."
 
 (defmacro magit--with-refresh-cache (key &rest body)
   (declare (indent 1) (debug (form body)))
-  (let ((k (cl-gensym)))
+  (let ((k (cl-gensym))
+        (hit (cl-gensym)))
     `(if magit--refresh-cache
          (let ((,k ,key))
-           (--if-let (assoc ,k (cdr magit--refresh-cache))
+           (if-let ((,hit (assoc ,k (cdr magit--refresh-cache))))
                (progn (cl-incf (caar magit--refresh-cache))
-                      (cdr it))
+                      (cdr ,hit))
              (cl-incf (cdar magit--refresh-cache))
              (let ((value ,(macroexp-progn body)))
                (push (cons ,k value)
@@ -1845,9 +1846,9 @@ of the other local branches.
 If, and only if, BRANCH has an upstream, then only return non-nil
 if BRANCH is merged into both TARGET (as described above) as well
 as into its upstream."
-  (and (--if-let (and (magit-branch-p branch)
-                      (magit-get-upstream-branch branch))
-           (magit-git-success "merge-base" "--is-ancestor" branch it)
+  (and (if-let ((upstream (and (magit-branch-p branch)
+                               (magit-get-upstream-branch branch))))
+           (magit-git-success "merge-base" "--is-ancestor" branch upstream)
          t)
        (if (eq target t)
            (delete (magit-name-local-branch branch)
@@ -2238,8 +2239,8 @@ If `first-parent' is set, traverse only first parents."
       (if-let ((head (magit-rev-parse "--short" "HEAD"))
                (head-len (length head)))
           (min head-len
-               (--if-let (magit-rev-parse "--short" "HEAD~")
-                   (length it)
+               (if-let ((rev (magit-rev-parse "--short" "HEAD~")))
+                   (length rev)
                  head-len))
         ;; We're on an unborn branch, but perhaps the repository has
         ;; other commits.  See #4123.

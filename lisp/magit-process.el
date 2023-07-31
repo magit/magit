@@ -437,8 +437,8 @@ conversion."
                  (cdr (assoc magit-git-executable magit-git-w32-path-hack)))
             (and local magit-need-cygwin-noglob
                  (mapcar (lambda (var)
-                           (concat var "=" (--if-let (getenv var)
-                                               (concat it " noglob")
+                           (concat var "=" (if-let ((val (getenv var)))
+                                               (concat val " noglob")
                                              "noglob")))
                          '("CYGWIN" "MSYS")))
             process-environment)))

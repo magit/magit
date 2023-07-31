@@ -80,8 +80,8 @@ If the region marks multiple tags (and nothing else), then offer
 to delete those, otherwise prompt for a single tag to be deleted,
 defaulting to the tag at point.
 \n(git tag -d TAGS)"
-  (interactive (list (--if-let (magit-region-values 'tag)
-                         (magit-confirm t nil "Delete %d tags" nil it)
+  (interactive (list (if-let ((tags (magit-region-values 'tag)))
+                         (magit-confirm t nil "Delete %d tags" nil tags)
                        (let ((helm-comp-read-use-marked t))
                          (magit-read-tag "Delete tag" t)))))
   (magit-run-git "tag" "-d" tags))

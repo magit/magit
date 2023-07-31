@@ -369,8 +369,8 @@ Currently this only adds the following key bindings.
   (interactive)
   (if-let ((file (or magit-buffer-file-name
                      (buffer-file-name (buffer-base-buffer)))))
-      (--if-let (magit-blob-ancestor magit-buffer-revision file)
-          (magit-blob-visit it)
+      (if-let ((ancestor (magit-blob-ancestor magit-buffer-revision file)))
+          (magit-blob-visit ancestor)
         (user-error "You have reached the beginning of time"))
     (user-error "Buffer isn't visiting a file or blob")))
 
@@ -452,11 +452,10 @@ Git, fallback to using `rename-file'."
 
 With a prefix argument FORCE do so even when the files have
 staged as well as unstaged changes."
-  (interactive (list (or (--if-let (magit-region-values 'file t)
-                             (progn
-                               (unless (magit-file-tracked-p (car it))
-                                 (user-error "Already untracked"))
-                               (magit-confirm-files 'untrack it "Untrack"))
+  (interactive (list (or (if-let ((files (magit-region-values 'file t)))
+                             (if (magit-file-tracked-p (car files))
+                                 (magit-confirm-files 'untrack files "Untrack")
+                               (user-error "Already untracked"))
                            (list (magit-read-tracked-file "Untrack file"))))
                      current-prefix-arg))
   (magit-with-toplevel
@@ -468,8 +467,8 @@ staged as well as unstaged changes."
 With a prefix argument FORCE do so even when the files have
 uncommitted changes.  When the files aren't being tracked in
 Git, then fallback to using `delete-file'."
-  (interactive (list (--if-let (magit-region-values 'file t)
-                         (magit-confirm-files 'delete it "Delete")
+  (interactive (list (if-let ((files (magit-region-values 'file t)))
+                         (magit-confirm-files 'delete files "Delete")
                        (list (magit-read-file "Delete file")))
                      current-prefix-arg))
   (if (magit-file-tracked-p (car files))

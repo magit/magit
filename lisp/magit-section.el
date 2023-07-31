@@ -784,8 +784,8 @@ the beginning of the current section."
 (defun magit-section-up ()
   "Move to the beginning of the parent section."
   (interactive)
-  (--if-let (oref (magit-current-section) parent)
-      (magit-section-goto it)
+  (if-let ((parent (oref (magit-current-section) parent)))
+      (magit-section-goto parent)
     (user-error "No parent section")))
 
 (defun magit-section-forward-sibling ()
@@ -794,8 +794,8 @@ If there is no next sibling section, then move to the parent."
   (interactive)
   (let ((current (magit-current-section)))
     (if (oref current parent)
-        (--if-let (car (magit-section-siblings current 'next))
-            (magit-section-goto it)
+        (if-let ((next (car (magit-section-siblings current 'next))))
+            (magit-section-goto next)
           (magit-section-forward))
       (magit-section-goto 1))))
 
@@ -805,8 +805,8 @@ If there is no previous sibling section, then move to the parent."
   (interactive)
   (let ((current (magit-current-section)))
     (if (oref current parent)
-        (--if-let (car (magit-section-siblings current 'prev))
-            (magit-section-goto it)
+        (if-let ((previous (car (magit-section-siblings current 'prev))))
+            (magit-section-goto previous)
           (magit-section-backward))
       (magit-section-goto -1))))
 
@@ -831,12 +831,12 @@ HEADING is the displayed heading of the section."
 Jump to the section \"%s\".
 With a prefix argument also expand it." heading)
           (interactive "P")
-          (--if-let (magit-get-section
-                     (cons (cons ',type ,value)
-                           (magit-section-ident magit-root-section)))
-              (progn (goto-char (oref it start))
+          (if-let ((section (magit-get-section
+                             (cons (cons ',type ,value)
+                                   (magit-section-ident magit-root-section)))))
+              (progn (goto-char (oref section start))
                      (when expand
-                       (with-local-quit (magit-section-show it))
+                       (with-local-quit (magit-section-show section))
                        (recenter 0)))
             (message ,(format "Section \"%s\" wasn't found" heading)))))
 
@@ -972,8 +972,8 @@ hidden."
            (mapc #'magit-section-hide children)))))
 
 (defun magit-section-hidden-body (section &optional pred)
-  (--if-let (oref section children)
-      (funcall (or pred #'-any-p) #'magit-section-hidden-body it)
+  (if-let ((children (oref section children)))
+      (funcall (or pred #'-any-p) #'magit-section-hidden-body children)
     (and (oref section content)
          (oref section hidden))))
 

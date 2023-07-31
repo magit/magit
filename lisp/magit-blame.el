@@ -641,8 +641,8 @@ modes is toggled, then this mode also gets toggled automatically.
 (defun magit-blame--update-heading-overlay (ov)
   (overlay-put
    ov 'before-string
-   (--if-let (magit-blame--style-get 'heading-format)
-       (magit-blame--format-string ov it 'magit-blame-heading)
+   (if-let ((format (magit-blame--style-get 'heading-format)))
+       (magit-blame--format-string ov format 'magit-blame-heading)
      (and (magit-blame--style-get 'show-lines)
           (or (not (magit-blame--style-get 'margin-format))
               (save-excursion
@@ -863,15 +863,17 @@ then also kill the buffer."
 (defun magit-blame-next-chunk ()
   "Move to the next chunk."
   (interactive)
-  (--if-let (next-single-char-property-change (point) 'magit-blame-chunk)
-      (goto-char it)
+  (if-let ((next (next-single-char-property-change
+                  (point) 'magit-blame-chunk)))
+      (goto-char next)
     (user-error "No more chunks")))
 
 (defun magit-blame-previous-chunk ()
   "Move to the previous chunk."
   (interactive)
-  (--if-let (previous-single-char-property-change (point) 'magit-blame-chunk)
-      (goto-char it)
+  (if-let ((prev (previous-single-char-property-change
+                  (point) 'magit-blame-chunk)))
+      (goto-char prev)
     (user-error "No more chunks")))
 
 (defun magit-blame-next-chunk-same-commit (&optional previous)

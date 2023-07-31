@@ -1042,8 +1042,8 @@ status buffer (i.e., the reverse of how they will be applied)."
     (setq done (magit-git-lines "log" "--format=%H" (concat onto "..HEAD")))
     (when (and stop (not (member (magit-rev-parse stop) done)))
       (let ((id (magit-patch-id stop)))
-        (--if-let (--first (equal (magit-patch-id it) id) done)
-            (setq stop it)
+        (if-let ((matched (--first (equal (magit-patch-id it) id) done)))
+            (setq stop matched)
           (cond
            ((--first (magit-rev-equal it stop) done)
             ;; The commit's testament has been executed.
