@@ -1462,11 +1462,12 @@ Git."
          (substring name 8))))
 
 (defun magit-name-tag (rev &optional lax)
-  (when-let* ((name (magit-rev-name rev "refs/tags/*"))) ;debbugs#31840
-    (when (string-suffix-p "^0" name)
-      (setq name (substring name 0 -2)))
-    (and (or lax (not (string-match-p "[~^]" name)))
-         (substring name 5))))
+  (and-let* ((name (magit-rev-name rev "refs/tags/*")))
+    (progn ; work around debbugs#31840
+      (when (string-suffix-p "^0" name)
+        (setq name (substring name 0 -2)))
+      (and (or lax (not (string-match-p "[~^]" name)))
+           (substring name 5)))))
 
 (defun magit-ref-abbrev (refname)
   "Return an unambiguous abbreviation of REFNAME."
@@ -2295,9 +2296,10 @@ If `first-parent' is set, traverse only first parents."
                     "--"))
 
 (defun magit-format-rev-summary (rev)
-  (when-let* ((str (magit-rev-format "%h %s" rev))) ;debbugs#31840
-    (magit--put-face 0 (string-match " " str) 'magit-hash str)
-    str))
+  (and-let* ((str (magit-rev-format "%h %s" rev)))
+    (progn ; work around debbugs#31840
+      (magit--put-face 0 (string-match " " str) 'magit-hash str)
+      str)))
 
 (defvar magit-ref-namespaces
   '(("\\`HEAD\\'"                  . magit-head)

@@ -1116,10 +1116,10 @@ The information can be in three forms:
 
 If no DWIM context is found, nil is returned."
   (cond
-   ((when-let* ((commits (magit-region-values '(commit branch) t)))
-      ;; Cannot use and-let* because of debbugs#31840.
-      (deactivate-mark)
-      (concat (car (last commits)) ".." (car commits))))
+   ((and-let* ((commits (magit-region-values '(commit branch) t)))
+      (progn ; work around debbugs#31840
+        (deactivate-mark)
+        (concat (car (last commits)) ".." (car commits)))))
    (magit-buffer-refname
     (cons 'commit magit-buffer-refname))
    ((derived-mode-p 'magit-stash-mode)
@@ -1168,26 +1168,27 @@ If no DWIM context is found, nil is returned."
         (t range)))
 
 (defun magit-diff--region-range (&optional interactive mbase)
-  (when-let* ((commits (magit-region-values '(commit branch) t)) ;debbugs#31840
-              (revA (car (last commits)))
-              (revB (car commits)))
-    (when interactive
-      (deactivate-mark))
-    (if mbase
-        (let ((base (magit-git-string "merge-base" revA revB)))
-          (cond
-           ((string= (magit-rev-parse revA) base)
-            (format "%s..%s" revA revB))
-           ((string= (magit-rev-parse revB) base)
-            (format "%s..%s" revB revA))
-           (interactive
-            (let ((main (magit-completing-read "View changes along"
-                                               (list revA revB)
-                                               nil t nil nil revB)))
-              (format "%s...%s"
-                      (if (string= main revB) revA revB) main)))
-           (t "%s...%s" revA revB)))
-      (format "%s..%s" revA revB))))
+  (and-let* ((commits (magit-region-values '(commit branch) t))
+             (revA (car (last commits)))
+             (revB (car commits)))
+    (progn ; work around debbugs#31840
+      (when interactive
+        (deactivate-mark))
+      (if mbase
+          (let ((base (magit-git-string "merge-base" revA revB)))
+            (cond
+             ((string= (magit-rev-parse revA) base)
+              (format "%s..%s" revA revB))
+             ((string= (magit-rev-parse revB) base)
+              (format "%s..%s" revB revA))
+             (interactive
+              (let ((main (magit-completing-read "View changes along"
+                                                 (list revA revB)
+                                                 nil t nil nil revB)))
+                (format "%s...%s"
+                        (if (string= main revB) revA revB) main)))
+             (t "%s...%s" revA revB)))
+        (format "%s..%s" revA revB)))))
 
 (defun magit-diff-read-range-or-commit (prompt &optional secondary-default mbase)
   "Read range or revision with special diff range treatment.
@@ -1706,24 +1707,25 @@ the Magit-Status buffer for DIRECTORY."
       (user-error "No file at point"))))
 
 (defun magit-diff-visit--hunk ()
-  (when-let* ((scope (magit-diff-scope)) ;debbugs#31840
-              (section (magit-current-section)))
-    (cl-case scope
-      ((file files)
-       (setq section (car (oref section children))))
-      (list
-       (setq section (car (oref section children)))
-       (when section
-         (setq section (car (oref section children))))))
-    (and
-     ;; Unmerged files appear in the list of staged changes
-     ;; but unlike in the list of unstaged changes no diffs
-     ;; are shown here.  In that case `section' is nil.
-     section
-     ;; Currently the `hunk' type is also abused for file
-     ;; mode changes, which we are not interested in here.
-     (not (equal (oref section value) '(chmod)))
-     section)))
+  (and-let* ((scope (magit-diff-scope))
+             (section (magit-current-section)))
+    (progn ; work around debbugs#31840
+      (cl-case scope
+        ((file files)
+         (setq section (car (oref section children))))
+        (list
+         (setq section (car (oref section children)))
+         (when section
+           (setq section (car (oref section children))))))
+      (and
+       ;; Unmerged files appear in the list of staged changes
+       ;; but unlike in the list of unstaged changes no diffs
+       ;; are shown here.  In that case `section' is nil.
+       section
+       ;; Currently the `hunk' type is also abused for file
+       ;; mode changes, which we are not interested in here.
+       (not (equal (oref section value) '(chmod)))
+       section))))
 
 (defun magit-diff-visit--goto-from-p (section in-worktree)
   (and magit-diff-visit-previous-blob
