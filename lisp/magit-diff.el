@@ -3071,9 +3071,9 @@ Do not confuse this with `magit-diff-scope' (which see)."
                           (oref parent)
                           (oref type)))))))
           ((derived-mode-p 'magit-log-mode)
-           (if (or (and (magit-section-match 'commit section)
-                        (oref section children))
-                   (magit-section-match [* file commit] section))
+           (if (or (and (magit-section-match 'commit it)
+                        (oref it children))
+                   (magit-section-match [* file commit] it))
                'committed
              'undefined))
           (t 'undefined))))
