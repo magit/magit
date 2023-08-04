@@ -1152,7 +1152,6 @@ Do not add this to a hook variable."
   (or (magit-diff--region-range)
       (oref (magit-current-section) value)))
 
-
 (defvar-keymap magit-commit-section-map
   :doc "Keymap for `commit' sections."
   "<remap> <magit-visit-thing>" #'magit-show-commit
