@@ -2176,6 +2176,7 @@ keymap is the parent of their keymaps."
 When point is on a file inside the diffstat section, then jump
 to the respective diff section, otherwise jump to the diffstat
 section or a child thereof."
+  (interactive)
   (if-let ((section (magit-get-section
                      (append (magit-section-case
                                ([file diffstat] `((file . ,(oref it value))))
