@@ -271,6 +271,8 @@ no effect.  This also has no effect for Emacs >= 28, where
 (defvar-local magit-section-highlighted-sections nil)
 (defvar-local magit-section-unhighlight-sections nil)
 
+(defvar-local magit-section-inhibit-markers nil)
+
 ;;; Faces
 
 (defgroup magit-section-faces nil
@@ -1321,7 +1323,9 @@ anything this time around.
                                   (car (rassq ,tp magit--section-type-alist)))
                              ,tp)
                          :value ,(nth 1 (car args))
-                         :start (point-marker)
+                         :start (if magit-section-inhibit-markers
+                                    (point)
+                                  (point-marker))
                          :parent magit-insert-section--parent)))
        (oset ,s hidden
              (if-let ((value (run-hook-with-args-until-success
@@ -1355,8 +1359,12 @@ anything this time around.
            ;; on section insertion, not a section inserting hook.
            (run-hooks 'magit-insert-section-hook)
            (magit-insert-child-count ,s)
-           (set-marker-insertion-type (oref ,s start) t)
-           (let* ((end (oset ,s end (point-marker)))
+           (unless magit-section-inhibit-markers
+             (set-marker-insertion-type (oref ,s start) t))
+           (let* ((end (oset ,s end
+                             (if magit-section-inhibit-markers
+                                 (point)
+                               (point-marker))))
                   (class-map (oref ,s keymap))
                   (magit-map (intern (format "magit-%s-section-map"
                                              (oref ,s type))))
@@ -1381,6 +1389,12 @@ anything this time around.
                    (goto-char next)))))
            (cond
             ((eq ,s magit-root-section)
+             (when (eq magit-section-inhibit-markers 'delay)
+               (setq magit-section-inhibit-markers nil)
+               (magit-map-sections
+                (lambda (section)
+                  (oset section start (copy-marker (oref section start) t))
+                  (oset section end   (copy-marker (oref section end) t)))))
              (let ((magit-section-cache-visibility nil))
                (magit-section-show ,s)))
             ((let ((parent (oref ,s parent)))
@@ -1440,7 +1454,8 @@ insert a newline character if necessary."
     (insert ?\n))
   (when (fboundp 'magit-maybe-make-margin-overlay)
     (magit-maybe-make-margin-overlay))
-  (oset magit-insert-section--current content (point-marker)))
+  (oset magit-insert-section--current content
+        (if magit-section-inhibit-markers (point) (point-marker))))
 
 (defmacro magit-insert-section-body (&rest body)
   "Use BODY to insert the section body, once the section is expanded.

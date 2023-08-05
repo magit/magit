@@ -1078,6 +1078,10 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
       (setq revs (if (< (string-to-number count) limit)
                      revs
                    (format "%s~%s..%s" revs limit revs))))
+    (let ((delay (cl-find-if (lambda (arg)
+                               (member arg '("++header" "--patch" "--stat")))
+                             args)))
+      (setq magit-section-inhibit-markers (if delay 'delay t)))
     (magit-insert-section (logbuf)
       (magit--insert-log t revs args files))))
 
@@ -1621,6 +1625,7 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
     (magit-buffer-log-args args)))
 
 (defun magit-log-select-refresh-buffer ()
+  (setq magit-section-inhibit-markers t)
   (magit-insert-section (logbuf)
     (magit--insert-log t magit-buffer-revisions magit-buffer-log-args)))
 
@@ -1715,6 +1720,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
     (magit-buffer-range (concat upstream ".." head))))
 
 (defun magit-cherry-refresh-buffer ()
+  (setq magit-section-inhibit-markers t)
   (magit-insert-section (cherry)
     (magit-run-section-hook 'magit-cherry-sections-hook)))
 
