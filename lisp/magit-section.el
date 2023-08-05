@@ -1260,7 +1260,7 @@ Create a section object of type CLASS, storing VALUE in its
 `value' slot, and insert the section at point.  CLASS is a
 subclass of `magit-section' or has the form `(eval FORM)', in
 which case FORM is evaluated at runtime and should return a
-subclass.  In other places a sections class is oftern referred
+subclass.  In other places a sections class is often referred
 to as its \"type\".
 
 Many commands behave differently depending on the class of the
