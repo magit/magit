@@ -1943,6 +1943,16 @@ forms CONDITION can take."
                       (--all-p (magit-section-match condition it) sections))
               sections)))))))
 
+(defun magit-map-sections (function &optional section)
+  "Apply FUNCTION to all sections for side effects only, depth first.
+If optional SECTION is non-nil, only map over that section and
+its descendants, otherwise map over all sections in the current
+buffer, ending with `magit-root-section'."
+  (let ((section (or section magit-root-section)))
+    (mapc (lambda (child) (magit-map-sections function child))
+          (oref section children))
+    (funcall function section)))
+
 (defun magit-section-position-in-heading-p (&optional section pos)
   "Return t if POSITION is inside the heading of SECTION.
 POSITION defaults to point and SECTION defaults to the
