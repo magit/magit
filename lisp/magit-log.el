@@ -1120,6 +1120,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   "Insert a log section.
 Do not add this to a hook variable."
   (declare (indent defun))
+  (setq magit-section-preserve-visibility t) ; TODO do it here?
   (let ((magit-git-global-arguments
          (remove "--literal-pathspecs" magit-git-global-arguments)))
     (magit--git-wash (apply-partially #'magit-log-wash-log 'log) keep-error

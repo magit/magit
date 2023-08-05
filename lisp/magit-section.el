@@ -264,6 +264,8 @@ no effect.  This also has no effect for Emacs >= 28, where
 
 ;;; Variables
 
+(defvar-local magit-section-preserve-visibility t)
+
 (defvar-local magit-section-pre-command-region-p nil)
 (defvar-local magit-section-pre-command-section nil)
 (defvar-local magit-section-highlight-force-update nil)
@@ -1331,10 +1333,12 @@ anything this time around.
              (if-let ((value (run-hook-with-args-until-success
                               'magit-section-set-visibility-hook ,s)))
                  (eq value 'hide)
-               (if-let ((incarnation (and magit-insert-section--oldroot
-                                          (magit-get-section
-                                           (magit-section-ident ,s)
-                                           magit-insert-section--oldroot))))
+               (if-let ((incarnation
+                         (and (not magit-section-preserve-visibility)
+                              magit-insert-section--oldroot
+                              (magit-get-section
+                               (magit-section-ident ,s)
+                               magit-insert-section--oldroot))))
                    (oref incarnation hidden)
                  (if-let ((value (magit-section-match-assoc
                                   ,s magit-section-initial-visibility-alist)))
@@ -1740,9 +1744,11 @@ invisible."
 (put 'magit-section-visibility-cache 'permanent-local t)
 
 (defun magit-section-cached-visibility (section)
-  "Set SECTION's visibility to the cached value."
-  (cdr (assoc (magit-section-ident section)
-              magit-section-visibility-cache)))
+  "Set SECTION's visibility to the cached value.
+When `magit-section-preserve-visibility' is nil, do nothing."
+  (and magit-section-preserve-visibility
+       (cdr (assoc (magit-section-ident section)
+                   magit-section-visibility-cache))))
 
 (cl-defun magit-section-cache-visibility
     (&optional (section magit-insert-section--current))
