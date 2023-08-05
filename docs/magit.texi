@@ -3496,6 +3496,13 @@ Whether to show the refnames after the commit summaries.  This is
 useful if you use really long branch names.
 @end defopt
 
+@defopt magit-log-show-color-graph-limit
+When showing more commits than specified by this option, then the
+@code{--color} argument, if specified, is silently dropped.  This is
+necessary because the @code{ansi-color} library, which is used to turn
+control sequences into faces, is just too slow.
+@end defopt
+
 Magit displays references in logs a bit differently from how Git does
 it.
 

@@ -2817,6 +2817,13 @@ the status buffer.
   Whether to show the refnames after the commit summaries.  This is
   useful if you use really long branch names.
 
+- User Option: magit-log-show-color-graph-limit ::
+
+  When showing more commits than specified by this option, then the
+  ~--color~ argument, if specified, is silently dropped.  This is
+  necessary because the ~ansi-color~ library, which is used to turn
+  control sequences into faces, is just too slow.
+
 Magit displays references in logs a bit differently from how Git does
 it.
 

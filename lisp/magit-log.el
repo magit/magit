@@ -162,6 +162,16 @@ because the latter may make use of Imenu's outdated cache."
                  (function-item add-log-current-defun)
                  function))
 
+(defcustom magit-log-color-graph-limit 256
+  "Number of commits over which log graphs are not colored.
+When showing more commits than specified, then log graphs then
+the `--color' argument is silently dropped.  This is necessary
+because the `ansi-color' library, which is used to turn control
+sequences into faces, is just too slow."
+  :package-version '(magit . "4.0.0")
+  :group 'magit-log
+  :type 'number)
+
 (defface magit-log-graph
   '((((class color) (background light)) :foreground "grey30")
     (((class color) (background  dark)) :foreground "grey80"))
@@ -1046,10 +1056,13 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
       (magit-section-update-highlight))
     (current-buffer)))
 
+(defvar-local magit-log--color-graph nil)
+
 (defun magit-log-refresh-buffer ()
   (let ((revs  magit-buffer-revisions)
         (args  magit-buffer-log-args)
-        (files magit-buffer-log-files))
+        (files magit-buffer-log-files)
+        (limit (magit-log-get-commit-limit)))
     (magit-set-header-line-format
      (funcall magit-log-header-line-function revs args files))
     (unless (length= files 1)
@@ -1059,9 +1072,21 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                          (concat "^" (regexp-opt magit-log-remove-graph-args)) it)
                         args))
       (setq args (remove "--graph" args)))
-    (unless (member "--graph" args)
-      (setq args (remove "--color" args)))
-    (when-let* ((limit (magit-log-get-commit-limit))
+    (if (member "--color" args)
+        (if (cond
+             ((not (member "--graph" args)))
+             ((not magit-log-color-graph-limit) nil)
+             ((not limit)
+              (message "Dropping --color because -n isn't set (see %s)"
+                       'magit-log-color-graph-limit))
+             ((> limit magit-log-color-graph-limit)
+              (message "Dropping --color because -n it is larger than %s"
+                       'magit-log-color-graph-limit)))
+            (progn (setq args (remove "--color" args))
+                   (setq magit-log--color-graph nil))
+          (setq magit-log--color-graph t))
+      (setq magit-log--color-graph nil))
+    (when-let* ((limit limit)
                 (limit (* 2 limit)) ; increase odds for complete graph
                 (count (and (length= revs 1)
                             (> limit 1024) ; otherwise it's fast enough
@@ -1237,8 +1262,10 @@ Do not add this to a hook variable."
 
 (defun magit-log-wash-log (style args)
   (setq args (flatten-tree args))
-  (when (and (member "--graph" args)
-             (member "--color" args))
+  (when (if (derived-mode-p 'magit-log-mode)
+            magit-log--color-graph
+          (and (member "--graph" args)
+               (member "--color" args)))
     (let ((ansi-color-apply-face-function
            (lambda (beg end face)
              (put-text-property beg end 'font-lock-face
