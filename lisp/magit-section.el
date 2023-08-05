@@ -274,6 +274,7 @@ no effect.  This also has no effect for Emacs >= 28, where
 (defvar-local magit-section-unhighlight-sections nil)
 
 (defvar-local magit-section-inhibit-markers nil)
+(defvar-local magit-section-insert-in-reverse nil)
 
 ;;; Faces
 
@@ -1401,10 +1402,15 @@ anything this time around.
                   (oset section end   (copy-marker (oref section end) t)))))
              (let ((magit-section-cache-visibility nil))
                (magit-section-show ,s)))
+            (magit-section-insert-in-reverse
+             (push ,s (oref (oref ,s parent) children)))
             ((let ((parent (oref ,s parent)))
                (oset parent children
                      (nconc (oref parent children)
                             (list ,s)))))))
+         (when magit-section-insert-in-reverse
+           (setq magit-section-insert-in-reverse nil)
+           (oset ,s children (nreverse (oref ,s children))))
          ,s))))
 
 (defun magit-cancel-section ()
