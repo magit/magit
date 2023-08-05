@@ -2809,7 +2809,10 @@ out.  Only existing branches can be selected."
                          (magit-module-at-point predicate)))
 
 (defun magit-module-confirm (verb &optional predicate)
-  (let (modules)
+  ;; Some predicates use the inefficient `magit-toplevel'
+  ;; and some repositories have thousands of submodules.
+  (let ((magit--refresh-cache (list (cons 0 0)))
+        (modules nil))
     (if current-prefix-arg
         (progn
           (setq modules (magit-list-module-paths))
