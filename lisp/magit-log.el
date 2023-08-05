@@ -172,6 +172,16 @@ sequences into faces, is just too slow."
   :group 'magit-log
   :type 'number)
 
+(defcustom magit-log-show-signatures-limit 256
+  "Number of commits over which signatures are not verified.
+When showing more commits than specified by this option, then the
+`--show-signature' argument, if specified, is silently dropped.
+This is necessary because checking the signature of a large
+number of commits is just too slow."
+  :package-version '(magit . "4.0.0")
+  :group 'magit-log
+  :type 'number)
+
 (defface magit-log-graph
   '((((class color) (background light)) :foreground "grey30")
     (((class color) (background  dark)) :foreground "grey80"))
@@ -894,9 +904,9 @@ limit.  Otherwise set it to 256."
             val)))
   (magit-refresh))
 
-(defun magit-log-get-commit-limit ()
+(defun magit-log-get-commit-limit (&optional args)
   (and-let* ((str (--first (string-match "^-n\\([0-9]+\\)?$" it)
-                           magit-buffer-log-args)))
+                           (or args magit-buffer-log-args))))
     (string-to-number (match-string 1 str))))
 
 ;;;; Mode Commands
@@ -1156,9 +1166,22 @@ Do not add this to a hook variable."
                   "%m "
                 "")
               (if (member "--decorate" args) "%D" "")
-              (if (member "--show-signature" args)
-                  (progn (setq args (remove "--show-signature" args)) "%G?")
-                "")
+              (if (not (member "--show-signature" args))
+                  ""
+                (setq args (remove "--show-signature" args))
+                (let ((limit (magit-log-get-commit-limit args)))
+                  (cond
+                   ((not limit)
+                    (message
+                     "Dropping --show-signature because -n isn't set (see %s)"
+                     'magit-log-show-signatures-limit)
+                    "")
+                   ((> limit magit-log-show-signatures-limit)
+                    (message
+                     "Dropping --show-signature because -n it is larger than %s"
+                     'magit-log-show-signatures-limit)
+                    "")
+                   ("%G?"))))
               (if magit-log-margin-show-committer-date "%ct" "%at")
               (if (member "++header" args)
                   (if (member "--graph" (setq args (remove "++header" args)))

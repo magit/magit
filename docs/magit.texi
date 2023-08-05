@@ -3503,6 +3503,13 @@ necessary because the @code{ansi-color} library, which is used to turn
 control sequences into faces, is just too slow.
 @end defopt
 
+@defopt magit-log-show-signatures-limit
+When showing more commits than specified by this option, then the
+@code{--show-signature} argument, if specified, is silently dropped.  This
+is necessary because checking the signature of a large number of
+commits is just too slow.
+@end defopt
+
 Magit displays references in logs a bit differently from how Git does
 it.
 
