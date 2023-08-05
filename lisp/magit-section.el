@@ -1324,24 +1324,20 @@ anything this time around.
                          :start (point-marker)
                          :parent magit-insert-section--parent)))
        (oset ,s hidden
-             (let ((value (run-hook-with-args-until-success
-                           'magit-section-set-visibility-hook ,s)))
-               (if value
-                   (eq value 'hide)
-                 (let ((incarnation (and magit-insert-section--oldroot
-                                         (magit-get-section
-                                          (magit-section-ident ,s)
-                                          magit-insert-section--oldroot))))
-                   (if incarnation
-                       (oref incarnation hidden)
-                     (let ((value (magit-section-match-assoc
-                                   ,s magit-section-initial-visibility-alist)))
-                       (if value
-                           (progn
-                             (when (functionp value)
-                               (setq value (funcall value ,s)))
-                             (eq value 'hide))
-                         ,(nth 2 (car args)))))))))
+             (if-let ((value (run-hook-with-args-until-success
+                              'magit-section-set-visibility-hook ,s)))
+                 (eq value 'hide)
+               (if-let ((incarnation (and magit-insert-section--oldroot
+                                          (magit-get-section
+                                           (magit-section-ident ,s)
+                                           magit-insert-section--oldroot))))
+                   (oref incarnation hidden)
+                 (if-let ((value (magit-section-match-assoc
+                                  ,s magit-section-initial-visibility-alist)))
+                     (progn (when (functionp value)
+                              (setq value (funcall value ,s)))
+                            (eq value 'hide))
+                   ,(nth 2 (car args))))))
        (let ((magit-insert-section--current ,s)
              (magit-insert-section--parent  ,s)
              (magit-insert-section--oldroot
