@@ -891,6 +891,17 @@ See info node `(magit)Debugging Tools' for more information."
              "please run it in a terminal.")
     (kill-new cmd)))
 
+(defmacro magit--with-report-time (what &rest body)
+  (let ((start (gensym)))
+    `(let ((,start (current-time)))
+       (message "%s begin %s" (format-time-string "%M:%S" ,start) ,what)
+       ,@body
+       (message "%s end %s (%.3fs)"
+                (format-time-string "%M:%S" (current-time))
+                ,what
+                (float-time (time-subtract (current-time) ,start))
+                ))))
+
 ;;; Text Utilities
 
 (defmacro magit-bind-match-strings (varlist string &rest body)
