@@ -164,10 +164,10 @@ because the latter may make use of Imenu's outdated cache."
 
 (defcustom magit-log-color-graph-limit 256
   "Number of commits over which log graphs are not colored.
-When showing more commits than specified, then log graphs then
-the `--color' argument is silently dropped.  This is necessary
-because the `ansi-color' library, which is used to turn control
-sequences into faces, is just too slow."
+When showing more commits than specified, then the `--color'
+argument is silently dropped.  This is necessary because the
+`ansi-color' library, which is used to turn control sequences
+into faces, is just too slow."
   :package-version '(magit . "4.0.0")
   :group 'magit-log
   :type 'number)
