@@ -1424,6 +1424,17 @@ anything this time around.
               (or magit-insert-section--oldroot
                   (and (not magit-insert-section--parent)
                        (prog1 magit-root-section
+                         (when magit-root-section
+                           (magit-map-sections
+                            (lambda (section)
+                              (ignore-errors
+                                (oset section start
+                                      (marker-position (oref section start)))
+                                (oset section end
+                                      (marker-position (oref section end)))
+                                (when-let ((content (oref section content)))
+                                  (oset section content
+                                        (marker-position content)))))))
                          (setq magit-root-section ,s))))))
          (catch 'cancel-section
            ,@(if s*
