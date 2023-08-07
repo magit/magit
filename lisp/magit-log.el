@@ -1090,7 +1090,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
               (message "Dropping --color because -n isn't set (see %s)"
                        'magit-log-color-graph-limit))
              ((> limit magit-log-color-graph-limit)
-              (message "Dropping --color because -n it is larger than %s"
+              (message "Dropping --color because -n is larger than %s"
                        'magit-log-color-graph-limit)))
             (progn (setq args (remove "--color" args))
                    (setq magit-log--color-graph nil))
@@ -1179,7 +1179,7 @@ Do not add this to a hook variable."
                     "")
                    ((> limit magit-log-show-signatures-limit)
                     (message
-                     "Dropping --show-signature because -n it is larger than %s"
+                     "Dropping --show-signature because -n is larger than %s"
                      'magit-log-show-signatures-limit)
                     "")
                    ("%G?"))))
