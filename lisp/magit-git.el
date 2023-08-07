@@ -1213,8 +1213,9 @@ Sorted from longest to shortest CYGWIN name."
 (defun magit-expand-git-file-name (filename)
   (unless (file-name-absolute-p filename)
     (setq filename (expand-file-name filename)))
-  (if-let ((cyg:win (cl-assoc filename magit-cygwin-mount-points
-                              :test (lambda (f cyg) (string-prefix-p cyg f)))))
+  (if-let ((cyg:win (and (not (file-remote-p default-directory)) ; see #4976
+                         (cl-assoc filename magit-cygwin-mount-points
+                                   :test (lambda (f cyg) (string-prefix-p cyg f))))))
       (concat (cdr cyg:win)
               (substring filename (length (car cyg:win))))
     filename))
