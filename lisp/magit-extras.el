@@ -730,7 +730,7 @@ the minibuffer too."
                     (string-replace "%N" idx eob-format)))
             (save-excursion
               (goto-char (point-max))
-              (skip-syntax-backward ">s-")
+              (skip-syntax-backward ">-")
               (beginning-of-line)
               (if (and comment-start (looking-at comment-start))
                   (while (looking-at comment-start)
