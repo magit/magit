@@ -127,7 +127,7 @@ defaulting to the tag at point.
 See also `magit-release-tag-regexp'.")
 
 (defvar magit-release-tag-regexp "\\`\
-\\(?1:\\(?:v\\(?:ersion\\)?\\|r\\(?:elease\\)?\\)?[-_]?\\)?\
+\\(?1:\\(?:v\\(?:ersion\\)?\\|r\\(?:elease\\)?\\)[-_]?\\)?\
 \\(?2:[0-9]+\\(?:\\.[0-9]+\\)*\
 \\(?:-[a-zA-Z0-9-]+\\(?:\\.[a-zA-Z0-9-]+\\)*\\)?\\)\\'"
   "Regexp used by `magit-tag-release' to parse release tags.
