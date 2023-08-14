@@ -63,7 +63,7 @@
 (defun magit-notes-merging-p ()
   (let ((dir (expand-file-name "NOTES_MERGE_WORKTREE" (magit-gitdir))))
     (and (file-directory-p dir)
-         (directory-files dir nil "^[^.]"))))
+         (directory-files dir nil "\\`[^.]"))))
 
 (transient-define-infix magit-core.notesRef ()
   :class 'magit--git-variable

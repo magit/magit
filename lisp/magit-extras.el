@@ -780,7 +780,7 @@ argument."
        (replace-regexp-in-string
         (format "^\\%c.*\n?" (if (< (prefix-numeric-value arg) 0) ?+ ?-))
         "")
-       (replace-regexp-in-string "^[ \\+\\-]" "")))
+       (replace-regexp-in-string "^[ +-]" "")))
     (deactivate-mark))
    ((use-region-p)
     (call-interactively #'copy-region-as-kill))

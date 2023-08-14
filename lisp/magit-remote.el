@@ -143,7 +143,7 @@ has to be used to view and change remote related variables."
     (when (equal (magit-get "remote.pushDefault") remote)
       (magit-set new-name "remote.pushDefault"))
     (dolist (var (magit-git-lines "config" "--name-only"
-                                  "--get-regexp" "^branch\.[^.]*\.pushRemote"
+                                  "--get-regexp" "^branch\\.[^.]*\\.pushRemote"
                                   (format "^%s$" remote)))
       (magit-call-git "config" (and (not new-name) "--unset") var new-name))))
 

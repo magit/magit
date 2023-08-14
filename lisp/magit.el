@@ -556,7 +556,7 @@ is run in the top-level directory of the current working tree."
 (defconst magit-font-lock-keywords
   (eval-when-compile
     `((,(concat "(\\(magit-define-section-jumper\\)\\_>"
-                "[ \t'\(]*"
+                "[ \t'(]*"
                 "\\(\\(?:\\sw\\|\\s_\\)+\\)?")
        (1 'font-lock-keyword-face)
        (2 'font-lock-function-name-face nil t))

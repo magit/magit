@@ -1034,7 +1034,7 @@ status buffer (i.e., the reverse of how they will be applied)."
 
 (defun magit-rebase-patches ()
   (directory-files (expand-file-name "rebase-apply" (magit-gitdir))
-                   t "^[0-9]\\{4\\}$"))
+                   t "\\`[0-9]\\{4\\}\\'"))
 
 (defun magit-sequence-insert-sequence (stop onto &optional orig)
   (let ((head (magit-rev-parse "HEAD")) done)
