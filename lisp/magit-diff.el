@@ -524,7 +524,7 @@ log's file filter is always honored."
   "Diff semantics for git-show of merge commits."
   :package-version '(magit . "3.3.1")
   :group 'magit-revision
-  :type `(choice (const :tag "Dense-combined" "--cc")
+  :type '(choice (const :tag "Dense-combined" "--cc")
                  (const :tag "First-parent" "--diff-merges=first-parent")))
 
 ;;;; Visit Commands
