@@ -1070,7 +1070,6 @@ Added to `font-lock-extend-region-functions'."
                     "#"))
     (setq-local comment-start-skip (format "^%s+[\s\t]*" comment-start))
     (setq-local comment-end-skip "\n")
-    (setq-local comment-use-syntax nil)
     (setq-local git-commit--branch-name-regexp
                 (if (and (featurep 'magit-git)
                          ;; When using cygwin git, we may end up in a
