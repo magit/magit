@@ -520,6 +520,13 @@ log's file filter is always honored."
   :group 'magit-revision
   :type 'boolean)
 
+(defcustom magit-revision-diff-merges-option "--cc"
+  "Diff semantics for git-show of merge commits."
+  :package-version '(magit . "3.3.1")
+  :group 'magit-revision
+  :type `(choice (const :tag "Dense-combined" "--cc")
+                 (const :tag "First-parent" "--diff-merges=first-parent")))
+
 ;;;; Visit Commands
 
 (defcustom magit-diff-visit-previous-blob t
@@ -2579,7 +2586,7 @@ Staging and applying changes is documented in info node
 (defun magit-insert-revision-diff ()
   "Insert the diff into this `magit-revision-mode' buffer."
   (magit--insert-diff t
-    "show" "-p" "--cc" "--format=" "--no-prefix"
+    "show" "-p" magit-revision-diff-merges-option "--format=" "--no-prefix"
     (and (member "--stat" magit-buffer-diff-args) "--numstat")
     magit-buffer-diff-args
     (magit--rev-dereference magit-buffer-revision)
