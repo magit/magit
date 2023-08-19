@@ -312,9 +312,9 @@ at point, stage the file but not its content."
                    (list (magit-file-relative-name)))))
 
 ;;;###autoload
-(defun magit-stage-file (files)
+(defun magit-stage-file (files &optional force)
   "Read one or more files and stage all changes in those files.
-With a prefix argument offer ignored files for completion."
+With prefix argument FORCE, offer ignored files for completion."
   (interactive
    (let* ((choices (if current-prefix-arg
                        (magit-ignored-files)
@@ -325,11 +325,13 @@ With a prefix argument offer ignored files for completion."
           (default (car (member default choices))))
      (list (magit-completing-read-multiple
             (if current-prefix-arg "Stage ignored file,s: " "Stage file,s: ")
-            choices nil t nil nil default))))
+            choices nil t nil nil default)
+           current-prefix-arg)))
   (magit-with-toplevel
     ;; For backward compatibility, and because of
     ;; the function's name, don't require a list.
-    (magit-stage-1 nil (if (listp files) files (list files)))))
+    (magit-stage-1 (and force "--force")
+                   (if (listp files) files (list files)))))
 
 ;;;###autoload
 (defun magit-stage-modified (&optional all)
