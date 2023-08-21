@@ -1076,8 +1076,15 @@ Added to `font-lock-extend-region-functions'."
                              (buffer-substring (point) (line-end-position)))))
                     "#"))
     (setq-local comment-start-skip (format "^%s+[\s\t]*" comment-start))
+    (setq-local comment-end "")
     (setq-local comment-end-skip "\n")
     (setq-local comment-use-syntax nil)
+    (when (derived-mode-p 'markdown-mode)
+      (setq-local fill-paragraph-function
+                  (lambda (&optional justify)
+                    (and (not (= (char-after (line-beginning-position))
+                                 (aref comment-start 0)))
+                         (markdown-fill-paragraph justify)))))
     (setq-local git-commit--branch-name-regexp
                 (if (and (featurep 'magit-git)
                          ;; When using cygwin git, we may end up in a
