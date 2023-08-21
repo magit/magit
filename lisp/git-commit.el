@@ -534,10 +534,17 @@ Used as the local value of `header-line-format', in buffer using
       (hack-dir-local-variables)
       (hack-local-variables-apply)))
   (when git-commit-major-mode
-    (let ((auto-mode-alist (list (cons (concat "\\`"
-                                               (regexp-quote buffer-file-name)
-                                               "\\'")
-                                       git-commit-major-mode)))
+    (let ((auto-mode-alist
+           ;; `set-auto-mode--apply-alist' removes the remote part from
+           ;; the file-name before looking it up in `auto-mode-alist'.
+           ;; For our temporary entry to be found, we have to modify the
+           ;; file-name the same way.
+           (list (cons (concat "\\`"
+                               (regexp-quote
+                                (or (file-remote-p buffer-file-name 'localname)
+                                    buffer-file-name))
+                               "\\'")
+                       git-commit-major-mode)))
           ;; The major-mode hook might want to consult these minor
           ;; modes, while the minor-mode hooks might want to consider
           ;; the major mode.
