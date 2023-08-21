@@ -137,6 +137,8 @@
 (declare-function magit-hook-custom-get "magit-base" (symbol))
 (declare-function magit-list-local-branch-names "magit-git" ())
 
+(declare-function markdown-fill-paragraph "markdown-mode" (&optional justify))
+
 (defvar diff-default-read-only)
 (defvar flyspell-generic-check-word-predicate)
 (defvar font-lock-beg)
