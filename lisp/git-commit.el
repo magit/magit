@@ -137,8 +137,6 @@
 (declare-function magit-hook-custom-get "magit-base" (symbol))
 (declare-function magit-list-local-branch-names "magit-git" ())
 
-(declare-function markdown-fill-paragraph "markdown-mode" (&optional justify))
-
 (defvar diff-default-read-only)
 (defvar flyspell-generic-check-word-predicate)
 (defvar font-lock-beg)
@@ -1081,7 +1079,8 @@ Added to `font-lock-extend-region-functions'."
     (setq-local comment-end "")
     (setq-local comment-end-skip "\n")
     (setq-local comment-use-syntax nil)
-    (when (derived-mode-p 'markdown-mode)
+    (when (and (derived-mode-p 'markdown-mode)
+               (fboundp 'markdown-fill-paragraph))
       (setq-local fill-paragraph-function
                   (lambda (&optional justify)
                     (and (not (= (char-after (line-beginning-position))
