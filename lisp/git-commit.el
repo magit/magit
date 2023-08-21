@@ -446,16 +446,16 @@ This is only used if Magit is available."
 (add-to-list 'with-editor-file-name-history-exclude git-commit-filename-regexp)
 
 (defun git-commit-setup-font-lock-in-buffer ()
-  (and buffer-file-name
-       (string-match-p git-commit-filename-regexp buffer-file-name)
-       (git-commit-setup-font-lock)))
+  (when (and buffer-file-name
+             (string-match-p git-commit-filename-regexp buffer-file-name))
+    (git-commit-setup-font-lock)))
 
 (add-hook 'after-change-major-mode-hook #'git-commit-setup-font-lock-in-buffer)
 
 (defun git-commit-setup-check-buffer ()
-  (and buffer-file-name
-       (string-match-p git-commit-filename-regexp buffer-file-name)
-       (git-commit-setup)))
+  (when (and buffer-file-name
+             (string-match-p git-commit-filename-regexp buffer-file-name))
+    (git-commit-setup)))
 
 (defvar git-commit-mode)
 
