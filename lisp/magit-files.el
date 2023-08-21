@@ -179,11 +179,18 @@ then only after asking.  A non-nil value for REVERT is ignored if REV is
           (after-change-major-mode-hook
            (remq 'global-diff-hl-mode-enable-in-buffers
                  after-change-major-mode-hook)))
-      (delay-mode-hooks
-        (normal-mode t)))
+      (normal-mode t))
     (setq buffer-read-only t)
     (set-buffer-modified-p nil)
     (goto-char (point-min))))
+
+(defun magit--lsp--disable-when-visiting-blob (fn &rest args)
+  "Do nothing when visiting blob using `magit-find-file' and similar.
+See also https://github.com/doomemacs/doomemacs/pull/6309."
+  (unless magit-buffer-revision
+    (apply fn args)))
+
+(advice-add 'lsp :around #'magit--lsp--disable-when-visiting-blob)
 
 ;;; Find Index
 
