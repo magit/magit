@@ -1525,6 +1525,13 @@ telling Magit to ask fewer questions.
 
   - Various:
 
+    - ~stash-apply-3way~  When a stash cannot be applied using
+      ~git stash apply~, then Magit uses ~git apply~ instead.
+      If doing so is safe, then it uses ~--3way~, when it is not
+      because doing so requires that some files are first staged,
+      then by default it prompts the user whether to use ~--3way~
+      or ~--reject~.  Add this symbol to always use ~--3way~.
+
     - ~kill-process~ There seldom is a reason to kill a process.
 
   - Global settings:
@@ -6396,16 +6403,51 @@ Also see [[man:git-stash]]
 
 - Key: z a (magit-stash-apply) ::
 
-  Apply a stash to the working tree.  Try to preserve the stash index.
-  If that fails because there are staged changes, apply without
-  preserving the stash index.
+  Apply a stash to the working tree.
+
+  First try ~git stash apply --index~, which tries to preserve
+  the index stored in the stash, if any.  This may fail because
+  applying the stash could result in conflicts and those have to
+  be stored in the index, making it impossible to also store the
+  stash's index there as well.
+
+  If the above failed, then try ~git stash apply~.  This fails
+  (with or without ~--index~) if there are any uncommitted
+  changes to files that are also modified in the stash.
+
+  If both of the above failed, then apply using ~git apply~.
+  If there are no conflicting files, use ~--3way~.  If there are
+  conflicting files, then using ~--3way~ requires that those
+  files are staged first, which may be undesirable, so prompt
+  the user whether to use ~--3way~ or ~--reject~.
+
+  Customize ~magit-no-confirm~ if you want to always use ~--3way~,
+  without being prompted.
 
 - Key: z p (magit-stash-pop) ::
 
-  Apply a stash to the working tree and remove it from stash list.
-  Try to preserve the stash index.  If that fails because there are
-  staged changes, apply without preserving the stash index and forgo
-  removing the stash.
+  Apply a stash to the working tree.  On complete success (if the
+  stash can be applied without any conflicts, and while preserving
+  the stash's index) then remove the stash from stash list.
+
+  First try ~git stash pop --index~, which tries to preserve
+  the index stored in the stash, if any.  This may fail because
+  applying the stash could result in conflicts and those have to
+  be stored in the index, making it impossible to also store the
+  stash's index there as well.
+
+  If the above failed, then try ~git stash apply~.  This fails
+  (with or without ~--index~) if there are any uncommitted
+  changes to files that are also modified in the stash.
+
+  If both of the above failed, then apply using ~git apply~.
+  If there are no conflicting files, use ~--3way~.  If there are
+  conflicting files, then using ~--3way~ requires that those
+  files are staged first, which may be undesirable, so prompt
+  the user whether to use ~--3way~ or ~--reject~.
+
+  Customize ~magit-no-confirm~ if you want to always use ~--3way~,
+  without being prompted.
 
 - Key: z k (magit-stash-drop) ::
 

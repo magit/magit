@@ -168,6 +168,7 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
     (const remove-modules)
     (const remove-dirty-modules)
     (const trash-module-gitdirs)
+    (const stash-apply-3way)
     (const kill-process)
     (const safe-with-wip)))
 
@@ -316,6 +317,13 @@ Removing modules:
   the `trash-directory' for traces of lost work.
 
 Various:
+
+  `stash-apply-3way'  When a stash cannot be applied using
+  \"git stash apply\", then Magit uses \"git apply\" instead.
+  If doing so is safe, then it uses \"--3way\", when it is not
+  because doing so requires that some files are first staged,
+  then by default it prompts the user whether to use \"--3way\"
+  or \"--reject\".  Add this symbol to always use \"--3way\".
 
   `kill-process' There seldom is a reason to kill a process.
 

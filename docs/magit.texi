@@ -2022,6 +2022,14 @@ Various:
 
 @itemize
 @item
+@code{stash-apply-3way}  When a stash cannot be applied using
+@code{git stash apply}, then Magit uses @code{git apply} instead.
+If doing so is safe, then it uses @code{--3way}, when it is not
+because doing so requires that some files are first staged,
+then by default it prompts the user whether to use @code{--3way}
+or @code{--reject}.  Add this symbol to always use @code{--3way}.
+
+@item
 @code{kill-process} There seldom is a reason to kill a process.
 @end itemize
 
@@ -7889,17 +7897,52 @@ prefix arguments are equivalent to @code{--all}-.
 @item @kbd{z a} (@code{magit-stash-apply})
 @kindex z a
 @findex magit-stash-apply
-Apply a stash to the working tree.  Try to preserve the stash index.
-If that fails because there are staged changes, apply without
-preserving the stash index.
+Apply a stash to the working tree.
+
+First try @code{git stash apply --index}, which tries to preserve
+the index stored in the stash, if any.  This may fail because
+applying the stash could result in conflicts and those have to
+be stored in the index, making it impossible to also store the
+stash's index there as well.
+
+If the above failed, then try @code{git stash apply}.  This fails
+(with or without @code{--index}) if there are any uncommitted
+changes to files that are also modified in the stash.
+
+If both of the above failed, then apply using @code{git apply}.
+If there are no conflicting files, use @code{--3way}.  If there are
+conflicting files, then using @code{--3way} requires that those
+files are staged first, which may be undesirable, so prompt
+the user whether to use @code{--3way} or @code{--reject}.
+
+Customize @code{magit-no-confirm} if you want to always use @code{--3way},
+without being prompted.
 
 @item @kbd{z p} (@code{magit-stash-pop})
 @kindex z p
 @findex magit-stash-pop
-Apply a stash to the working tree and remove it from stash list.
-Try to preserve the stash index.  If that fails because there are
-staged changes, apply without preserving the stash index and forgo
-removing the stash.
+Apply a stash to the working tree.  On complete success (if the
+stash can be applied without any conflicts, and while preserving
+the stash's index) then remove the stash from stash list.
+
+First try @code{git stash pop --index}, which tries to preserve
+the index stored in the stash, if any.  This may fail because
+applying the stash could result in conflicts and those have to
+be stored in the index, making it impossible to also store the
+stash's index there as well.
+
+If the above failed, then try @code{git stash apply}.  This fails
+(with or without @code{--index}) if there are any uncommitted
+changes to files that are also modified in the stash.
+
+If both of the above failed, then apply using @code{git apply}.
+If there are no conflicting files, use @code{--3way}.  If there are
+conflicting files, then using @code{--3way} requires that those
+files are staged first, which may be undesirable, so prompt
+the user whether to use @code{--3way} or @code{--reject}.
+
+Customize @code{magit-no-confirm} if you want to always use @code{--3way},
+without being prompted.
 
 @item @kbd{z k} (@code{magit-stash-drop})
 @kindex z k
