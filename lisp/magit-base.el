@@ -777,12 +777,14 @@ ACTION is a member of option `magit-slow-confirm'."
                    discard reverse stage-all-changes unstage-all-changes)))
 
 (cl-defun magit-confirm ( action &optional prompt prompt-n noabort
-                          (items nil sitems))
+                          (items nil sitems) prompt-suffix)
   (declare (indent defun))
   (setq prompt-n (format (concat (or prompt-n prompt) "? ") (length items)))
   (setq prompt   (format (concat (or prompt (magit-confirm-make-prompt action))
                                  "? ")
                          (car items)))
+  (when prompt-suffix
+    (setq prompt (concat prompt prompt-suffix)))
   (or (cond ((and (not (eq action t))
                   (or (eq magit-no-confirm t)
                       (memq action magit-no-confirm)
