@@ -807,14 +807,14 @@ ACTION is a member of option `magit-slow-confirm'."
                   items)))
       (if noabort nil (user-error "Abort"))))
 
-(defun magit-confirm-files (action files &optional prompt)
+(defun magit-confirm-files (action files &optional prompt prompt-suffix noabort)
   (when files
     (unless prompt
       (setq prompt (magit-confirm-make-prompt action)))
     (magit-confirm action
       (concat prompt " %s")
       (concat prompt " %d files")
-      nil files)))
+      noabort files prompt-suffix)))
 
 (defun magit-confirm-make-prompt (action)
   (let ((prompt (symbol-name action)))
