@@ -167,7 +167,8 @@ itself from the hook, to avoid further futile attempts."
 (defcustom magit-process-password-prompt-regexps
   '("^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
     ;; Match-group 99 is used to identify the "user@host" part.
-    "^\\(Enter \\)?[Pp]assword\\( for '?\\(https?://\\)?\\(?99:[^']*\\)'?\\)?: ?$"
+    "^\\(Enter \\|([^) ]+) \\)?\
+[Pp]assword\\( for '?\\(https?://\\)?\\(?99:[^']*\\)'?\\)?: ?$"
     "Please enter the passphrase for the ssh key"
     "Please enter the passphrase to unlock the OpenPGP secret key"
     "^.*'s password: ?$"
