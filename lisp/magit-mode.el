@@ -526,6 +526,7 @@ Magit is documented in info node `(magit)'."
   (setq-local revert-buffer-function #'magit-refresh-buffer)
   (setq-local bookmark-make-record-function #'magit--make-bookmark)
   (setq-local imenu-create-index-function #'magit--imenu-create-index)
+  (setq-local imenu-default-goto-function #'magit--imenu-goto-function)
   (setq-local isearch-filter-predicate #'magit-section--open-temporarily))
 
 ;;; Local Variables
@@ -1442,6 +1443,17 @@ mentioned caches completely."
        ((string-match " ([0-9]+)\\'" heading)
         (substring heading 0 (match-beginning 0)))
        (t heading)))))
+
+(defun magit--imenu-goto-function (_name position &rest _rest)
+  "Go to the section at POSITION.
+Make sure it is visible, by showing its ancestors where
+necessary.  For use as `imenu-default-goto-function' in
+`magit-mode' buffers."
+  (goto-char position)
+  (let ((section (magit-current-section)))
+    (while (setq section (oref section parent))
+      (when (oref section hidden)
+        (magit-section-show section)))))
 
 ;;; Bookmark support
 
