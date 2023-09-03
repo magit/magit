@@ -2408,6 +2408,7 @@ section or a child thereof."
     (unless (equal orig file)
       (oset section source orig))
     (oset section header header)
+    (oset section binary binary)
     (when modes
       (magit-insert-section (hunk '(chmod))
         (insert modes)

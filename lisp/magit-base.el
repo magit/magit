@@ -483,7 +483,8 @@ and delay of your graphical environment or operating system."
 (defclass magit-file-section (magit-diff-section)
   ((keymap :initform 'magit-file-section-map)
    (source :initform nil)
-   (header :initform nil)))
+   (header :initform nil)
+   (binary :initform nil)))
 
 (defclass magit-module-section (magit-file-section)
   ((keymap :initform 'magit-module-section-map)

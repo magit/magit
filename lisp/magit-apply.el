@@ -262,14 +262,23 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
             sections))
     (t sections)))
 
-(defun magit-apply--diff-ignores-whitespace-p ()
-  (and (cl-intersection magit-buffer-diff-args
-                        '("--ignore-space-at-eol"
-                          "--ignore-space-change"
-                          "--ignore-all-space"
-                          "--ignore-blank-lines")
-                        :test #'equal)
-       t))
+(defun magit-apply--ignore-whitespace-p (selection type scope)
+  "Return t if it is necessary and possible to ignore whitespace.
+It is necessary to do so when the diff ignores whitespace changes
+and whole files are being applied.  It is possible when no binary
+files are involved.  If it is both necessary and impossible, then
+return nil, possibly causing whitespace changes to be applied."
+  (and (memq type  '(unstaged staged))
+       (memq scope '(file files list))
+       (cl-find-if (lambda (arg)
+                     (member arg '("--ignore-space-at-eol"
+                                   "--ignore-space-change"
+                                   "--ignore-all-space"
+                                   "--ignore-blank-lines")))
+                   magit-buffer-diff-args)
+       (not (cl-find-if (lambda (section)
+                          (oref section binary))
+                        (ensure-list selection)))))
 
 ;;;; Stage
 
@@ -279,10 +288,11 @@ With a prefix argument, INTENT, and an untracked file (or files)
 at point, stage the file but not its content."
   (interactive "P")
   (if-let ((s (and (derived-mode-p 'magit-mode)
-                   (magit-apply--get-selection))))
-      (pcase (list (magit-diff-type)
-                   (magit-diff-scope)
-                   (magit-apply--diff-ignores-whitespace-p))
+                   (magit-apply--get-selection)))
+           (type (magit-diff-type))
+           (scope (magit-diff-scope)))
+      (pcase (list type scope
+                   (magit-apply--ignore-whitespace-p s type scope))
         (`(untracked     ,_  ,_) (magit-stage-untracked intent))
         (`(unstaged  region  ,_) (magit-apply-region s "--cached"))
         (`(unstaged    hunk  ,_) (magit-apply-hunk   s "--cached"))
@@ -414,10 +424,11 @@ ignored) files."
 (defun magit-unstage ()
   "Remove the change at point from the staging area."
   (interactive)
-  (when-let ((s (magit-apply--get-selection)))
-    (pcase (list (magit-diff-type)
-                 (magit-diff-scope)
-                 (magit-apply--diff-ignores-whitespace-p))
+  (when-let ((s (magit-apply--get-selection))
+             (type (magit-diff-type))
+             (scope (magit-diff-scope)))
+    (pcase (list type scope
+                 (magit-apply--ignore-whitespace-p s type scope))
       (`(untracked     ,_  ,_) (user-error "Cannot unstage untracked changes"))
       (`(unstaged    file  ,_) (magit-unstage-intent (list (oref s value))))
       (`(unstaged   files  ,_) (magit-unstage-intent (magit-region-values nil t)))
