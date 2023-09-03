@@ -268,9 +268,10 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
      ((equal oldname newname)
       (setq oldname
             (read-string
-             (format "Name of default branch is still `%s', %s\n%s" oldname
-                     "but some upstreams might need updating."
-                     "Name of upstream branches to update: ")))
+             (format
+              "Name of default branch is still `%s', %s\n%s `%s': " oldname
+              "but the upstreams of some local branches might need updating."
+              "Name of upstream branches to replace with" newname)))
       (magit--set-default-branch newname oldname)
       (magit-refresh))
      (t
