@@ -817,7 +817,10 @@ Save current message first."
 
 (transient-define-prefix git-commit-insert-pseudo-header ()
   "Insert a commit message pseudo header."
-  [["Insert ... by yourself"
+  [[:description (lambda ()
+                   (cond (prefix-arg
+                          "Insert ... by someone ")
+                         ("Insert ... by yourself")))
     ("a"   "Ack"          git-commit-ack)
     ("m"   "Modified"     git-commit-modified)
     ("r"   "Reviewed"     git-commit-review)
@@ -832,27 +835,31 @@ Save current message first."
 
 (defun git-commit-ack (name mail)
   "Insert a header acknowledging that you have looked at the commit."
-  (interactive (git-commit-self-ident))
+  (interactive (git-commit-get-ident "Acked-by"))
   (git-commit-insert-header "Acked-by" name mail))
 
 (defun git-commit-modified (name mail)
   "Insert a header to signal that you have modified the commit."
-  (interactive (git-commit-self-ident))
+  (interactive (git-commit-get-ident "Modified-by"))
   (git-commit-insert-header "Modified-by" name mail))
 
 (defun git-commit-review (name mail)
-  "Insert a header acknowledging that you have reviewed the commit."
-  (interactive (git-commit-self-ident))
+  "Insert a header acknowledging that you have reviewed the commit.
+With a prefix argument, prompt for another person who performed a
+review."
+  (interactive (git-commit-get-ident "Reviewed-by"))
   (git-commit-insert-header "Reviewed-by" name mail))
 
 (defun git-commit-signoff (name mail)
-  "Insert a header to sign off the commit."
-  (interactive (git-commit-self-ident))
+  "Insert a header to sign off the commit.
+With a prefix argument, prompt for another person who signed off."
+  (interactive (git-commit-get-ident "Signed-off-by"))
   (git-commit-insert-header "Signed-off-by" name mail))
 
 (defun git-commit-test (name mail)
-  "Insert a header acknowledging that you have tested the commit."
-  (interactive (git-commit-self-ident))
+  "Insert a header acknowledging that you have tested the commit.
+With a prefix argument, prompt for another person who tested."
+  (interactive (git-commit-get-ident "Tested-by"))
   (git-commit-insert-header "Tested-by" name mail))
 
 (defun git-commit-cc (name mail)
@@ -880,25 +887,37 @@ Save current message first."
   (interactive (git-commit-read-ident "Co-developed-by"))
   (git-commit-insert-header "Co-developed-by" name mail))
 
-(defun git-commit-self-ident ()
-  (list (or (getenv "GIT_AUTHOR_NAME")
-            (getenv "GIT_COMMITTER_NAME")
-            (with-demoted-errors "Error running 'git config user.name': %S"
-              (car (process-lines
-                    (git-commit-executable) "config" "user.name")))
-            user-full-name
-            (read-string "Name: "))
-        (or (getenv "GIT_AUTHOR_EMAIL")
-            (getenv "GIT_COMMITTER_EMAIL")
-            (getenv "EMAIL")
-            (with-demoted-errors "Error running 'git config user.email': %S"
-              (car (process-lines
-                    (git-commit-executable) "config" "user.email")))
-            (read-string "Email: "))))
+(defun git-commit-get-ident (&optional prompt)
+  "Return name and email of the user or read another name and email.
+If PROMPT and `current-prefix-arg' are both non-nil, read name
+and email using `git-commit-read-ident' (which see), otherwise
+return name and email of the current user (you)."
+  (if (and prompt current-prefix-arg)
+      (git-commit-read-ident prompt)
+    (list (or (getenv "GIT_AUTHOR_NAME")
+              (getenv "GIT_COMMITTER_NAME")
+              (with-demoted-errors "Error running 'git config user.name': %S"
+                (car (process-lines
+                      (git-commit-executable) "config" "user.name")))
+              user-full-name
+              (read-string "Name: "))
+          (or (getenv "GIT_AUTHOR_EMAIL")
+              (getenv "GIT_COMMITTER_EMAIL")
+              (getenv "EMAIL")
+              (with-demoted-errors "Error running 'git config user.email': %S"
+                (car (process-lines
+                      (git-commit-executable) "config" "user.email")))
+              (read-string "Email: ")))))
+
+(defalias 'git-commit-self-ident #'git-commit-get-ident)
 
 (defvar git-commit-read-ident-history nil)
 
 (defun git-commit-read-ident (prompt)
+  "Read a name and email, prompting with PROMPT, and return them.
+If Magit is available, read them using a single prompt, offering
+past commit authors as completion candidates.  The input must
+have the form \"NAME <EMAIL>\"."
   (if (require 'magit-git nil t)
       (let ((str (magit-completing-read
                   prompt
