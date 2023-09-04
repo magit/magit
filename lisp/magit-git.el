@@ -2525,9 +2525,14 @@ and this option only controls what face is used.")
 
 (defun magit-hash-range (range)
   (if (string-match magit-range-re range)
-      (concat (magit-rev-hash (match-string 1 range))
-              (match-string 2 range)
-              (magit-rev-hash (match-string 3 range)))
+      (let ((beg (match-string 1 range))
+            (end (match-string 3 range)))
+        (and (or beg end)
+             (let ((beg-hash (and beg (magit-rev-hash (match-string 1 range))))
+                   (end-hash (and end (magit-rev-hash (match-string 3 range)))))
+               (and (or (not beg) beg-hash)
+                    (or (not end) end-hash)
+                    (concat beg-hash (match-string 2 range) end-hash)))))
     (magit-rev-hash range)))
 
 (defvar magit-revision-faces
