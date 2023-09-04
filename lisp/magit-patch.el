@@ -102,7 +102,7 @@ which creates patches for all commits that are reachable from
      (cons (if-let ((revs (magit-region-values 'commit t)))
                (concat (car (last revs)) "^.." (car revs))
              (let ((range (magit-read-range-or-commit
-                           "Format range or commit")))
+                           "Create patches for range or commit")))
                (if (string-search ".." range)
                    range
                  (format "%s~..%s" range range))))
