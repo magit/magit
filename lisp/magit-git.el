@@ -2563,7 +2563,15 @@ and this option only controls what face is used.")
                            (lambda ()
                              (re-search-forward (format "\\=[^%s]*" c) nil t))))
                   (bounds-of-thing-at-point 'git-revision))))
-             (string (buffer-substring-no-properties (car bounds) (cdr bounds))))
+             (string (buffer-substring-no-properties (car bounds) (cdr bounds)))
+             ;; References are allowed to contain most parentheses and
+             ;; most punctuation, but if those characters appear at the
+             ;; edges of a possible reference in arbitrary text, then
+             ;; they are much more likely to be intended as just that:
+             ;; punctuation and delimiters.
+             (string (thread-first string
+                       (string-trim-left  "[(</]")
+                       (string-trim-right "[])>/.,;!]"))))
     (and (or (and (>= (length string) 7)
                   (string-match-p "[a-z]" string)
                   (magit-commit-p string))
