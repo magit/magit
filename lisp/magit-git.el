@@ -2595,9 +2595,10 @@ and this option only controls what face is used.")
 (defun magit-read-range-or-commit (prompt &optional secondary-default)
   (magit-read-range
    prompt
-   (or (when-let ((revs (magit-region-values '(commit branch) t)))
-         (deactivate-mark)
-         (concat (car (last revs)) ".." (car revs)))
+   (or (and-let* ((revs (magit-region-values '(commit branch) t)))
+         (progn ; work around debbugs#31840
+           (deactivate-mark)
+           (concat (car (last revs)) ".." (car revs))))
        (magit-branch-or-commit-at-point)
        secondary-default
        (magit-get-current-branch))))
