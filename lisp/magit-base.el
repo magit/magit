@@ -819,7 +819,7 @@ ACTION is a member of option `magit-slow-confirm'."
     (unless prompt
       (setq prompt (magit-confirm-make-prompt action)))
     (magit-confirm action
-      (concat prompt " %S")
+      (concat prompt " \"%s\"")
       (concat prompt " %d files")
       noabort files prompt-suffix)))
 
