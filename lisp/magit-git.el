@@ -2507,13 +2507,21 @@ and this option only controls what face is used.")
           "\\([^.][^ \t]*\\)?\\'"))     ; revB
 
 (defun magit-split-range (range)
+  (pcase-let ((`(,beg ,end ,sep) (magit--split-range-raw range)))
+    (and sep
+         (let ((beg (or beg "HEAD"))
+               (end (or end "HEAD")))
+           (if (string-equal (match-string 2 range) "...")
+               (and-let* ((base (magit-git-string "merge-base" beg end)))
+                 (cons base end))
+             (cons beg end))))))
+
+(defun magit--split-range-raw (range)
   (and (string-match magit-range-re range)
-       (let ((beg (or (match-string 1 range) "HEAD"))
-             (end (or (match-string 3 range) "HEAD")))
-         (cons (if (string-equal (match-string 2 range) "...")
-                   (magit-git-string "merge-base" beg end)
-                 beg)
-               end))))
+       (let ((beg (match-string 1 range))
+             (end (match-string 3 range)))
+         (and (or beg end)
+              (list beg end (match-string 2 range))))))
 
 (defun magit-hash-range (range)
   (if (string-match magit-range-re range)
