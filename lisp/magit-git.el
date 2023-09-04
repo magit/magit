@@ -2552,6 +2552,7 @@ and this option only controls what face is used.")
 
 (put 'git-revision 'thing-at-point #'magit-thingatpt--git-revision)
 (defun magit-thingatpt--git-revision (&optional disallow)
+  ;; Support hashes and references.
   (and-let* ((bounds
               (let ((c (concat "\s\n\t~^:?*[\\" disallow)))
                 (cl-letf
@@ -2592,6 +2593,24 @@ and this option only controls what face is used.")
                         (or (not face)
                             (member face magit-revision-faces)))))
              string)))))
+
+(put 'git-revision-range 'thing-at-point #'magit-thingatpt--git-revision-range)
+(defun magit-thingatpt--git-revision-range ()
+  ;; Support hashes but no references.
+  (and-let* ((bounds
+              (cl-letf (((get 'git-revision 'beginning-op)
+                         (lambda ()
+                           (if (re-search-backward "[^a-z0-9.]" nil t)
+                               (forward-char)
+                             (goto-char (point-min)))))
+                        ((get 'git-revision 'end-op)
+                         (lambda ()
+                           (and (re-search-forward "[^a-z0-9.]" nil t)
+                                (backward-char)))))
+                (bounds-of-thing-at-point 'git-revision)))
+             (range (buffer-substring-no-properties (car bounds) (cdr bounds))))
+    ;; Validate but return as-is.
+    (and (magit-hash-range range) range)))
 
 ;;; Completion
 
