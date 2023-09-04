@@ -2022,12 +2022,10 @@ Various:
 
 @itemize
 @item
-@code{stash-apply-3way}  When a stash cannot be applied using
-@code{git stash apply}, then Magit uses @code{git apply} instead.
-If doing so is safe, then it uses @code{--3way}, when it is not
-because doing so requires that some files are first staged,
-then by default it prompts the user whether to use @code{--3way}
-or @code{--reject}.  Add this symbol to always use @code{--3way}.
+@code{stash-apply-3way} When a stash cannot be applied using @code{git stash
+      apply}, then Magit uses @code{git apply} instead, possibly using the
+@code{--3way} argument, which isn't always perfectly safe.  See also
+@code{magit-stash-apply}.
 
 @item
 @code{kill-process} There seldom is a reason to kill a process.

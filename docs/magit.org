@@ -1525,12 +1525,10 @@ telling Magit to ask fewer questions.
 
   - Various:
 
-    - ~stash-apply-3way~  When a stash cannot be applied using
-      ~git stash apply~, then Magit uses ~git apply~ instead.
-      If doing so is safe, then it uses ~--3way~, when it is not
-      because doing so requires that some files are first staged,
-      then by default it prompts the user whether to use ~--3way~
-      or ~--reject~.  Add this symbol to always use ~--3way~.
+    - ~stash-apply-3way~ When a stash cannot be applied using ~git stash
+      apply~, then Magit uses ~git apply~ instead, possibly using the
+      ~--3way~ argument, which isn't always perfectly safe.  See also
+      ~magit-stash-apply~.
 
     - ~kill-process~ There seldom is a reason to kill a process.
 
