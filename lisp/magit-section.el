@@ -424,6 +424,8 @@ Magit-Section is documented in info node `(magit-section)'."
               #'magit-section--highlight-region)
   (setq-local redisplay-unhighlight-region-function
               #'magit-section--unhighlight-region)
+  (add-function :filter-return (local 'filter-buffer-substring-function)
+                #'magit-section--remove-text-properties)
   (when (fboundp 'magit-section-context-menu)
     (add-hook 'context-menu-functions #'magit-section-context-menu 10 t))
   (when magit-section-disable-line-numbers
@@ -438,6 +440,12 @@ Magit-Section is documented in info node `(magit-section)'."
       (display-line-numbers-mode -1)))
   (when (fboundp 'magit-preserve-section-visibility-cache)
     (add-hook 'kill-buffer-hook #'magit-preserve-section-visibility-cache)))
+
+(defun magit-section--remove-text-properties (string)
+  "Remove all text-properties from STRING.
+Most importantly `magit-section'."
+  (set-text-properties 0 (length string) nil string)
+  string)
 
 ;;; Core
 
