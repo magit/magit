@@ -1607,12 +1607,15 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (setq magit-section-unhighlight-sections
               magit-section-highlighted-sections)
         (setq magit-section-highlighted-sections nil)
-        (unless (eq section magit-root-section)
-          (run-hook-with-args-until-success
-           'magit-section-highlight-hook section selection))
-        (dolist (s magit-section-unhighlight-sections)
-          (run-hook-with-args-until-success
-           'magit-section-unhighlight-hook s selection))
+        (if (and (fboundp 'long-line-optimizations-p)
+                 (long-line-optimizations-p))
+            (magit-section--enable-long-lines-shortcuts)
+          (unless (eq section magit-root-section)
+            (run-hook-with-args-until-success
+             'magit-section-highlight-hook section selection))
+          (dolist (s magit-section-unhighlight-sections)
+            (run-hook-with-args-until-success
+             'magit-section-unhighlight-hook s selection)))
         (restore-buffer-modified-p nil)))
     (setq magit-section-highlight-force-update nil)
     (magit-section-maybe-paint-visibility-ellipses)))
@@ -1675,6 +1678,31 @@ invisible."
     (overlay-put ov 'evaporate t)
     (push ov magit-section-highlight-overlays)
     ov))
+
+(defvar magit-show-long-lines-warning t)
+
+(defun magit-section--enable-long-lines-shortcuts ()
+  (message "Enabling long lines shortcuts in %S" (current-buffer))
+  (setq-local redisplay-highlight-region-function
+              #'redisplay--highlight-overlay-function)
+  (setq-local redisplay-unhighlight-region-function
+              #'redisplay--unhighlight-overlay-function)
+  (when magit-show-long-lines-warning
+    (setq magit-show-long-lines-warning nil)
+    (display-warning 'magit "\
+Emacs has enabled redisplay shortcuts
+in this buffer because there are lines who's length go beyond
+`long-line-treshhold' \(%s characters).  As a result section
+highlighting and the special appearance of the region has been
+disabled.  Some existing highlighting might remain in effect.
+
+These shortcuts remain enables, even once there no longer are
+any long lines in this buffer.  To disable them again, kill
+and recreate the buffer.
+
+This message won't be shown for this session again.  To disable
+it for all future sessions, set `magit-show-long-lines-warning'
+to nil." :warning)))
 
 (cl-defgeneric magit-section-get-relative-position (section))
 
