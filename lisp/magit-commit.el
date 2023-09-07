@@ -368,9 +368,14 @@ depending on the value of option `magit-commit-squash-confirm'."
     (setq this-command #'magit-rebase-continue)
     (magit-run-git-sequencer "rebase" "--continue")
     nil)
-   ((and (file-exists-p (expand-file-name "MERGE_MSG" (magit-gitdir)))
-         (not (magit-anything-unstaged-p)))
-    (or args (list "--")))
+   ((file-exists-p (expand-file-name "MERGE_MSG" (magit-gitdir)))
+    (cond ((magit-anything-unmerged-p)
+           (user-error "Unresolved conflicts"))
+          ((and (magit-anything-unstaged-p)
+                (not (y-or-n-p
+                      "Proceed with merge despite unstaged changes? ")))
+           (user-error "Abort"))
+          ((or args (list "--")))))
    ((not (magit-anything-unstaged-p))
     (user-error "Nothing staged (or unstaged)"))
    (magit-commit-ask-to-stage
