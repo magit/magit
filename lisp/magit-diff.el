@@ -900,12 +900,12 @@ and `:slant'."
    (magit-diff:--diff-algorithm)
    (magit-diff:-M)
    (magit-diff:-C)
-   ("-x" "Disallow external diff drivers" "--no-ext-diff")
-   ("-s" "Show stats"                     "--stat")
-   ("=g" "Show signature"                 "--show-signature")
    (5 "-R" "Reverse sides"                "-R")
    (5 magit-diff:--color-moved)
-   (5 magit-diff:--color-moved-ws)]
+   (5 magit-diff:--color-moved-ws)
+   ("-x" "Disallow external diff drivers" "--no-ext-diff")
+   ("-s" "Show stats"                     "--stat")
+   ("=g" "Show signature"                 "--show-signature")]
   ["Actions"
    [("d" "Dwim"          magit-diff-dwim)
     ("r" "Diff range"    magit-diff-range)
@@ -934,15 +934,15 @@ and `:slant'."
    (magit-diff:--diff-algorithm)
    (magit-diff:-M)
    (magit-diff:-C)
+   (5 "-R" "Reverse sides"                "-R"
+      :if-derived magit-diff-mode)
+   (5 magit-diff:--color-moved)
+   (5 magit-diff:--color-moved-ws)
    ("-x" "Disallow external diff drivers" "--no-ext-diff")
    ("-s" "Show stats"                     "--stat"
     :if-derived magit-diff-mode)
    ("=g" "Show signature"                 "--show-signature"
-    :if-derived magit-diff-mode)
-   (5 "-R" "Reverse sides"                "-R"
-      :if-derived magit-diff-mode)
-   (5 magit-diff:--color-moved)
-   (5 magit-diff:--color-moved-ws)]
+    :if-derived magit-diff-mode)]
   [["Refresh"
     ("g" "buffer"                   magit-diff-refresh)
     ("s" "buffer and set defaults"  transient-set  :transient nil)
