@@ -830,7 +830,7 @@ By default, this is the same except for the \"pick\" command."
 (add-hook 'git-rebase-mode-hook #'git-rebase-mode-show-keybindings t)
 
 (defun git-rebase-mode-disable-before-save-hook ()
-  (set (make-local-variable 'before-save-hook) nil))
+  (setq-local before-save-hook nil))
 
 (add-hook 'git-rebase-mode-hook #'git-rebase-mode-disable-before-save-hook)
 
