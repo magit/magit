@@ -1683,10 +1683,8 @@ invisible."
 
 (defun magit-section--enable-long-lines-shortcuts ()
   (message "Enabling long lines shortcuts in %S" (current-buffer))
-  (setq-local redisplay-highlight-region-function
-              #'redisplay--highlight-overlay-function)
-  (setq-local redisplay-unhighlight-region-function
-              #'redisplay--unhighlight-overlay-function)
+  (kill-local-variable 'redisplay-highlight-region-function)
+  (kill-local-variable 'redisplay-unhighlight-region-function)
   (when magit-show-long-lines-warning
     (setq magit-show-long-lines-warning nil)
     (display-warning 'magit "\
