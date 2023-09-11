@@ -937,7 +937,7 @@ have the form \"NAME <EMAIL>\"."
   (setq header (format "%s: %s <%s>" header name email))
   (save-excursion
     (goto-char (point-max))
-    (cond ((re-search-backward "^[-a-zA-Z]+: [^<]+? <[^>]+>" nil t)
+    (cond ((re-search-backward "^[-a-zA-Z]+: [^<\n]+? <[^>\n]+>" nil t)
            (end-of-line)
            (insert ?\n header)
            (unless (= (char-after) ?\n)
