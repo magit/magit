@@ -23,7 +23,7 @@
 <hr>
 
 <div align="center">
-  Keeping its users <a href= "https://magit.vc/quotes">this excited</a> is
+  Keeping its users <a href= "https://magit.vc/quotes/">this excited</a> is
   <a href="https://magit.vc/stats/magit/authors.html#cumulated_added_lines_of_code_per_author">
     a lot of work
   </a>.
@@ -35,34 +35,29 @@
 </div>
 <br>
 <div align="center">
-  <a href="https://github.com/sponsors/tarsius">
-    <img title="Donate using Github Sponsors"
-         alt="Donate using Github Sponsors"
-         src="https://magit.vc/assets/github-sponsors-40px.png"></a>
-  &nbsp;
-  <a href="https://magit.vc/donate/iban.html">
-     <img title="Donate using IBAN"
-          alt="Donate using IBAN"
-          src="https://magit.vc/assets/iban-40px.png"></a>
-  &nbsp;
-  <a href="https://magit.vc/donate/ach.html">
-     <img title="Donate using ACH"
-          alt="Donate using ACH"
-          src="https://magit.vc/assets/ach-40px.png"></a>
-  &nbsp;
-  <a href="https://magit.vc/donate/stripe.html">
-    <img title="Donate using Stripe"
-         alt="Donate using Stripe"
-         src="https://magit.vc/assets/stripe-40px.png"></a>
-  &nbsp;
+  <a href="https://github.com/sponsors/tarsius/">
+    <img title="Sponsor my work using Github Sponsors"
+         alt="Sponsor my work using Github Sponsors"
+         src="https://magit.vc/assets/donate/github-sponsors-50px.png"></a>
+  &nbsp;&nbsp;
+  <a href="https://liberapay.com/magit/">
+    <img title="Sponsor my work using Liberapay"
+         alt="Sponsor my work using Liberapay"
+         src="https://magit.vc/assets/donate/liberapay-50px.png"></a>
+  <br>
+  <a href="https://opencollective.com/magit/">
+    <img title="Sponsor my work using Opencollective"
+         alt="Sponsor my work using Opencollective"
+         src="https://magit.vc/assets/donate/opencollective-50px.png"></a>
+  &nbsp;&nbsp;
   <a href="https://magit.vc/donate/paypal.html">
-    <img title="Donate using PayPal"
-         alt="Donate using PayPal"
-         src="https://magit.vc/assets/paypal-40px.png"></a>
+    <img title="Sponsor my work using PayPal"
+         alt="Sponsor my work using PayPal"
+         src="https://magit.vc/assets/donate/paypal-50px.png"></a>
 </div>
 <br>
 <div align="center">
-  Some alternative donation methods are <a href="https://magit.vc/donate">available</a>.
+  Some alternative donation methods are <a href="https://magit.vc/donate/">available</a>.
 </div>
 <hr>
 
