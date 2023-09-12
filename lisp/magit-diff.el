@@ -898,6 +898,7 @@ and `:slant'."
    ("-W" "Show surrounding functions"     ("-W" "--function-context"))]
   ["Tune arguments"
    (magit-diff:--diff-algorithm)
+   (magit-diff:--diff-merges)
    (magit-diff:-M)
    (magit-diff:-C)
    (5 "-R" "Reverse sides"                "-R")
@@ -932,6 +933,7 @@ and `:slant'."
    ("-W" "Show surrounding functions"     ("-W" "--function-context"))]
   ["Tune arguments"
    (magit-diff:--diff-algorithm)
+   (magit-diff:--diff-merges)
    (magit-diff:-M)
    (magit-diff:-C)
    (5 "-R" "Reverse sides"                "-R"
@@ -1020,6 +1022,22 @@ and `:slant'."
     (?m "[m]inimal"     "minimal")
     (?p "[p]atience"    "patience")
     (?h "[h]istogram"   "histogram")))
+
+(transient-define-argument magit-diff:--diff-merges ()
+  :description "Diff merges"
+  :class 'transient-option
+  :key "-X"
+  :argument "--diff-merges="
+  :reader #'magit-diff-select-merges
+  :always-read t)
+
+(defun magit-diff-select-merges (&rest _ignore)
+  (magit-read-char-case nil t
+    (?u "[u]nspecified"    nil)
+    (?o "[o]ff"            "off")
+    (?f "[f]irst-parent"   "first-parent")
+    (?c "[c]ombined"       "combined")
+    (?d "[d]ense-combined" "dense-combined")))
 
 (transient-define-argument magit-diff:--ignore-submodules ()
   :description "Ignore submodules"
@@ -2582,7 +2600,7 @@ Staging and applying changes is documented in info node
 (defun magit-insert-revision-diff ()
   "Insert the diff into this `magit-revision-mode' buffer."
   (magit--insert-diff t
-    "show" "-p" "--cc" "--format=" "--no-prefix"
+    "show" "-p" "--format=" "--no-prefix"
     (and (member "--stat" magit-buffer-diff-args) "--numstat")
     magit-buffer-diff-args
     (magit--rev-dereference magit-buffer-revision)
