@@ -45,6 +45,7 @@ All Contributors
 - Alex Dunn
 - Alexey Voinov
 - Alex Kost
+- Alex Kreisher
 - Alex Ott
 - Allen Li
 - Andreas Fuchs
@@ -140,6 +141,7 @@ All Contributors
 - Evan Torrie
 - Evgkeni Sampelnikof
 - Eyal Lotem
+- Eyal Soha
 - Fabian Wiget
 - Felix Geller
 - Felix Yan
@@ -376,6 +378,7 @@ All Contributors
 - Troy Hinckley
 - Tsuyoshi Kitamoto
 - Tunc Uzlu
+- Ulrich Müller
 - Vineet Naik
 - Vitaly Ostashov
 - Vladimir Ivanov
