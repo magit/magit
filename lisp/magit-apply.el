@@ -187,7 +187,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
 
 (defun magit-apply-hunks (sections &rest args)
   (let ((section (oref (car sections) parent)))
-    (when (string-match "^diff --cc" (oref section value))
+    (when (magit-diff--combined-p section)
       (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
     (magit-apply-patch
      section args
@@ -198,7 +198,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
                         "")))))
 
 (defun magit-apply-hunk (section &rest args)
-  (when (string-match "^diff --cc" (magit-section-parent-value section))
+  (when (magit-diff--combined-p (magit-section-parent section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
   (let* ((header (car (oref section value)))
          (header (and (symbolp header) header))
@@ -211,7 +211,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
                (magit-apply--adjust-hunk-new-start content))))))
 
 (defun magit-apply-region (section &rest args)
-  (when (string-match "^diff --cc" (magit-section-parent-value section))
+  (when (magit-diff--combined-p (magit-section-parent section))
     (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
   (magit-apply-patch (oref section parent) args
                      (concat (magit-diff-file-header section)

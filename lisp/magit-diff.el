@@ -3500,13 +3500,17 @@ last (visual) lines of the region."
               ;; edge of the window.
               'cursor t))
 
-;;; Hunk Utilities
+;;; Utilities
 
 (defun magit-diff-inside-hunk-body-p ()
   "Return non-nil if point is inside the body of a hunk."
   (and (magit-section-match 'hunk)
        (and-let* ((content (oref (magit-current-section) content)))
          (> (magit-point) content))))
+
+(defun magit-diff--combined-p (section)
+  (cl-assert (cl-typep section 'magit-file-section))
+  (string-match "^diff --cc" (oref section value)))
 
 ;;; Diff Extract
 
