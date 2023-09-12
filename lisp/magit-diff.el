@@ -1010,14 +1010,16 @@ and `:slant'."
   :class 'transient-option
   :key "-A"
   :argument "--diff-algorithm="
-  :reader #'magit-diff-select-algorithm)
+  :reader #'magit-diff-select-algorithm
+  :always-read t)
 
 (defun magit-diff-select-algorithm (&rest _ignore)
   (magit-read-char-case nil t
-    (?d "[d]efault"   "default")
-    (?m "[m]inimal"   "minimal")
-    (?p "[p]atience"  "patience")
-    (?h "[h]istogram" "histogram")))
+    (?u "[u]nspecified" nil)
+    (?d "[d]efault"     "default")
+    (?m "[m]inimal"     "minimal")
+    (?p "[p]atience"    "patience")
+    (?h "[h]istogram"   "histogram")))
 
 (transient-define-argument magit-diff:--ignore-submodules ()
   :description "Ignore submodules"
