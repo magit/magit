@@ -3510,7 +3510,7 @@ last (visual) lines of the region."
 
 (defun magit-diff--combined-p (section)
   (cl-assert (cl-typep section 'magit-file-section))
-  (string-match-p "\\`diff --cc" (oref section value)))
+  (string-match-p "\\`diff --\\(combined\\|cc\\)" (oref section value)))
 
 ;;; Diff Extract
 
