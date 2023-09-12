@@ -185,38 +185,41 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
 (defun magit-apply--adjust-hunk-new-start (hunk)
   (car (magit-apply--adjust-hunk-new-starts (list hunk))))
 
-(defun magit-apply-hunks (sections &rest args)
-  (let ((section (oref (car sections) parent)))
-    (when (magit-diff--combined-p section)
+(defun magit-apply-hunks (hunks &rest args)
+  (let ((file (oref (car hunks) parent)))
+    (when (magit-diff--combined-p file)
       (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
     (magit-apply-patch
-     section args
-     (concat (oref section header)
+     file args
+     (concat (oref file header)
              (mapconcat #'identity
                         (magit-apply--adjust-hunk-new-starts
-                         (mapcar #'magit-apply--section-content sections))
+                         (mapcar #'magit-apply--section-content hunks))
                         "")))))
 
-(defun magit-apply-hunk (section &rest args)
-  (when (magit-diff--combined-p (magit-section-parent section))
-    (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-  (let* ((header (car (oref section value)))
-         (header (and (symbolp header) header))
-         (content (magit-apply--section-content section)))
-    (magit-apply-patch
-     (oref section parent) args
-     (concat (magit-diff-file-header section (not (eq header 'rename)))
-             (if header
-                 content
-               (magit-apply--adjust-hunk-new-start content))))))
+(defun magit-apply-hunk (hunk &rest args)
+  (let ((file (oref hunk parent)))
+    (when (magit-diff--combined-p file)
+      (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
+    (let* ((header (car (oref hunk value)))
+           (header (and (symbolp header) header))
+           (content (magit-apply--section-content hunk)))
+      (magit-apply-patch
+       file args
+       (concat (magit-diff-file-header hunk (not (eq header 'rename)))
+               (if header
+                   content
+                 (magit-apply--adjust-hunk-new-start content)))))))
 
-(defun magit-apply-region (section &rest args)
-  (when (magit-diff--combined-p (magit-section-parent section))
-    (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
-  (magit-apply-patch (oref section parent) args
-                     (concat (magit-diff-file-header section)
-                             (magit-apply--adjust-hunk-new-start
-                              (magit-diff-hunk-region-patch section args)))))
+(defun magit-apply-region (hunk &rest args)
+  (let ((file (oref hunk parent)))
+    (when (magit-diff--combined-p file)
+      (user-error "Cannot un-/stage resolution hunks.  Stage the whole file"))
+    (magit-apply-patch
+     file args
+     (concat (magit-diff-file-header hunk)
+             (magit-apply--adjust-hunk-new-start
+              (magit-diff-hunk-region-patch hunk args))))))
 
 (defun magit-apply-patch (section:s args patch)
   (let* ((files (if (atom section:s)
