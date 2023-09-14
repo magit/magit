@@ -1098,7 +1098,7 @@ tracked file."
                    (magit-headish) "--" files))
 
 (defun magit-unstaged-files (&optional nomodules files)
-  (magit-git-items "diff-files" "-z" "--name-only"
+  (magit-git-items "diff-files" "-z" "--name-only" "--diff-filter=u"
                    (and nomodules "--ignore-submodules")
                    "--" files))
 
