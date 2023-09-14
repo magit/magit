@@ -843,7 +843,7 @@ Also see `magit-git-config-p'."
 (defun magit-gitdir (&optional directory)
   "Return the absolute and resolved path of the .git directory.
 
-If the `GIT_DIR' environment variable is define then return that.
+If the `GIT_DIR' environment variable is defined, return that.
 Otherwise return the .git directory for DIRECTORY, or if that is
 nil, then for `default-directory' instead.  If the directory is
 not located inside a Git repository, then return nil."
