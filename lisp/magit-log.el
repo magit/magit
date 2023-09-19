@@ -530,8 +530,8 @@ commits before and half after."
    ("-d" "Show refnames"            "--decorate")]
   [["Refresh"
     ("g" "buffer"                   magit-log-refresh)
-    ("s" "buffer and set defaults"  transient-set  :transient nil)
-    ("w" "buffer and save defaults" transient-save :transient nil)]
+    ("s" "buffer and set defaults"  transient-set-and-exit)
+    ("w" "buffer and save defaults" transient-save-and-exit)]
    ["Margin"
     ("L" "toggle visibility"        magit-toggle-margin      :transient t)
     ("l" "cycle style"              magit-cycle-margin-style :transient t)

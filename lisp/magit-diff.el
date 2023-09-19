@@ -947,8 +947,8 @@ and `:slant'."
     :if-derived magit-diff-mode)]
   [["Refresh"
     ("g" "buffer"                   magit-diff-refresh)
-    ("s" "buffer and set defaults"  transient-set  :transient nil)
-    ("w" "buffer and save defaults" transient-save :transient nil)]
+    ("s" "buffer and set defaults"  transient-set-and-exit)
+    ("w" "buffer and save defaults" transient-save-and-exit)]
    ["Toggle"
     ("t" "hunk refinement"          magit-diff-toggle-refine-hunk)
     ("F" "file filter"              magit-diff-toggle-file-filter)
