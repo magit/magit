@@ -64,9 +64,9 @@ To change the value in an existing buffer use the command
   :package-version '(magit . "2.1.0")
   :group 'magit-refs
   :safe (lambda (val) (memq val '(all branch nil)))
-  :type '(choice (const all    :tag "For branches and tags")
-                 (const branch :tag "For branches only")
-                 (const nil    :tag "Never")))
+  :type '(choice (const :tag "For branches and tags" all)
+                 (const :tag "For branches only"     branch)
+                 (const :tag "Never"                 nil)))
 (put 'magit-refs-show-commit-count 'safe-local-variable 'symbolp)
 (put 'magit-refs-show-commit-count 'permanent-local t)
 
