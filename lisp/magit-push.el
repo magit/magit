@@ -138,10 +138,11 @@ the upstream."
                         (format "Set upstream of %s and push there" branch)
                         branches nil nil nil 'magit-revision-history
                         (or (car (member (magit-remote-branch-at-point) branches))
-                            (car (member "origin/master" branches))))))
-        (pcase-setq `(,remote . ,merge)
-                    (or (magit-get-tracked upstream)
-                        (magit-split-branch-name upstream)))
+                            (car (member "origin/master" branches)))))
+             (upstream* (or (magit-get-tracked upstream)
+                            (magit-split-branch-name upstream))))
+        (setq remote (car upstream*))
+        (setq merge  (cdr upstream*))
         (unless (string-prefix-p "refs/" merge)
           ;; User selected a non-existent remote-tracking branch.
           ;; It is very likely, but not certain, that this is the

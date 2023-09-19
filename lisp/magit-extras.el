@@ -714,17 +714,21 @@ the minibuffer too."
                             "1"))))
               pnt-args eob-args)
           (when (listp pnt-format)
-            (pcase-setq `(,pnt-format . ,pnt-args) pnt-format))
+            (setq pnt-args (cdr pnt-format))
+            (setq pnt-format (car pnt-format)))
           (when (listp eob-format)
-            (pcase-setq `(,eob-format . ,eob-args) eob-format))
+            (setq eob-args (cdr eob-format))
+            (setq eob-format (car eob-format)))
           (when pnt-format
             (when idx-format
-              (setq pnt-format (string-replace "%N" idx pnt-format)))
+              (setq pnt-format
+                    (string-replace "%N" idx pnt-format)))
             (magit-rev-insert-format pnt-format rev pnt-args)
             (delete-char -1))
           (when eob-format
             (when idx-format
-              (setq eob-format (string-replace "%N" idx eob-format)))
+              (setq eob-format
+                    (string-replace "%N" idx eob-format)))
             (save-excursion
               (goto-char (point-max))
               (skip-syntax-backward ">-")
