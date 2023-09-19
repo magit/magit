@@ -1009,7 +1009,7 @@ If LEVEL is negative, show up to the absolute value.
 Sections at higher levels are hidden."
   (if (< level 0)
       (let ((s (magit-current-section)))
-        (setq level (- level))
+        (cl-decf level)
         (while (> (1- (length (magit-section-ident s))) level)
           (setq s (oref s parent))
           (goto-char (oref s start)))
