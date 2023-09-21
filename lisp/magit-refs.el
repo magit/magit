@@ -623,17 +623,17 @@ line is inserted at all."
     (magit-make-margin-overlay nil t)))
 
 (defun magit-refs--format-local-branches ()
-  (let ((lines (delq nil (mapcar #'magit-refs--format-local-branch
-                                 (magit-git-lines
-                                  "for-each-ref"
-                                  (concat "--format=\
+  (let ((lines (seq-keep #'magit-refs--format-local-branch
+                         (magit-git-lines
+                          "for-each-ref"
+                          (concat "--format=\
 %(HEAD)%00%(refname:short)%00%(refname)%00\
 %(upstream:short)%00%(upstream)%00%(upstream:track)%00"
-                                          (if magit-refs-show-push-remote "\
+                                  (if magit-refs-show-push-remote "\
 %(push:remotename)%00%(push)%00%(push:track)%00%(subject)"
                                  "%00%00%00%(subject)"))
-                                  "refs/heads"
-                                  magit-buffer-arguments)))))
+                          "refs/heads"
+                          magit-buffer-arguments))))
     (unless (magit-get-current-branch)
       (push (magit-refs--format-local-branch
              (concat "*\0\0\0\0\0\0\0\0" (magit-rev-format "%s")))

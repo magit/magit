@@ -5,7 +5,7 @@
     (dash          "20221013")
     (git-commit    "20230101")
     (magit-section "20230101")
-    (seq           "2.23")
+    (seq           "2.24")
     (transient     "20230201")
     (with-editor   "20230118"))
   :homepage "https://magit.vc"

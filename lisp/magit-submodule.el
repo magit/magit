@@ -659,27 +659,23 @@ These sections can be expanded to show the respective commits."
 
 (defun magit-submodule-list-refresh ()
   (setq tabulated-list-entries
-        ;; Backport version 2.23 of seq lacks seq-keep.  Once that is
-        ;; available trace this commment to find more instances where
-        ;; it should be used.
-        (delq nil
-              (mapcar
-               (lambda (module)
-                 (let ((default-directory
-                        (expand-file-name (file-name-as-directory module))))
-                   (and (file-exists-p ".git")
-                        (or (not magit-submodule-list-predicate)
-                            (funcall magit-submodule-list-predicate module))
-                        (list module
-                              (vconcat
-                               (mapcar (pcase-lambda (`(,title ,width ,fn ,props))
-                                         (or (funcall fn `((:path  ,module)
-                                                           (:title ,title)
-                                                           (:width ,width)
-                                                           ,@props))
-                                             ""))
-                                       magit-repolist-columns))))))
-               (magit-list-module-paths))))
+        (seq-keep
+         (lambda (module)
+           (let ((default-directory
+                  (expand-file-name (file-name-as-directory module))))
+             (and (file-exists-p ".git")
+                  (or (not magit-submodule-list-predicate)
+                      (funcall magit-submodule-list-predicate module))
+                  (list module
+                        (vconcat
+                         (mapcar (pcase-lambda (`(,title ,width ,fn ,props))
+                                   (or (funcall fn `((:path  ,module)
+                                                     (:title ,title)
+                                                     (:width ,width)
+                                                     ,@props))
+                                       ""))
+                                 magit-repolist-columns))))))
+         (magit-list-module-paths)))
   (message "Listing submodules...")
   (tabulated-list-init-header)
   (tabulated-list-print t)
