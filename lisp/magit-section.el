@@ -43,12 +43,13 @@
 
 (require 'cl-lib)
 (require 'compat)
-(require 'cursor-sensor)
 (require 'dash)
 (require 'eieio)
-(require 'format-spec)
 (require 'seq)
 (require 'subr-x)
+
+(require 'cursor-sensor)
+(require 'format-spec)
 
 (eval-when-compile (require 'benchmark))
 
