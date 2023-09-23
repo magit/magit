@@ -396,7 +396,7 @@ recommended value."
   "C-c C-c" 'magit-dispatch
   "C-c C-e" 'magit-edit-thing
   "C-c C-o" 'magit-browse-thing
-  "C-c C-w" 'magit-browse-thing
+  "C-c C-w" 'magit-copy-thing
   "C-w"     'magit-copy-section-value
   "M-w"     'magit-copy-buffer-revision
   "<remap> <previous-line>"      'magit-previous-line
@@ -436,6 +436,14 @@ Where applicable, other keymaps remap this command to another,
 which actually visits thing at point using `browse-url'."
   (interactive)
   (user-error "There is no thing at point that could be browsed"))
+
+(defun magit-copy-thing ()
+  "This is a placeholder command, which signals an error if called.
+Where applicable, other keymaps remap this command to another,
+which actually copies some representation of the thing at point
+to the kill ring."
+  (interactive)
+  (user-error "There is no thing at point that we know how to copy"))
 
 ;;;###autoload
 (defun magit-info ()
