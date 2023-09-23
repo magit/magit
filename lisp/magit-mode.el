@@ -405,34 +405,35 @@ recommended value."
   "<remap> <evil-next-line>"     'evil-next-visual-line)
 
 (defun magit-delete-thing ()
-  "This is a placeholder command.
-Where applicable, section-specific keymaps bind another command
-which deletes the thing at point."
+  "This is a placeholder command, which signals an error if called.
+Where applicable, other keymaps remap this command to another,
+which actually deletes the thing at point."
   (interactive)
   (user-error "There is no thing at point that could be deleted"))
 
 (defun magit-visit-thing ()
-  "This is a placeholder command.
-Where applicable, section-specific keymaps bind another command
-which visits the thing at point."
+  "This is a placeholder command, which may signal an error if called.
+Where applicable, other keymaps remap this command to another,
+which actually visits the thing at point."
   (interactive)
   (if (eq transient-current-command 'magit-dispatch)
       (call-interactively (key-binding (this-command-keys)))
     (user-error "There is no thing at point that could be visited")))
 
 (defun magit-edit-thing ()
-  "This is a placeholder command.
-Where applicable, section-specific keymaps bind another command
-which lets you edit the thing at point, likely in another buffer."
+  "This is a placeholder command, which may signal an error if called.
+Where applicable, other keymaps remap this command to another,
+which actually lets you edit the thing at point, likely in another
+buffer."
   (interactive)
   (if (eq transient-current-command 'magit-dispatch)
       (call-interactively (key-binding (this-command-keys)))
     (user-error "There is no thing at point that could be edited")))
 
 (defun magit-browse-thing ()
-  "This is a placeholder command.
-Where applicable, section-specific keymaps bind another command
-which visits the thing at point using `browse-url'."
+  "This is a placeholder command, which signals an error if called.
+Where applicable, other keymaps remap this command to another,
+which actually visits thing at point using `browse-url'."
   (interactive)
   (user-error "There is no thing at point that could be browsed"))
 
