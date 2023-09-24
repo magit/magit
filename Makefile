@@ -204,6 +204,7 @@ define set_package_requires_nongnu
 (--update-package "lisp/git-commit.el" "$(GIT_COMMIT_VERSION)"
 `((emacs ,emacs-version) ;`
   (compat ,compat-version)
+  (seq ,seq-version)
   (transient ,transient-version)
   (with-editor ,with-editor-version)))
 
@@ -221,12 +222,14 @@ define set_package_requires_nongnu
 `((emacs "$(LIBGIT_EMACS_VERSION)") ;`
   (compat ,compat-version)
   (libgit ,libgit-version)
+  (seq ,seq-version)
   (magit ,magit-version)))
 
 (--update-package "lisp/magit-section.el" "$(MAGIT_SECTION_VERSION)"
 `((emacs ,emacs-version) ;`
   (compat ,compat-version)
-  (dash ,dash-version)))
+  (dash ,dash-version)
+  (seq ,seq-version)))
 endef
 export set_package_requires_nongnu
 

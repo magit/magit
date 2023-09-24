@@ -12,7 +12,8 @@
 ;; Package-Requires: (
 ;;     (emacs "25.1")
 ;;     (compat "29.1.3.4")
-;;     (dash "2.19.1"))
+;;     (dash "2.19.1")
+;;     (seq "2.24"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
