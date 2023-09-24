@@ -59,6 +59,20 @@
   (declare (indent 1) (debug t))
   `(magit-with-test-directory (magit-test-init-repo "." "--bare") ,@body))
 
+(defun magit-test-visible-text (&optional raw)
+  (save-excursion
+    (let (chunks)
+      (goto-char (point-min))
+      (while (let ((to (next-single-char-property-change (point) 'invisible)))
+               (unless (invisible-p (point))
+                 (push (buffer-substring-no-properties (point) to) chunks))
+               (goto-char to)
+               (< (point) (point-max))))
+      (let ((result (mapconcat #'identity (nreverse chunks) nil)))
+        (unless raw
+          (setq result (string-trim result)))
+        result))))
+
 ;;; Git
 
 (ert-deftest magit--with-safe-default-directory ()
@@ -400,6 +414,26 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
     (should (magit-test-get-section
              '(unpushed . "@{upstream}..")
              (magit-rev-parse "--short" "master")))))
+
+(ert-deftest magit-status:section-commands ()
+  (magit-with-test-repository
+    (magit-git "commit" "-m" "dummy" "--allow-empty")
+    (with-current-buffer (magit-status-setup-buffer)
+      (magit-section-show-level-1-all)
+      (should (string-match-p
+               "\\`Head:[[:space:]]+master dummy\n\nRecent commits\\'"
+               (magit-test-visible-text)))
+      (magit-section-show-level-2-all)
+      (should (string-match-p
+               "\\`Head:[[:space:]]+master dummy\n
+Recent commits\n[[:xdigit:]]\\{7,\\} master dummy\\'"
+               (magit-test-visible-text)))
+      (goto-char (point-min))
+      (search-forward "Recent")
+      (magit-section-show-level-1)
+      (should (string-match-p
+               "\\`Head:[[:space:]]+master dummy\n\nRecent commits\\'"
+               (magit-test-visible-text))))))
 
 ;;; libgit
 
