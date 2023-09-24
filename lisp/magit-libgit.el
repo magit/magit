@@ -54,8 +54,12 @@
 (require 'compat)
 (require 'dash)
 (require 'eieio)
-(require 'seq)
 (require 'subr-x)
+
+(when (and (featurep' seq)
+           (not (fboundp 'seq-keep)))
+  (unload-feature 'seq 'force))
+(require 'seq)
 
 (require 'magit-git)
 

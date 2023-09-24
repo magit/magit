@@ -119,8 +119,12 @@
 ;;; Code:
 
 (require 'compat)
-(require 'seq)
 (require 'subr-x)
+
+(when (and (featurep' seq)
+           (not (fboundp 'seq-keep)))
+  (unload-feature 'seq 'force))
+(require 'seq)
 
 (require 'log-edit)
 (require 'ring)
