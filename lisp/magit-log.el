@@ -70,7 +70,14 @@
   :type 'hook)
 
 (defcustom magit-log-remove-graph-args '("--follow" "--grep" "-G" "-S" "-L")
-  "The log arguments that cause the `--graph' argument to be dropped."
+  "The log arguments that cause the `--graph' argument to be dropped.
+
+The default value lists the arguments that are incompatible with
+`--graph' and therefore must be dropped when that is used.  You
+can add additional arguments that are available in `magit-log',
+but I recommend that you don't do that.  Nowadays I would define
+this as a constant, but I am preserving it as an option, in case
+someone actually customized it."
   :package-version '(magit . "2.3.0")
   :group 'magit-log
   :type '(repeat (string :tag "Argument"))
