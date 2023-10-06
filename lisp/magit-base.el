@@ -751,11 +751,11 @@ This is similar to `read-string', but
   (declare (indent 2)
            (debug (form form &rest (characterp form body))))
   `(prog1 (pcase (read-char-choice
-                  (concat ,prompt
-                          (mapconcat #'identity
-                                     (list ,@(mapcar #'cadr clauses))
-                                     ", ")
-                          ,(if verbose ", or [C-g] to abort " " "))
+                  (let ((parts (nconc (list ,@(mapcar #'cadr clauses))
+                                      ,(and verbose '(list "[C-g] to abort")))))
+                    (concat ,prompt
+                            (mapconcat #'identity (butlast parts) ", ")
+                            ", or "  (car (last parts)) " "))
                   ',(mapcar #'car clauses))
             ,@(--map `(,(car it) ,@(cddr it)) clauses))
      (message "")))
