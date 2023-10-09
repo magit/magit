@@ -1575,8 +1575,7 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
 ;;; Highlight
 
 (defun magit-section-pre-command-hook ()
-  (when (and (not (bound-and-true-p transient--prefix))
-             (or magit--context-menu-buffer
+  (when (and (or magit--context-menu-buffer
                  magit--context-menu-section)
              (not (eq (ignore-errors
                         (event-basic-type (aref (this-command-keys) 0)))
@@ -1593,12 +1592,11 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
 
 (defun magit-section-post-command-hook ()
   (cursor-sensor-move-to-tangible (selected-window))
-  (unless (bound-and-true-p transient--prefix)
-    (when (or magit--context-menu-buffer
-              magit--context-menu-section)
-      (magit-menu-highlight-point-section))
-    (unless (memq this-command '(magit-refresh magit-refresh-all))
-      (magit-section-update-highlight))))
+  (when (or magit--context-menu-buffer
+            magit--context-menu-section)
+    (magit-menu-highlight-point-section))
+  (unless (memq this-command '(magit-refresh magit-refresh-all))
+    (magit-section-update-highlight)))
 
 (defun magit-section-deactivate-mark ()
   (setq magit-section-highlight-force-update t))
