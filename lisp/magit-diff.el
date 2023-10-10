@@ -2088,13 +2088,17 @@ keymap is the parent of their keymaps."
   :doc "Keymap for `file' sections."
   :parent magit-diff-section-base-map)
 
+(defvar-keymap magit-hunk-section-smerge-map
+  :doc "Keymap bound to `smerge-command-prefix' in `magit-hunk-section-map'."
+  "RET" #'magit-smerge-keep-current
+  "u"   #'magit-smerge-keep-upper
+  "b"   #'magit-smerge-keep-base
+  "l"   #'magit-smerge-keep-lower)
+
 (defvar-keymap magit-hunk-section-map
   :doc "Keymap for `hunk' sections."
   :parent magit-diff-section-base-map
-  "C-c ^ RET" #'magit-smerge-keep-current
-  "C-c ^ u"   #'magit-smerge-keep-upper
-  "C-c ^ b"   #'magit-smerge-keep-base
-  "C-c ^ l"   #'magit-smerge-keep-lower)
+  (key-description smerge-command-prefix) magit-hunk-section-smerge-map)
 
 (defconst magit-diff-conflict-headline-re
   (concat "^" (regexp-opt
