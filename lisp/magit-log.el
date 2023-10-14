@@ -1857,8 +1857,7 @@ in the pushremote case."
       (magit-log-insert-child-count))))
 
 (magit-define-section-jumper magit-jump-to-unpulled-from-pushremote
-  "Unpulled from <push-remote>" unpulled
-  (concat ".." (magit-get-push-branch)))
+  "Unpulled from <push-remote>" unpulled "..@{push}")
 
 (defun magit-insert-unpulled-from-pushremote ()
   "Insert commits that haven't been pulled from the push-remote yet."
@@ -1929,8 +1928,7 @@ Show the last `magit-log-section-commit-count' commits."
                         magit-buffer-log-args))))))
 
 (magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
-  "Unpushed to <push-remote>" unpushed
-  (concat (magit-get-push-branch) ".."))
+  "Unpushed to <push-remote>" unpushed "@{push}..")
 
 (defun magit-insert-unpushed-to-pushremote ()
   "Insert commits that haven't been pushed to the push-remote yet."
