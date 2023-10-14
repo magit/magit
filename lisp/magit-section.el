@@ -850,18 +850,18 @@ If there is no previous sibling section, then move to the parent."
 Together TYPE and VALUE identify the section.
 HEADING is the displayed heading of the section."
   (declare (indent defun))
-  `(defun ,name (&optional expand) ,(format "\
-Jump to the section \"%s\".
+  `(defun ,name (&optional expand)
+     ,(format "Jump to the section \"%s\".
 With a prefix argument also expand it." heading)
-          (interactive "P")
-          (if-let ((section (magit-get-section
-                             (cons (cons ',type ,value)
-                                   (magit-section-ident magit-root-section)))))
-              (progn (goto-char (oref section start))
-                     (when expand
-                       (with-local-quit (magit-section-show section))
-                       (recenter 0)))
-            (message ,(format "Section \"%s\" wasn't found" heading)))))
+     (interactive "P")
+     (if-let ((section (magit-get-section
+                        (cons (cons ',type ,value)
+                              (magit-section-ident magit-root-section)))))
+         (progn (goto-char (oref section start))
+                (when expand
+                  (with-local-quit (magit-section-show section))
+                  (recenter 0)))
+       (message ,(format "Section \"%s\" wasn't found" heading)))))
 
 ;;;; Visibility
 
