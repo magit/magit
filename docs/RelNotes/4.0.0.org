@@ -223,6 +223,10 @@ f9ae2a6306 #4620 magit-blame--make-highlight-overlay: Add only to intended line
   mode change and point is on the file or the mode change section.
   #4623
 
+- If applying a patch series with ~git am~ failed, the status buffer
+  incorrectly repeated already applied patches in the list of
+  remaining patches.  #5024
+
 10b5407131 magit-diff-highlight-list: Ensure delayed highlighting takes place
 b32521d543 magit-ediff-read-files: Handle renames in one-file logs
 94aca04dc8 magit-module-section: Use correct keymap

@@ -914,24 +914,31 @@ If no such sequence is in progress, do nothing."
   (when (magit-am-in-progress-p)
     (magit-insert-section (rebase-sequence)
       (magit-insert-heading "Applying patches")
-      (let ((patches (nreverse (magit-rebase-patches)))
-            patch commit)
-        (while patches
+      (let* ((patches (nreverse (magit-rebase-patches)))
+             (dir (expand-file-name "rebase-apply" (magit-gitdir)))
+             (i (string-to-number
+                 (magit-file-line (expand-file-name "last" dir))))
+             (cur (string-to-number
+                   (magit-file-line (expand-file-name "next" dir))))
+             patch commit)
+        (while (and patches (>= i cur))
           (setq patch (pop patches))
           (setq commit (magit-commit-p
                         (cadr (split-string (magit-file-line patch)))))
-          (cond ((and commit patches)
+          (cond ((and commit (= i cur))
+                 (magit-sequence-insert-commit
+                  "stop" commit 'magit-sequence-stop))
+                ((= i cur)
+                 (magit-sequence-insert-am-patch
+                  "stop" patch 'magit-sequence-stop))
+                (commit
                  (magit-sequence-insert-commit
                   "pick" commit 'magit-sequence-pick))
-                (patches
-                 (magit-sequence-insert-am-patch
-                  "pick" patch 'magit-sequence-pick))
-                (commit
-                 (magit-sequence-insert-sequence commit "ORIG_HEAD"))
                 (t
                  (magit-sequence-insert-am-patch
-                  "stop" patch 'magit-sequence-stop)
-                 (magit-sequence-insert-sequence nil "ORIG_HEAD")))))
+                  "pick" patch 'magit-sequence-pick)))
+          (cl-decf i)))
+      (magit-sequence-insert-sequence nil "ORIG_HEAD")
       (insert ?\n))))
 
 (defun magit-sequence-insert-am-patch (type patch face)
