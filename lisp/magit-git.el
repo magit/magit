@@ -1188,22 +1188,23 @@ or if no rename is detected."
       status)))
 
 (defcustom magit-cygwin-mount-points
-  (when (eq system-type 'windows-nt)
-    (cl-sort (--map (if (string-match "^\\(.*\\) on \\(.*\\) type" it)
-                        (cons (file-name-as-directory (match-string 2 it))
-                              (file-name-as-directory (match-string 1 it)))
-                      (lwarn '(magit) :error
-                             "Failed to parse Cygwin mount: %S" it))
-                    ;; If --exec-path is not a native Windows path,
-                    ;; then we probably have a cygwin git.
-                    (let ((process-environment
-                           (append magit-git-environment process-environment)))
-                      (and (not (string-match-p
-                                 "\\`[a-zA-Z]:"
-                                 (car (process-lines
-                                       magit-git-executable "--exec-path"))))
-                           (ignore-errors (process-lines "mount")))))
-             #'> :key (pcase-lambda (`(,cyg . ,_win)) (length cyg))))
+  (and (eq system-type 'windows-nt)
+       (cl-sort (--map (if (string-match "^\\(.*\\) on \\(.*\\) type" it)
+                           (cons (file-name-as-directory (match-string 2 it))
+                                 (file-name-as-directory (match-string 1 it)))
+                         (lwarn '(magit) :error
+                                "Failed to parse Cygwin mount: %S" it))
+                       ;; If --exec-path is not a native Windows path,
+                       ;; then we probably have a cygwin git.
+                       (let ((process-environment
+                              (append magit-git-environment
+                                      process-environment)))
+                         (and (not (string-match-p
+                                    "\\`[a-zA-Z]:"
+                                    (car (process-lines
+                                          magit-git-executable "--exec-path"))))
+                              (ignore-errors (process-lines "mount")))))
+                #'> :key (pcase-lambda (`(,cyg . ,_win)) (length cyg))))
   "Alist of (CYGWIN . WIN32) directory names.
 Sorted from longest to shortest CYGWIN name."
   :package-version '(magit . "2.3.0")
