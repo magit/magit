@@ -496,10 +496,7 @@ instead of \"Stashes:\"."
         (if verified
             (magit-git-wash (apply-partially #'magit-log-wash-log 'stash)
               "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref)
-          (insert ?\n)
-          (save-excursion
-            (backward-char)
-            (magit-make-margin-overlay)))))))
+          (insert ?\n))))))
 
 ;;; List Stashes
 

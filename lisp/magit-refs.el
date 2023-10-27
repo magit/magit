@@ -555,8 +555,7 @@ line is inserted at all."
                 (when (and magit-refs-margin-for-tags (magit-buffer-margin-p))
                   (magit-refs--format-margin tag))
                 (magit-refs--insert-cherry-commits tag)))))
-        (insert ?\n)
-        (magit-make-margin-overlay nil t)))))
+        (insert ?\n)))))
 
 (defun magit-insert-remote-branches ()
   "Insert sections showing all remote-tracking branches."
@@ -610,8 +609,7 @@ line is inserted at all."
                   (when (magit-buffer-margin-p)
                     (magit-refs--format-margin branch))
                   (magit-refs--insert-cherry-commits branch))))))))
-      (insert ?\n)
-      (magit-make-margin-overlay nil t))))
+      (insert ?\n))))
 
 (defun magit-insert-local-branches ()
   "Insert sections showing all local branches."
@@ -627,8 +625,7 @@ line is inserted at all."
           (when (magit-buffer-margin-p)
             (magit-refs--format-margin branch))
           (magit-refs--insert-cherry-commits branch))))
-    (insert ?\n)
-    (magit-make-margin-overlay nil t)))
+    (insert ?\n)))
 
 (defun magit-refs--format-local-branches ()
   (let ((lines (seq-keep #'magit-refs--format-local-branch
@@ -772,9 +769,8 @@ line is inserted at all."
           (magit-insert-section--current nil))
       (magit-git-wash (apply-partially #'magit-log-wash-log 'cherry)
         "cherry" "-v" (magit-abbrev-arg) magit-buffer-upstream ref)
-      (if (= (point) start)
-          (message "No cherries for %s" ref)
-        (magit-make-margin-overlay nil t)))))
+      (when (= (point) start)
+        (message "No cherries for %s" ref)))))
 
 (defun magit-refs--format-margin (commit)
   (save-excursion

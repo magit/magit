@@ -1473,7 +1473,11 @@ anything this time around.
                      (when map
                        (put-text-property (point) next 'keymap map)))
                    (magit-section-maybe-add-heading-map ,s)
-                   (goto-char next)))))
+                   (goto-char next)))
+               (when (and (fboundp 'magit-maybe-make-margin-overlay)
+                          (oref ,s content)
+                          (looking-at "\n"))
+                 (magit-maybe-make-margin-overlay))))
            (cond
             ((eq ,s magit-root-section)
              (when (eq magit-section-inhibit-markers 'delay)
