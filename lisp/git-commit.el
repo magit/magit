@@ -1007,8 +1007,9 @@ something like:
                 (setq git-commit-need-summary-line nil))))")
 
 (defun git-commit--trailer-regexp ()
-  (format "^\\(\\(%s:\\)\\( .*\\)\\|[-a-zA-Z]+: [^<\n]+? <[^>\n]+>\\)"
-          (regexp-opt git-commit-trailers)))
+  (format
+   "^\\(?:\\(%s:\\)\\( .*\\)\\|\\([-a-zA-Z]+\\): \\([^<\n]+? <[^>\n]+>\\)\\)"
+   (regexp-opt git-commit-trailers)))
 
 (defun git-commit-summary-regexp ()
   (if git-commit-need-summary-line
@@ -1051,7 +1052,9 @@ Added to `font-lock-extend-region-functions'."
   '(;; Trailers
     (eval . `(,(git-commit--trailer-regexp)
               (1 'git-commit-trailer-token)
-              (2 'git-commit-trailer-value)))
+              (2 'git-commit-trailer-value)
+              (3 'git-commit-trailer-token)
+              (4 'git-commit-trailer-value)))
     ;; Summary
     (eval . `(,(git-commit-summary-regexp)
               (1 'git-commit-summary)))
