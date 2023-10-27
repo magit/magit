@@ -181,6 +181,7 @@ full loading."
 
 (defcustom git-commit-major-mode #'text-mode
   "Major mode used to edit Git commit messages.
+
 The major mode configured here is turned on by the minor mode
 `git-commit-mode'."
   :group 'git-commit
@@ -269,6 +270,7 @@ usually honor this wish and return non-nil."
 
 (defcustom git-commit-style-convention-checks '(non-empty-second-line)
   "List of checks performed by `git-commit-check-style-conventions'.
+
 Valid members are `non-empty-second-line' and `overlong-summary-line'.
 That function is a member of `git-commit-finish-query-functions'."
   :options '(non-empty-second-line overlong-summary-line)
@@ -310,6 +312,7 @@ serves as a good introduction."
 
 (defcustom git-commit-use-local-message-ring nil
   "Whether to use a local message ring instead of the global one.
+
 This can be set globally, in which case every repository gets its
 own commit message ring, or locally for a single repository.  If
 Magit isn't available, then setting this to a non-nil value has
