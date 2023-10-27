@@ -988,6 +988,9 @@ something like:
                            \"NOTES_EDITMSG\")
                 (setq git-commit-need-summary-line nil))))")
 
+(defun git-commit--trailer-regexp ()
+  (format "^\\(%s:\\)\\( .*\\)" (regexp-opt git-commit-trailers)))
+
 (defun git-commit-summary-regexp ()
   (if git-commit-need-summary-line
       (concat
@@ -1027,8 +1030,7 @@ Added to `font-lock-extend-region-functions'."
 
 (defconst git-commit-font-lock-keywords-1
   '(;; Trailers
-    (eval . `(,(format "^\\(%s:\\)\\( .*\\)"
-                       (regexp-opt git-commit-trailers))
+    (eval . `(,(git-commit--trailer-regexp)
               (1 'git-commit-trailer-token)
               (2 'git-commit-trailer-value)))
     ;; Summary
