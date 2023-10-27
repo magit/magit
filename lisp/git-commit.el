@@ -956,7 +956,7 @@ have the form \"NAME <EMAIL>\"."
       (goto-char (point-max))
       (cond
        ;; Look backwards for existing trailers.
-       ((re-search-backward "^[-a-zA-Z]+: [^<\n]+? <[^>\n]+>" nil t)
+       ((re-search-backward (git-commit--trailer-regexp) nil t)
         (end-of-line)
         (insert ?\n string)
         (unless (= (char-after) ?\n)
