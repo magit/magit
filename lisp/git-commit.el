@@ -420,20 +420,20 @@ This is only used if Magit is available."
     ["Previous" git-commit-prev-message t]
     ["Next" git-commit-next-message t]
     "-"
-    ["Ack" git-commit-ack :active t
+    ["Ack" git-commit-ack t
      :help "Insert an 'Acked-by' trailer"]
-    ["Modified-by" git-commit-modified :active t
+    ["Modified-by" git-commit-modified t
      :help "Insert a 'Modified-by' trailer"]
-    ["Reviewed-by" git-commit-review :active t
+    ["Reviewed-by" git-commit-review t
      :help "Insert a 'Reviewed-by' trailer"]
-    ["Sign-Off" git-commit-signoff :active t
+    ["Sign-Off" git-commit-signoff t
      :help "Insert a 'Signed-off-by' trailer"]
-    ["Tested-by" git-commit-test :active t
+    ["Tested-by" git-commit-test t
      :help "Insert a 'Tested-by' trailer"]
     "-"
     ["CC" git-commit-cc t
      :help "Insert a 'Cc' trailer"]
-    ["Reported" git-commit-reported :active t
+    ["Reported" git-commit-reported t
      :help "Insert a 'Reported-by' trailer"]
     ["Suggested" git-commit-suggested t
      :help "Insert a 'Suggested-by' trailer"]
