@@ -289,9 +289,16 @@ to consider doing so."
   :type 'number)
 
 (defcustom git-commit-trailers
-  '("Signed-off-by" "Acked-by" "Modified-by" "Cc"
-    "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by"
-    "Co-authored-by" "Co-developed-by")
+  '("Acked-by"
+    "Modified-by"
+    "Reviewed-by"
+    "Signed-off-by"
+    "Tested-by"
+    "Cc"
+    "Reported-by"
+    "Suggested-by"
+    "Co-authored-by"
+    "Co-developed-by")
   "A list of Git trailers to be highlighted.
 
 See also manpage git-interpret-trailer(1).  This package does
@@ -415,14 +422,15 @@ This is only used if Magit is available."
     "-"
     ["Ack" git-commit-ack :active t
      :help "Insert an 'Acked-by' trailer"]
-    ["Sign-Off" git-commit-signoff :active t
-     :help "Insert a 'Signed-off-by' trailer"]
     ["Modified-by" git-commit-modified :active t
      :help "Insert a 'Modified-by' trailer"]
-    ["Tested-by" git-commit-test :active t
-     :help "Insert a 'Tested-by' trailer"]
     ["Reviewed-by" git-commit-review :active t
      :help "Insert a 'Reviewed-by' trailer"]
+    ["Sign-Off" git-commit-signoff :active t
+     :help "Insert a 'Signed-off-by' trailer"]
+    ["Tested-by" git-commit-test :active t
+     :help "Insert a 'Tested-by' trailer"]
+    "-"
     ["CC" git-commit-cc t
      :help "Insert a 'Cc' trailer"]
     ["Reported" git-commit-reported :active t
