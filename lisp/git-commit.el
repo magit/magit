@@ -394,13 +394,12 @@ This is only used if Magit is available."
 
 ;;; Keymap
 
-(defvar-keymap git-commit-mode-map
-  :doc "Key map used by `git-commit-mode'."
-  "M-p"     #'git-commit-prev-message
-  "M-n"     #'git-commit-next-message
-  "C-c M-p" #'git-commit-search-message-backward
-  "C-c M-n" #'git-commit-search-message-forward
-  "C-c C-i" #'git-commit-insert-trailer
+(defvar-keymap git-commit-redundant-bindings
+  :doc "Bindings made redundant by `git-commit-insert-trailer'.
+This keymap is used as the parent of `git-commit-mode-map',
+to avoid upsetting muscle-memory.  If you would rather avoid
+the redundant bindings, then set this to nil, before loading
+`git-commit'."
   "C-c C-a" #'git-commit-ack
   "C-c M-i" #'git-commit-suggested
   "C-c C-m" #'git-commit-modified
@@ -408,7 +407,15 @@ This is only used if Magit is available."
   "C-c C-p" #'git-commit-reported
   "C-c C-r" #'git-commit-review
   "C-c C-s" #'git-commit-signoff
-  "C-c C-t" #'git-commit-test
+  "C-c C-t" #'git-commit-test)
+
+(defvar-keymap git-commit-mode-map
+  :doc "Keymap used by `git-commit-mode'."
+  "M-p"     #'git-commit-prev-message
+  "M-n"     #'git-commit-next-message
+  "C-c M-p" #'git-commit-search-message-backward
+  "C-c M-n" #'git-commit-search-message-forward
+  "C-c C-i" #'git-commit-insert-trailer
   "C-c M-s" #'git-commit-save-message)
 
 ;;; Menu
