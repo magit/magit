@@ -87,8 +87,8 @@
 ;;   M-n      Replace the buffer contents with the next message from
 ;;            the message ring, after storing the current content.
 
-;; Some support for pseudo headers as used in some projects is
-;; provided by these commands:
+;; Some support for Git trailers (as described in the manpage
+;; git-interpret-trailers(1)) is provided by these commands:
 ;;
 ;;   C-c C-s  Insert a Signed-off-by header.
 ;;   C-c C-a  Insert a Acked-by header.
@@ -295,11 +295,15 @@ to consider doing so."
   :safe 'numberp
   :type 'number)
 
-(defcustom git-commit-known-pseudo-headers
+(defcustom git-commit-trailers
   '("Signed-off-by" "Acked-by" "Modified-by" "Cc"
     "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by"
     "Co-authored-by" "Co-developed-by")
-  "A list of Git pseudo headers to be highlighted."
+  "A list of Git trailers to be highlighted.
+
+See also manpage git-interpret-trailer(1).  This package does
+not use that Git command, but the initial description still
+serves as a good introduction."
   :group 'git-commit
   :safe (lambda (val) (and (listp val) (seq-every-p #'stringp val)))
   :type '(repeat string))
@@ -343,14 +347,14 @@ no effect."
 In this context a \"keyword\" is text surrounded by brackets."
   :group 'git-commit-faces)
 
-(defface git-commit-pseudo-header
-  '((t :inherit font-lock-string-face))
-  "Face used for pseudo headers in commit messages."
+(defface git-commit-trailer-token
+  '((t :inherit font-lock-keyword-face))
+  "Face used for Git trailer tokens in commit messages."
   :group 'git-commit-faces)
 
-(defface git-commit-known-pseudo-header
-  '((t :inherit font-lock-keyword-face))
-  "Face used for the keywords of known pseudo headers in commit messages."
+(defface git-commit-trailer-value
+  '((t :inherit font-lock-string-face))
+  "Face used for Git trailer values in commit messages."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-branch-local
@@ -374,12 +378,12 @@ This is only used if Magit is available."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-heading
-  '((t :inherit git-commit-known-pseudo-header))
+  '((t :inherit git-commit-trailer-token))
   "Face used for headings in commit message comments."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-file
-  '((t :inherit git-commit-pseudo-header))
+  '((t :inherit git-commit-trailer-value))
   "Face used for file names in commit message comments."
   :group 'git-commit-faces)
 
@@ -396,7 +400,7 @@ This is only used if Magit is available."
   "M-n"     #'git-commit-next-message
   "C-c M-p" #'git-commit-search-message-backward
   "C-c M-n" #'git-commit-search-message-forward
-  "C-c C-i" #'git-commit-insert-pseudo-header
+  "C-c C-i" #'git-commit-insert-trailer
   "C-c C-a" #'git-commit-ack
   "C-c M-i" #'git-commit-suggested
   "C-c C-m" #'git-commit-modified
@@ -417,25 +421,25 @@ This is only used if Magit is available."
     ["Next" git-commit-next-message t]
     "-"
     ["Ack" git-commit-ack :active t
-     :help "Insert an 'Acked-by' header"]
+     :help "Insert an 'Acked-by' trailer"]
     ["Sign-Off" git-commit-signoff :active t
-     :help "Insert a 'Signed-off-by' header"]
+     :help "Insert a 'Signed-off-by' trailer"]
     ["Modified-by" git-commit-modified :active t
-     :help "Insert a 'Modified-by' header"]
+     :help "Insert a 'Modified-by' trailer"]
     ["Tested-by" git-commit-test :active t
-     :help "Insert a 'Tested-by' header"]
+     :help "Insert a 'Tested-by' trailer"]
     ["Reviewed-by" git-commit-review :active t
-     :help "Insert a 'Reviewed-by' header"]
+     :help "Insert a 'Reviewed-by' trailer"]
     ["CC" git-commit-cc t
-     :help "Insert a 'Cc' header"]
+     :help "Insert a 'Cc' trailer"]
     ["Reported" git-commit-reported :active t
-     :help "Insert a 'Reported-by' header"]
+     :help "Insert a 'Reported-by' trailer"]
     ["Suggested" git-commit-suggested t
-     :help "Insert a 'Suggested-by' header"]
+     :help "Insert a 'Suggested-by' trailer"]
     ["Co-authored-by" git-commit-co-authored t
-     :help "Insert a 'Co-authored-by' header"]
+     :help "Insert a 'Co-authored-by' trailer"]
     ["Co-developed-by" git-commit-co-developed t
-     :help "Insert a 'Co-developed-by' header"]
+     :help "Insert a 'Co-developed-by' trailer"]
     "-"
     ["Save" git-commit-save-message t]
     ["Cancel" with-editor-cancel t]
@@ -820,10 +824,14 @@ Save current message first."
       (magit-git-executable)
     "git"))
 
-;;; Headers
+;;; Trailers
 
-(transient-define-prefix git-commit-insert-pseudo-header ()
-  "Insert a commit message pseudo header."
+(transient-define-prefix git-commit-insert-trailer ()
+  "Insert a commit message trailer.
+
+See also manpage git-interpret-trailer(1).  This command does
+not use that Git command, but the initial description still
+serves as a good introduction."
   [[:description (lambda ()
                    (cond (prefix-arg
                           "Insert ... by someone ")
@@ -841,58 +849,58 @@ Save current message first."
     ("C-d" "Co-developed" git-commit-co-developed)]])
 
 (defun git-commit-ack (name mail)
-  "Insert a header acknowledging that you have looked at the commit."
+  "Insert a trailer acknowledging that you have looked at the commit."
   (interactive (git-commit-get-ident "Acked-by"))
-  (git-commit-insert-header "Acked-by" name mail))
+  (git-commit--insert-ident-trailer "Acked-by" name mail))
 
 (defun git-commit-modified (name mail)
-  "Insert a header to signal that you have modified the commit."
+  "Insert a trailer to signal that you have modified the commit."
   (interactive (git-commit-get-ident "Modified-by"))
-  (git-commit-insert-header "Modified-by" name mail))
+  (git-commit--insert-ident-trailer "Modified-by" name mail))
 
 (defun git-commit-review (name mail)
-  "Insert a header acknowledging that you have reviewed the commit.
+  "Insert a trailer acknowledging that you have reviewed the commit.
 With a prefix argument, prompt for another person who performed a
 review."
   (interactive (git-commit-get-ident "Reviewed-by"))
-  (git-commit-insert-header "Reviewed-by" name mail))
+  (git-commit--insert-ident-trailer "Reviewed-by" name mail))
 
 (defun git-commit-signoff (name mail)
-  "Insert a header to sign off the commit.
+  "Insert a trailer to sign off the commit.
 With a prefix argument, prompt for another person who signed off."
   (interactive (git-commit-get-ident "Signed-off-by"))
-  (git-commit-insert-header "Signed-off-by" name mail))
+  (git-commit--insert-ident-trailer "Signed-off-by" name mail))
 
 (defun git-commit-test (name mail)
-  "Insert a header acknowledging that you have tested the commit.
+  "Insert a trailer acknowledging that you have tested the commit.
 With a prefix argument, prompt for another person who tested."
   (interactive (git-commit-get-ident "Tested-by"))
-  (git-commit-insert-header "Tested-by" name mail))
+  (git-commit--insert-ident-trailer "Tested-by" name mail))
 
 (defun git-commit-cc (name mail)
-  "Insert a header mentioning someone who might be interested."
+  "Insert a trailer mentioning someone who might be interested."
   (interactive (git-commit-read-ident "Cc"))
-  (git-commit-insert-header "Cc" name mail))
+  (git-commit--insert-ident-trailer "Cc" name mail))
 
 (defun git-commit-reported (name mail)
-  "Insert a header mentioning the person who reported the issue."
+  "Insert a trailer mentioning the person who reported the issue."
   (interactive (git-commit-read-ident "Reported-by"))
-  (git-commit-insert-header "Reported-by" name mail))
+  (git-commit--insert-ident-trailer "Reported-by" name mail))
 
 (defun git-commit-suggested (name mail)
-  "Insert a header mentioning the person who suggested the change."
+  "Insert a trailer mentioning the person who suggested the change."
   (interactive (git-commit-read-ident "Suggested-by"))
-  (git-commit-insert-header "Suggested-by" name mail))
+  (git-commit--insert-ident-trailer "Suggested-by" name mail))
 
 (defun git-commit-co-authored (name mail)
-  "Insert a header mentioning the person who co-authored the commit."
+  "Insert a trailer mentioning the person who co-authored the commit."
   (interactive (git-commit-read-ident "Co-authored-by"))
-  (git-commit-insert-header "Co-authored-by" name mail))
+  (git-commit--insert-ident-trailer "Co-authored-by" name mail))
 
 (defun git-commit-co-developed (name mail)
-  "Insert a header mentioning the person who co-developed the commit."
+  "Insert a trailer mentioning the person who co-developed the commit."
   (interactive (git-commit-read-ident "Co-developed-by"))
-  (git-commit-insert-header "Co-developed-by" name mail))
+  (git-commit--insert-ident-trailer "Co-developed-by" name mail))
 
 (defun git-commit-get-ident (&optional prompt)
   "Return name and email of the user or read another name and email.
@@ -940,8 +948,8 @@ have the form \"NAME <EMAIL>\"."
     (list (read-string "Name: ")
           (read-string "Email: "))))
 
-(defun git-commit-insert-header (header name email)
-  (setq header (format "%s: %s <%s>" header name email))
+(defun git-commit--insert-ident-trailer (trailer name email)
+  (setq trailer (format "%s: %s <%s>" trailer name email))
   (save-excursion
     (let ((leading-comment-end nil))
       ;; Make sure we skip forward past any leading comments.
@@ -951,20 +959,20 @@ have the form \"NAME <EMAIL>\"."
       (setq leading-comment-end (point))
       (goto-char (point-max))
       (cond
-       ;; Look backwards for existing headers.
+       ;; Look backwards for existing trailers.
        ((re-search-backward "^[-a-zA-Z]+: [^<\n]+? <[^>\n]+>" nil t)
         (end-of-line)
-        (insert ?\n header)
+        (insert ?\n trailer)
         (unless (= (char-after) ?\n)
           (insert ?\n)))
-       ;; Or place the new header right before the first non-leading
+       ;; Or place the new trailer right before the first non-leading
        ;; comments.
        (t
         (while (re-search-backward (concat "^" comment-start)
                                    leading-comment-end t))
         (unless (looking-back "\n\n" nil)
           (insert ?\n))
-        (insert header ?\n))))
+        (insert trailer ?\n))))
     (unless (or (eobp) (= (char-after) ?\n))
       (insert ?\n))))
 
@@ -1022,11 +1030,11 @@ Added to `font-lock-extend-region-functions'."
   "Also fontified outside of comments in `git-commit-font-lock-keywords-2'.")
 
 (defconst git-commit-font-lock-keywords-1
-  '(;; Pseudo headers
+  '(;; Trailers
     (eval . `(,(format "^\\(%s:\\)\\( .*\\)"
-                       (regexp-opt git-commit-known-pseudo-headers))
-              (1 'git-commit-known-pseudo-header)
-              (2 'git-commit-pseudo-header)))
+                       (regexp-opt git-commit-trailers))
+              (1 'git-commit-trailer-token)
+              (2 'git-commit-trailer-value)))
     ;; Summary
     (eval . `(,(git-commit-summary-regexp)
               (1 'git-commit-summary)))
@@ -1055,10 +1063,10 @@ Added to `font-lock-extend-region-functions'."
               (2 'git-commit-comment-file t)))
     ;; "commit HASH"
     (eval . `(,(rx bol "commit " (1+ alnum) eol)
-              (0 'git-commit-pseudo-header)))
+              (0 'git-commit-trailer-value)))
     ;; `git-commit-comment-headings' (but not in commented lines)
     (eval . `(,(rx-to-string `(seq bol (or ,@git-commit-comment-headings) (1+ blank) (1+ nonl) eol))
-              (0 'git-commit-pseudo-header)))))
+              (0 'git-commit-trailer-value)))))
 
 (defconst git-commit-font-lock-keywords-3
   `(,@git-commit-font-lock-keywords-2
@@ -1193,5 +1201,27 @@ Elisp doc-strings, including this one.  Unlike in doc-strings,
     ("\"[^\"]*\"" (0 font-lock-string-face prepend))))
 
 ;;; _
+
+(define-obsolete-function-alias
+  'git-commit-insert-pseudo-header
+  'git-commit-insert-trailer
+  "git-commit 4.0.0")
+(define-obsolete-function-alias
+  'git-commit-insert-header
+  'git-commit--insert-ident-trailer
+  "git-commit 4.0.0")
+(define-obsolete-variable-alias
+  'git-commit-known-pseudo-headers
+  'git-commit-trailer
+  "git-commit 4.0.0")
+(define-obsolete-face-alias
+ 'git-commit-pseudo-header
+ 'git-commit-trailer-value
+ "git-commit 4.0.0")
+(define-obsolete-face-alias
+ 'git-commit-known-pseudo-header
+ 'git-commit-trailer-token
+ "git-commit 4.0.0")
+
 (provide 'git-commit)
 ;;; git-commit.el ends here
