@@ -942,9 +942,12 @@ have the form \"NAME <EMAIL>\"."
           (read-string "Email: "))))
 
 (defun git-commit--insert-ident-trailer (trailer name email)
-  (setq trailer (format "%s: %s <%s>" trailer name email))
+  (git-commit--insert-trailer trailer (format "%s <%s>" name email)))
+
+(defun git-commit--insert-trailer (trailer value)
   (save-excursion
-    (let ((leading-comment-end nil))
+    (let ((string (format "%s: %s" trailer value))
+          (leading-comment-end nil))
       ;; Make sure we skip forward past any leading comments.
       (goto-char (point-min))
       (while (looking-at comment-start)
@@ -955,7 +958,7 @@ have the form \"NAME <EMAIL>\"."
        ;; Look backwards for existing trailers.
        ((re-search-backward "^[-a-zA-Z]+: [^<\n]+? <[^>\n]+>" nil t)
         (end-of-line)
-        (insert ?\n trailer)
+        (insert ?\n string)
         (unless (= (char-after) ?\n)
           (insert ?\n)))
        ;; Or place the new trailer right before the first non-leading
@@ -965,7 +968,7 @@ have the form \"NAME <EMAIL>\"."
                                    leading-comment-end t))
         (unless (looking-back "\n\n" nil)
           (insert ?\n))
-        (insert trailer ?\n))))
+        (insert string ?\n))))
     (unless (or (eobp) (= (char-after) ?\n))
       (insert ?\n))))
 
