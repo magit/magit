@@ -2250,7 +2250,7 @@ section or a child thereof."
             (push (magit-decode-git-path
                    (let ((f (match-string 1)))
                      (cond
-                      ((string-match "{.+ => \\(.+\\)}" f)
+                      ((string-match "{.* => \\(.*\\)}" f)
                        (replace-match (match-string 1 f) nil t f))
                       ((string-match " => " f)
                        (substring f (match-end 0)))
