@@ -989,7 +989,8 @@ something like:
                 (setq git-commit-need-summary-line nil))))")
 
 (defun git-commit--trailer-regexp ()
-  (format "^\\(%s:\\)\\( .*\\)" (regexp-opt git-commit-trailers)))
+  (format "^\\(\\(%s:\\)\\( .*\\)\\|[-a-zA-Z]+: [^<\n]+? <[^>\n]+>\\)"
+          (regexp-opt git-commit-trailers)))
 
 (defun git-commit-summary-regexp ()
   (if git-commit-need-summary-line
