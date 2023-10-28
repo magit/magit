@@ -163,12 +163,6 @@ while two prefix arguments are equivalent to `--all'."
   (list (magit-stash-read-message)
         (magit-stash-read-untracked)))
 
-(defun magit-stash-read-untracked ()
-  (let ((prefix (prefix-numeric-value current-prefix-arg))
-        (args   (magit-stash-arguments)))
-    (cond ((or (= prefix 16) (member "--all" args)) 'all)
-          ((or (= prefix  4) (member "--include-untracked" args)) t))))
-
 (defun magit-stash-read-message ()
   (let* ((default (format "On %s: "
                           (or (magit-get-current-branch) "(no branch)")))
@@ -176,6 +170,12 @@ while two prefix arguments are equivalent to `--all'."
     (if (equal input default)
         (concat default (magit-rev-format "%h %s"))
       input)))
+
+(defun magit-stash-read-untracked ()
+  (let ((prefix (prefix-numeric-value current-prefix-arg))
+        (args   (magit-stash-arguments)))
+    (cond ((or (= prefix 16) (member "--all" args)) 'all)
+          ((or (= prefix  4) (member "--include-untracked" args)) t))))
 
 ;;;###autoload
 (defun magit-snapshot-both (&optional include-untracked)
