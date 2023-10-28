@@ -166,15 +166,13 @@ does not carry to other options."
                                      (or string " ")))))))
 
 (defvar magit-margin-overlay-conditions
-  '(unpulled unpushed recent stashes local cherries))
+  '( unpulled unpushed recent stashes local cherries
+     [remote branchbuf]
+     [tags branchbuf]))
 
 (defun magit-maybe-make-margin-overlay ()
-  (when (or (magit-section-match magit-margin-overlay-conditions
-                                 magit-insert-section--current)
-            (and (eq major-mode 'magit-refs-mode)
-                 (magit-section-match
-                  '(remote commit tags)
-                  magit-insert-section--current)))
+  (when (magit-section-match magit-margin-overlay-conditions
+                             magit-insert-section--current)
     (magit-make-margin-overlay nil t)))
 
 ;;; Custom Support
