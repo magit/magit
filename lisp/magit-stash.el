@@ -80,6 +80,11 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   :set-after '(magit-log-margin)
   :set (apply-partially #'magit-margin-set-variable 'magit-stashes-mode))
 
+;;;; Variables
+
+(defvar magit-stash-read-message-function #'magit-stash-read-message
+  "Function used to read the message when creating a stash.")
+
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-stash "magit-stash" nil t)
@@ -160,10 +165,29 @@ while two prefix arguments are equivalent to `--all'."
   (magit-stash-save message t t include-untracked t 'index))
 
 (defun magit-stash-read-args ()
-  (list (magit-stash-read-message)
+  (list (funcall magit-stash-read-message-function)
         (magit-stash-read-untracked)))
 
 (defun magit-stash-read-message ()
+  "Read a message from the minibuffer, to be used for a stash.
+
+The message that Git would have picked, is available as the
+default (used when the user enters the empty string) and as
+the next history element (which can be accessed with \
+\\<minibuffer-local-map>\\[next-history-element])."
+  (read-string (format "Stash message (default: On%s:%s): "
+                       (magit--ellipsis) (magit--ellipsis))
+               nil nil
+               (format "On %s: %s"
+                       (or (magit-get-current-branch) "(no branch)")
+                       (magit-rev-format "%h %s"))))
+
+(defun magit-stash-read-message-traditional ()
+  "Read a message from the minibuffer, to be used for a stash.
+
+If the user confirms the initial-input unmodified, then the
+abbreviated commit hash and commit summary are appended.
+The resulting message is what Git would have used."
   (let* ((default (format "On %s: "
                           (or (magit-get-current-branch) "(no branch)")))
          (input (magit-read-string "Stash message" default)))
