@@ -121,7 +121,6 @@
 
 (require 'log-edit)
 (require 'ring)
-(require 'rx)
 (require 'server)
 (require 'transient)
 (require 'with-editor)
@@ -1082,10 +1081,11 @@ Added to `font-lock-extend-region-functions'."
               (1 'git-commit-comment-action t t)
               (2 'git-commit-comment-file t)))
     ;; "commit HASH"
-    (eval . `(,(rx bol "commit " (1+ alnum) eol)
+    (eval . '("^commit [[:alnum:]]+$"
               (0 'git-commit-trailer-value)))
     ;; `git-commit-comment-headings' (but not in commented lines)
-    (eval . `(,(rx-to-string `(seq bol (or ,@git-commit-comment-headings) (1+ blank) (1+ nonl) eol))
+    (eval . `(,(format "\\(?:^%s[[:blank:]]+.+$\\)"
+                       (regexp-opt git-commit-comment-headings))
               (0 'git-commit-trailer-value)))))
 
 (defconst git-commit-font-lock-keywords-3
