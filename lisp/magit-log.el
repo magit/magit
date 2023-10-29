@@ -1073,8 +1073,6 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
       (magit-section-update-highlight))
     (current-buffer)))
 
-(defvar-local magit-log--color-graph nil)
-
 (defun magit-log-refresh-buffer ()
   (let ((revs  magit-buffer-revisions)
         (args  magit-buffer-log-args)
@@ -1089,20 +1087,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                          (concat "^" (regexp-opt magit-log-remove-graph-args)) it)
                         args))
       (setq args (remove "--graph" args)))
-    (if (member "--color" args)
-        (if (cond
-             ((not (member "--graph" args)))
-             ((not magit-log-color-graph-limit) nil)
-             ((not limit)
-              (message "Dropping --color because -n isn't set (see %s)"
-                       'magit-log-color-graph-limit))
-             ((> limit magit-log-color-graph-limit)
-              (message "Dropping --color because -n is larger than %s"
-                       'magit-log-color-graph-limit)))
-            (progn (setq args (remove "--color" args))
-                   (setq magit-log--color-graph nil))
-          (setq magit-log--color-graph t))
-      (setq magit-log--color-graph nil))
+    (setq args (magit-log--maybe-drop-color-graph args limit))
     (when-let* ((limit limit)
                 (limit (* 2 limit)) ; increase odds for complete graph
                 (count (and (length= revs 1)
@@ -1127,6 +1112,24 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
       (setq magit-section-insert-in-reverse (not delay)))
     (magit-insert-section (logbuf)
       (magit--insert-log t revs args files))))
+
+(defvar-local magit-log--color-graph nil)
+
+(defun magit-log--maybe-drop-color-graph (args limit)
+  (if (member "--color" args)
+      (if (cond ((not (member "--graph" args)))
+                ((not magit-log-color-graph-limit) nil)
+                ((not limit)
+                 (message "Dropping --color because -n isn't set (see %s)"
+                          'magit-log-color-graph-limit))
+                ((> limit magit-log-color-graph-limit)
+                 (message "Dropping --color because -n is larger than %s"
+                          'magit-log-color-graph-limit)))
+          (progn (setq args (remove "--color" args))
+                 (setq magit-log--color-graph nil))
+        (setq magit-log--color-graph t))
+    (setq magit-log--color-graph nil))
+  args)
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-log-mode))
   (append magit-buffer-revisions
