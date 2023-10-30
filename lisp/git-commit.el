@@ -413,6 +413,7 @@ the redundant bindings, then set this to nil, before loading
 
 (defvar-keymap git-commit-mode-map
   :doc "Keymap used by `git-commit-mode'."
+  :parent git-commit-redundant-bindings
   "M-p"     #'git-commit-prev-message
   "M-n"     #'git-commit-next-message
   "C-c M-p" #'git-commit-search-message-backward
