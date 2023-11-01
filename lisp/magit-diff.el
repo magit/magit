@@ -1220,9 +1220,26 @@ If no DWIM context is found, nil is returned."
 
 (defun magit-diff-read-range-or-commit (prompt &optional secondary-default mbase)
   "Read range or revision with special diff range treatment.
-If MBASE is non-nil, prompt for which rev to place at the end of
-a \"revA...revB\" range.  Otherwise, always construct
-\"revA..revB\" range."
+
+When the region is active and constitutes a valid section
+selection of commit or branch sections, then return a range
+involving the revisions at both ends of the selection.  If
+MBASE is non-nil, then one of the revisions may be replaced
+with the merge-base of the two revisions from the selection.
+This ask the user
+
+
+Otherwise just return \"BEG..END\.
+
+Only if no such selection is active, actually read a range or
+revision.
+
+If the region marks a range of commits or branches, then return
+a range that includes all the commits
+
+If MBASE is non-nil, prompt for which rev to place at the
+end of a \"revA...revB\" range.  Otherwise, always construct
+\"ANCESTOR..DESCENDANT\" range."
   (or (magit-diff--region-range t mbase)
       (magit-read-range prompt
                         (or (pcase (magit-diff--dwim)
