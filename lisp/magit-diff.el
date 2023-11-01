@@ -1041,6 +1041,9 @@ and `:slant'."
     (?u "[u]nspecified"    nil)
     (?o "[o]ff"            "off")
     (?f "[f]irst-parent"   "first-parent")
+    ;; TODO (?s "[s]eparate"       "separate")
+    ;; TODO (?r "[r]emerge"        "remerge")
+    ;; TODO More appropriate errors on apply attempts:
     (?c "[c]ombined"       "combined")
     (?d "[d]ense-combined" "dense-combined")))
 
@@ -2270,14 +2273,15 @@ keymap is the parent of their keymaps."
 
 (defun magit-diff-wash-diffs (args &optional limit)
   (run-hooks 'magit-diff-wash-diffs-hook)
-  (when (member "--show-signature" args)
-    (magit-diff-wash-signature magit-buffer-revision-hash))
-  (when (member "--stat" args)
-    (magit-diff-wash-diffstat))
-  (when (re-search-forward magit-diff-headline-re limit t)
-    (goto-char (line-beginning-position))
-    (magit-wash-sequence (apply-partially #'magit-diff-wash-diff args))
-    (insert ?\n)))
+  (while (> (point) (point-max))
+    (when (member "--show-signature" args)
+      (magit-diff-wash-signature magit-buffer-revision-hash))
+    (when (member "--stat" args)
+      (magit-diff-wash-diffstat))
+    (when (re-search-forward magit-diff-headline-re limit t)
+      (goto-char (line-beginning-position))
+      (magit-wash-sequence (apply-partially #'magit-diff-wash-diff args))
+      (insert ?\n))))
 
 (defun magit-jump-to-diffstat-or-diff ()
   "Jump to the diffstat or diff.

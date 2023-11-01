@@ -167,10 +167,13 @@ the headers
 and only the second and third are to be applied, they would be
 adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
   (let* ((first-hunk (car hunks))
-         (offset (if (string-match diff-hunk-header-re-unified first-hunk)
-                     (- (string-to-number (match-string 3 first-hunk))
-                        (string-to-number (match-string 1 first-hunk)))
-                   (error "Header hunks have to be applied individually"))))
+         (offset (cond
+                  ((string-match diff-hunk-header-re-unified first-hunk)
+                   (- (string-to-number (match-string 3 first-hunk))
+                      (string-to-number (match-string 1 first-hunk))))
+                  (nil ; TODO @@@
+                   (error "Cannot apply resolve hunks"))
+                  ((error "Header hunks have to be applied individually")))))
     (if (= offset 0)
         hunks
       (mapcar (lambda (hunk)
