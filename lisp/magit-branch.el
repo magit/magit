@@ -541,7 +541,8 @@ then also set the target branch as the upstream of the branch
 that is being reset."
   (interactive
    (let* ((atpoint (magit-local-branch-at-point))
-          (branch  (magit-read-local-branch "Reset branch" atpoint)))
+          (branch (magit-read-local-branch "Reset branch" atpoint))
+          (minibuffer-default-add-function (magit--minibuf-default-add-commit)))
      (list branch
            (magit-completing-read (format "Reset %s to" branch)
                                   (delete branch (magit-list-branch-names))
