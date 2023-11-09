@@ -540,10 +540,10 @@ commits before and half after."
     ("s" "buffer and set defaults"  transient-set-and-exit)
     ("w" "buffer and save defaults" transient-save-and-exit)]
    ["Margin"
-    ("L" "toggle visibility"        magit-toggle-margin           :transient t)
-    ("l" "cycle style"              magit-cycle-margin-style      :transient t)
-    ("d" "toggle details"           magit-toggle-margin-details   :transient t)
-    ("x" "toggle shortstat"         magit-toggle-log-margin-style :transient t)]
+    (magit-toggle-margin)
+    (magit-cycle-margin-style)
+    (magit-toggle-margin-details)
+    (magit-toggle-log-margin-style)]
    [:if-mode magit-log-mode
     :description "Toggle"
     ("b" "buffer lock"              magit-toggle-buffer-lock)]]
@@ -1567,9 +1567,12 @@ If there is no blob buffer in the same frame, then do nothing."
 
 (defvar-local magit-log-margin-show-shortstat nil)
 
-(defun magit-toggle-log-margin-style ()
+(transient-define-suffix magit-toggle-log-margin-style ()
   "Toggle between the regular and the shortstat margin style.
 The shortstat style is experimental and rather slow."
+  :description "Toggle shortstat"
+  :key "x"
+  :transient t
   (interactive)
   (setq magit-log-margin-show-shortstat
         (not magit-log-margin-show-shortstat))

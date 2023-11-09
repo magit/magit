@@ -62,14 +62,16 @@ does not carry to other options."
   "Change what information is displayed in the margin."
   :info-manual "(magit) Log Margin"
   ["Margin"
-   ("L" "Toggle visibility" magit-toggle-margin      :transient t)
-   ("l" "Cycle style"       magit-cycle-margin-style :transient t)
-   ("d" "Toggle details"    magit-toggle-margin-details :transient t)
-   ("v" "Change verbosity"  magit-refs-set-show-commit-count
-    :if-derived magit-refs-mode)])
+   (magit-toggle-margin)
+   (magit-cycle-margin-style)
+   (magit-toggle-margin-details)
+   (magit-refs-set-show-commit-count)])
 
-(defun magit-toggle-margin ()
+(transient-define-suffix magit-toggle-margin ()
   "Show or hide the Magit margin."
+  :description "Toggle visibility"
+  :key "L"
+  :transient t
   (interactive)
   (unless (magit-margin-option)
     (user-error "Magit margin isn't supported in this buffer"))
@@ -79,8 +81,11 @@ does not carry to other options."
 (defvar magit-margin-default-time-format nil
   "See https://github.com/magit/magit/pull/4605.")
 
-(defun magit-cycle-margin-style ()
+(transient-define-suffix magit-cycle-margin-style ()
   "Cycle style used for the Magit margin."
+  :description "Cycle style"
+  :key "l"
+  :transient t
   (interactive)
   (unless (magit-margin-option)
     (user-error "Magit margin isn't supported in this buffer"))
@@ -95,8 +100,11 @@ does not carry to other options."
           (_ 'age)))
   (magit-set-buffer-margin nil t))
 
-(defun magit-toggle-margin-details ()
+(transient-define-suffix magit-toggle-margin-details ()
   "Show or hide details in the Magit margin."
+  :description "Toggle details"
+  :key "d"
+  :transient t
   (interactive)
   (unless (magit-margin-option)
     (user-error "Magit margin isn't supported in this buffer"))

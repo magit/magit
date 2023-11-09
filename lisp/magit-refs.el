@@ -406,8 +406,12 @@ Compared with a branch read from the user."
                      (magit-show-refs-arguments)))
   (magit-refs-setup-buffer ref args))
 
-(defun magit-refs-set-show-commit-count ()
+(transient-define-suffix magit-refs-set-show-commit-count ()
   "Change for which refs the commit count is shown."
+  :description "Change verbosity"
+  :key "v"
+  :transient nil
+  :if-derived 'magit-refs-mode
   (interactive)
   (setq-local magit-refs-show-commit-count
               (magit-read-char-case "Show commit counts for " nil
