@@ -64,7 +64,7 @@ does not carry to other options."
   ["Margin"
    ("L" "Toggle visibility" magit-toggle-margin      :transient t)
    ("l" "Cycle style"       magit-cycle-margin-style :transient t)
-   ("d" "Toggle details"    magit-toggle-margin-details)
+   ("d" "Toggle details"    magit-toggle-margin-details :transient t)
    ("v" "Change verbosity"  magit-refs-set-show-commit-count
     :if-derived magit-refs-mode)])
 
