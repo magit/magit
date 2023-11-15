@@ -1007,6 +1007,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
 
 (defun magit-refresh-buffer (&rest _ignore)
   "Refresh the current Magit buffer."
+  (interactive)
   (setq magit-refresh-start-time (current-time))
   (let ((refresh (intern (format "%s-refresh-buffer"
                                  (substring (symbol-name major-mode) 0 -5))))
