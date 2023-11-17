@@ -1935,6 +1935,15 @@ Sequences:
 operation loses all information collected so far.
 
 @item
+@code{abort-cherry-pick} Aborting a cherry-pick throws away all
+conflict resolutions which has already been carried out by the
+user.
+
+@item
+@code{abort-revert} Aborting a revert throws away all conflict
+resolutions which has already been carried out by the user.
+
+@item
 @code{abort-rebase} Aborting a rebase throws away all already modified
 commits, but it's possible to restore those from the reflog.
 

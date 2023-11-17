@@ -144,6 +144,8 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
     (const untrack)
     (const rename)
     (const reset-bisect)
+    (const abort-cherry-pick)
+    (const abort-revert)
     (const abort-rebase)
     (const abort-merge)
     (const merge-dirty)
@@ -210,6 +212,13 @@ Sequences:
 
   `reset-bisect' Aborting (known to Git as \"resetting\") a
   bisect operation loses all information collected so far.
+
+  `abort-cherry-pick' Aborting a cherry-pick throws away all
+  conflict resolutions which has already been carried out by the
+  user.
+
+  `abort-revert' Aborting a revert throws away all conflict
+  resolutions which has already been carried out by the user.
 
   `abort-rebase' Aborting a rebase throws away all already
   modified commits, but it's possible to restore those from the

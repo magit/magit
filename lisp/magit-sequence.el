@@ -112,10 +112,14 @@
   "Abort the current cherry-pick or revert sequence.
 This discards all changes made since the sequence started."
   (interactive)
-  (if (magit-sequencer-in-progress-p)
-      (magit-run-git-sequencer
-       (if (magit-revert-in-progress-p) "revert" "cherry-pick") "--abort")
-    (user-error "No cherry-pick or revert in progress")))
+  (cond
+   ((not (magit-sequencer-in-progress-p))
+    (user-error "No cherry-pick or revert in progress"))
+   ((magit-revert-in-progress-p)
+    (magit-confirm 'abort-revert "Really abort revert")
+    (magit-run-git-sequencer "revert" "--abort"))
+   ((magit-confirm 'abort-cherry-pick "Really abort cherry-pick")
+    (magit-run-git-sequencer "cherry-pick" "--abort"))))
 
 (defun magit-sequencer-in-progress-p ()
   (or (magit-cherry-pick-in-progress-p)
