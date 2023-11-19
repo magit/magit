@@ -91,21 +91,22 @@
 (defun magit-sequencer-continue ()
   "Resume the current cherry-pick or revert sequence."
   (interactive)
-  (if (magit-sequencer-in-progress-p)
-      (if (magit-anything-unmerged-p)
-          (user-error "Cannot continue due to unresolved conflicts")
-        (magit-run-git-sequencer
-         (if (magit-revert-in-progress-p) "revert" "cherry-pick") "--continue"))
-    (user-error "No cherry-pick or revert in progress")))
+  (cond
+   ((not (magit-sequencer-in-progress-p))
+    (user-error "No cherry-pick or revert in progress"))
+   ((magit-anything-unmerged-p)
+    (user-error "Cannot continue due to unresolved conflicts"))
+   ((magit-run-git-sequencer
+     (if (magit-revert-in-progress-p) "revert" "cherry-pick") "--continue"))))
 
 ;;;###autoload
 (defun magit-sequencer-skip ()
   "Skip the stopped at commit during a cherry-pick or revert sequence."
   (interactive)
-  (if (magit-sequencer-in-progress-p)
-      (progn (magit-call-git "reset" "--hard")
-             (magit-sequencer-continue))
-    (user-error "No cherry-pick or revert in progress")))
+  (unless (magit-sequencer-in-progress-p)
+    (user-error "No cherry-pick or revert in progress"))
+  (magit-call-git "reset" "--hard")
+  (magit-sequencer-continue))
 
 ;;;###autoload
 (defun magit-sequencer-abort ()
@@ -489,28 +490,29 @@ without prompting."
 (defun magit-am-continue ()
   "Resume the current patch applying sequence."
   (interactive)
-  (if (magit-am-in-progress-p)
-      (if (magit-anything-unstaged-p t)
-          (user-error "Cannot continue due to unstaged changes")
-        (magit-run-git-sequencer "am" "--continue"))
-    (user-error "Not applying any patches")))
+  (cond
+   ((not (magit-am-in-progress-p))
+    (user-error "Not applying any patches"))
+   ((magit-anything-unstaged-p t)
+    (user-error "Cannot continue due to unstaged changes"))
+   ((magit-run-git-sequencer "am" "--continue"))))
 
 ;;;###autoload
 (defun magit-am-skip ()
   "Skip the stopped at patch during a patch applying sequence."
   (interactive)
-  (if (magit-am-in-progress-p)
-      (magit-run-git-sequencer "am" "--skip")
-    (user-error "Not applying any patches")))
+  (unless (magit-am-in-progress-p)
+    (user-error "Not applying any patches"))
+  (magit-run-git-sequencer "am" "--skip"))
 
 ;;;###autoload
 (defun magit-am-abort ()
   "Abort the current patch applying sequence.
 This discards all changes made since the sequence started."
   (interactive)
-  (if (magit-am-in-progress-p)
-      (magit-run-git "am" "--abort")
-    (user-error "Not applying any patches")))
+  (unless (magit-am-in-progress-p)
+    (user-error "Not applying any patches"))
+  (magit-run-git "am" "--abort"))
 
 (defun magit-am-in-progress-p ()
   (file-exists-p (expand-file-name "rebase-apply/applying" (magit-gitdir))))
