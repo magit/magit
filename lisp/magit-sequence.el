@@ -491,7 +491,7 @@ without prompting."
   (interactive)
   (if (magit-am-in-progress-p)
       (if (magit-anything-unstaged-p t)
-          (error "Cannot continue due to unstaged changes")
+          (user-error "Cannot continue due to unstaged changes")
         (magit-run-git-sequencer "am" "--continue"))
     (user-error "Not applying any patches")))
 
