@@ -1382,7 +1382,8 @@ for a revision."
                                  (and (cl-typep section 'magit-file-section)
                                       (equal (oref section value) file)))
                                (oref (or parent magit-root-section) children))))
-    (let (hunk (hunks (oref diff children)))
+    (let ((hunk nil)
+          (hunks (oref diff children)))
       (cl-block nil
         (while (setq hunk (pop hunks))
           (when-let ((range (oref hunk to-range)))
