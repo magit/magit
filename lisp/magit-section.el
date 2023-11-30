@@ -1110,12 +1110,13 @@ section lineage.  This command is intended for debugging purposes.
                          (magit-section-ident section)
                        (apply #'vector (magit-section-lineage section)))
                      (and-let* ((m (oref section start)))
-                       (marker-position m))
+                       (if (markerp m) (marker-position m) m))
                      (if-let ((m (oref section content)))
-                         (format "[%s-]" (marker-position m))
+                         (format "[%s-]"
+                                 (if (markerp m) (marker-position m) m))
                        "")
                      (and-let* ((m (oref section end)))
-                       (marker-position m)))))
+                       (if (markerp m) (marker-position m) m)))))
     (when interactive
       (message "%s" str))
     str))
