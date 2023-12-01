@@ -26,8 +26,7 @@ TAR      ?= tar
 SED      ?= sed
 
 EMACS      ?= emacs
-EMACS_ARGS ?= --eval \
-"(remhash (indirect-function 'derived-mode-p) advertised-signature-table))"
+EMACS_ARGS ?=
 BATCH       = $(EMACS) -Q --batch $(EMACS_ARGS) $(LOAD_PATH)
 
 LISP_EXTRA_TARGETS ?= check-declare

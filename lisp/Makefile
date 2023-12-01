@@ -137,8 +137,9 @@ export VERSIONLIB_TMPL
 #'
 
 define suppress_warnings
+(remhash (indirect-function 'derived-mode-p) advertised-signature-table)
 (fset 'original-message (symbol-function 'message))
-(fset 'message ;'
+(fset 'message
       (lambda (f &rest a)
         (unless (or (equal f "Wrote %s")
                     (equal f "pcase-memoize: equal first branch, yet different")
