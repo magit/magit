@@ -854,10 +854,10 @@ and also rename the respective reflog file."
      (concat
       (propertize "Configure " 'face 'transient-heading)
       (propertize (oref transient--prefix scope) 'face 'magit-branch-local)))
-   ("d"   magit-branch.<branch>.description)
-   ("u"   magit-branch.<branch>.merge/remote)
-   ("r"   magit-branch.<branch>.rebase)
-   ("p"   magit-branch.<branch>.pushRemote)]
+   ("d" magit-branch.<branch>.description)
+   ("u" magit-branch.<branch>.merge/remote)
+   ("r" magit-branch.<branch>.rebase)
+   ("p" magit-branch.<branch>.pushRemote)]
   ["Configure repository defaults"
    ("R" magit-pull.rebase)
    ("P" magit-remote.pushDefault)
