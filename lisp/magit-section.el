@@ -11,7 +11,7 @@
 ;; Package-Version: 3.3.0.50-git
 ;; Package-Requires: (
 ;;     (emacs "25.1")
-;;     (compat "29.1.3.4")
+;;     (compat "29.1.4.4")
 ;;     (dash "2.19.1")
 ;;     (seq "2.24"))
 
