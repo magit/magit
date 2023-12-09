@@ -93,11 +93,7 @@ ORG_EVAL += --funcall org-texinfo-export-to-texinfo
 texi:
 	@printf "Generating $(PKG).texi\n"
 	@$(EMACS) $(ORG_ARGS) $(PKG).org $(ORG_EVAL)
-	@printf "\n" >> $(PKG).texi
-	@rm -f $(PKG).texi~
 	@$(EMACS) $(ORG_ARGS) magit-section.org $(ORG_EVAL)
-	@printf "\n" >> magit-section.texi
-	@rm -f magit-section.texi~
 
 authors: AUTHORS.md
 
