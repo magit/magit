@@ -1268,6 +1268,17 @@ Like `message', except that `message-log-max' is bound to nil."
               ellipsis)))
       (user-error "Variable magit-ellipsis is invalid"))))
 
+(defun magit--ext-regexp-quote (str)
+  "Like `reqexp-quote', but for Extended Regular Expressions."
+  (let ((special (string-to-list "[*.\\?+^$({"))
+        (quoted nil))
+    (mapc (lambda (c)
+            (when (memq c special)
+              (push ?\\ quoted))
+            (push c quoted))
+          str)
+    (concat (nreverse quoted))))
+
 ;;; _
 (provide 'magit-base)
 ;;; magit-base.el ends here
