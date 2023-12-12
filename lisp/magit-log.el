@@ -962,7 +962,15 @@ nothing else.
 
 If invoked outside any log buffer, then display the log buffer
 of the current repository first; creating it if necessary."
-  (interactive (list (magit-read-branch-or-commit "In log, jump to")))
+  (interactive
+   (list (or (magit-completing-read
+              "In log, jump to"
+              (magit-list-refnames nil t)
+              nil nil nil 'magit-revision-history
+              (or (and-let* ((rev (magit-commit-at-point)))
+                    (magit-rev-fixup-target rev))
+                  (magit-get-current-branch)))
+             (user-error "Nothing selected"))))
   (with-current-buffer
       (cond ((derived-mode-p 'magit-log-mode)
              (current-buffer))
