@@ -1437,6 +1437,14 @@ Git."
   (and-let* ((name (magit-rev-name rev "refs/heads/*")))
     (and (not (string-match-p "[~^]" name)) name)))
 
+(defun magit-rev-fixup-target (rev)
+  (let ((msg (magit-rev-format "%s" rev)))
+    (save-match-data
+      (and (string-match "\\`\\(fixup\\|squash\\)! \\(.+\\)" msg)
+           (magit-rev-format
+            "%h" (format "%s^{/^%s}" rev
+                         (magit--ext-regexp-quote (match-string 2 msg))))))))
+
 (defun magit-get-shortname (rev)
   (let* ((fn (apply-partially #'magit-rev-name rev))
          (name (or (funcall fn "refs/tags/*")
