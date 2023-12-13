@@ -39,6 +39,7 @@
    ("-F" "Force"            ("-f" "--force"))
    ("-h" "Disable hooks"    "--no-verify")
    ("-n" "Dry run"          ("-n" "--dry-run"))
+   (magit-push:--push-option)
    (5 "-u" "Set upstream"   "--set-upstream")
    (7 "-t" "Follow tags"    "--follow-tags")]
   [:if magit-get-current-branch
@@ -371,6 +372,14 @@ You can add this command as a suffix using something like:
 
 (defun magit-push-to-remote--desc ()
   (format "using %s" (magit--propertize-face "git push <remote>" 'bold)))
+
+;;;; Infix Commands
+
+(transient-define-argument magit-push:--push-option ()
+  :description "Push Options"
+  :class 'transient-option
+  :key "-o"
+  :argument "--push-option=")
 
 ;;; _
 (provide 'magit-push)
