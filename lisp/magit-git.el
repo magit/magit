@@ -1859,13 +1859,13 @@ if BRANCH is merged into both TARGET (as described above) as well
 as into its upstream."
   (and (if-let ((upstream (and (magit-branch-p branch)
                                (magit-get-upstream-branch branch))))
-           (magit-git-success "merge-base" "--is-ancestor" branch upstream)
+           (magit-rev-ancestor-p branch upstream)
          t)
        (if (eq target t)
            (delete (magit-name-local-branch branch)
                    (magit-list-containing-branches branch))
          (and-let* ((target (or target (magit-get-current-branch))))
-           (magit-git-success "merge-base" "--is-ancestor" branch target)))))
+           (magit-rev-ancestor-p branch target)))))
 
 (defun magit-get-tracked (refname)
   "Return the remote branch tracked by the remote-tracking branch REFNAME.
