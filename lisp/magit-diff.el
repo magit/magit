@@ -1668,6 +1668,7 @@ Like `magit-diff-visit-worktree-file' but use
 If FORCE-WORKTREE is non-nil, then visit the worktree version of
 the file, even if the diff is about a committed change.  Use FN
 to display the buffer in some window."
+  ;; FIXME force-worktree is *also* used to mean other-window
   (if (magit-file-accessible-directory-p file)
       (magit-diff-visit-directory file force-worktree)
     (pcase-let ((`(,buf ,pos)

@@ -156,11 +156,20 @@ repositories are displayed."
 
 ;;;; Mode Commands
 
-(defun magit-repolist-status (&optional _button)
+(defun magit-repolist-status (&optional _button other-window)
   "Show the status for the repository at point."
-  (interactive)
+  (interactive (list nil current-prefix-arg))
   (if-let ((id (tabulated-list-get-id)))
-      (magit-status-setup-buffer (expand-file-name id))
+      (let ((display-buffer-overriding-action
+             (if t ;other-window
+                 '(;;display-buffer-use-some-window
+                   display-buffer-in-direction
+                   (direction . below)
+                   (inhibit-same-window . t)
+                   (reusable-frames . nil)
+                   (inhibit-switch-frame . t))
+               '(display-buffer-same-window))))
+        (magit-status-setup-buffer (expand-file-name id)))
     (user-error "There is no repository at point")))
 
 (defun magit-repolist-mark ()
