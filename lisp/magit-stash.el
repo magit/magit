@@ -24,6 +24,10 @@
 
 ;; Support for Git stashes.
 
+;; TODO With an empty stash message (or maybe only with a matching todo
+;; keyword and nothing else), use the first line of the one and only TODO
+;; item added in the stash.
+
 ;;; Code:
 
 (require 'magit)
