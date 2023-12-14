@@ -1300,6 +1300,7 @@ Do not add this to a hook variable."
 
 (defvar magit-log-count nil)
 
+;; TODO Add docstring.  Maybe turn into option.
 (defvar magit-log-format-message-function #'magit-log-propertize-keywords)
 
 (defun magit-log-wash-log (style args)
