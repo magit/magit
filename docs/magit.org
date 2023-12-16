@@ -9126,7 +9126,7 @@ help:
   (with-eval-after-load 'pointback
     (lambda ()
       (when (or git-commit-mode git-rebase-mode)
-	(pointback-mode -1))))
+        (pointback-mode -1))))
 #+end_src
 
 *** The mode-line information isn't always up-to-date
