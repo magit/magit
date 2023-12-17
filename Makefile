@@ -21,6 +21,7 @@ help:
 	$(info )
 	$(info make [all]            - compile elisp and documentation)
 	$(info make lisp             - compile elisp)
+	$(info make redo             - re-compile elisp)
 	$(info make docs             - generate info manuals)
 	$(info make info             - generate info manuals)
 	$(info make html             - generate html manual files)
@@ -69,6 +70,8 @@ help:
 	@printf "\n"
 
 ## Build #############################################################
+
+redo: clean-lisp lisp
 
 lisp:
 	@$(MAKE) -C lisp lisp
