@@ -2,9 +2,9 @@
 Use a dedicated feature branch
 =================================================================
 
-Please use a dedicated feature branch for your feature request, instead of asking us to merge "your-fork/master" into the "origin/master".  The use of dedicated branches makes it much more convenient to deal with pull-requests, especially when using Magit to do so.
+Please use a dedicated feature branch for your feature request, instead of asking us to merge "your-fork/main" into the "origin/main".  The use of dedicated branches makes it much more convenient to deal with pull-requests, especially when using Magit to do so.
 
-If you were about to open a pull-request asking us to merge your version of "master", then see [1] for instructions on how to quickly fix that and some information on why we ask you to do so.
+If you were about to open a pull-request asking us to merge your version of "main", then see [1] for instructions on how to quickly fix that and some information on why we ask you to do so.
 
 Additionally we ask you to allow us to push to the branch you want us to merge.  We might want to push additional commits and/or make minor changes.  Please make sure the box next to "Allow edits from maintainers" is checked before creating the pull-request.
 
