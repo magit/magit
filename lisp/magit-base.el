@@ -54,7 +54,7 @@
 
 (require 'magit-section)
 
-(eval-when-compile (require 'ido))
+(eval-when-compile (require 'info))
 (declare-function Info-get-token "info" (pos start all &optional errorstring))
 
 (eval-when-compile (require 'vc-git))
