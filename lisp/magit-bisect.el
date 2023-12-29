@@ -104,15 +104,7 @@ other actions from the bisect transient command (\
   (interactive (if (magit-bisect-in-progress-p)
                    (user-error "Already bisecting")
                  (magit-bisect-start-read-args)))
-  (unless (magit-rev-ancestor-p good bad)
-    (user-error
-     "The %s revision (%s) has to be an ancestor of the %s one (%s)"
-     (or (transient-arg-value "--term-old=" args) "good")
-     good
-     (or (transient-arg-value "--term-new=" args) "bad")
-     bad))
-  (when (magit-anything-modified-p)
-    (user-error "Cannot bisect with uncommitted changes"))
+  (magit-bisect-start--assert bad good args)
   (magit-repository-local-set 'bisect--first-parent
                               (transient-arg-value "--first-parent" args))
   (magit-git-bisect "start" (list args bad good) t))
@@ -129,6 +121,17 @@ other actions from the bisect transient command (\
                                      "Good"))
            bad)
           args)))
+
+(defun magit-bisect-start--assert (bad good args)
+  (unless (magit-rev-ancestor-p good bad)
+    (user-error
+     "The %s revision (%s) has to be an ancestor of the %s one (%s)"
+     (or (transient-arg-value "--term-old=" args) "good")
+     good
+     (or (transient-arg-value "--term-new=" args) "bad")
+     bad))
+  (when (magit-anything-modified-p)
+    (user-error "Cannot bisect with uncommitted changes")))
 
 ;;;###autoload
 (defun magit-bisect-reset ()
@@ -197,6 +200,7 @@ bisect run'."
                                 (magit-bisect-start-read-args))))
                  (cons (read-shell-command "Bisect shell command: ") args)))
   (when (and bad good)
+    (magit-bisect-start--assert bad good args)
     ;; Avoid `magit-git-bisect' because it's asynchronous, but the
     ;; next `git bisect run' call requires the bisect to be started.
     (magit-with-toplevel

@@ -227,6 +227,11 @@ f9ae2a6306 #4620 magit-blame--make-highlight-overlay: Add only to intended line
   incorrectly repeated already applied patches in the list of
   remaining patches.  #5024
 
+- ~magit-bisect-run~ is supposed to abort if there are uncommitted
+  changes or if the revisions are flipped (like ~magit-bisect-start~
+  does), but these checks were unintentionally dropped in Magit
+  v3.1.0.  #5070
+
 10b5407131 magit-diff-highlight-list: Ensure delayed highlighting takes place
 b32521d543 magit-ediff-read-files: Handle renames in one-file logs
 94aca04dc8 magit-module-section: Use correct keymap
