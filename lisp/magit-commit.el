@@ -202,8 +202,8 @@ With a prefix argument, amend to the commit at `HEAD' instead.
 
 With a prefix argument keep the committer date, otherwise change
 it.  The option `magit-commit-extend-override-date' can be used
-to inverse the meaning of the prefix argument.  \n(git commit
---amend --no-edit)"
+to inverse the meaning of the prefix argument.
+\n(git commit --amend --no-edit)"
   (interactive (list (magit-commit-arguments)
                      (if current-prefix-arg
                          (not magit-commit-extend-override-date)
