@@ -232,6 +232,7 @@ All Contributors
 - Louis Roché
 - Luís Oliveira
 - Luke Amdor
+- Magnar Sveen
 - Magnus Malm
 - Mak Kolybabi
 - Manuel Vázquez Acosta
@@ -286,6 +287,7 @@ All Contributors
 - Orivej Desh
 - Óscar Fuentes
 - Pancho Horrillo
+- Paul Pogonyshev
 - Paul Stadig
 - Pavel Holejsovsky
 - Pekka Pessi
