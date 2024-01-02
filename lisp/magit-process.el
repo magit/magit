@@ -257,6 +257,26 @@ string in the heading of its section."
   :group 'magit-process
   :type '(choice (const :tag "none" nil) string))
 
+(defvar tramp-pipe-stty-settings)
+(defvar magit-tramp-pipe-stty-settings ""
+  "Override `tramp-pipe-stty-settings' in `magit-start-process'.
+
+The default for that Tramp variable is \"-icanon min 1 time 0\",
+which causes staging of individual hunks to hang.  Using \"\"
+prevents that, but apparently has other issues, which is why it
+isn't the default.
+
+This variable defaults to \"\" and is used to override the Tramp
+variable in `magit-start-process'.  This only has an effect when
+using Tramp 2.6.2 or greater.  This can also be set to `pty', in
+which case a pty is used instead of a pipe.  That also prevents
+the hanging, but comes with its own problems (see #20).  To fall
+back to the value of `tramp-pipe-stty-settings', set this
+variable to nil.
+
+Also see https://github.com/magit/magit/issues/4720
+and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=62093.")
+
 (defface magit-process-ok
   '((t :inherit magit-section-heading :foreground "green"))
   "Face for zero exit-status."
@@ -580,10 +600,20 @@ Magit status buffer."
       ((`(,process-buf . ,section)
         (magit-process-setup program args))
        (process
-        (let ((process-connection-type
-               ;; Don't use a pty, because it would set icrnl
-               ;; which would modify the input (issue #20).
-               (and (not input) magit-process-connection-type))
+        (let ((process-connection-type ;t=pty nil=pipe
+               (or
+                ;; With Tramp, maybe force use a pty.  #4720
+                (and (file-remote-p default-directory)
+                     (eq magit-tramp-pipe-stty-settings 'pty))
+                ;; Without input, don't use a pty, because it would
+                ;; set icrnl, which would modify the input.  #20
+                (and (not input) magit-process-connection-type)))
+              (tramp-pipe-stty-settings
+               (or (and (not (eq magit-tramp-pipe-stty-settings 'pty))
+                        ;; Defaults to "", to allow staging hunks over
+                        ;; Tramp again.  #4720
+                        magit-tramp-pipe-stty-settings)
+                   tramp-pipe-stty-settings))
               (process-environment (magit-process-environment))
               (default-process-coding-system (magit--process-coding-system)))
           (apply #'start-file-process
