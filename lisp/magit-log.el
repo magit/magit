@@ -1931,17 +1931,16 @@ then show the last `magit-log-section-commit-count' commits."
 (defun magit-insert-recent-commits (&optional type value)
   "Insert section showing recent commits.
 Show the last `magit-log-section-commit-count' commits."
-  (let* ((start (format "HEAD~%s" magit-log-section-commit-count))
-         (range (and (magit-rev-verify start)
-                     (concat start "..HEAD"))))
-    (magit-insert-section ((eval (or type 'recent))
-                           (or value range)
-                           t)
-      (magit-insert-heading "Recent commits")
-      (magit--insert-log nil nil
-        (cons (format "-n%d" magit-log-section-commit-count)
-              (--remove (string-prefix-p "-n" it)
-                        magit-buffer-log-args))))))
+  (magit-insert-section ((eval (or type 'recent))
+                         (or value (let ((start (format "HEAD~%s" magit-log-section-commit-count)))
+                                     (and (magit-rev-verify start)
+                                          (concat start "..HEAD"))))
+                         t)
+    (magit-insert-heading "Recent commits")
+    (magit--insert-log nil nil
+      (cons (format "-n%d" magit-log-section-commit-count)
+            (--remove (string-prefix-p "-n" it)
+                      magit-buffer-log-args)))))
 
 (magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
   "Unpushed to <push-remote>" unpushed "@{push}..")
