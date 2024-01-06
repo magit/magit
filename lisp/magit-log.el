@@ -1938,7 +1938,7 @@ Show the last `magit-log-section-commit-count' commits."
                            (or value range)
                            t)
       (magit-insert-heading "Recent commits")
-      (magit--insert-log nil range
+      (magit--insert-log nil nil
         (cons (format "-n%d" magit-log-section-commit-count)
               (--remove (string-prefix-p "-n" it)
                         magit-buffer-log-args))))))
