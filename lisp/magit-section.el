@@ -71,12 +71,16 @@ and typing \\[eval-last-sexp].
 
 Once you have done that, you have to explicitly upgrade `%s':
 
-  \\[package-upgrade] %s \\`RET'
+  \\[package-install] %s \\`RET'
 
 Then you also must make sure the updated version is loaded,
 by evaluating this form:
 
-  (progn (unload-feature '%s t) (require '%s))
+  (progn (unload-feature \\='%s t) (require \\='%s))
+
+If this does not work, then try uninstalling Magit and all of its
+dependencies.  After that exit and restart Emacs, and only then
+reinstalling Magit.
 
 If you don't use the `package' package manager but still get
 this warning, then your chosen package manager likely has a
