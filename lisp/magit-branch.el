@@ -418,22 +418,23 @@ when using `magit-branch-and-checkout'."
 (defun magit-branch-read-args (prompt &optional default-start)
   (if magit-branch-read-upstream-first
       (let ((choice (magit-read-starting-point prompt nil default-start)))
-        (if (magit-rev-verify choice)
-            (list (magit-read-string-ns
-                   (if magit-completing-read--silent-default
-                       (format "%s (starting at `%s')" prompt choice)
-                     "Name for new branch")
-                   (let ((def (mapconcat #'identity
-                                         (cdr (split-string choice "/"))
-                                         "/")))
-                     (and (member choice (magit-list-remote-branch-names))
-                          (not (member def (magit-list-local-branch-names)))
-                          def)))
-                  choice)
-          (if (eq magit-branch-read-upstream-first 'fallback)
-              (list choice
-                    (magit-read-starting-point prompt choice default-start))
-            (user-error "Not a valid starting-point: %s" choice))))
+        (cond
+         ((magit-rev-verify choice)
+          (list (magit-read-string-ns
+                 (if magit-completing-read--silent-default
+                     (format "%s (starting at `%s')" prompt choice)
+                   "Name for new branch")
+                 (let ((def (mapconcat #'identity
+                                       (cdr (split-string choice "/"))
+                                       "/")))
+                   (and (member choice (magit-list-remote-branch-names))
+                        (not (member def (magit-list-local-branch-names)))
+                        def)))
+                choice))
+         ((eq magit-branch-read-upstream-first 'fallback)
+          (list choice
+                (magit-read-starting-point prompt choice default-start)))
+         ((user-error "Not a valid starting-point: %s" choice))))
     (let ((branch (magit-read-string-ns (concat prompt " named"))))
       (if (magit-branch-p branch)
           (magit-branch-read-args
