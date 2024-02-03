@@ -1476,6 +1476,10 @@ Do not add this to a hook variable."
       (setq boundary (match-end 0))
       (magit--put-face (match-beginning 0) (1- boundary)
                        'magit-keyword-squash msg))
+    (when (string-match "^\\(?:[a-zA-Z_][-a-zA-Z_]+[a-zA-Z_]\\)! " msg boundary)
+      (setq boundary (match-end 0))
+      (magit--put-face (match-beginning 0) (1- boundary)
+                       'magit-keyword-custom msg))
     (when magit-log-highlight-keywords
       (while (string-match "\\[[^][]*]" msg boundary)
         (setq boundary (match-end 0))
