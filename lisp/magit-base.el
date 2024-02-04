@@ -925,11 +925,8 @@ Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
       (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
 (defun magit-set-header-line-format (string)
-  "Set the header-line using STRING.
-Propertize STRING with the `magit-header-line'.  If the `face'
-property of any part of STRING is already set, then that takes
-precedence.  Also pad the left side of STRING so that it aligns
-with the text area."
+  "Set `header-line-format' in the current buffer based on STRING.
+Pad the left side of STRING so that it aligns with the text area."
   (setq header-line-format
         (concat (propertize " " 'display '(space :align-to 0))
                 string)))
