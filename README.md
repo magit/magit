@@ -127,7 +127,7 @@ Thanks to all of you, may (the history of) the source be with you!
 [![Compile](https://github.com/magit/magit/actions/workflows/compile.yml/badge.svg)](https://github.com/magit/magit/actions/workflows/compile.yml)
 [![Test](https://github.com/magit/magit/actions/workflows/test.yml/badge.svg)](https://github.com/magit/magit/actions/workflows/test.yml)
 [![Manual](https://github.com/magit/magit/actions/workflows/manual.yml/badge.svg)](https://github.com/magit/magit/actions/workflows/manual.yml)
-[![NonGNU ELPA](https://elpa.nongnu.org/nongnu/magit.svg)](https://elpa.nongnu.org/nongnu/magit.html)
+[![NonGNU ELPA](https://emacsair.me/assets/badges/nongnu-elpa.svg)](https://elpa.nongnu.org/nongnu/magit.html)
 [![Melpa](https://melpa.org/packages/magit-badge.svg)](https://melpa.org/#/magit)
 [![Melpa Stable](https://stable.melpa.org/packages/magit-badge.svg)](https://stable.melpa.org/#/magit)
 
