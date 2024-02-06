@@ -25,7 +25,7 @@
 ;;     (git-commit "3.3.0")
 ;;     (magit-section "3.3.0")
 ;;     (seq "2.24")
-;;     (transient "0.5.0")
+;;     (transient "0.5.3")
 ;;     (with-editor "3.3.2"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
