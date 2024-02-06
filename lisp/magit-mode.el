@@ -35,12 +35,6 @@
 (require 'help-mode)
 
 (require 'transient)
-(unless (fboundp 'transient-prefix-object)
-  (display-warning 'magit (substitute-command-keys
-                           (format magit--core-upgrade-instructions
-                                   'transient "0.5.0" 'transient
-                                   'transient 'transient 'transient))
-                   :emergency))
 
 (defvar bookmark-make-record-function)
 (defvar magit--wip-inhibit-autosave)
