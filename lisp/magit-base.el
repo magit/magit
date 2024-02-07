@@ -162,6 +162,7 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
     (const trash-module-gitdirs)
     (const stash-apply-3way)
     (const kill-process)
+    (const interrupt-process)
     (const safe-with-wip)))
 
 (defcustom magit-no-confirm '(set-and-push)

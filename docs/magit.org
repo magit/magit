@@ -1825,7 +1825,13 @@ sections are available.  There is one additional command.
 
 - Key: k (magit-process-kill) ::
 
-  This command kills the process represented by the section at point.
+  This command kills the process represented by the section at point
+  by sending the signal ~SIGKILL~.
+
+- Key: M-x magit-process-interrupt ::
+
+  This command kills the process represented by the section at point
+  by sending the signal ~SIGINT~.
 
 - Variable: magit-git-debug ::
 
