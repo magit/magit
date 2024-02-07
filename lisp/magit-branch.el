@@ -679,12 +679,12 @@ prompt is confusing."
           (pcase (if (or (equal branch target)
                          (not target))
                      (magit-read-char-case prompt nil
-                       (?d "[d]etach HEAD & delete" 'detach)
-                       (?a "[a]bort"                'abort))
-                   (magit-read-char-case prompt nil
-                     (?d "[d]etach HEAD & delete" 'detach)
-                     (?c (format "[c]heckout %s & delete" target) 'target)
-                     (?a "[a]bort" 'abort)))
+                       (?d "detach HEAD & delete" 'detach)
+                       (?a "abort"                'abort))
+                   (magit-read-char-case "prompt" nil
+                     (?d "detach HEAD & delete" 'detach)
+                     (?c (format "checkout %s & delete" target) 'target)
+                     (?a "abort" 'abort)))
             (`detach (unless (or (equal force '(4))
                                  (member branch force)
                                  (magit-branch-merged-p branch t))

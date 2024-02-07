@@ -1021,12 +1021,12 @@ and `:slant'."
   :always-read t)
 
 (defun magit-diff-select-algorithm (&rest _ignore)
-  (magit-read-char-case nil t
-    (?u "[u]nspecified" nil)
-    (?d "[d]efault"     "default")
-    (?m "[m]inimal"     "minimal")
-    (?p "[p]atience"    "patience")
-    (?h "[h]istogram"   "histogram")))
+  (magit-read-char-case "Algorithm" t
+    (?u "unspecified" nil)
+    (?d "default"     "default")
+    (?m "minimal"     "minimal")
+    (?p "patience"    "patience")
+    (?h "histogram"   "histogram")))
 
 (transient-define-argument magit-diff:--diff-merges ()
   :description "Diff merges"
@@ -1037,7 +1037,7 @@ and `:slant'."
   :always-read t)
 
 (defun magit-diff-select-merges (&rest _ignore)
-  (magit-read-char-case nil t
+  (magit-read-char-case nil t ; TODO
     (?u "[u]nspecified"    nil)
     (?o "[o]ff"            "off")
     (?f "[f]irst-parent"   "first-parent")
@@ -1056,9 +1056,9 @@ and `:slant'."
 
 (defun magit-diff-select-ignore-submodules (&rest _ignored)
   (magit-read-char-case "Ignore submodules " t
-    (?u "[u]ntracked" "untracked")
-    (?d "[d]irty"     "dirty")
-    (?a "[a]ll"       "all")))
+    (?u "untracked" "untracked")
+    (?d "dirty"     "dirty")
+    (?a "all"       "all")))
 
 (transient-define-argument magit-diff:--color-moved ()
   :description "Color moved lines"
@@ -1069,11 +1069,11 @@ and `:slant'."
 
 (defun magit-diff-select-color-moved-mode (&rest _ignore)
   (magit-read-char-case "Color moved " t
-    (?d "[d]efault" "default")
-    (?p "[p]lain"   "plain")
-    (?b "[b]locks"  "blocks")
-    (?z "[z]ebra"   "zebra")
-    (?Z "[Z] dimmed-zebra" "dimmed-zebra")))
+    (?d "default" "default")
+    (?p "plain"   "plain")
+    (?b "blocks"  "blocks")
+    (?z "zebra"   "zebra")
+    (?Z "dimmed-Zebra" "dimmed-zebra")))
 
 (transient-define-argument magit-diff:--color-moved-ws ()
   :description "Whitespace treatment for --color-moved"
@@ -1084,11 +1084,11 @@ and `:slant'."
 
 (defun magit-diff-select-color-moved-ws-mode (&rest _ignore)
   (magit-read-char-case "Ignore whitespace " t
-    (?i "[i]ndentation"  "allow-indentation-change")
-    (?e "[e]nd of line"  "ignore-space-at-eol")
-    (?s "[s]pace change" "ignore-space-change")
-    (?a "[a]ll space"    "ignore-all-space")
-    (?n "[n]o"           "no")))
+    (?i "indentation"  "allow-indentation-change")
+    (?e "end of line"  "ignore-space-at-eol")
+    (?s "space change" "ignore-space-change")
+    (?a "all space"    "ignore-all-space")
+    (?n "no"           "no")))
 
 ;;;; Setup Commands
 

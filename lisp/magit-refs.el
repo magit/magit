@@ -415,9 +415,9 @@ Compared with a branch read from the user."
   (interactive)
   (setq-local magit-refs-show-commit-count
               (magit-read-char-case "Show commit counts for " nil
-                (?a "[a]ll refs" 'all)
-                (?b "[b]ranches only" t)
-                (?n "[n]othing" nil)))
+                (?a "all refs" 'all)
+                (?b "branches only" t)
+                (?n "nothing" nil)))
   (magit-refresh))
 
 (defun magit-visit-ref ()

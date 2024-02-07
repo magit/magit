@@ -769,18 +769,19 @@ This is similar to `read-string', but
   (magit-read-string prompt initial-input history default-value
                      inherit-input-method t))
 
-(defmacro magit-read-char-case (prompt verbose &rest clauses)
+(defmacro magit-read-char-case (prompt show-abort &rest clauses)
   (declare (indent 2)
-           (debug (form form &rest (characterp form body))))
-  `(prog1 (pcase (read-char-choice
-                  (let ((parts (nconc (list ,@(mapcar #'cadr clauses))
-                                      ,(and verbose '(list "[C-g] to abort")))))
-                    (concat ,prompt
-                            (mapconcat #'identity (butlast parts) ", ")
-                            ", or "  (car (last parts)) " "))
-                  ',(mapcar #'car clauses))
-            ,@(--map `(,(car it) ,@(cddr it)) clauses))
-     (message "")))
+           (debug (form form &rest (characterp form form))))
+  (let ((cs (gensym)))
+    `(let ((,cs (list ,@(mapcar (lambda (c) `(list ,@c)) clauses))))
+       (pcase-exhaustive
+           (car (read-multiple-choice
+                 ,prompt
+                 (mapcar (pcase-lambda (`(,k ,d ,_)) (list k d))
+                         ,(if show-abort
+                              `(append ,cs '((?\C-g "to abort" "")))
+                            cs))))
+         ,@(mapcar (pcase-lambda (`(,k ,_ ,v)) (list k v)) clauses)))))
 
 (defun magit-y-or-n-p (prompt &optional action)
   "Ask user a \"y or n\" or a \"yes or no\" question using PROMPT.
