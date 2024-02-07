@@ -1319,14 +1319,16 @@ be committed."
 (keymap-set git-commit-mode-map "C-c C-d" #'magit-diff-while-committing)
 
 ;;;###autoload
-(defun magit-diff-buffer-file ()
+(defun magit-diff-buffer-file (&optional unstaged)
   "Show diff for the blob or file visited in the current buffer.
 
 When the buffer visits a blob, then show the respective commit.
 When the buffer visits a file, then show the differences between
-`HEAD' and the working tree.  In both cases limit the diff to
-the file or blob."
-  (interactive)
+the working tree and either `HEAD' or the index with prefix
+argument UNSTAGED.
+
+In both cases limit the diff to the visited file or blob."
+  (interactive "P")
   (require 'magit)
   (if-let ((file (magit-file-relative-name)))
       (if magit-buffer-refname
@@ -1337,14 +1339,28 @@ the file or blob."
         (let ((line (line-number-at-pos))
               (col (current-column)))
           (with-current-buffer
-              (magit-diff-setup-buffer (or (magit-get-current-branch) "HEAD")
-                                       nil
-                                       (car (magit-diff-arguments))
-                                       (list file)
-                                       'unstaged
-                                       magit-diff-buffer-file-locked)
+              (magit-diff-setup-buffer
+               (and (not unstaged)
+                    (or (magit-get-current-branch) "HEAD"))
+               nil
+               (car (magit-diff-arguments))
+               (list file)
+               'unstaged
+               magit-diff-buffer-file-locked)
             (magit-diff--goto-position file line col))))
     (user-error "Buffer isn't visiting a file")))
+
+;;;###autoload
+(defun magit-diff-buffer-file-unstaged ()
+  "Show diff for the blob or file visited in the current buffer.
+
+When the buffer visits a blob, then show the respective commit.
+When the buffer visits a file, then show the differences between
+the working tree and the index.
+
+In both cases limit the diff to the visited file or blob."
+  (interactive)
+  (magit-diff-buffer-file t))
 
 ;;;###autoload
 (defun magit-diff-paths (a b)
