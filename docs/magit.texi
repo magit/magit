@@ -9990,8 +9990,10 @@ impact performance significantly.
 
 Magit can be told to refresh buffers verbosely using @code{M-x
 magit-toggle-verbose-refresh}.  Enabling this helps figuring out which
-sections are bottlenecks.  The additional output can be found in the
-@code{*Messages*} buffer.
+sections are bottlenecks. Each line printed to the @code{*Messages*} buffer
+contains a section name, the number of seconds it took to show this
+section, and from 0 to 2 exclamation marks: the more exclamation marks
+the slower the section is.
 
 Magit also reverts buffers for visited files located inside the
 current repository when the visited file changes on disk.  That is
