@@ -7987,10 +7987,6 @@ error-prone, but also more costly.  Keeping it simple and just
 re-creating everything from scratch is an old design decision and
 departing from that will require major refactoring.
 
-I plan to do that in time for the next major release.  I also intend
-to create logs and diffs asynchronously, which should also help a lot
-but also requires major refactoring.
-
 Meanwhile you can tell Magit to only automatically refresh the current
 Magit buffer, but not the status buffer.  If you do that, then the
 status buffer is only refreshed automatically if it is the
