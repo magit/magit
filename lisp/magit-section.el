@@ -2185,7 +2185,7 @@ Configuration'."
         (unless (memq entry magit-disabled-section-inserters)
           (if (bound-and-true-p magit-refresh-verbose)
               (let ((time (benchmark-elapse (apply entry args))))
-                (message "  %-50s %s %s" entry time
+                (message "  %-50s %f %s" entry time
                          (cond ((> time 0.03) "!!")
                                ((> time 0.01) "!")
                                (t ""))))
