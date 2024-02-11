@@ -3083,10 +3083,6 @@ respective commits.
 @node Status Options
 @subsection Status Options
 
-@defopt magit-status-refresh-hook
-Hook run after a status buffer has been refreshed.
-@end defopt
-
 @defopt magit-status-margin
 This option specifies whether the margin is initially shown in
 Magit-Status mode buffers and how it is formatted.
@@ -9992,9 +9988,9 @@ current buffer.
 @end lisp
 
 You should also check whether any third-party packages have added
-anything to @code{magit-refresh-buffer-hook}, @code{magit-status-refresh-hook},
-@code{magit-pre-refresh-hook}, and @code{magit-post-refresh-hook}.  If so, then
-check whether those additions impact performance significantly.
+anything to @code{magit-refresh-buffer-hook}, @code{magit-pre-refresh-hook}, and
+@code{magit-post-refresh-hook}.  If so, then check whether those additions
+impact performance significantly.
 
 Magit can be told to refresh buffers verbosely using @code{M-x
 magit-toggle-verbose-refresh}.  Enabling this helps figuring out which

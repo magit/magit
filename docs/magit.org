@@ -2474,10 +2474,6 @@ variable.
 
 *** Status Options
 
-- User Option: magit-status-refresh-hook ::
-
-  Hook run after a status buffer has been refreshed.
-
 - User Option: magit-status-margin ::
 
   This option specifies whether the margin is initially shown in
@@ -8005,9 +8001,9 @@ current buffer.
 #+end_src
 
 You should also check whether any third-party packages have added
-anything to ~magit-refresh-buffer-hook~, ~magit-status-refresh-hook~,
-~magit-pre-refresh-hook~, and ~magit-post-refresh-hook~.  If so, then
-check whether those additions impact performance significantly.
+anything to ~magit-refresh-buffer-hook~, ~magit-pre-refresh-hook~, and
+~magit-post-refresh-hook~.  If so, then check whether those additions
+impact performance significantly.
 
 Magit can be told to refresh buffers verbosely using ~M-x
 magit-toggle-verbose-refresh~.  Enabling this helps figuring out which
