@@ -785,8 +785,10 @@ the remote."
                  (not (eq magit-branch-rename-push-target 'local-only))
                  (or (not (eq magit-branch-rename-push-target 'forge-only))
                      (and (require (quote forge) nil t)
-                          (fboundp 'forge--forge-remote-p)
-                          (forge--forge-remote-p remote))))
+                          (fboundp 'forge--split-forge-url)
+                          (and-let* ((url (magit-git-string
+                                           "remote" "get-url" remote)))
+                            (forge--split-forge-url url)))))
         (let ((old-target (magit-get-push-branch old t))
               (new-target (magit-get-push-branch new t))
               (remote (magit-get-push-remote new)))
