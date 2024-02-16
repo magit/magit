@@ -589,7 +589,9 @@ line is inserted at all."
               (when (magit-refs--insert-refname-p branch)
                 (magit-insert-section (branch branch t)
                   (let ((headp (equal branch head))
-                        (abbrev (if magit-refs-show-remote-prefix
+                        (abbrev (if (or magit-refs-show-remote-prefix
+                                        (not (string-prefix-p (concat remote "/")
+                                                              branch)))
                                     branch
                                   (substring branch (1+ (length remote))))))
                     (magit-insert-heading
