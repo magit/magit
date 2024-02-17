@@ -582,7 +582,9 @@ acts similarly to `completing-read', except for the following:
     (let ((command this-command)
           (reply (funcall magit-completing-read-function
                           (concat prompt ": ")
-                          (if (and def (not (member def collection)))
+                          (if (and (not (functionp collection))
+                                   def
+                                   (not (member def collection)))
                               (cons def collection)
                             collection)
                           predicate
