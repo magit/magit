@@ -1936,12 +1936,12 @@ operation loses all information collected so far.
 
 @item
 @code{abort-cherry-pick} Aborting a cherry-pick throws away all
-conflict resolutions which has already been carried out by the
+conflict resolutions which have already been carried out by the
 user.
 
 @item
 @code{abort-revert} Aborting a revert throws away all conflict
-resolutions which has already been carried out by the user.
+resolutions which have already been carried out by the user.
 
 @item
 @code{abort-rebase} Aborting a rebase throws away all already modified
