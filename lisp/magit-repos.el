@@ -379,7 +379,8 @@ Usually this is just its basename."
         (when (match-end 2)
           (magit--put-face (match-beginning 2) (match-end 2) 'bold v))
         (when (match-end 4)
-          (magit--put-face (match-beginning 3) (match-end 4) 'error v))
+          (magit--put-face (or (match-beginning 3) (match-beginning 4))
+                           (match-end 4) 'error v))
         (when (and (equal (match-string 2 v) "1")
                    (string-match-p magit-repolist-column-version-resume-regexp
                                    (magit-rev-format "%s")))
