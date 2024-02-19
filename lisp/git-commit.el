@@ -675,16 +675,21 @@ turning on `orglink-mode'."
 
 (defun git-commit-turn-on-flyspell ()
   "Unconditionally turn on Flyspell mode.
-Also prevent comments from being checked and
-finally check current non-comment text."
+Also check text that is already in the buffer, while avoiding to check
+most text that Git will strip from the final message, such as the last
+comment and anything below the cut line (\"--- >8 ---\")."
   (require 'flyspell)
   (turn-on-flyspell)
   (setq flyspell-generic-check-word-predicate
         #'git-commit-flyspell-verify)
-  (let ((end)
+  (let ((end nil)
+        ;; The "cut line" is defined in "git/wt-status.c".  It appears
+        ;; in the commit message when `commit.verbose' is set to true.
+        (cut-line-regex (format "^%s -\\{8,\\} >8 -\\{8,\\}$" comment-start))
         (comment-start-regex (format "^\\(%s\\|$\\)" comment-start)))
     (save-excursion
-      (goto-char (point-max))
+      (goto-char (or (re-search-forward cut-line-regex nil t)
+                     (point-max)))
       (while (and (not (bobp)) (looking-at comment-start-regex))
         (forward-line -1))
       (unless (looking-at comment-start-regex)
