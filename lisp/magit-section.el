@@ -1635,10 +1635,14 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
   (setq magit-section-pre-command-section (magit-current-section)))
 
 (defun magit-section-post-command-hook ()
-  (cursor-sensor-move-to-tangible (selected-window))
-  (when (or magit--context-menu-buffer
-            magit--context-menu-section)
-    (magit-menu-highlight-point-section))
+  (let ((window (selected-window)))
+    ;; The command may have used `set-window-buffer' to change
+    ;; the window's buffer without changing the current buffer.
+    (when (eq (current-buffer) (window-buffer window))
+      (cursor-sensor-move-to-tangible window)
+      (when (or magit--context-menu-buffer
+                magit--context-menu-section)
+        (magit-menu-highlight-point-section))))
   (unless (memq this-command '(magit-refresh magit-refresh-all))
     (magit-section-update-highlight)))
 
