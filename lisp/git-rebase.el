@@ -329,8 +329,8 @@ instance with all nil values is returned."
   "Set action of commit line to ACTION.
 If the region is active, operate on all lines that it touches.
 Otherwise, operate on the current line.  As a special case, an
-ACTION of nil comments the rebase line, regardless of its action
-type."
+ACTION of nil comments or uncomments the rebase line, regardless
+of its action type."
   (pcase (git-rebase-region-bounds t)
     (`(,beg ,end)
      (let ((end-marker (copy-marker end))
@@ -345,9 +345,11 @@ type."
              (let ((inhibit-read-only t))
                (magit-delete-line)
                (insert (concat action " " target " " trailer "\n"))))
-            ((and action-type (not (or action comment-p)))
+            ((and (not action) action-type)
              (let ((inhibit-read-only t))
-               (insert comment-start " "))
+               (if comment-p
+                   (delete-region beg (+ beg 2))
+                 (insert comment-start " ")))
              (forward-line))
             (t
              ;; In the case of --rebase-merges, commit lines may have
