@@ -578,14 +578,18 @@ line is inserted at all."
                        (cl-substitute nil ""
                                       (split-string line "\0")
                                       :test #'equal)))
-            (if head-branch
-                ;; Note: Use `ref' instead of `branch' for the check
-                ;; below because 'refname:short' shortens the remote
-                ;; HEAD to '<remote>' instead of '<remote>/HEAD' as of
-                ;; Git v2.40.0.
-                (progn (cl-assert
-                        (equal ref (concat "refs/remotes/" remote "/HEAD")))
-                       (setq head head-branch))
+            (cond
+             (head-branch
+              ;; Note: Use `ref' instead of `branch' for the check
+              ;; below because 'refname:short' shortens the remote
+              ;; HEAD to '<remote>' instead of '<remote>/HEAD' as of
+              ;; Git v2.40.0.
+              (cl-assert
+               (equal ref (concat "refs/remotes/" remote "/HEAD")))
+              (setq head head-branch))
+             ((not (equal ref (concat "refs/remotes/" remote "/HEAD")))
+              ;; ^ Skip mis-configured remotes where HEAD is not a
+              ;; symref.  See #5092.
               (when (magit-refs--insert-refname-p branch)
                 (magit-insert-section (branch branch t)
                   (let ((headp (equal branch head))
@@ -605,7 +609,7 @@ line is inserted at all."
                       (and msg (magit-log-propertize-keywords nil msg))))
                   (when (magit-buffer-margin-p)
                     (magit-refs--format-margin branch))
-                  (magit-refs--insert-cherry-commits branch)))))))
+                  (magit-refs--insert-cherry-commits branch))))))))
       (insert ?\n)
       (magit-make-margin-overlay nil t))))
 
