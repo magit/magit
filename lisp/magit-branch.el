@@ -208,10 +208,6 @@ has to be used to view and change branch related variables."
 (transient-define-prefix magit-branch (branch)
   "Add, configure or remove a branch."
   :man-page "git-branch"
-  ["Arguments"
-   (7 "-r" "Recurse submodules when checking out an existing branch"
-      "--recurse-submodules"
-      :if (lambda () (magit-git-version>= "2.13")))]
   ["Variables"
    :if (lambda ()
          (and magit-branch-direct-configure
@@ -220,6 +216,10 @@ has to be used to view and change branch related variables."
    ("u" magit-branch.<branch>.merge/remote)
    ("r" magit-branch.<branch>.rebase)
    ("p" magit-branch.<branch>.pushRemote)]
+  ["Arguments"
+   (7 "-r" "Recurse submodules when checking out an existing branch"
+      "--recurse-submodules"
+      :if (lambda () (magit-git-version>= "2.13")))]
   [["Checkout"
     ("b" "branch/revision"   magit-checkout)
     ("l" "local branch"      magit-branch-checkout)
