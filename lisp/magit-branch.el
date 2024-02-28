@@ -208,14 +208,24 @@ has to be used to view and change branch related variables."
 (transient-define-prefix magit-branch (branch)
   "Add, configure or remove a branch."
   :man-page "git-branch"
-  ["Variables"
-   :if (lambda ()
+  [:if (lambda ()
          (and magit-branch-direct-configure
               (oref (transient-prefix-object) scope)))
+   :description
+   (lambda ()
+     (concat (propertize "Configure " 'face 'transient-heading)
+             (propertize (oref (transient-prefix-object) scope)
+                         'face 'magit-branch-local)))
    ("d" magit-branch.<branch>.description)
    ("u" magit-branch.<branch>.merge/remote)
    ("r" magit-branch.<branch>.rebase)
    ("p" magit-branch.<branch>.pushRemote)]
+  [:if-non-nil magit-branch-direct-configure
+   :description "Configure repository defaults"
+   ("R" magit-pull.rebase)
+   ("P" magit-remote.pushDefault)
+   ("B" "Update default branch" magit-update-default-branch
+    :inapt-if-not magit-get-some-remote)]
   ["Arguments"
    (7 "-r" "Recurse submodules when checking out an existing branch"
       "--recurse-submodules"
@@ -864,7 +874,7 @@ and also rename the respective reflog file."
   ["Configure repository defaults"
    ("R" magit-pull.rebase)
    ("P" magit-remote.pushDefault)
-   ("b" "Update default branch" magit-update-default-branch
+   ("B" "Update default branch" magit-update-default-branch
     :inapt-if-not magit-get-some-remote)]
   ["Configure branch creation"
    ("a m" magit-branch.autoSetupMerge)
