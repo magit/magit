@@ -175,13 +175,22 @@ full loading."
   :type 'boolean
   :global t
   :init-value t
-  :initialize (lambda (symbol exp)
-                (custom-initialize-default symbol exp)
-                (when global-git-commit-mode
-                  (add-hook 'find-file-hook #'git-commit-setup-check-buffer)))
-  (if global-git-commit-mode
-      (add-hook  'find-file-hook #'git-commit-setup-check-buffer)
-    (remove-hook 'find-file-hook #'git-commit-setup-check-buffer)))
+  :initialize
+  (lambda (symbol exp)
+    (custom-initialize-default symbol exp)
+    (when global-git-commit-mode
+      (add-hook 'find-file-hook #'git-commit-setup-check-buffer)
+      (remove-hook 'after-change-major-mode-hook
+                   #'git-commit-setup-font-lock-in-buffer)))
+  (cond
+   (global-git-commit-mode
+    (add-hook 'find-file-hook #'git-commit-setup-check-buffer)
+    (add-hook 'after-change-major-mode-hook
+              #'git-commit-setup-font-lock-in-buffer))
+   (t
+    (remove-hook 'find-file-hook #'git-commit-setup-check-buffer)
+    (remove-hook 'after-change-major-mode-hook
+                 #'git-commit-setup-font-lock-in-buffer))))
 
 (defcustom git-commit-major-mode #'text-mode
   "Major mode used to edit Git commit messages.
@@ -476,8 +485,6 @@ the redundant bindings, then set this to nil, before loading
   (when (and buffer-file-name
              (string-match-p git-commit-filename-regexp buffer-file-name))
     (git-commit-setup-font-lock)))
-
-(add-hook 'after-change-major-mode-hook #'git-commit-setup-font-lock-in-buffer)
 
 (defun git-commit-setup-check-buffer ()
   (when (and buffer-file-name
