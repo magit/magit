@@ -96,6 +96,12 @@
               (mapconcat #'identity magit-buffer-diff-files " ")
             (magit-rev-format "%s" magit-buffer-revision))))
 
+(cl-defmethod magit-bookmark--get-child-value
+  (section &context (major-mode magit-stash-mode))
+  (string-replace magit-buffer-revision
+                  magit-buffer-revision-hash
+                  (oref section value)))
+
 ;;; Log
 ;;;; Log
 
