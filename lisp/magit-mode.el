@@ -1484,6 +1484,8 @@ necessary.  For use as `imenu-default-goto-function' in
 (cl-defgeneric magit-bookmark-get-filename ()
   (or (buffer-file-name) (buffer-name)))
 
+(cl-defgeneric magit-bookmark-get-buffer-create (bookmark mode))
+
 (defun magit--make-bookmark ()
   "Create a bookmark for the current Magit buffer.
 Input values are the major-mode's `magit-bookmark-name' method,
@@ -1517,17 +1519,16 @@ and the buffer-local values of the variables referenced in its
 
 (defun magit--handle-bookmark (bookmark)
   "Open a bookmark created by `magit--make-bookmark'.
-Call the `magit-*-setup-buffer' function of the the major-mode
+
+Call the generic function `magit-bookmark-get-buffer-create' to get
+the appropriate buffer without displaying it.
+
+Then call the `magit-*-setup-buffer' function of the the major-mode
 with the variables' values as arguments, which were recorded by
-`magit--make-bookmark'.  Ignore `magit-display-buffer-function'."
-  (let ((buffer (let ((default-directory (bookmark-get-filename bookmark))
-                      (mode (bookmark-prop-get bookmark 'mode))
-                      (magit-display-buffer-function #'identity)
-                      (magit-display-buffer-noselect t))
-                  (apply (intern (format "%s-setup-buffer"
-                                         (substring (symbol-name mode) 0 -5)))
-                         (--map (bookmark-prop-get bookmark it)
-                                (get mode 'magit-bookmark-variables))))))
+`magit--make-bookmark'."
+  (let ((buffer (magit-bookmark-get-buffer-create
+                 bookmark
+                 (bookmark-prop-get bookmark 'mode))))
     (set-buffer buffer) ; That is the interface we have to adhere to.
     (when-let ((hidden (bookmark-prop-get bookmark 'magit-hidden-sections)))
       (with-current-buffer buffer

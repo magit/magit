@@ -30,10 +30,22 @@
 
 (require 'magit)
 
+(require 'bookmark)
+
 ;;; Common
 
 (cl-defmethod magit-bookmark-get-filename (&context (major-mode magit-mode))
   (magit-toplevel))
+
+(cl-defmethod magit-bookmark-get-buffer-create
+  (bookmark (mode (derived-mode magit-mode)))
+  (let ((default-directory (bookmark-get-filename bookmark))
+        (magit-display-buffer-function #'identity)
+        (magit-display-buffer-noselect t))
+    (apply (intern (format "%s-setup-buffer"
+                           (substring (symbol-name mode) 0 -5)))
+           (--map (bookmark-prop-get bookmark it)
+                  (get mode 'magit-bookmark-variables)))))
 
 ;;; Diff
 ;;;; Diff
