@@ -2237,6 +2237,75 @@ Configuration'."
   (put-text-property beg end 'face face string)
   (put-text-property beg end 'font-lock-face face string))
 
+;;; Imenu Support
+
+(defvar-local magit--imenu-group-types nil)
+(defvar-local magit--imenu-item-types nil)
+
+(defun magit--imenu-create-index ()
+  ;; If `which-function-mode' is active, then the create-index
+  ;; function is called at the time the major-mode is being enabled.
+  ;; Modes that derive from `magit-mode' have not populated the buffer
+  ;; at that time yet, so we have to abort.
+  (and magit-root-section
+       (or magit--imenu-group-types
+           magit--imenu-item-types)
+       (let ((index
+              (cl-mapcan
+               (lambda (section)
+                 (cond
+                  (magit--imenu-group-types
+                   (and (if (eq (car-safe magit--imenu-group-types) 'not)
+                            (not (magit-section-match
+                                  (cdr magit--imenu-group-types)
+                                  section))
+                          (magit-section-match magit--imenu-group-types section))
+                        (and-let* ((children (oref section children)))
+                          `((,(magit--imenu-index-name section)
+                             ,@(mapcar (lambda (s)
+                                         (cons (magit--imenu-index-name s)
+                                               (oref s start)))
+                                       children))))))
+                  (magit--imenu-item-types
+                   (and (magit-section-match magit--imenu-item-types section)
+                        `((,(magit--imenu-index-name section)
+                           . ,(oref section start)))))))
+               (oref magit-root-section children))))
+         (if (and magit--imenu-group-types (symbolp magit--imenu-group-types))
+             (cdar index)
+           index))))
+
+(defun magit--imenu-index-name (section)
+  (let ((heading (buffer-substring-no-properties
+                  (oref section start)
+                  (1- (or (oref section content)
+                          (oref section end))))))
+    (save-match-data
+      (cond
+       ((and (magit-section-match [commit logbuf] section)
+             (string-match "[^ ]+\\([ *|]*\\).+" heading))
+        (replace-match " " t t heading 1))
+       ((magit-section-match
+         '([branch local branchbuf] [tag tags branchbuf]) section)
+        (oref section value))
+       ((magit-section-match [branch remote branchbuf] section)
+        (concat (oref (oref section parent) value) "/"
+                (oref section value)))
+       ((string-match " ([0-9]+)\\'" heading)
+        (substring heading 0 (match-beginning 0)))
+       (t heading)))))
+
+(defun magit--imenu-goto-function (_name position &rest _rest)
+  "Go to the section at POSITION.
+Make sure it is visible, by showing its ancestors where
+necessary.  For use as `imenu-default-goto-function' in
+`magit-mode' buffers."
+  (goto-char position)
+  (let ((section (magit-current-section)))
+    (while (setq section (oref section parent))
+      (when (oref section hidden)
+        (magit-section-show section)))))
+
 ;;; Bookmark support
 
 (declare-function bookmark-get-filename "bookmark" (bookmark-name-or-record))
