@@ -1,4 +1,4 @@
-;;; magit-bookmark.el --- Bookmark support for Magit  -*- lexical-binding:t -*-
+;;; magit-bookmark.el --- Bookmarks for Magit buffers  -*- lexical-binding:t -*-
 
 ;; Copyright (C) 2008-2024 The Magit Project Contributors
 
