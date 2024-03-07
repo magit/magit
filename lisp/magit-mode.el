@@ -1481,6 +1481,9 @@ necessary.  For use as `imenu-default-goto-function' in
 (declare-function bookmark-prop-get "bookmark" (bookmark-name-or-record prop))
 (declare-function bookmark-prop-set "bookmark" (bookmark-name-or-record prop val))
 
+(cl-defgeneric magit-bookmark-get-filename ()
+  (or (buffer-file-name) (buffer-name)))
+
 (defun magit--make-bookmark ()
   "Create a bookmark for the current Magit buffer.
 Input values are the major-mode's `magit-bookmark-name' method,
@@ -1495,7 +1498,7 @@ and the buffer-local values of the variables referenced in its
       (let ((bookmark (cons nil (bookmark-make-record-default 'no-file))))
         (bookmark-prop-set bookmark 'handler  #'magit--handle-bookmark)
         (bookmark-prop-set bookmark 'mode     major-mode)
-        (bookmark-prop-set bookmark 'filename (magit-toplevel))
+        (bookmark-prop-set bookmark 'filename (magit-bookmark-get-filename))
         (bookmark-prop-set bookmark 'defaults (list (magit-bookmark-name)))
         (dolist (var (get major-mode 'magit-bookmark-variables))
           (bookmark-prop-set bookmark var (symbol-value var)))

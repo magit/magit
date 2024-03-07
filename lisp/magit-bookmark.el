@@ -30,6 +30,11 @@
 
 (require 'magit)
 
+;;; Common
+
+(cl-defmethod magit-bookmark-get-filename (&context (major-mode magit-mode))
+  (magit-toplevel))
+
 ;;; Diff
 ;;;; Diff
 
