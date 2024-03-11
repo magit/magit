@@ -423,6 +423,7 @@ if any."
     (keymap-set map "<left-fringe> <mouse-1>" #'magit-mouse-toggle-section)
     (keymap-set map "<left-fringe> <mouse-2>" #'magit-mouse-toggle-section)
     (keymap-set map "TAB"       #'magit-section-toggle)
+    (keymap-set map "C-c TAB"   #'magit-section-cycle)
     (keymap-set map "C-<tab>"   #'magit-section-cycle)
     (keymap-set map "M-<tab>"   #'magit-section-cycle)
     ;; <backtab> is the most portable binding for Shift+Tab.
@@ -1005,19 +1006,33 @@ hidden."
       (magit-section-show-headings-1 child))))
 
 (defun magit-section-cycle (section)
-  "Cycle visibility of current section and its children."
+  "Cycle visibility of current section and its children.
+
+If this command is invoked using \\`C-<tab>' and that is globally bound
+to `tab-next', then this command pivots to behave like that command, and
+you must instead use \\`C-c TAB' to cycle section visibility.
+
+If you would like to keep using \\`C-<tab>' to cycle section visibility
+but also want to use `tab-bar-mode', then you have to prevent that mode
+from using this key and instead bind another key to `tab-next'.  Because
+`tab-bar-mode' does not use a mode map but instead manipulates the
+global map, this involves advising `tab-bar--define-keys'."
   (interactive (list (magit-current-section)))
-  (if (oref section hidden)
-      (progn (magit-section-show section)
-             (magit-section-hide-children section))
-    (let ((children (oref section children)))
+  (cond
+   ((and (equal (this-command-keys) [C-tab])
+         (eq (global-key-binding [C-tab]) 'tab-next)
+         (fboundp 'tab-bar-switch-to-next-tab))
+    (tab-bar-switch-to-next-tab current-prefix-arg))
+   ((oref section hidden)
+    (magit-section-show section)
+    (magit-section-hide-children section))
+   ((let ((children (oref section children)))
       (cond ((and (--any-p (oref it hidden)   children)
                   (--any-p (oref it children) children))
              (magit-section-show-headings section))
             ((seq-some #'magit-section-hidden-body children)
              (magit-section-show-children section))
-            (t
-             (magit-section-hide section))))))
+            ((magit-section-hide section)))))))
 
 (defun magit-section-cycle-global ()
   "Cycle visibility of all sections in the current buffer."

@@ -1410,10 +1410,22 @@ but all you need to get started are the next two.
 @findex magit-section-toggle
 Toggle the visibility of the body of the current section.
 
-@item @kbd{C-<tab>} (@code{magit-section-cycle})
+@item @kbd{C-c @key{TAB}} (@code{magit-section-cycle})
+@itemx @kbd{C-<tab>} (@code{magit-section-cycle})
+@kindex C-c TAB
 @kindex C-<tab>
 @findex magit-section-cycle
 Cycle the visibility of current section and its children.
+
+If this command is invoked using @code{C-<tab>} and that is globally bound
+to @code{tab-next}, then this command pivots to behave like that command,
+and you must instead use @code{C-c TAB} to cycle section visibility.
+
+If you would like to keep using @code{C-<tab>} to cycle section visibility
+but also want to use @code{tab-bar-mode}, then you have to prevent that mode
+from using this key and instead bind another key to @code{tab-next}.  Because
+@code{tab-bar-mode} does not use a mode map but instead manipulates the
+global map, this involves advising @code{tab-bar--define-keys}.
 
 @item @kbd{M-<tab>} (@code{magit-section-cycle-diffs})
 @kindex M-<tab>

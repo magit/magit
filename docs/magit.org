@@ -1011,9 +1011,20 @@ but all you need to get started are the next two.
 
   Toggle the visibility of the body of the current section.
 
+- Key: C-c TAB (magit-section-cycle) ::
 - Key: C-<tab> (magit-section-cycle) ::
 
   Cycle the visibility of current section and its children.
+
+  If this command is invoked using ~C-<tab>~ and that is globally bound
+  to ~tab-next~, then this command pivots to behave like that command,
+  and you must instead use ~C-c TAB~ to cycle section visibility.
+
+  If you would like to keep using ~C-<tab>~ to cycle section visibility
+  but also want to use ~tab-bar-mode~, then you have to prevent that mode
+  from using this key and instead bind another key to ~tab-next~.  Because
+  ~tab-bar-mode~ does not use a mode map but instead manipulates the
+  global map, this involves advising ~tab-bar--define-keys~.
 
 - Key: M-<tab> (magit-section-cycle-diffs) ::
 
