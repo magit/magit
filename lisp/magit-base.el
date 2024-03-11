@@ -1228,6 +1228,8 @@ Magit."
            ,@body)
        ,@body)))
 
+(put 'magit--with-connection-local-variables 'lisp-indent-function 'defun)
+
 ;;; Miscellaneous
 
 (defun magit-message (format-string &rest args)
