@@ -2480,12 +2480,13 @@ section or a child thereof."
                            (and untracked "untracked")
                            " content"))
               ")")
-            (let ((default-directory
-                   (file-name-as-directory
-                    (expand-file-name module (magit-toplevel)))))
-              (magit-git-wash (apply-partially #'magit-log-wash-log 'module)
-                "log" "--oneline" "--left-right" range)
-              (delete-char -1)))))
+            (magit-insert-section-body
+              (let ((default-directory
+                     (file-name-as-directory
+                      (expand-file-name module (magit-toplevel)))))
+                (magit-git-wash (apply-partially #'magit-log-wash-log 'module)
+                  "log" "--oneline" "--left-right" range)
+                (delete-char -1))))))
        ((and (looking-at "^Submodule \\([^ ]+\\) \\([^ ]+\\) (\\([^)]+\\))$")
              (equal (match-string 1) module))
         (magit-bind-match-strings (_module _range msg) nil
