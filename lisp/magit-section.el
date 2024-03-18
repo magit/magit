@@ -2179,10 +2179,15 @@ again use `remove-hook'."
 
 (defun magit-disable-section-inserter (fn)
   "Disable the section inserter FN in the current repository.
+
+FN can be a single section inserter or a list of inserters.
+
 It is only intended for use in \".dir-locals.el\" and
 \".dir-locals-2.el\".  Also see info node `(magit)Per-Repository
 Configuration'."
-  (cl-pushnew fn magit-disabled-section-inserters))
+  (unless (listp fn) (cl-callf list fn))
+  (dolist (each fn)
+    (cl-pushnew each magit-disabled-section-inserters)))
 
 (put 'magit-disable-section-inserter 'safe-local-eval-function t)
 
