@@ -547,9 +547,9 @@ Used as the local value of `header-line-format', in buffer using
 
 (defun git-commit-setup ()
   (when (fboundp 'magit-toplevel)
-    ;; `magit-toplevel' is autoloaded and defined in magit-git.el,
-    ;; That library declares this functions without loading
-    ;; magit-process.el, which defines it.
+    ;; `magit-toplevel' is autoloaded and defined in magit-git.el.  That
+    ;; library declares this function without loading magit-process.el,
+    ;; which defines it.
     (require 'magit-process nil t))
   ;; Pretend that git-commit-mode is a major-mode,
   ;; so that directory-local settings can be used.
@@ -560,7 +560,7 @@ Used as the local value of `header-line-format', in buffer using
                   ;; because the maintainer can use the latter
                   ;; to enforce conventions, while s/he has no
                   ;; control over the former.
-                  (fboundp 'magit-toplevel)  ; silence byte-compiler
+                  (fboundp 'magit-toplevel)
                   (magit-toplevel))
              default-directory)))
     (let ((buffer-file-name nil)         ; trick hack-dir-local-variables
