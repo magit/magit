@@ -546,27 +546,29 @@ Used as the local value of `header-line-format', in buffer using
   (setq git-commit-usage-message nil) ; show a shorter message")
 
 (defun git-commit-setup ()
-  (when (fboundp 'magit-toplevel)
-    ;; `magit-toplevel' is autoloaded and defined in magit-git.el.  That
-    ;; library declares this function without loading magit-process.el,
-    ;; which defines it.
-    (require 'magit-process nil t))
-  ;; Pretend that git-commit-mode is a major-mode,
-  ;; so that directory-local settings can be used.
-  (let ((default-directory
-         (or (and (not (file-exists-p ".dir-locals.el"))
-                  ;; When $GIT_DIR/.dir-locals.el doesn't exist,
-                  ;; fallback to $GIT_WORK_TREE/.dir-locals.el,
-                  ;; because the maintainer can use the latter
-                  ;; to enforce conventions, while s/he has no
-                  ;; control over the former.
-                  (fboundp 'magit-toplevel)
-                  (magit-toplevel))
-             default-directory)))
-    (let ((buffer-file-name nil)         ; trick hack-dir-local-variables
-          (major-mode 'git-commit-mode)) ; trick dir-locals-collect-variables
-      (hack-dir-local-variables)
-      (hack-local-variables-apply)))
+  (let ((gitdir default-directory))
+    (when (fboundp 'magit-toplevel)
+      ;; `magit-toplevel' is autoloaded and defined in magit-git.el.  That
+      ;; library declares this function without loading magit-process.el,
+      ;; which defines it.
+      (require 'magit-process nil t))
+    ;; Pretend that git-commit-mode is a major-mode,
+    ;; so that directory-local settings can be used.
+    (let ((default-directory
+           (or (and (not (file-exists-p
+                          (expand-file-name ".dir-locals.el" gitdir)))
+                    ;; When $GIT_DIR/.dir-locals.el doesn't exist,
+                    ;; fallback to $GIT_WORK_TREE/.dir-locals.el,
+                    ;; because the maintainer can use the latter
+                    ;; to enforce conventions, while s/he has no
+                    ;; control over the former.
+                    (fboundp 'magit-toplevel)
+                    (magit-toplevel))
+               gitdir)))
+      (let ((buffer-file-name nil)         ; trick hack-dir-local-variables
+            (major-mode 'git-commit-mode)) ; trick dir-locals-collect-variables
+        (hack-dir-local-variables)
+        (hack-local-variables-apply))))
   (when git-commit-major-mode
     (let ((auto-mode-alist
            ;; `set-auto-mode--apply-alist' removes the remote part from
