@@ -334,6 +334,26 @@ no effect."
   :safe 'booleanp
   :type 'boolean)
 
+(defcustom git-commit-cd-to-toplevel nil
+  "Whether to set `default-directory' to the worktree in message buffer.
+
+Editing a commit message is done by visiting a file located in the git
+directory, usually \"COMMIT_EDITMSG\".  As is done when visiting any
+file, the local value of `default-directory' is set to the directory
+that contains the file.
+
+If this option is non-nil, then the local `default-directory' is changed
+to the working tree from which the commit command was invoked.  You may
+wish to do that, to make it easier to open a file that is located in the
+working tree, directly from the commit message buffer.
+
+If the git variable `safe.bareRepository' is set to \"explicit\", then
+you have to enable this, to be able to commit at all.  See issue #5100.
+
+This option only has an effect if the commit was initiated from Magit."
+  :group 'git-commit
+  :type 'boolean)
+
 ;;;; Faces
 
 (defgroup git-commit-faces nil
@@ -546,12 +566,17 @@ Used as the local value of `header-line-format', in buffer using
   (setq git-commit-usage-message nil) ; show a shorter message")
 
 (defun git-commit-setup ()
-  (let ((gitdir default-directory))
-    (when (fboundp 'magit-toplevel)
+  (let ((gitdir default-directory)
+        (cd nil))
+    (when (and (fboundp 'magit-toplevel)
+               (boundp 'magit--separated-gitdirs))
       ;; `magit-toplevel' is autoloaded and defined in magit-git.el.  That
       ;; library declares this function without loading magit-process.el,
       ;; which defines it.
-      (require 'magit-process nil t))
+      (require 'magit-process nil t)
+      (when git-commit-cd-to-toplevel
+        (setq cd (or (car (rassoc default-directory magit--separated-gitdirs))
+                     (magit-toplevel)))))
     ;; Pretend that git-commit-mode is a major-mode,
     ;; so that directory-local settings can be used.
     (let ((default-directory
@@ -563,12 +588,14 @@ Used as the local value of `header-line-format', in buffer using
                     ;; to enforce conventions, while s/he has no
                     ;; control over the former.
                     (fboundp 'magit-toplevel)
-                    (magit-toplevel))
+                    (or cd (magit-toplevel)))
                gitdir)))
       (let ((buffer-file-name nil)         ; trick hack-dir-local-variables
             (major-mode 'git-commit-mode)) ; trick dir-locals-collect-variables
         (hack-dir-local-variables)
-        (hack-local-variables-apply))))
+        (hack-local-variables-apply)))
+    (when cd
+      (setq default-directory cd)))
   (when git-commit-major-mode
     (let ((auto-mode-alist
            ;; `set-auto-mode--apply-alist' removes the remote part from
