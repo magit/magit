@@ -192,7 +192,9 @@ like \"/path/to/foo-bar\"."
                     (match-string 2 tag)))
           (args (magit-tag-arguments)))
        (list tag
-             (and (member "--annotate" args)
+             (and (or (member "--annotate" args)
+                      (member "--sign" args)
+                      (seq-some (lambda (x) (string-prefix-p "--local-user" x)) args))
                   (read-string
                    (format "Message for %S: " tag)
                    (cond ((and pver (string-match (regexp-quote pver) pmsg))
