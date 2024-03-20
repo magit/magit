@@ -2170,7 +2170,9 @@ keymap is the parent of their keymaps."
       (setq magit-git-global-arguments
             (append magit-diff--reset-non-color-moved
                     magit-git-global-arguments)))
-    (magit--git-wash #'magit-diff-wash-diffs keep-error cmd args)))
+    (magit--git-wash #'magit-diff-wash-diffs
+        (if (member "--no-index" args) 'wash-anyway keep-error)
+      cmd args)))
 
 (defun magit-diff--maybe-add-stat-arguments (args)
   (if (member "--stat" args)

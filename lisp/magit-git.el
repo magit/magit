@@ -597,7 +597,8 @@ call function WASHER with ARGS as its sole argument."
         (magit-cancel-section)
       (unless (bolp)
         (insert "\n"))
-      (when (equal exit 0)
+      (when (or (equal exit 0)
+                (eq keep-error 'wash-anyway))
         (save-restriction
           (narrow-to-region beg (point))
           (goto-char beg)
