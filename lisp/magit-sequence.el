@@ -1002,6 +1002,9 @@ status buffer (i.e., the reverse of how they will be applied)."
         (forward-line)))
     lines))
 
+;; TODO Speed up by abbreviating all commits using a single command:
+;; (magit-git-lines "show" "--no-patch" "--format=%h" commits)
+
 (defun magit-rebase-insert-merge-sequence (onto)
   (dolist (line (magit-rebase--todo))
     (with-slots (action-type action action-options target) line
