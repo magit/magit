@@ -150,6 +150,8 @@ dfe3d03a14 git-commit-save-message: Report whether message was saved
 
 - Improve the diff shown while committing.  #3246
 
+- Added new option ~magit-log-merged-commit-count~. #4711
+
 [TODO Keep these at end.]
 
 - Added new infix arguments and suffixes to the transient prefix
