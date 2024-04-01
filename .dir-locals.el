@@ -5,4 +5,8 @@
  (makefile-gmake-mode
   (outline-regexp . "#\\(#+\\)")
   (mode . outline-minor))
+ ("docs/RelNotes"
+  (org-mode
+   (fill-column . 80)
+   (mode . display-fill-column-indicator)))
  )
