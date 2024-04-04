@@ -770,7 +770,7 @@ Magit status buffer."
   (when (memq (process-status process) '(exit signal))
     (magit-process-sentinel process event)
     (when-let* ((process-buf (process-buffer process))
-                (- (buffer-live-p process-buf))
+                ((buffer-live-p process-buf))
                 (status-buf (with-current-buffer process-buf
                               (magit-get-mode-buffer 'magit-status-mode))))
       (with-current-buffer status-buf
