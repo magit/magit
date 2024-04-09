@@ -35,6 +35,7 @@
 (require 'magit-mode)
 
 (require 'ansi-color)
+(require 'auth-source)
 (require 'with-editor)
 
 (defvar y-or-n-p-map)
