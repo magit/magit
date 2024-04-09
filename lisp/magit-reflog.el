@@ -71,7 +71,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 
 ;;; Faces
 
-(defface magit-reflog-commit '((t :foreground "green"))
+(defface magit-reflog-commit '((t :foreground "#00ff00"))
   "Face for commit commands in reflogs."
   :group 'magit-faces)
 
@@ -79,7 +79,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   "Face for amend commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-reflog-merge '((t :foreground "green"))
+(defface magit-reflog-merge '((t :foreground "#00ff00"))
   "Face for merge, checkout and branch commands in reflogs."
   :group 'magit-faces)
 
@@ -95,7 +95,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   "Face for rebase commands in reflogs."
   :group 'magit-faces)
 
-(defface magit-reflog-cherry-pick '((t :foreground "green"))
+(defface magit-reflog-cherry-pick '((t :foreground "#00ff00"))
   "Face for cherry-pick commands in reflogs."
   :group 'magit-faces)
 

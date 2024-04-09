@@ -198,7 +198,7 @@ and/or `magit-branch-remote-head'."
   :group 'magit-faces)
 
 (defface magit-signature-good
-  '((t :foreground "green"))
+  '((t :foreground "#00ff00"))
   "Face for good signatures."
   :group 'magit-faces)
 

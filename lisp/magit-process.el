@@ -278,7 +278,7 @@ Also see https://github.com/magit/magit/issues/4720
 and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=62093.")
 
 (defface magit-process-ok
-  '((t :inherit magit-section-heading :foreground "green"))
+  '((t :inherit magit-section-heading :foreground "#00ff00"))
   "Face for zero exit-status."
   :group 'magit-faces)
 
