@@ -1761,7 +1761,7 @@ invisible."
     (display-warning 'magit "\
 Emacs has enabled redisplay shortcuts
 in this buffer because there are lines whose length go beyond
-`long-line-treshhold' \(%s characters).  As a result, section
+`long-line-treshold' \(%s characters).  As a result, section
 highlighting and the special appearance of the region has been
 disabled.  Some existing highlighting might remain in effect.
 
