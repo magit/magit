@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008-2024 The Magit Project Contributors
 
 ;; Author: Kyle Meyer <kyle@kyleam.com>
-;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
+;; Maintainer: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 

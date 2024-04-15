@@ -2,11 +2,11 @@
 
 ;; Copyright (C) 2008-2024 The Magit Project Contributors
 
-;; Author: Jonas Bernoulli <jonas@bernoul.li>
+;; Author: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
 ;;     Sebastian Wiesner <lunaryorn@gmail.com>
 ;;     Florian Ragwitz <rafl@debian.org>
 ;;     Marius Vollmer <marius.vollmer@gmail.com>
-;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
+;; Maintainer: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
 
 ;; Homepage: https://github.com/magit/magit
 ;; Keywords: git tools vc

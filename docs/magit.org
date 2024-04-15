@@ -1,7 +1,7 @@
 #+title: Magit User Manual
 :PREAMBLE:
 #+author: Jonas Bernoulli
-#+email: jonas@bernoul.li
+#+email: emacs.magit@jonas.bernoulli.dev
 #+date: 2015-{{{year}}}
 
 #+texinfo_dir_category: Emacs
@@ -9365,7 +9365,7 @@ Please also see [[*FAQ]].
 :END:
 
 #+begin_quote
-Copyright (C) 2015-{{{year}}} Jonas Bernoulli <jonas@bernoul.li>
+Copyright (C) 2015-{{{year}}} Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software

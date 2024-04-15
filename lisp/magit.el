@@ -3,8 +3,8 @@
 ;; Copyright (C) 2008-2024 The Magit Project Contributors
 
 ;; Author: Marius Vollmer <marius.vollmer@gmail.com>
-;;     Jonas Bernoulli <jonas@bernoul.li>
-;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
+;;     Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
+;; Maintainer: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
 ;;     Kyle Meyer <kyle@kyleam.com>
 ;; Former-Maintainers:
 ;;     Nicolas Dudebout <nicolas.dudebout@gatech.edu>
