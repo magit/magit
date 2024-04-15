@@ -8,7 +8,7 @@
 
 @copying
 @quotation
-Copyright (C) 2015-2024 Jonas Bernoulli <jonas@@bernoul.li>
+Copyright (C) 2015-2024 Jonas Bernoulli <emacs.magit@@jonas.bernoulli.dev>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
