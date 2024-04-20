@@ -561,9 +561,9 @@ purpose.")
 (cl-defmethod magit-section-ident-value ((section magit-section))
   "Return the value unless it is an object.
 
-Different object incarnations representing the same value then to
-not be equal, so call this generic function on the object itself
-to determine a constant value."
+Different object incarnations representing the same value tend to not be
+equal, so call this generic function on the object itself to determine a
+constant value."
   (let ((value (oref section value)))
     (if (eieio-object-p value)
         (magit-section-ident-value value)
