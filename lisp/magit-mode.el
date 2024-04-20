@@ -596,15 +596,16 @@ The buffer's major-mode should derive from `magit-section-mode'."
                            `(list ',var ,form))
                          bindings))))
 
-(defun magit-setup-buffer-internal (mode locked bindings &optional buffer-name)
+(defun magit-setup-buffer-internal ( mode locked bindings
+                                     &optional buffer-or-name)
   (let* ((value   (and locked
                        (with-temp-buffer
                          (pcase-dolist (`(,var ,val) bindings)
                            (set (make-local-variable var) val))
                          (let ((major-mode mode))
                            (magit-buffer-value)))))
-         (buffer  (if buffer-name
-                      (get-buffer-create buffer-name)
+         (buffer  (if buffer-or-name
+                      (get-buffer-create buffer-or-name)
                     (magit-get-mode-buffer mode value)))
          (section (and buffer (magit-current-section)))
          (created (not buffer)))
