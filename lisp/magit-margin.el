@@ -126,7 +126,8 @@ does not carry to other options."
     ('magit-refs-mode       'magit-refs-margin)
     ('magit-stashes-mode    'magit-stashes-margin)
     ('magit-status-mode     'magit-status-margin)
-    ('forge-notifications-mode 'magit-status-margin)))
+    ('forge-notifications-mode 'magit-status-margin)
+    ('forge-topics-mode     'magit-status-margin)))
 
 (defun magit-set-buffer-margin (&optional reset refresh)
   (when-let ((option (magit-margin-option)))
