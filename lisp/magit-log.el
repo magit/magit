@@ -1595,7 +1595,8 @@ The shortstat style is experimental and rather slow."
 (defun magit-log-format-author-margin (author date &optional previous-line)
   (pcase-let ((`(,_ ,style ,width ,details ,details-width)
                (or magit-buffer-margin
-                   (symbol-value (magit-margin-option)))))
+                   (symbol-value (magit-margin-option))
+                   (error "No margin format specified for %s" major-mode))))
     (magit-make-margin-overlay
      (concat (and details
                   (concat (magit--propertize-face
