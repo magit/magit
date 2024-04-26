@@ -1626,12 +1626,11 @@ with \" (N)\", where N is the number of child sections.
 
 This function is called by `magit-insert-section' after that has
 evaluated its BODY.  Admittedly that's a bit of a hack."
-  ;; This has to be fast, not pretty!
   (let (content count)
     (when (and magit-section-show-child-count
+               (setq content (oref section content))
                (setq count (length (oref section children)))
                (> count 0)
-               (setq content (oref section content))
                (eq (char-before (1- content)) ?:))
       (save-excursion
         (goto-char (- content 2))
