@@ -1635,9 +1635,8 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
                (eq (char-before (1- content)) ?:))
       (save-excursion
         (goto-char (- content 2))
-        (insert (concat (magit--propertize-face " " 'magit-section-heading)
-                        (magit--propertize-face (format "(%s)" count)
-                                                'magit-section-child-count)))
+        (insert (magit--propertize-face (format " (%s)" count)
+                                        'magit-section-child-count))
         (delete-char 1)))))
 
 ;;; Highlight
