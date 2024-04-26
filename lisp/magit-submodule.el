@@ -605,7 +605,7 @@ These sections can be expanded to show the respective commits."
               (let ((default-directory
                      (expand-file-name (file-name-as-directory module))))
                 (when (file-accessible-directory-p default-directory)
-                  (magit-insert-section sec (module module t)
+                  (magit-insert-section sec (magit-module-section module t)
                     (magit-insert-heading
                       (propertize module
                                   'font-lock-face 'magit-diff-file-heading)
