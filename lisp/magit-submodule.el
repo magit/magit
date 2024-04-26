@@ -604,7 +604,7 @@ These sections can be expanded to show the respective commits."
             (when (magit-module-worktree-p module)
               (let ((default-directory
                      (expand-file-name (file-name-as-directory module))))
-                (when (magit-file-accessible-directory-p default-directory)
+                (when (file-accessible-directory-p default-directory)
                   (magit-insert-section sec (module module t)
                     (magit-insert-heading
                       (propertize module

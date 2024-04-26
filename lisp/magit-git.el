@@ -821,7 +821,7 @@ Also see `magit-git-config-p'."
     (let ((dir (file-name-as-directory
                 (expand-file-name (or file default-directory))))
           (previous nil))
-      (while (not (magit-file-accessible-directory-p dir))
+      (while (not (file-accessible-directory-p dir))
         (setq dir (file-name-directory (directory-file-name dir)))
         (when (equal dir previous)
           (throw 'unsafe-default-dir nil))

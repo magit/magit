@@ -1015,13 +1015,6 @@ This function should be named `version>=' and be part of Emacs."
 
 ;;; Kludges for Emacs Bugs
 
-(defun magit-file-accessible-directory-p (filename)
-  "Like `file-accessible-directory-p' but work around an Apple bug.
-See http://debbugs.gnu.org/cgi/bugreport.cgi?bug=21573#17
-and https://github.com/magit/magit/issues/2295."
-  (and (file-directory-p filename)
-       (file-accessible-directory-p filename)))
-
 (when (< emacs-major-version 27)
   ;; Work around https://debbugs.gnu.org/cgi/bugreport.cgi?bug=21559.
   ;; Fixed by cb55ccae8be946f1562d74718086a4c8c8308ee5 in Emacs 27.1.
