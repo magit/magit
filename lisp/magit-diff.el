@@ -2744,7 +2744,7 @@ or a ref which is not a branch, then it inserts nothing."
   "Insert commit notes into a revision buffer."
   (let* ((var "core.notesRef")
          (def (or (magit-get var) "refs/notes/commits")))
-    (dolist (ref (or (magit-list-active-notes-refs)))
+    (dolist (ref (magit-list-active-notes-refs))
       (magit-insert-section section (notes ref (not (equal ref def)))
         (oset section heading-highlight-face 'magit-diff-hunk-heading-highlight)
         (let ((beg (point))
