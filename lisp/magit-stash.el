@@ -607,13 +607,11 @@ If there is no stash buffer in the same frame, then do nothing."
   "Insert section showing notes for a stash.
 This shows the notes for stash@{N} but not for the other commits
 that make up the stash."
-  (magit-insert-section section (note)
+  (magit-insert-section (note)
     (magit-insert-heading "Notes")
     (magit-git-insert "notes" "show" magit-buffer-revision)
-    (if (= (point)
-           (oref section content))
-        (magit-cancel-section)
-      (insert "\n"))))
+    (magit-cancel-section 'if-empty)
+    (insert "\n")))
 
 (defun magit-insert-stash-index ()
   "Insert section showing staged changes of the stash."

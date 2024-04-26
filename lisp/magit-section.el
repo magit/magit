@@ -1484,11 +1484,20 @@ anything this time around.
            (oset ,s children (nreverse (oref ,s children))))
          ,s))))
 
-(defun magit-cancel-section ()
+(defun magit-cancel-section (&optional if-empty)
   "Cancel inserting the section that is currently being inserted.
-Remove all traces of that section."
-  (when magit-insert-section--current
-    (if (not (oref magit-insert-section--current parent))
+
+Canceling returns from the inner most use of `magit-insert-section' and
+removes all text that was inserted by that.
+
+If optional IF-EMPTY is non-nil, then only cancel the section, if it is
+empty.  If a section is split into a heading and a body (i.e., when its
+`content' slot is non-nil), then only check if the body is empty."
+  (when (and magit-insert-section--current
+             (or (not if-empty)
+                 (= (point) (or (oref magit-insert-section--current content)
+                                (oref magit-insert-section--current start)))))
+    (if (eq magit-insert-section--current magit-root-section)
         (insert "(empty)\n")
       (delete-region (oref magit-insert-section--current start)
                      (point))

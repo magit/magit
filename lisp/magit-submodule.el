@@ -590,7 +590,7 @@ These sections can be expanded to show the respective commits."
   "For internal use, don't add to a hook."
   (unless (magit-ignore-submodules-p)
     (when-let ((modules (magit-list-module-paths)))
-      (magit-insert-section section ((eval type) nil t)
+      (magit-insert-section ((eval type) nil t)
         (string-match "\\`\\(.+\\) \\([^ ]+\\)\\'" heading)
         (magit-insert-heading
           (propertize (match-string 1 heading)
@@ -617,10 +617,8 @@ These sections can be expanded to show the respective commits."
                     (when (> (point)
                              (oref sec content))
                       (delete-char -1))))))))
-        (if (> (point)
-               (oref section content))
-            (insert ?\n)
-          (magit-cancel-section))))))
+        (magit-cancel-section 'if-empty)
+        (insert ?\n)))))
 
 ;;; List
 
