@@ -361,7 +361,7 @@ file, but then only a subset of the commands is available.
 
 The global key bindings mentioned in the previous two paragraphs are
 quite inconvenient.  We recommend using ~C-c g~ and ~C-c f~ instead, but
-cannot use those key sequences by default because they are strickly
+cannot use those key sequences by default because they are strictly
 reserved for bindings added by the user.  See [[*Global Bindings]], if you
 want to explicitly opt-in to the recommended key bindings.
 
@@ -7621,7 +7621,7 @@ By default Magit defines a few global key bindings.  These bindings
 are a compromise between providing no bindings at all and providing
 the better bindings I would have liked to use instead.  Magit cannot
 provide the set of recommended bindings by default because those key
-sequences are stricktly reserved for bindings added by the user.
+sequences are strictly reserved for bindings added by the user.
 Also see [[*Global Bindings]] and [[info:elisp#Key Binding Conventions]].
 
 To use the recommended bindings, add this to your init file and
