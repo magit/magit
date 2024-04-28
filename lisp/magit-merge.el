@@ -291,10 +291,6 @@ then also remove the respective remote branch."
 
 ;;; Sections
 
-(defvar-keymap magit-unmerged-section-map
-  :doc "Keymap for `unmerged' sections."
-  :parent magit-log-section-map)
-
 (defun magit-insert-merge-log ()
   "Insert section for the on-going merge.
 Display the heads that are being merged.

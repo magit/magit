@@ -1850,10 +1850,6 @@ keymap is the parent of their keymaps."
   "<remap> <magit-visit-thing>" #'magit-diff-dwim
   "<1>" (magit-menu-item "Visit diff" #'magit-diff-dwim))
 
-(defvar-keymap magit-unpulled-section-map
-  :doc "Keymap for `unpulled' sections."
-  :parent magit-log-section-map)
-
 (cl-defmethod magit-section-ident-value ((section magit-unpulled-section))
   "\"..@{push}\" cannot be used as the value because that is
 ambiguous if `push.default' does not allow a 1:1 mapping, and
@@ -1892,10 +1888,6 @@ in the pushremote case."
                   (propertize target 'font-lock-face 'magit-branch-remote)))
         (magit--insert-log nil range magit-buffer-log-args)
         (magit-log-insert-child-count)))))
-
-(defvar-keymap magit-unpushed-section-map
-  :doc "Keymap for `unpushed' sections."
-  :parent magit-log-section-map)
 
 (cl-defmethod magit-section-ident-value ((section magit-unpushed-section))
   "\"..@{push}\" cannot be used as the value because that is

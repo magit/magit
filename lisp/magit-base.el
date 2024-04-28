@@ -500,7 +500,9 @@ and delay of your graphical environment or operating system."
 (setf (alist-get 'module magit--section-type-alist) 'magit-module-section)
 (setf (alist-get 'hunk   magit--section-type-alist) 'magit-hunk-section)
 
-(defclass magit-log-section (magit-section) () :abstract t)
+(defclass magit-log-section (magit-section)
+  ((keymap :initform 'magit-log-section-map))
+  :abstract t)
 (defclass magit-unpulled-section (magit-log-section) ())
 (defclass magit-unpushed-section (magit-log-section) ())
 (defclass magit-unmerged-section (magit-log-section) ())
