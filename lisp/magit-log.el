@@ -1362,11 +1362,11 @@ Do not add this to a hook variable."
       (when (and (eq style 'reflog) (not date))
         (cl-return-from magit-log-wash-rev t))
       (magit-insert-section
-        ((eval (pcase style
-                 ('stash  'stash)
-                 ('module 'module-commit)
-                 (_       'commit)))
-         hash)
+          ((eval (pcase style
+                   ('stash  'stash)
+                   ('module 'module-commit)
+                   (_       'commit)))
+           hash)
         (setq hash (propertize (if (eq style 'bisect-log)
                                    (magit-rev-parse "--short" hash)
                                  hash)

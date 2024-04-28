@@ -620,9 +620,9 @@ line is inserted at all."
     (dolist (line (magit-refs--format-local-branches))
       (pcase-let ((`(,branch . ,strings) line))
         (magit-insert-section
-          ((eval (if branch 'branch 'commit))
-           (or branch (magit-rev-parse "HEAD"))
-           t)
+            ((eval (if branch 'branch 'commit))
+             (or branch (magit-rev-parse "HEAD"))
+             t)
           (apply #'magit-insert-heading strings)
           (when (magit-buffer-margin-p)
             (magit-refs--format-margin branch))
