@@ -2086,6 +2086,8 @@ keymap is the parent of their keymaps."
                                               '(unstaged staged))))))
 
 (defvar-keymap magit-file-section-map
+  ;; Even though this derived map doesn't add any bindings by default,
+  ;; it is quite possible that some users would want to add their own.
   :doc "Keymap for `file' sections."
   :parent magit-diff-section-base-map)
 
