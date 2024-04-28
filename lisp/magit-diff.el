@@ -2534,7 +2534,6 @@ section or a child thereof."
         (magit-insert-heading)
         (while (not (or (eobp) (looking-at "^[^-+\s\\]")))
           (forward-line))
-        (oset section end (point))
         (oset section washer #'magit-diff-paint-hunk)
         (oset section combined combined)
         (if combined
