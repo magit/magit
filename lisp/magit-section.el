@@ -380,15 +380,15 @@ no effect.  This also has no effect for Emacs >= 28, where
 (defclass magit-section ()
   ((type     :initform nil :initarg :type)
    (keymap   :initform nil)
-   (value    :initform nil :initarg :value)
-   (start    :initform nil :initarg :start)
+   (value    :initform nil)
+   (start    :initform nil)
    (content  :initform nil)
    (end      :initform nil)
    (hidden   :initform nil)
    (washer   :initform nil :initarg :washer)
    (inserter :initform (symbol-value 'magit--current-section-hook))
    (heading-highlight-face :initform nil :initarg :heading-highlight-face)
-   (parent   :initform nil :initarg :parent)
+   (parent   :initform nil)
    (children :initform nil)))
 
 ;;; Mode
@@ -1406,15 +1406,10 @@ anything this time around.
       (setq type class)
       (setq class (or (cdr (assq class magit--section-type-alist))
                       'magit-section)))
-    (let ((obj (apply
-                class
-                :type type
-                :value value
-                :start (if magit-section-inhibit-markers
-                           (point)
-                         (point-marker))
-                :parent magit-insert-section--parent
-                args)))
+    (let ((obj (apply class :type type args)))
+      (oset obj value value)
+      (oset obj parent magit-insert-section--parent)
+      (oset obj start (if magit-section-inhibit-markers (point) (point-marker)))
       (oset obj hidden
             (if-let ((value (run-hook-with-args-until-success
                              'magit-section-set-visibility-hook obj)))
