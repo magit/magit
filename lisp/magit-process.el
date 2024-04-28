@@ -670,6 +670,11 @@ Magit status buffer."
 
 ;;; Process Internals
 
+(defclass magit-process-section (magit-section)
+  ((process :initform nil)))
+
+(setf (alist-get 'process magit--section-type-alist) 'magit-process-section)
+
 (defun magit-process-setup (program args)
   (magit-process-set-mode-line program args)
   (let ((pwd default-directory)

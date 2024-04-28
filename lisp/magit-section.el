@@ -386,7 +386,6 @@ no effect.  This also has no effect for Emacs >= 28, where
    (end      :initform nil)
    (hidden   :initform nil)
    (washer   :initform nil :initarg :washer)
-   (process  :initform nil)
    (heading-highlight-face :initform nil :initarg :heading-highlight-face)
    (inserter :initform (symbol-value 'magit--current-section-hook))
    (parent   :initform nil :initarg :parent)
