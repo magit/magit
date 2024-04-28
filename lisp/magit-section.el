@@ -1430,9 +1430,6 @@ anything this time around.
                  `((let ((,s* ,s))
                      ,@(cdr args)))
                (cdr args))
-           ;; `magit-insert-section-hook' should *not* be run with
-           ;; `magit-run-section-hook' because it's a hook that runs
-           ;; on section insertion, not a section inserting hook.
            (run-hooks 'magit-insert-section-hook)
            (magit-insert-child-count ,s)
            (unless magit-section-inhibit-markers
