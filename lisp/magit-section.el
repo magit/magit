@@ -1380,14 +1380,15 @@ anything this time around.
                    (&or [("eval" form) &optional form form]
                         [symbolp &optional form form])
                    body)))
-  (let ((tp (cl-gensym "type"))
-        (s* (and (symbolp (car args))
-                 (pop args)))
-        (s  (cl-gensym "section")))
-    `(let* ((,tp ,(let ((type (nth 0 (car args))))
-                    (if (eq (car-safe type) 'eval)
-                        (cadr type)
-                      `',type)))
+  (pcase-let* ((bind (and (symbolp (car args))
+                          (pop args)))
+               (`((,type ,value ,hide) . ,body) args)
+               (type (if (eq (car-safe type) 'eval)
+                         (cadr type)
+                       `',type))
+               (s (cl-gensym "section"))
+               (tp (cl-gensym "type")))
+    `(let* ((,tp ,type)
             (,s (funcall (if (class-p ,tp)
                              ,tp
                            (or (cdr (assq ,tp magit--section-type-alist))
@@ -1396,7 +1397,7 @@ anything this time around.
                          (or (and (class-p ,tp)
                                   (car (rassq ,tp magit--section-type-alist)))
                              ,tp)
-                         :value ,(nth 1 (car args))
+                         :value ,value
                          :start (if magit-section-inhibit-markers
                                     (point)
                                   (point-marker))
@@ -1417,7 +1418,7 @@ anything this time around.
                      (progn (when (functionp value)
                               (setq value (funcall value ,s)))
                             (eq value 'hide))
-                   ,(nth 2 (car args))))))
+                   ,hide))))
        (let ((magit-insert-section--current ,s)
              (magit-insert-section--parent  ,s)
              (magit-insert-section--oldroot
@@ -1426,10 +1427,7 @@ anything this time around.
                        (prog1 magit-root-section
                          (setq magit-root-section ,s))))))
          (catch 'cancel-section
-           ,@(if s*
-                 `((let ((,s* ,s))
-                     ,@(cdr args)))
-               (cdr args))
+           ,@(if bind `((let ((,bind ,s)) ,@body)) body)
            (run-hooks 'magit-insert-section-hook)
            (magit-insert-child-count ,s)
            (unless magit-section-inhibit-markers
