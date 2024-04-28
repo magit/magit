@@ -1432,10 +1432,10 @@ anything this time around.
           ((let ((parent (oref ,s parent)))
              (oset parent children
                    (nconc (oref parent children)
-                          (list ,s)))))))
-       (when magit-section-insert-in-reverse
-         (setq magit-section-insert-in-reverse nil)
-         (oset ,s children (nreverse (oref ,s children))))
+                          (list ,s))))))
+         (when magit-section-insert-in-reverse
+           (setq magit-section-insert-in-reverse nil)
+           (oset ,s children (nreverse (oref ,s children)))))
        ,s)))
 
 (defun magit-insert-section--create (class value hide)
