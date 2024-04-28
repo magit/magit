@@ -1627,7 +1627,7 @@ to, or to some other symbolic-ref that points to the same ref."
     ([branch remote] (magit-section-parent-value it))))
 
 (defun magit-module-at-point (&optional predicate)
-  (when (magit-section-match 'magit-module-section)
+  (when (magit-section-match 'module)
     (let ((module (oref (magit-current-section) value)))
       (and (or (not predicate)
                (funcall predicate module))
@@ -2886,7 +2886,7 @@ out.  Only existing branches can be selected."
             (if predicate
                 (user-error "No modules satisfying %s available" predicate)
               (user-error "No modules available"))))
-      (setq modules (magit-region-values 'magit-module-section))
+      (setq modules (magit-region-values 'module))
       (when modules
         (when predicate
           (setq modules (seq-filter predicate modules)))
