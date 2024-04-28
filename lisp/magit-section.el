@@ -1396,46 +1396,7 @@ anything this time around.
             (magit-insert-section--parent ,s))
        (catch 'cancel-section
          ,@(if bind `((let ((,bind ,s)) ,@body)) body)
-         (run-hooks 'magit-insert-section-hook)
-         (magit-insert-child-count ,s)
-         (unless magit-section-inhibit-markers
-           (set-marker-insertion-type (oref ,s start) t))
-         (let ((end (oset ,s end
-                          (if magit-section-inhibit-markers
-                              (point)
-                            (point-marker))))
-               (map (symbol-value (oref ,s keymap))))
-           (save-excursion
-             (goto-char (oref ,s start))
-             (while (< (point) end)
-               (let ((next (or (next-single-property-change
-                                (point) 'magit-section)
-                               end)))
-                 (unless (magit-section-at)
-                   (put-text-property (point) next 'magit-section ,s)
-                   (when map
-                     (put-text-property (point) next 'keymap map)))
-                 (magit-section-maybe-add-heading-map ,s)
-                 (goto-char next)))))
-         (cond
-          ((eq ,s magit-root-section)
-           (when (eq magit-section-inhibit-markers 'delay)
-             (setq magit-section-inhibit-markers nil)
-             (magit-map-sections
-              (lambda (section)
-                (oset section start (copy-marker (oref section start) t))
-                (oset section end   (copy-marker (oref section end) t)))))
-           (let ((magit-section-cache-visibility nil))
-             (magit-section-show ,s)))
-          (magit-section-insert-in-reverse
-           (push ,s (oref (oref ,s parent) children)))
-          ((let ((parent (oref ,s parent)))
-             (oset parent children
-                   (nconc (oref parent children)
-                          (list ,s))))))
-         (when magit-section-insert-in-reverse
-           (setq magit-section-insert-in-reverse nil)
-           (oset ,s children (nreverse (oref ,s children)))))
+         (magit-insert-section--finish ,s))
        ,s)))
 
 (defun magit-insert-section--create (class value hide)
@@ -1479,6 +1440,48 @@ anything this time around.
                     (let ((sym (intern (format "forge-%s-section-map" type))))
                       (and (boundp sym) sym))))))
       obj)))
+
+(defun magit-insert-section--finish (obj)
+  (run-hooks 'magit-insert-section-hook)
+  (magit-insert-child-count obj)
+  (unless magit-section-inhibit-markers
+    (set-marker-insertion-type (oref obj start) t))
+  (let ((end (oset obj end
+                   (if magit-section-inhibit-markers
+                       (point)
+                     (point-marker))))
+        (map (symbol-value (oref obj keymap))))
+    (save-excursion
+      (goto-char (oref obj start))
+      (while (< (point) end)
+        (let ((next (or (next-single-property-change
+                         (point) 'magit-section)
+                        end)))
+          (unless (magit-section-at)
+            (put-text-property (point) next 'magit-section obj)
+            (when map
+              (put-text-property (point) next 'keymap map)))
+          (magit-section-maybe-add-heading-map obj)
+          (goto-char next)))))
+  (cond
+   ((eq obj magit-root-section)
+    (when (eq magit-section-inhibit-markers 'delay)
+      (setq magit-section-inhibit-markers nil)
+      (magit-map-sections
+       (lambda (section)
+         (oset section start (copy-marker (oref section start) t))
+         (oset section end   (copy-marker (oref section end) t)))))
+    (let ((magit-section-cache-visibility nil))
+      (magit-section-show obj)))
+   (magit-section-insert-in-reverse
+    (push obj (oref (oref obj parent) children)))
+   ((let ((parent (oref obj parent)))
+      (oset parent children
+            (nconc (oref parent children)
+                   (list obj))))))
+  (when magit-section-insert-in-reverse
+    (setq magit-section-insert-in-reverse nil)
+    (oset obj children (nreverse (oref obj children)))))
 
 (defun magit-cancel-section (&optional if-empty)
   "Cancel inserting the section that is currently being inserted.
