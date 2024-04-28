@@ -2421,9 +2421,12 @@ section or a child thereof."
 
 (defun magit-diff-insert-file-section
     (file orig status modes rename header binary long-status)
-  (magit-insert-section section
-    (file file (or (equal status "deleted")
-                   (derived-mode-p 'magit-status-mode)))
+  (magit-insert-section
+      ( file file
+        (or (equal status "deleted") (derived-mode-p 'magit-status-mode))
+        :source (and (not (equal orig file)) orig)
+        :header header
+        :binary binary)
     (insert (propertize (format "%-10s %s" status
                                 (if (or (not orig) (equal orig file))
                                     file
@@ -2434,10 +2437,6 @@ section or a child thereof."
           ((or binary long-status)
            (insert (format " (%s)" (if binary "binary" long-status)))))
     (magit-insert-heading)
-    (unless (equal orig file)
-      (oset section source orig))
-    (oset section header header)
-    (oset section binary binary)
     (when modes
       (magit-insert-section (hunk '(chmod))
         (insert modes)
@@ -2528,19 +2527,18 @@ section or a child thereof."
            (combined (length= ranges 3))
            (value    (cons about ranges)))
       (magit-delete-line)
-      (magit-insert-section section (hunk value)
+      (magit-insert-section
+          ( hunk value nil
+            :washer #'magit-diff-paint-hunk
+            :combined combined
+            :from-range (if combined (butlast ranges) (car ranges))
+            :to-range (car (last ranges))
+            :about about)
         (insert (propertize (concat heading "\n")
                             'font-lock-face 'magit-diff-hunk-heading))
         (magit-insert-heading)
         (while (not (or (eobp) (looking-at "^[^-+\s\\]")))
-          (forward-line))
-        (oset section washer #'magit-diff-paint-hunk)
-        (oset section combined combined)
-        (if combined
-            (oset section from-ranges (butlast ranges))
-          (oset section from-range (car ranges)))
-        (oset section to-range (car (last ranges)))
-        (oset section about about)))
+          (forward-line))))
     t))
 
 (defun magit-diff-expansion-threshold (section)
@@ -2643,9 +2641,9 @@ or a ref which is not a branch, then it inserts nothing."
                             'magit-section-secondary-heading)))
       (magit-insert-heading)
       (forward-line)
-      (magit-insert-section section (message)
-        (oset section heading-highlight-face
-              'magit-diff-revision-summary-highlight)
+      (magit-insert-section
+          ( message nil nil
+            :heading-highlight-face 'magit-diff-revision-summary-highlight)
         (let ((beg (point)))
           (forward-line)
           (magit--add-face-text-property
@@ -2674,8 +2672,9 @@ or a ref which is not a branch, then it inserts nothing."
 
 (defun magit-insert-revision-message ()
   "Insert the commit message into a revision buffer."
-  (magit-insert-section section (commit-message)
-    (oset section heading-highlight-face 'magit-diff-revision-summary-highlight)
+  (magit-insert-section
+      ( commit-message nil nil
+        :heading-highlight-face 'magit-diff-revision-summary-highlight)
     (let ((beg (point))
           (rev magit-buffer-revision))
       (insert (with-temp-buffer
@@ -2746,8 +2745,9 @@ or a ref which is not a branch, then it inserts nothing."
   (let* ((var "core.notesRef")
          (def (or (magit-get var) "refs/notes/commits")))
     (dolist (ref (magit-list-active-notes-refs))
-      (magit-insert-section section (notes ref (not (equal ref def)))
-        (oset section heading-highlight-face 'magit-diff-hunk-heading-highlight)
+      (magit-insert-section
+          ( notes ref (not (equal ref def))
+            :heading-highlight-face 'magit-diff-hunk-heading-highlight)
         (let ((beg (point))
               (rev magit-buffer-revision))
           (insert (with-temp-buffer

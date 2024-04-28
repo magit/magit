@@ -385,9 +385,9 @@ no effect.  This also has no effect for Emacs >= 28, where
    (content  :initform nil)
    (end      :initform nil)
    (hidden   :initform nil)
-   (washer   :initform nil)
+   (washer   :initform nil :initarg :washer)
    (process  :initform nil)
-   (heading-highlight-face :initform nil)
+   (heading-highlight-face :initform nil :initarg :heading-highlight-face)
    (inserter :initform (symbol-value 'magit--current-section-hook))
    (parent   :initform nil :initarg :parent)
    (children :initform nil)))
@@ -1377,16 +1377,16 @@ anything this time around.
 \(fn [NAME] (CLASS &optional VALUE HIDE) &rest BODY)"
   (declare (indent defun)
            (debug ([&optional symbolp]
-                   (&or [("eval" form) &optional form form]
-                        [symbolp &optional form form])
+                   (&or [("eval" form) &optional form form &rest form]
+                        [symbolp &optional form form &rest form])
                    body)))
   (pcase-let* ((bind (and (symbolp (car args))
                           (pop args)))
-               (`((,class ,value ,hide) . ,body) args)
+               (`((,class ,value ,hide . ,args) . ,body) args)
                (obj (cl-gensym "section")))
     `(let* ((,obj (magit-insert-section--create
                    ,(if (eq (car-safe class) 'eval) (cadr class) `',class)
-                   ,value ,hide))
+                   ,value ,hide ,@args))
             (magit-insert-section--current ,obj)
             (magit-insert-section--oldroot
              (or magit-insert-section--oldroot
@@ -1399,7 +1399,7 @@ anything this time around.
          (magit-insert-section--finish ,obj))
        ,obj)))
 
-(defun magit-insert-section--create (class value hide)
+(defun magit-insert-section--create (class value hide &rest args)
   (let (type)
     (if (class-p class)
         (setq type (or (car (rassq class magit--section-type-alist))
@@ -1407,14 +1407,15 @@ anything this time around.
       (setq type class)
       (setq class (or (cdr (assq class magit--section-type-alist))
                       'magit-section)))
-    (let ((obj (funcall
+    (let ((obj (apply
                 class
                 :type type
                 :value value
                 :start (if magit-section-inhibit-markers
                            (point)
                          (point-marker))
-                :parent magit-insert-section--parent)))
+                :parent magit-insert-section--parent
+                args)))
       (oset obj hidden
             (if-let ((value (run-hook-with-args-until-success
                              'magit-section-set-visibility-hook obj)))

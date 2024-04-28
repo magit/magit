@@ -605,18 +605,19 @@ These sections can be expanded to show the respective commits."
               (let ((default-directory
                      (expand-file-name (file-name-as-directory module))))
                 (when (file-accessible-directory-p default-directory)
-                  (magit-insert-section sec (magit-module-section module t)
+                  (magit-insert-section
+                      ( magit-module-section module t
+                        :range range)
                     (magit-insert-heading
                       (propertize module
                                   'font-lock-face 'magit-diff-file-heading)
                       ":")
-                    (oset sec range range)
-                    (magit-git-wash
-                        (apply-partially #'magit-log-wash-log 'module)
-                      "-c" "push.default=current" "log" "--oneline" range)
-                    (when (> (point)
-                             (oref sec content))
-                      (delete-char -1))))))))
+                    (let ((pos (point)))
+                      (magit-git-wash
+                          (apply-partially #'magit-log-wash-log 'module)
+                        "-c" "push.default=current" "log" "--oneline" range)
+                      (when (> (point) pos)
+                        (delete-char -1)))))))))
         (magit-cancel-section 'if-empty)
         (insert ?\n)))))
 
