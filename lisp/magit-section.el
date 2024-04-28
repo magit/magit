@@ -1383,21 +1383,21 @@ anything this time around.
   (pcase-let* ((bind (and (symbolp (car args))
                           (pop args)))
                (`((,class ,value ,hide) . ,body) args)
-               (s (cl-gensym "section")))
-    `(let* ((,s (magit-insert-section--create
-                 ,(if (eq (car-safe class) 'eval) (cadr class) `',class)
-                 ,value ,hide))
-            (magit-insert-section--current ,s)
+               (obj (cl-gensym "section")))
+    `(let* ((,obj (magit-insert-section--create
+                   ,(if (eq (car-safe class) 'eval) (cadr class) `',class)
+                   ,value ,hide))
+            (magit-insert-section--current ,obj)
             (magit-insert-section--oldroot
              (or magit-insert-section--oldroot
                  (and (not magit-insert-section--parent)
                       (prog1 magit-root-section
-                        (setq magit-root-section ,s)))))
-            (magit-insert-section--parent ,s))
+                        (setq magit-root-section ,obj)))))
+            (magit-insert-section--parent ,obj))
        (catch 'cancel-section
-         ,@(if bind `((let ((,bind ,s)) ,@body)) body)
-         (magit-insert-section--finish ,s))
-       ,s)))
+         ,@(if bind `((let ((,bind ,obj)) ,@body)) body)
+         (magit-insert-section--finish ,obj))
+       ,obj)))
 
 (defun magit-insert-section--create (class value hide)
   (let (type)
