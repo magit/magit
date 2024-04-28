@@ -1448,15 +1448,16 @@ anything this time around.
          ,s))))
 
 (defun magit-insert-section--create (class value hide)
-  (let ((type class))
-    (unless (class-p class)
+  (let (type)
+    (if (class-p class)
+        (setq type (or (car (rassq class magit--section-type-alist))
+                       class))
+      (setq type class)
       (setq class (or (cdr (assq class magit--section-type-alist))
                       'magit-section)))
     (let ((obj (funcall
                 class
-                :type (or (and (class-p type)
-                               (car (rassq type magit--section-type-alist)))
-                          type)
+                :type type
                 :value value
                 :start (if magit-section-inhibit-markers
                            (point)
