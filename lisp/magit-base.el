@@ -471,11 +471,14 @@ and delay of your graphical environment or operating system."
 
 ;;; Section Classes
 
-(defclass magit-commit-section (magit-section) ())
+(defclass magit-commit-section (magit-section)
+  ((keymap :initform 'magit-commit-section-map)))
 
 (setf (alist-get 'commit magit--section-type-alist) 'magit-commit-section)
 
-(defclass magit-diff-section (magit-section) () :abstract t)
+(defclass magit-diff-section (magit-section)
+  ((keymap :initform 'magit-diff-section-map))
+  :abstract t)
 
 (defclass magit-file-section (magit-diff-section)
   ((keymap :initform 'magit-file-section-map)
