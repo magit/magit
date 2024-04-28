@@ -1382,43 +1382,11 @@ anything this time around.
                    body)))
   (pcase-let* ((bind (and (symbolp (car args))
                           (pop args)))
-               (`((,type ,value ,hide) . ,body) args)
-               (type (if (eq (car-safe type) 'eval)
-                         (cadr type)
-                       `',type))
-               (s (cl-gensym "section"))
-               (tp (cl-gensym "type")))
-    `(let* ((,tp ,type)
-            (,s (funcall (if (class-p ,tp)
-                             ,tp
-                           (or (cdr (assq ,tp magit--section-type-alist))
-                               'magit-section))
-                         :type
-                         (or (and (class-p ,tp)
-                                  (car (rassq ,tp magit--section-type-alist)))
-                             ,tp)
-                         :value ,value
-                         :start (if magit-section-inhibit-markers
-                                    (point)
-                                  (point-marker))
-                         :parent magit-insert-section--parent)))
-       (oset ,s hidden
-             (if-let ((value (run-hook-with-args-until-success
-                              'magit-section-set-visibility-hook ,s)))
-                 (eq value 'hide)
-               (if-let ((incarnation
-                         (and (not magit-section-preserve-visibility)
-                              magit-insert-section--oldroot
-                              (magit-get-section
-                               (magit-section-ident ,s)
-                               magit-insert-section--oldroot))))
-                   (oref incarnation hidden)
-                 (if-let ((value (magit-section-match-assoc
-                                  ,s magit-section-initial-visibility-alist)))
-                     (progn (when (functionp value)
-                              (setq value (funcall value ,s)))
-                            (eq value 'hide))
-                   ,hide))))
+               (`((,class ,value ,hide) . ,body) args)
+               (s (cl-gensym "section")))
+    `(let ((,s (magit-insert-section--create
+                ,(if (eq (car-safe class) 'eval) (cadr class) `',class)
+                ,value ,hide)))
        (let ((magit-insert-section--current ,s)
              (magit-insert-section--parent  ,s)
              (magit-insert-section--oldroot
@@ -1478,6 +1446,40 @@ anything this time around.
            (setq magit-section-insert-in-reverse nil)
            (oset ,s children (nreverse (oref ,s children))))
          ,s))))
+
+(defun magit-insert-section--create (class value hide)
+  (let ((type class))
+    (unless (class-p class)
+      (setq class (or (cdr (assq class magit--section-type-alist))
+                      'magit-section)))
+    (let ((obj (funcall
+                class
+                :type (or (and (class-p type)
+                               (car (rassq type magit--section-type-alist)))
+                          type)
+                :value value
+                :start (if magit-section-inhibit-markers
+                           (point)
+                         (point-marker))
+                :parent magit-insert-section--parent)))
+      (oset obj hidden
+            (if-let ((value (run-hook-with-args-until-success
+                             'magit-section-set-visibility-hook obj)))
+                (eq value 'hide)
+              (if-let ((incarnation
+                        (and (not magit-section-preserve-visibility)
+                             magit-insert-section--oldroot
+                             (magit-get-section
+                              (magit-section-ident obj)
+                              magit-insert-section--oldroot))))
+                  (oref incarnation hidden)
+                (if-let ((value (magit-section-match-assoc
+                                 obj magit-section-initial-visibility-alist)))
+                    (progn (when (functionp value)
+                             (setq value (funcall value obj)))
+                           (eq value 'hide))
+                  hide))))
+      obj)))
 
 (defun magit-cancel-section (&optional if-empty)
   "Cancel inserting the section that is currently being inserted.
