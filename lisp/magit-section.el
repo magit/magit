@@ -1400,20 +1400,11 @@ anything this time around.
            (magit-insert-child-count ,s)
            (unless magit-section-inhibit-markers
              (set-marker-insertion-type (oref ,s start) t))
-           (let* ((end (oset ,s end
-                             (if magit-section-inhibit-markers
-                                 (point)
-                               (point-marker))))
-                  (class-map (oref ,s keymap))
-                  (magit-map (intern (format "magit-%s-section-map"
-                                             (oref ,s type))))
-                  (forge-map (intern (format "forge-%s-section-map"
-                                             (oref ,s type))))
-                  (map (and class-map (symbol-value class-map))))
-             (unless map
-               (setq map (or (and (boundp magit-map) (symbol-value magit-map))
-                             (and (boundp forge-map) (symbol-value forge-map))))
-               (oset ,s keymap map))
+           (let ((end (oset ,s end
+                            (if magit-section-inhibit-markers
+                                (point)
+                              (point-marker))))
+                 (map (symbol-value (oref ,s keymap))))
              (save-excursion
                (goto-char (oref ,s start))
                (while (< (point) end)
@@ -1480,6 +1471,13 @@ anything this time around.
                              (setq value (funcall value obj)))
                            (eq value 'hide))
                   hide))))
+      (unless (oref obj keymap)
+        (let ((type (oref obj type)))
+          (oset obj keymap
+                (or (let ((sym (intern (format "magit-%s-section-map" type))))
+                      (and (boundp sym) sym))
+                    (let ((sym (intern (format "forge-%s-section-map" type))))
+                      (and (boundp sym) sym))))))
       obj)))
 
 (defun magit-cancel-section (&optional if-empty)
