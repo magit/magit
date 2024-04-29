@@ -221,13 +221,6 @@ define set_package_requires_nongnu
   (transient ,transient-version)
   (with-editor ,with-editor-version)))
 
-(--update-package "lisp/magit-libgit.el" "$(MAGIT_LIBGIT_VERSION)"
-`((emacs "$(LIBGIT_EMACS_VERSION)") ;`
-  (compat ,compat-version)
-  (libgit ,libgit-version)
-  (seq ,seq-version)
-  (magit ,magit-version)))
-
 (--update-package "lisp/magit-section.el" "$(MAGIT_SECTION_VERSION)"
 `((emacs ,emacs-version) ;`
   (compat ,compat-version)
@@ -276,21 +269,6 @@ define set_package_requires_melpa
     transient-version
     with-editor-version)))
 
-(with-temp-file "lisp/magit-libgit-pkg.el"
-  (insert (format
-"(define-package \"magit-libgit\" \"$(MAGIT_LIBGIT_VERSION)$(DEV_SUFFIX)\"
-  \"(POC) Teach Magit to use Libgit2.\"
-  '((emacs  %S)
-    (compat %S)
-    (libgit %S)
-    (magit  %S))
-  :homepage \"https://magit.vc\"
-  :keywords '(\"git\" \"tools\" \"vc\"))
-"   emacs-version
-    compat-version
-    libgit-version
-    magit-version)))
-
 (with-temp-file "lisp/magit-section-pkg.el"
   (insert (format
 "(define-package \"magit-section\" \"$(MAGIT_SECTION_VERSION)$(DEV_SUFFIX)\"
@@ -311,9 +289,7 @@ define set_package_versions
 (compat-version "$(COMPAT_VERSION)")
 (dash-version "$(DASH_VERSION)")
 (git-commit-version "$(GIT_COMMIT_VERSION)")
-(libgit-version "$(LIBGIT_VERSION)")
 (magit-version "$(MAGIT_VERSION)")
-(magit-libgit-version "$(MAGIT_LIBGIT_VERSION)")
 (magit-section-version "$(MAGIT_SECTION_VERSION)")
 (seq-version "$(SEQ_VERSION)")
 (transient-version "$(TRANSIENT_VERSION)")
@@ -326,9 +302,7 @@ define set_package_snapshots
 (compat-version "$(COMPAT_SNAPSHOT)")
 (dash-version "$(DASH_MELPA_SNAPSHOT)")
 (git-commit-version "$(GIT_COMMIT_MELPA_SNAPSHOT)")
-(libgit-version "$(LIBGIT_MELPA_SNAPSHOT)")
 (magit-version "$(MAGIT_MELPA_SNAPSHOT)")
-(magit-libgit-version "$(MAGIT_LIBGIT_MELPA_SNAPSHOT)")
 (magit-section-version "$(MAGIT_SECTION_MELPA_SNAPSHOT)")
 (seq-version "$(SEQ_MELPA_SNAPSHOT)")
 (transient-version "$(TRANSIENT_MELPA_SNAPSHOT)")
