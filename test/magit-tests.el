@@ -1,6 +1,6 @@
 ;;; magit-tests.el --- Tests for Magit  -*- lexical-binding:t; coding:utf-8 -*-
 
-;; Copyright (C) 2008-2023 The Magit Project Contributors
+;; Copyright (C) 2008-2024 The Magit Project Contributors
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -494,9 +494,6 @@ Recent commits\n[[:xdigit:]]\\{7,\\} master dummy\\'"
     (cl-letf (((symbol-function 'char-displayable-p) (lambda (_) nil)))
       (should (equal (magit--ellipsis 'foo) (magit--ellipsis))))))
 
-;;; magit-tests.el ends soon
+;;; _
 (provide 'magit-tests)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; magit-tests.el ends here
