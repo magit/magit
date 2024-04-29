@@ -1785,13 +1785,11 @@ will also have to install the ~ido-completing-read+~ package and use
     this function always asks the user to choose a candidate, just as
     if both defaults were ~nil~.
 
-  - ": " is appended to PROMPT.
-
-  - PROMPT is modified to end with \" (default DEF|FALLBACK): \"
-    provided that DEF or FALLBACK is non-nil, that neither ~ivy-mode~
-    nor ~helm-mode~ is enabled, and that
-    ~magit-completing-read-function~ is set to its default value of
-    ~magit-builtin-completing-read~.
+  - ~format-prompt~ is called on PROMPT and DEF (or FALLBACK if
+    DEF is ~nil~).  This appends ": " to the prompt and may also
+    add the default to the prompt, using the format specified by
+    ~minibuffer-default-prompt-format~ and depending on
+    ~magit-completing-read-default-prompt-predicate~.
 
 *** Additional Completion Options
 

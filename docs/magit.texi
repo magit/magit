@@ -2304,14 +2304,11 @@ this function always asks the user to choose a candidate, just as
 if both defaults were @code{nil}.
 
 @item
-": " is appended to PROMPT@.
-
-@item
-PROMPT is modified to end with \" (default DEF|FALLBACK): \"
-provided that DEF or FALLBACK is non-nil, that neither @code{ivy-mode}
-nor @code{helm-mode} is enabled, and that
-@code{magit-completing-read-function} is set to its default value of
-@code{magit-builtin-completing-read}.
+@code{format-prompt} is called on PROMPT and DEF (or FALLBACK if
+DEF is @code{nil}).  This appends ": " to the prompt and may also
+add the default to the prompt, using the format specified by
+@code{minibuffer-default-prompt-format} and depending on
+@code{magit-completing-read-default-prompt-predicate}.
 @end itemize
 @end defun
 
