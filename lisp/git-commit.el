@@ -811,9 +811,8 @@ With a numeric prefix ARG, go forward ARG comments."
   "Search backward through message history for a match for STRING.
 Save current message first."
   (interactive
-   ;; Avoid `format-prompt' because it isn't available until Emacs 28.
-   (list (read-string (format "Comment substring (default %s): "
-                              log-edit-last-comment-match)
+   (list (read-string (format-prompt "Comment substring"
+                                     log-edit-last-comment-match)
                       nil nil log-edit-last-comment-match)))
   (cl-letf (((symbol-function #'log-edit-previous-comment)
              (symbol-function #'git-commit-prev-message)))
@@ -823,9 +822,8 @@ Save current message first."
   "Search forward through message history for a match for STRING.
 Save current message first."
   (interactive
-   ;; Avoid `format-prompt' because it isn't available until Emacs 28.
-   (list (read-string (format "Comment substring (default %s): "
-                              log-edit-last-comment-match)
+   (list (read-string (format-prompt "Comment substring"
+                                     log-edit-last-comment-match)
                       nil nil log-edit-last-comment-match)))
   (cl-letf (((symbol-function #'log-edit-previous-comment)
              (symbol-function #'git-commit-prev-message)))
