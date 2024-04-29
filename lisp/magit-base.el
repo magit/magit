@@ -731,7 +731,7 @@ This is similar to `read-string', but
   which case that is returned,
 * whitespace is not allowed and leading and trailing whitespace is
   removed automatically if NO-WHITESPACE is non-nil,
-* \": \" is appended to PROMPT, and
+* `format-prompt' is used internally.
 * an invalid DEFAULT-VALUE is silently ignored."
   (when default-value
     (when (consp default-value)
@@ -740,7 +740,7 @@ This is similar to `read-string', but
       (setq default-value nil)))
   (let* ((minibuffer-completion-table nil)
          (val (read-from-minibuffer
-               (magit-prompt-with-default (concat prompt ": ") default-value)
+               (format-prompt prompt default-value)
                initial-input (and no-whitespace magit-minibuffer-local-ns-map)
                nil history default-value inherit-input-method))
          (trim (lambda (regexp string)
