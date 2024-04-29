@@ -652,10 +652,6 @@ Used as the local value of `header-line-format', in buffer using
   (git-commit-prepare-message-ring)
   (when (boundp 'save-place)
     (setq save-place nil))
-  (save-excursion
-    (goto-char (point-min))
-    (when (looking-at "\\`\\(\\'\\|\n[^\n]\\)")
-      (open-line 1)))
   (let ((git-commit-mode-hook nil))
     (git-commit-mode 1))
   (with-demoted-errors "Error running git-commit-setup-hook: %S"
