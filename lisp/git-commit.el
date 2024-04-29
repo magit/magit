@@ -660,13 +660,13 @@ Used as the local value of `header-line-format', in buffer using
     (git-commit-mode 1))
   (with-demoted-errors "Error running git-commit-setup-hook: %S"
     (run-hooks 'git-commit-setup-hook))
-  (when git-commit-usage-message
-    (setq with-editor-usage-message git-commit-usage-message))
-  (with-editor-usage-message)
+  (set-buffer-modified-p nil)
   (when-let ((format git-commit-header-line-format))
     (setq header-line-format
           (if (stringp format) (substitute-command-keys format) format)))
-  (set-buffer-modified-p nil))
+  (when git-commit-usage-message
+    (setq with-editor-usage-message git-commit-usage-message))
+  (with-editor-usage-message))
 
 (defun git-commit-run-post-finish-hook (previous)
   (when (and git-commit-post-finish-hook
