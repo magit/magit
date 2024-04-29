@@ -304,7 +304,7 @@ define set_package_snapshots
 (git-commit-version "$(GIT_COMMIT_MELPA_SNAPSHOT)")
 (magit-version "$(MAGIT_MELPA_SNAPSHOT)")
 (magit-section-version "$(MAGIT_SECTION_MELPA_SNAPSHOT)")
-(seq-version "$(SEQ_MELPA_SNAPSHOT)")
+(seq-version "$(SEQ_SNAPSHOT)")
 (transient-version "$(TRANSIENT_MELPA_SNAPSHOT)")
 (with-editor-version "$(WITH_EDITOR_MELPA_SNAPSHOT)")
 endef
