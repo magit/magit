@@ -1,6 +1,6 @@
 (define-package "magit" "3.3.0.50-git"
   "A Git porcelain inside Emacs."
-  '((emacs         "25.1")
+  '((emacs         "26.1")
     (compat        "29.1.4.5")
     (dash          "20240405")
     (git-commit    "20240429")

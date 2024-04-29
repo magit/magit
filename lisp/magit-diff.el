@@ -465,25 +465,6 @@ image, accordingly.  Either the car or the cdr may be nil."
                  (choice (const  :tag "No committer image" nil)
                          (regexp :tag "Committer regexp" "^Commit:     ")))))
 
-(defcustom magit-revision-use-gravatar-kludge nil
-  "Whether to work around a bug which affects display of gravatars.
-
-Gravatar images are spliced into two halves which are then
-displayed on separate lines.  On macOS the splicing has a bug in
-some Emacs builds, which causes the top and bottom halves to be
-interchanged.  Enabling this option works around this issue by
-interchanging the halves once more, which cancels out the effect
-of the bug.
-
-See https://github.com/magit/magit/issues/2265
-and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=7847.
-
-Starting with Emacs 26.1 this kludge should not be required for
-any build."
-  :package-version '(magit . "2.3.0")
-  :group 'magit-revision
-  :type 'boolean)
-
 (defcustom magit-revision-fill-summary-line nil
   "Whether to fill excessively long summary lines.
 
@@ -2908,8 +2889,6 @@ Refer to user option `magit-revision-insert-related-refs-display-alist'."
             (let ((top (list image '(slice 0.0 0.0 1.0 0.5)))
                   (bot (list image '(slice 0.0 0.5 1.0 1.0)))
                   (align `((space :align-to ,align-to))))
-              (when magit-revision-use-gravatar-kludge
-                (cl-rotatef top bot))
               (let ((inhibit-read-only t))
                 (insert (propertize " " 'display top))
                 (insert (propertize " " 'display align))

@@ -33,7 +33,7 @@
 ;;; Code:
 
 (defconst magit--minimal-git "2.2.0")
-(defconst magit--minimal-emacs "25.1")
+(defconst magit--minimal-emacs "26.1")
 
 (require 'cl-lib)
 (require 'compat)
@@ -636,15 +636,11 @@ acts similarly to `completing-read', except for the following:
   (unless (or (bound-and-true-p helm-mode)
               (bound-and-true-p ivy-mode))
     (setq choices (magit--completion-table choices)))
-  (cl-letf (((symbol-function #'completion-pcm--all-completions)))
-    (when (< emacs-major-version 26)
-      (fset 'completion-pcm--all-completions
-            'magit-completion-pcm--all-completions))
-    (let ((ivy-sort-functions-alist nil)
-          (vertico-sort-function nil))
-      (completing-read prompt choices
-                       predicate require-match
-                       initial-input hist def))))
+  (let ((ivy-sort-functions-alist nil)
+        (vertico-sort-function nil))
+    (completing-read prompt choices
+                     predicate require-match
+                     initial-input hist def)))
 
 (define-obsolete-function-alias 'magit-completing-read-multiple*
   'magit-completing-read-multiple "Magit-Section 4.0.0")
@@ -674,12 +670,6 @@ third-party completion frameworks."
                      (equal omit-nulls t))
             (setq input string))
           (funcall split-string string separators omit-nulls trim)))
-       ;; In Emacs 25 this function has a bug, so we use a copy of the
-       ;; version from Emacs 26. bef9c7aa3
-       ((symbol-function #'completion-pcm--all-completions)
-        (if (< emacs-major-version 26)
-            'magit-completion-pcm--all-completions
-          (symbol-function #'completion-pcm--all-completions)))
        ;; Prevent `BUILT-IN' completion from messing up our existing
        ;; order of the completion candidates. aa5f098ab
        (table (magit--completion-table table))
@@ -1072,27 +1062,6 @@ This function should be named `version>=' and be part of Emacs."
       (funcall fn)))
   (advice-add 'auto-revert-handler :around 'auto-revert-handler@bug21559)
   )
-
-(when (< emacs-major-version 26)
-  ;; In Emacs 25 `completion-pcm--all-completions' reverses the
-  ;; completion list.  This is the version from Emacs 26, which
-  ;; fixes that issue.  bug#24676
-  (defun magit-completion-pcm--all-completions (prefix pattern table pred)
-    (if (completion-pcm--pattern-trivial-p pattern)
-        (all-completions (concat prefix (car pattern)) table pred)
-      (let* ((regex (completion-pcm--pattern->regex pattern))
-             (case-fold-search completion-ignore-case)
-             (completion-regexp-list (cons regex completion-regexp-list))
-             (compl (all-completions
-                     (concat prefix
-                             (if (stringp (car pattern)) (car pattern) ""))
-                     table pred)))
-        (if (not (functionp table))
-            compl
-          (let ((poss ()))
-            (dolist (c compl)
-              (when (string-match-p regex c) (push c poss)))
-            (nreverse poss)))))))
 
 (defun magit-which-function ()
   "Return current function name based on point.

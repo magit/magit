@@ -133,7 +133,7 @@ WITH_EDITOR_MELPA_SNAPSHOT   = 20240415
 
 DEV_VERSION_SUFFIX = .50-git
 
-EMACS_VERSION        = 25.1
+EMACS_VERSION = 26.1
 
 EMACSOLD := $(shell $(BATCH) --eval \
   "(and (version< emacs-version \"$(EMACS_VERSION)\") (princ \"true\"))")
