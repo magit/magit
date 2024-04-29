@@ -161,6 +161,16 @@
   (should (equal (magit-toplevel   "wrap/subsubdir-link")
                  (expand-file-name "repo/"))))
 
+(ert-deftest magit-in-bare-repo ()
+  "Test `magit-bare-repo-p' in a bare repository."
+  (magit-with-bare-test-repository
+    (should (magit-bare-repo-p))))
+
+(ert-deftest magit-in-non-bare-repo ()
+  "Test `magit-bare-repo-p' in a non-bare repository."
+  (magit-with-test-repository
+    (should-not (magit-bare-repo-p))))
+
 (defun magit-test-magit-get ()
   (should (equal (magit-get-all "a.b") '("val1" "val2")))
   (should (equal (magit-get "a.b") "val2"))
@@ -434,18 +444,6 @@ Recent commits\n[[:xdigit:]]\\{7,\\} master dummy\\'"
       (should (string-match-p
                "\\`Head:[[:space:]]+master dummy\n\nRecent commits\\'"
                (magit-test-visible-text))))))
-
-;;; libgit
-
-(ert-deftest magit-in-bare-repo ()
-  "Test `magit-bare-repo-p' in a bare repository."
-  (magit-with-bare-test-repository
-    (should (magit-bare-repo-p))))
-
-(ert-deftest magit-in-non-bare-repo ()
-  "Test `magit-bare-repo-p' in a non-bare repository."
-  (magit-with-test-repository
-    (should-not (magit-bare-repo-p))))
 
 ;;; Utils
 
