@@ -706,7 +706,8 @@ remote in alphabetic order."
   "<2>" (magit-menu-item "Discard files" #'magit-discard)
   "<1>" (magit-menu-item "Stage files"   #'magit-stage))
 
-(magit-define-section-jumper magit-jump-to-untracked "Untracked files" untracked)
+(magit-define-section-jumper magit-jump-to-untracked
+  "Untracked files" untracked)
 
 (defun magit-insert-untracked-files ()
   "Maybe insert a list or tree of untracked files.
@@ -772,7 +773,8 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
         (magit-insert-files files base)
         (insert ?\n)))))
 
-(magit-define-section-jumper magit-jump-to-skip-worktree "Skip-worktree files" skip-worktree)
+(magit-define-section-jumper magit-jump-to-skip-worktree
+  "Skip-worktree files" skip-worktree)
 
 (defun magit-insert-skip-worktree-files ()
   "Insert a tree of skip-worktree files.
@@ -788,7 +790,8 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
         (magit-insert-files files base)
         (insert ?\n)))))
 
-(magit-define-section-jumper magit-jump-to-assume-unchanged "Assume-unchanged files" assume-unchanged)
+(magit-define-section-jumper magit-jump-to-assume-unchanged
+  "Assume-unchanged files" assume-unchanged)
 
 (defun magit-insert-assume-unchanged-files ()
   "Insert a tree of files that are assumed to be unchanged.

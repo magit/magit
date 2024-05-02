@@ -540,7 +540,8 @@ list returned by `magit-rebase-arguments'."
      ((not rev)
       (when (and (magit-ref-p backup)
                  (not (magit-y-or-n-p
-                       (format "Backup ref %s already exists.  Override? " backup))))
+                       (format "Backup ref %s already exists.  Override? "
+                               backup))))
         (user-error "Abort"))
       (magit-log-select
         (lambda (rev)
