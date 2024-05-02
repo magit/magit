@@ -31,6 +31,7 @@
 (require 'magit-base)
 (require 'magit-git)
 
+(require 'browse-url)
 (require 'format-spec)
 (require 'help-mode)
 
