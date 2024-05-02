@@ -421,7 +421,9 @@ which actually visits the thing at point."
   (interactive)
   (if (eq transient-current-command 'magit-dispatch)
       (call-interactively (key-binding (this-command-keys)))
-    (user-error "There is no thing at point that could be visited")))
+    (if-let ((url (browse-url-url-at-point)))
+        (browse-url url)
+      (user-error "There is no thing at point that could be visited"))))
 (put 'magit-visit-thing 'completion-predicate #'ignore)
 
 (defun magit-edit-thing ()
@@ -436,11 +438,13 @@ buffer."
 (put 'magit-edit-thing 'completion-predicate #'ignore)
 
 (defun magit-browse-thing ()
-  "This is a placeholder command, which signals an error if called.
+  "This is a placeholder command, which may signals an error if called.
 Where applicable, other keymaps remap this command to another,
 which actually visits thing at point using `browse-url'."
   (interactive)
-  (user-error "There is no thing at point that could be browsed"))
+  (if-let ((url (browse-url-url-at-point)))
+      (browse-url url)
+    (user-error "There is no thing at point that could be browsed")))
 (put 'magit-browse-thing 'completion-predicate #'ignore)
 
 (defun magit-copy-thing ()
