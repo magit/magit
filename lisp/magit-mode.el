@@ -439,7 +439,7 @@ buffer."
 (put 'magit-edit-thing 'completion-predicate #'ignore)
 
 (defun magit-browse-thing ()
-  "This is a placeholder command, which may signals an error if called.
+  "This is a placeholder command, which may signal an error if called.
 Where applicable, other keymaps remap this command to another,
 which actually visits thing at point using `browse-url'."
   (interactive)
