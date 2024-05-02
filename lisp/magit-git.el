@@ -671,9 +671,9 @@ using `magit-debug-git-executable'.")
                          (push (cons host version)
                                magit--host-git-version-cache)
                          version))))
-               (t (error "Unexpected \"%s --version\" output: %S"
-                         (magit-git-executable)
-                         output)))))))))
+               ((error "Unexpected \"%s --version\" output: %S"
+                       (magit-git-executable)
+                       output)))))))))
 
 (defun magit-git-version-assert (&optional minimal who)
   "Assert that the used Git version is greater than or equal to MINIMAL.
@@ -1004,7 +1004,7 @@ is non-nil, in which case return nil."
        (let ((gitdir (magit-gitdir)))
          (cond (gitdir (file-in-directory-p default-directory gitdir))
                (noerror nil)
-               (t (signal 'magit-outside-git-repo default-directory))))))
+               ((signal 'magit-outside-git-repo default-directory))))))
 
 (defun magit-inside-worktree-p (&optional noerror)
   "Return t if `default-directory' is below the working directory.
@@ -1365,7 +1365,7 @@ string \"true\", otherwise return nil."
 If REV is nil or has the form \":/TEXT\", return REV itself."
   (cond ((not rev) nil)
         ((string-match-p "^:/" rev) rev)
-        (t (concat rev "^{commit}"))))
+        ((concat rev "^{commit}"))))
 
 (defun magit-rev-equal (a b)
   "Return t if there are no differences between the commits A and B."
@@ -1457,7 +1457,7 @@ Git."
            (if (magit-ref-ambiguous-p (match-string 1 name))
                name
              (match-string 1 name)))
-          (t (magit-ref-maybe-qualify name)))))
+          ((magit-ref-maybe-qualify name)))))
 
 (defun magit-name-branch (rev &optional lax)
   (or (magit-name-local-branch rev)

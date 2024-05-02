@@ -407,7 +407,7 @@ in HEAD as well as staged changes in the diff to check."
          (setq-local diff-vc-revisions (list rev1 rev2))
          (setq-local diff-vc-backend 'Git)
          (diff-add-log-current-defuns)))))
-   (t (user-error "`magit-generate-changelog' requires Emacs 27 or greater"))))
+   ((user-error "`magit-generate-changelog' requires Emacs 27 or greater"))))
 
 ;;;###autoload
 (defun magit-add-change-log-entry (&optional whoami file-name other-window)
@@ -796,7 +796,7 @@ argument."
            (push (list value default-directory) magit-revision-stack)
            (kill-new (message "%s" (or (and current-prefix-arg ref)
                                        value)))))
-        (t (kill-new (message "%s" value))))))))
+        ((kill-new (message "%s" value))))))))
 
 ;;;###autoload
 (defun magit-copy-buffer-revision ()

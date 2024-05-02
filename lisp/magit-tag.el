@@ -199,11 +199,11 @@ like \"/path/to/foo-bar\"."
                           (replace-match ver t t pmsg))
                          ((and ptag (string-match (regexp-quote ptag) pmsg))
                           (replace-match tag t t pmsg))
-                         (t (format "%s %s"
-                                    (capitalize
-                                     (file-name-nondirectory
-                                      (directory-file-name (magit-toplevel))))
-                                    ver)))))
+                         ((format "%s %s"
+                                  (capitalize
+                                   (file-name-nondirectory
+                                    (directory-file-name (magit-toplevel))))
+                                  ver)))))
              args))))
   (magit-run-git-with-editor "tag" args (and msg (list "-m" msg)) tag)
   (set-process-sentinel

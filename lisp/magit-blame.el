@@ -274,7 +274,7 @@ Also see option `magit-blame-styles'."
                                    (error "Cannot get blame chunk at eob"))
                                (car (magit-blame--parse-chunk type))))))
                    (noerror nil)
-                   (t (error "Buffer does not visit a tracked file")))))))
+                   ((error "Buffer does not visit a tracked file")))))))
 
 (defun magit-blame-chunk-at (pos)
   (--some (overlay-get it 'magit-blame-chunk)

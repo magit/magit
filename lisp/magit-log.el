@@ -685,7 +685,7 @@ previously checked out branch and its upstream and push-target."
                     (setq rebase (magit-ref-abbrev rebase))
                     (setq current rebase)
                     (setq head "HEAD"))
-                   (t (setq current (magit-get-previous-branch)))))
+                   ((setq current (magit-get-previous-branch)))))
            (cond (current
                   (setq current
                         (magit--propertize-face current'magit-branch-local))
@@ -694,7 +694,7 @@ previously checked out branch and its upstream and push-target."
                   (when upstream
                     (setq upup (and (magit-local-branch-p upstream)
                                     (magit-get-upstream-branch upstream)))))
-                 (t (setq head "HEAD")))
+                 ((setq head "HEAD")))
            (delq nil (list current head target upstream upup)))
          (magit-log-arguments)))
   (magit-log-setup-buffer revs args files))

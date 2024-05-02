@@ -956,7 +956,7 @@ With a prefix argument also expand it." heading)
          (user-error "Cannot hide root section"))
         ((oref section hidden)
          (magit-section-show section))
-        (t (magit-section-hide section))))
+        ((magit-section-hide section))))
 
 (defun magit-section-toggle-children (section)
   "Toggle visibility of bodies of children of the current section."

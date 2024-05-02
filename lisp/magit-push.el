@@ -340,9 +340,9 @@ what this command will do.  To add it use something like:
                             ((not (string-match "/" ref))
                              (magit--propertize-face (format "%s/%s" remote ref)
                                                      'magit-branch-remote))
-                            (t (format "%s as %s"
-                                       (magit--propertize-face remote 'bold)
-                                       (magit--propertize-face ref 'bold)))))
+                            ((format "%s as %s"
+                                     (magit--propertize-face remote 'bold)
+                                     (magit--propertize-face ref 'bold)))))
                  "nothing (no upstream)")))
             ("matching" (format "all matching to %s"
                                 (magit--propertize-face remote 'bold)))))))))
