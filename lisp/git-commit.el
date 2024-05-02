@@ -218,7 +218,8 @@ The major mode configured here is turned on by the minor mode
 Also note that `git-commit-mode' (which see) is not a major-mode.")
 
 (defcustom git-commit-setup-hook
-  '(git-commit-save-message
+  '(git-commit-ensure-comment-gap
+    git-commit-save-message
     git-commit-setup-changelog-support
     git-commit-turn-on-auto-fill
     git-commit-propertize-diff
@@ -227,7 +228,8 @@ Also note that `git-commit-mode' (which see) is not a major-mode.")
   :group 'git-commit
   :type 'hook
   :get (and (featurep 'magit-base) #'magit-hook-custom-get)
-  :options '(git-commit-save-message
+  :options '(git-commit-ensure-comment-gap
+             git-commit-save-message
              git-commit-setup-changelog-support
              magit-generate-changelog
              git-commit-turn-on-auto-fill
@@ -689,6 +691,16 @@ used."
   :lighter "")
 
 (put 'git-commit-mode 'permanent-local t)
+
+(defun git-commit-ensure-comment-gap ()
+  "Separate initial empty line from initial comment.
+If the buffer begins with an empty line followed by a comment, insert
+an additional newline inbetween, so that once the users start typing,
+the input isn't tacked to the comment."
+  (save-excursion
+    (goto-char (point-min))
+    (when (looking-at (format "\\`\n%s" comment-start))
+      (open-line 1))))
 
 (defun git-commit-setup-changelog-support ()
   "Treat ChangeLog entries as unindented paragraphs."
