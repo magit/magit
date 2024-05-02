@@ -1118,7 +1118,7 @@ The information can be in three forms:
 If no DWIM context is found, nil is returned."
   (cond
    ((and-let* ((commits (magit-region-values '(commit branch) t)))
-      (progn ; work around debbugs#31840
+      (progn
         (deactivate-mark)
         (concat (car (last commits)) ".." (car commits)))))
    (magit-buffer-refname
@@ -1172,7 +1172,7 @@ If no DWIM context is found, nil is returned."
   (and-let* ((commits (magit-region-values '(commit branch) t))
              (revA (car (last commits)))
              (revB (car commits)))
-    (progn ; work around debbugs#31840
+    (progn
       (when interactive
         (deactivate-mark))
       (if mbase
@@ -1715,7 +1715,7 @@ the Magit-Status buffer for DIRECTORY."
 (defun magit-diff-visit--hunk ()
   (and-let* ((scope (magit-diff-scope))
              (section (magit-current-section)))
-    (progn ; work around debbugs#31840
+    (progn
       (cl-case scope
         ((file files)
          (setq section (car (oref section children))))

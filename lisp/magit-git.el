@@ -1476,7 +1476,9 @@ Git."
 
 (defun magit-name-tag (rev &optional lax)
   (and-let* ((name (magit-rev-name rev "refs/tags/*")))
-    (progn ; work around debbugs#31840
+    ;; The progn is necessary to work around debbugs#31840.  This, and all
+    ;; the other instances, can be removed once we require at least Emacs 27.
+    (progn
       (when (string-suffix-p "^0" name)
         (setq name (substring name 0 -2)))
       (and (or lax (not (string-match-p "[~^]" name)))
@@ -2309,7 +2311,7 @@ If `first-parent' is set, traverse only first parents."
 
 (defun magit-format-rev-summary (rev)
   (and-let* ((str (magit-rev-format "%h %s" rev)))
-    (progn ; work around debbugs#31840
+    (progn
       (magit--put-face 0 (string-match " " str) 'magit-hash str)
       str)))
 
@@ -2658,7 +2660,7 @@ and this option only controls what face is used.")
   (magit-read-range
    prompt
    (or (and-let* ((revs (magit-region-values '(commit branch) t)))
-         (progn ; work around debbugs#31840
+         (progn
            (deactivate-mark)
            (concat (car (last revs)) ".." (car revs))))
        (magit-branch-or-commit-at-point)
