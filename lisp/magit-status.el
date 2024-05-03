@@ -404,7 +404,7 @@ Type \\[magit-commit] to create a commit.
   :group 'magit-status
   (hack-dir-local-variables-non-file-buffer)
   (when magit-status-initial-section
-    (add-hook 'magit-refresh-buffer-hook
+    (add-hook 'magit-post-create-buffer-hook
               #'magit-status-goto-initial-section nil t))
   (setq magit--imenu-group-types '(not branch commit)))
 
@@ -465,9 +465,7 @@ Type \\[magit-commit] to create a commit.
                                magit-section-initial-visibility-alist))))
       (if (eq vis 'hide)
           (magit-section-hide section)
-        (magit-section-show section))))
-  (remove-hook 'magit-refresh-buffer-hook
-               #'magit-status-goto-initial-section t))
+        (magit-section-show section)))))
 
 (defun magit-status-maybe-update-revision-buffer (&optional _)
   "When moving in the status buffer, update the revision buffer.
