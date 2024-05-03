@@ -273,8 +273,19 @@ then fall back to regular region highlighting."
   :options '(magit-diff-update-hunk-region))
 
 (defcustom magit-create-buffer-hook nil
-  "Normal hook run after creating a new `magit-mode' buffer."
+  "Normal hook run while creating a new `magit-mode' buffer.
+Runs before the buffer is populated with sections.  Also see
+`magit-post-create-buffer-hook'."
   :package-version '(magit . "2.90.0")
+  :group 'magit-refresh
+  :type 'hook)
+
+(defcustom magit-post-create-buffer-hook nil
+  "Normal hook run after creating a new `magit-mode' buffer.
+Runs after the buffer is populated with sections for the first
+time.  Also see `magit-create-buffer-hook' (which runs earlier)
+and `magit-refresh-buffer-hook' (which runs on every refresh)."
+  :package-version '(magit . "4.0.0")
   :group 'magit-refresh
   :type 'hook)
 
@@ -627,7 +638,9 @@ The buffer's major-mode should derive from `magit-section-mode'."
     (magit-display-buffer buffer)
     (with-current-buffer buffer
       (run-hooks 'magit-setup-buffer-hook)
-      (magit-refresh-buffer))
+      (magit-refresh-buffer)
+      (when created
+        (run-hooks 'magit-post-create-buffer-hook)))
     buffer))
 
 ;;; Display Buffer
