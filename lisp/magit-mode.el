@@ -1065,6 +1065,18 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                  (float-time (time-subtract (current-time)
                                             magit-refresh-start-time)))))))
 
+(defun magit-profile-refresh-buffer ()
+  "Profile refreshing the current Magit buffer."
+  (interactive)
+  (require (quote elp))
+  (when (fboundp 'elp-reset-all)
+    (elp-reset-all)
+    (elp-instrument-package "magit-")
+    (elp-instrument-package "forge-")
+    (magit-refresh-buffer)
+    (elp-results)
+    (elp-reset-all)))
+
 ;;; Save File-Visiting Buffers
 
 (defvar magit--disable-save-buffers nil)
