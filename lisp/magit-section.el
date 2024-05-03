@@ -1447,19 +1447,22 @@ anything this time around.
                      (point-marker))))
         (props `( magit-section ,obj
                   ,@(and-let* ((map (symbol-value (oref obj keymap))))
-                      (list 'keymap map)))))
+                      (list 'keymap map))))
+        (children (oref obj children)))
     (unless magit-section-inhibit-markers
       (set-marker-insertion-type beg t))
-    (save-excursion
-      (goto-char beg)
-      (while (< (point) end)
-        (let ((next (or (next-single-property-change
-                         (point) 'magit-section)
-                        end)))
-          (unless (magit-section-at)
-            (add-text-properties (point) next props))
-          (magit-section-maybe-add-heading-map obj)
-          (goto-char next))))
+    (cond (children
+           (save-excursion
+             (goto-char beg)
+             (while (< (point) end)
+               (let ((next (or (next-single-property-change
+                                (point) 'magit-section)
+                               end)))
+                 (unless (magit-section-at)
+                   (add-text-properties (point) next props))
+                 (magit-section-maybe-add-heading-map obj)
+                 (goto-char next)))))
+          ((add-text-properties beg end props)))
     (cond ((eq obj magit-root-section)
            (when (eq magit-section-inhibit-markers 'delay)
              (setq magit-section-inhibit-markers nil)
@@ -1476,7 +1479,7 @@ anything this time around.
                           (list obj))))))
     (when magit-section-insert-in-reverse
       (setq magit-section-insert-in-reverse nil)
-      (oset obj children (nreverse (oref obj children))))))
+      (oset obj children (nreverse children)))))
 
 (defun magit-cancel-section (&optional if-empty)
   "Cancel inserting the section that is currently being inserted.
