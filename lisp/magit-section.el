@@ -1439,7 +1439,6 @@ anything this time around.
 
 (defun magit-insert-section--finish (obj)
   (run-hooks 'magit-insert-section-hook)
-  (magit-insert-child-count obj)
   (let ((beg (oref obj start))
         (end (oset obj end
                    (if magit-section-inhibit-markers
@@ -1452,6 +1451,7 @@ anything this time around.
     (unless magit-section-inhibit-markers
       (set-marker-insertion-type beg t))
     (cond (children
+           (magit-insert-child-count obj)
            (save-excursion
              (goto-char beg)
              (while (< (point) end)
