@@ -384,7 +384,7 @@ no effect.  This also has no effect for Emacs >= 28, where
    (start    :initform nil)
    (content  :initform nil)
    (end      :initform nil)
-   (hidden   :initform nil)
+   (hidden)
    (washer   :initform nil :initarg :washer)
    (inserter :initform (symbol-value 'magit--current-section-hook))
    (heading-highlight-face :initform nil :initarg :heading-highlight-face)
@@ -1411,22 +1411,23 @@ anything this time around.
       (oset obj value value)
       (oset obj parent magit-insert-section--parent)
       (oset obj start (if magit-section-inhibit-markers (point) (point-marker)))
-      (oset obj hidden
-            (let (set old)
-              (cond
-               ((setq set (run-hook-with-args-until-success
-                           'magit-section-set-visibility-hook obj))
-                (eq set 'hide))
-               ((setq old (and (not magit-section-preserve-visibility)
-                               magit-insert-section--oldroot
-                               (magit-get-section
-                                (magit-section-ident obj)
-                                magit-insert-section--oldroot)))
-                (oref old hidden))
-               ((setq set (magit-section-match-assoc
-                           obj magit-section-initial-visibility-alist))
-                (eq (if (functionp set) (funcall set obj) set) 'hide))
-               (hide))))
+      (unless (slot-boundp obj 'hidden)
+        (oset obj hidden
+              (let (set old)
+                (cond
+                 ((setq set (run-hook-with-args-until-success
+                             'magit-section-set-visibility-hook obj))
+                  (eq set 'hide))
+                 ((setq old (and (not magit-section-preserve-visibility)
+                                 magit-insert-section--oldroot
+                                 (magit-get-section
+                                  (magit-section-ident obj)
+                                  magit-insert-section--oldroot)))
+                  (oref old hidden))
+                 ((setq set (magit-section-match-assoc
+                             obj magit-section-initial-visibility-alist))
+                  (eq (if (functionp set) (funcall set obj) set) 'hide))
+                 (hide)))))
       (unless (oref obj keymap)
         (let ((type (oref obj type)))
           (oset obj keymap
