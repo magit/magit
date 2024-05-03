@@ -1453,6 +1453,7 @@ anything this time around.
     (cond ((eq obj magit-root-section))
           (children
            (magit-insert-child-count obj)
+           (magit-section-maybe-add-heading-map obj)
            (save-excursion
              (goto-char beg)
              (while (< (point) end)
@@ -1461,7 +1462,6 @@ anything this time around.
                                end)))
                  (unless (magit-section-at)
                    (add-text-properties (point) next props))
-                 (magit-section-maybe-add-heading-map obj)
                  (goto-char next)))))
           ((add-text-properties beg end props)))
     (cond ((eq obj magit-root-section)
