@@ -1450,7 +1450,8 @@ anything this time around.
         (children (oref obj children)))
     (unless magit-section-inhibit-markers
       (set-marker-insertion-type beg t))
-    (cond (children
+    (cond ((eq obj magit-root-section))
+          (children
            (magit-insert-child-count obj)
            (save-excursion
              (goto-char beg)
