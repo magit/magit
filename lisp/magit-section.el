@@ -1445,7 +1445,9 @@ anything this time around.
                    (if magit-section-inhibit-markers
                        (point)
                      (point-marker))))
-        (map (symbol-value (oref obj keymap))))
+        (props `( magit-section ,obj
+                  ,@(and-let* ((map (symbol-value (oref obj keymap))))
+                      (list 'keymap map)))))
     (unless magit-section-inhibit-markers
       (set-marker-insertion-type beg t))
     (save-excursion
@@ -1455,9 +1457,7 @@ anything this time around.
                          (point) 'magit-section)
                         end)))
           (unless (magit-section-at)
-            (put-text-property (point) next 'magit-section obj)
-            (when map
-              (put-text-property (point) next 'keymap map)))
+            (add-text-properties (point) next props))
           (magit-section-maybe-add-heading-map obj)
           (goto-char next))))
     (cond ((eq obj magit-root-section)
