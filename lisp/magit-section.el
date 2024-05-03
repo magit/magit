@@ -1412,22 +1412,21 @@ anything this time around.
       (oset obj parent magit-insert-section--parent)
       (oset obj start (if magit-section-inhibit-markers (point) (point-marker)))
       (oset obj hidden
-            (if-let ((value (run-hook-with-args-until-success
-                             'magit-section-set-visibility-hook obj)))
-                (eq value 'hide)
-              (if-let ((incarnation
-                        (and (not magit-section-preserve-visibility)
-                             magit-insert-section--oldroot
-                             (magit-get-section
-                              (magit-section-ident obj)
-                              magit-insert-section--oldroot))))
-                  (oref incarnation hidden)
-                (if-let ((value (magit-section-match-assoc
-                                 obj magit-section-initial-visibility-alist)))
-                    (progn (when (functionp value)
-                             (setq value (funcall value obj)))
-                           (eq value 'hide))
-                  hide))))
+            (let (set old)
+              (cond
+               ((setq set (run-hook-with-args-until-success
+                           'magit-section-set-visibility-hook obj))
+                (eq set 'hide))
+               ((setq old (and (not magit-section-preserve-visibility)
+                               magit-insert-section--oldroot
+                               (magit-get-section
+                                (magit-section-ident obj)
+                                magit-insert-section--oldroot)))
+                (oref old hidden))
+               ((setq set (magit-section-match-assoc
+                           obj magit-section-initial-visibility-alist))
+                (eq (if (functionp set) (funcall set obj) set) 'hide))
+               (hide))))
       (unless (oref obj keymap)
         (let ((type (oref obj type)))
           (oset obj keymap
