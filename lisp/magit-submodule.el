@@ -346,8 +346,8 @@ With a prefix argument act on all suitable modules.  Otherwise,
 if the region selects modules, then act on those.  Otherwise, if
 there is a module at point, then act on that.  Otherwise read a
 single module from the user."
-  ;; Even though a package is "uninitialized" (it has no worktree)
-  ;; the super-projects $GIT_DIR/config may never-the-less set the
+  ;; Even when a submodule is "uninitialized" (it has no worktree)
+  ;; the super-project's $GIT_DIR/config may never-the-less set the
   ;; module's url.  This may happen if you `deinit' and then `init'
   ;; to register (NOT initialize).  Because the purpose of `deinit'
   ;; is to remove the working directory AND to remove the url, this
