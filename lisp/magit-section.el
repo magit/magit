@@ -1479,7 +1479,6 @@ anything this time around.
                    (nconc (oref parent children)
                           (list obj))))))
     (when magit-section-insert-in-reverse
-      (setq magit-section-insert-in-reverse nil)
       (oset obj children (nreverse children)))))
 
 (defun magit-cancel-section (&optional if-empty)
