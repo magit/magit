@@ -1459,22 +1459,21 @@ anything this time around.
               (put-text-property (point) next 'keymap map)))
           (magit-section-maybe-add-heading-map obj)
           (goto-char next)))))
-  (cond
-   ((eq obj magit-root-section)
-    (when (eq magit-section-inhibit-markers 'delay)
-      (setq magit-section-inhibit-markers nil)
-      (magit-map-sections
-       (lambda (section)
-         (oset section start (copy-marker (oref section start) t))
-         (oset section end   (copy-marker (oref section end) t)))))
-    (let ((magit-section-cache-visibility nil))
-      (magit-section-show obj)))
-   (magit-section-insert-in-reverse
-    (push obj (oref (oref obj parent) children)))
-   ((let ((parent (oref obj parent)))
-      (oset parent children
-            (nconc (oref parent children)
-                   (list obj))))))
+  (cond ((eq obj magit-root-section)
+         (when (eq magit-section-inhibit-markers 'delay)
+           (setq magit-section-inhibit-markers nil)
+           (magit-map-sections
+            (lambda (section)
+              (oset section start (copy-marker (oref section start) t))
+              (oset section end   (copy-marker (oref section end) t)))))
+         (let ((magit-section-cache-visibility nil))
+           (magit-section-show obj)))
+        (magit-section-insert-in-reverse
+         (push obj (oref (oref obj parent) children)))
+        ((let ((parent (oref obj parent)))
+           (oset parent children
+                 (nconc (oref parent children)
+                        (list obj))))))
   (when magit-section-insert-in-reverse
     (setq magit-section-insert-in-reverse nil)
     (oset obj children (nreverse (oref obj children)))))
