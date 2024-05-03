@@ -921,6 +921,7 @@ With a prefix argument also expand it." heading)
     (oset section washer nil)
     (let ((inhibit-read-only t)
           (magit-insert-section--parent section)
+          (magit-insert-section--current section)
           (content (oref section content)))
       (save-excursion
         (if (and content (< content (oref section end)))
