@@ -2894,7 +2894,7 @@ out.  Only existing branches can be selected."
           (setq modules (seq-filter predicate modules)))
         (unless modules
           (user-error "No modules satisfying %s selected" predicate))))
-    (if (length> modules 1)
+    (if (or (length> modules 1) current-prefix-arg)
         (magit-confirm t nil (format "%s %%d modules" verb) nil modules)
       (list (magit-read-module-path (format "%s module" verb) predicate)))))
 
