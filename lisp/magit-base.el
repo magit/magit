@@ -45,7 +45,7 @@
 ;; GNU ELPA, for `seq-keep'.  Unfortunately something else may already
 ;; have required `seq', before `package' had a chance to put the more
 ;; recent version earlier on the `load-path'.
-(when (and (featurep' seq)
+(when (and (featurep 'seq)
            (not (fboundp 'seq-keep)))
   (unload-feature 'seq 'force))
 (require 'seq)
