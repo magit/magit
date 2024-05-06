@@ -1256,8 +1256,8 @@ Added to `font-lock-extend-region-functions'."
                  (font-lock-ensure)
                (with-no-warnings
                  (font-lock-fontify-buffer))))
-           (let (next (pos (point-min)))
-             (while (setq next (next-single-property-change pos 'face))
+           (let ((pos (point-min)))
+             (while-let ((next (next-single-property-change pos 'face)))
                (put-text-property pos next 'font-lock-face
                                   (get-text-property pos 'face))
                (setq pos next))
