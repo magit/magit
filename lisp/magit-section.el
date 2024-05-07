@@ -1466,9 +1466,10 @@ anything this time around.
     (cond ((eq obj magit-root-section)
            (when (eq magit-section-inhibit-markers 'delay)
              (setq magit-section-inhibit-markers nil)
-             (magit-map-sections (lambda (section)
-                                   (oset section start (copy-marker beg t))
-                                   (oset section end   (copy-marker end t)))))
+             (magit-map-sections
+              (lambda (section)
+                (oset section start (copy-marker (oref section start) t))
+                (oset section end   (copy-marker (oref section end)   t)))))
            (let ((magit-section-cache-visibility nil))
              (magit-section-show obj)))
           (magit-section-insert-in-reverse
