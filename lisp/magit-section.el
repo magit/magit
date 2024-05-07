@@ -1446,12 +1446,11 @@ anything this time around.
                      (point-marker))))
         (props `( magit-section ,obj
                   ,@(and-let* ((map (symbol-value (oref obj keymap))))
-                      (list 'keymap map))))
-        (children (oref obj children)))
+                      (list 'keymap map)))))
     (unless magit-section-inhibit-markers
       (set-marker-insertion-type beg t))
     (cond ((eq obj magit-root-section))
-          (children
+          ((oref obj children)
            (magit-insert-child-count obj)
            (magit-section-maybe-add-heading-map obj)
            (save-excursion
@@ -1479,7 +1478,7 @@ anything this time around.
                    (nconc (oref parent children)
                           (list obj))))))
     (when magit-section-insert-in-reverse
-      (oset obj children (nreverse children)))))
+      (oset obj children (nreverse (oref obj children))))))
 
 (defun magit-cancel-section (&optional if-empty)
   "Cancel inserting the section that is currently being inserted.
