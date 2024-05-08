@@ -114,7 +114,7 @@
 (require 'compat)
 (require 'subr-x)
 
-(when (and (featurep' seq)
+(when (and (featurep 'seq)
            (not (fboundp 'seq-keep)))
   (unload-feature 'seq 'force))
 (require 'seq)

@@ -51,7 +51,7 @@
 ;; For older Emacs releases we depend on an updated `seq' release from GNU
 ;; ELPA, for `seq-keep'.  Unfortunately something else may require `seq'
 ;; before `package' had a chance to put this version on the `load-path'.
-(when (and (featurep' seq)
+(when (and (featurep 'seq)
            (not (fboundp 'seq-keep)))
   (unload-feature 'seq 'force))
 (require 'seq)
