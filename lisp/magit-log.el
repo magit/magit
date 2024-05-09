@@ -688,7 +688,7 @@ previously checked out branch and its upstream and push-target."
                    ((setq current (magit-get-previous-branch)))))
            (cond (current
                   (setq current
-                        (magit--propertize-face current'magit-branch-local))
+                        (magit--propertize-face current 'magit-branch-local))
                   (setq target (magit-get-push-branch current t))
                   (setq upstream (magit-get-upstream-branch current))
                   (when upstream
