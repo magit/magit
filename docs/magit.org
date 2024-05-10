@@ -3547,7 +3547,7 @@ information on how to use Ediff itself, see info:ediff.
   already resolved some conflicts, that means that these buffers
   may not contain the actual versions from the respective blobs.
 
-- Key: E m (magit-ediff-resolve-all) ::
+- Key: E M (magit-ediff-resolve-all) ::
 
   This command allows you to resolve all conflicts in the file at
   point using Ediff.  If there is no file at point or if it doesn't
