@@ -461,7 +461,7 @@ many \"branches\" of each wip ref are shown."
       (while (and reflog (> count 1))
         ;; "start autosaving ..." is the current message, but it used
         ;; to be "restart autosaving ...", and those messages may
-        ;; still be around (e.g., if gc.reflogExpire is to "never").
+        ;; still be around (e.g., if gc.reflogExpire is set to "never").
         (setq reflog (cl-member "^[^ ]+ [^:]+: \\(?:re\\)?start autosaving"
                                 reflog :test #'string-match-p))
         (when (and (cadr reflog)
