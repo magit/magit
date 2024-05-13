@@ -697,7 +697,7 @@ used."
 (defun git-commit-ensure-comment-gap ()
   "Separate initial empty line from initial comment.
 If the buffer begins with an empty line followed by a comment, insert
-an additional newline inbetween, so that once the users start typing,
+an additional newline in between, so that once the users start typing,
 the input isn't tacked to the comment."
   (save-excursion
     (goto-char (point-min))
