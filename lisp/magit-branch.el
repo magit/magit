@@ -504,7 +504,8 @@ from the source branch's upstream, then an error is raised."
     (message "Staying on HEAD due to uncommitted changes")
     (setq checkout t))
   (if-let ((current (magit-get-current-branch)))
-      (let ((tracked (magit-get-upstream-branch current))
+      (let ((tracked (or (magit-get-upstream-branch current)
+                         (magit-get-push-branch current)))
             base)
         (when from
           (unless (magit-rev-ancestor-p from current)

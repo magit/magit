@@ -5161,9 +5161,10 @@ The variables are described in [[*Branch Git Variables]].
 
   This command creates and checks out a new branch starting at and
   tracking the current branch.  That branch in turn is reset to the
-  last commit it shares with its upstream.  If the current branch has
-  no upstream or no unpushed commits, then the new branch is created
-  anyway and the previously current branch is not touched.
+  last commit it shares with its upstream or push remote.  If the
+  current branch has no upstream or no unpushed commits, then the new
+  branch is created anyway and the previously current branch is not
+  touched.
 
   This is useful to create a feature branch after work has already
   began on the old branch (likely but not necessarily "master").
