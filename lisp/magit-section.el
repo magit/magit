@@ -1961,19 +1961,17 @@ When `magit-section-preserve-visibility' is nil, return nil."
            (eoh (magit--eol-position beg)))
       (cond
        ((symbolp (car-safe magit-section-visibility-indicator))
-        (let ((ov (magit--overlay-at beg 'magit-vis-indicator 'fringe)))
+        (let ((ov (magit--overlay-at beg 'magit-vis-indicator 'margin)))
           (unless ov
             (setq ov (make-overlay beg eoh nil t))
             (overlay-put ov 'evaporate t)
-            (overlay-put ov 'magit-vis-indicator 'fringe))
+            (overlay-put ov 'magit-vis-indicator 'margin))
           (overlay-put
            ov 'before-string
-           (propertize "fringe" 'display
-                       (list 'left-fringe
-                             (if (oref section hidden)
-                                 (car magit-section-visibility-indicator)
-                               (cdr magit-section-visibility-indicator))
-                             'fringe)))))
+           (propertize "margin" 'display
+                       `((margin left-margin)
+                         ,(propertize (if (oref section hidden) "🞂" "🞃")
+                                      'face 'default))))))
        ((stringp (car-safe magit-section-visibility-indicator))
         (let ((ov (magit--overlay-at (1- eoh) 'magit-vis-indicator 'eoh)))
           (cond ((oref section hidden)
