@@ -142,6 +142,8 @@
 (defvar font-lock-end)
 (defvar recentf-exclude)
 
+(defvar git-commit-need-summary-line)
+
 (define-obsolete-variable-alias
   'git-commit-known-pseudo-headers
   'git-commit-trailers
@@ -710,9 +712,16 @@ the input isn't tacked to the comment."
   (setq-local paragraph-start (concat paragraph-start "\\|\\*\\|(")))
 
 (defun git-commit-turn-on-auto-fill ()
-  "Unconditionally turn on Auto Fill mode."
+  "Unconditionally turn on Auto Fill mode.
+Ensure auto filling happens everywhere, except in the summary line."
+  (turn-on-auto-fill)
   (setq-local comment-auto-fill-only-comments nil)
-  (turn-on-auto-fill))
+  (when git-commit-need-summary-line
+    (setq-local auto-fill-function #'git-commit-auto-fill-except-summary)))
+
+(defun git-commit-auto-fill-except-summary ()
+  (unless (eq (line-beginning-position) 1)
+    (do-auto-fill)))
 
 (defun git-commit-turn-on-orglink ()
   "Turn on Orglink mode if it is available.
