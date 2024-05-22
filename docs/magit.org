@@ -7157,10 +7157,8 @@ suitable modules.
 
   This command fetches all populated modules.
 
-  Option ~magit-fetch-modules-jobs~ controls how many submodules are
-  being fetched in parallel.  Also fetch the super-repository, because
-  ~git fetch~ does not support not doing that.  With a prefix argument
-  fetch all remotes.
+  Also fetch the super-repository, because ~git fetch~ does not
+  support not doing that.  With a prefix argument fetch all remotes.
 
 ** Subtree
 

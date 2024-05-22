@@ -8913,10 +8913,8 @@ This command displays a list of the current repository's modules.
 @findex magit-fetch-modules
 This command fetches all populated modules.
 
-Option @code{magit-fetch-modules-jobs} controls how many submodules are
-being fetched in parallel.  Also fetch the super-repository, because
-@code{git fetch} does not support not doing that.  With a prefix argument
-fetch all remotes.
+Also fetch the super-repository, because @code{git fetch} does not
+support not doing that.  With a prefix argument fetch all remotes.
 @end table
 
 @node Subtree
