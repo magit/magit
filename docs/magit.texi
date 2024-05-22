@@ -8279,8 +8279,9 @@ This command fetches from all remotes.
 @item @kbd{f m} (@code{magit-fetch-modules})
 @kindex f m
 @findex magit-fetch-modules
-This command fetches all submodules.  With a prefix argument it
-fetches all remotes of all submodules.
+This command fetches all submodules.  With a prefix argument, it
+acts as a transient prefix command, allowing the caller to set
+options.
 @end table
 
 @defopt magit-pull-or-fetch
@@ -8911,10 +8912,12 @@ This command displays a list of the current repository's modules.
 @item @kbd{o f} (@code{magit-fetch-modules})
 @kindex o f
 @findex magit-fetch-modules
-This command fetches all populated modules.
+This command fetches all populated modules.  With a prefix argument,
+it acts as a transient prefix command, allowing the caller to set
+options.
 
 Also fetch the super-repository, because @code{git fetch} does not
-support not doing that.  With a prefix argument fetch all remotes.
+support not doing that.
 @end table
 
 @node Subtree
