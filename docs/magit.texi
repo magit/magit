@@ -8276,9 +8276,9 @@ of which are read from the minibuffer.
 @findex magit-fetch-all
 This command fetches from all remotes.
 
-@item @kbd{f m} (@code{magit-submodule-fetch})
+@item @kbd{f m} (@code{magit-fetch-modules})
 @kindex f m
-@findex magit-submodule-fetch
+@findex magit-fetch-modules
 This command fetches all submodules.  With a prefix argument it
 fetches all remotes of all submodules.
 @end table

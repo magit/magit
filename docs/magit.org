@@ -6698,7 +6698,7 @@ push-remote, see [[*The Two Remotes]].
 
   This command fetches from all remotes.
 
-- Key: f m (magit-submodule-fetch) ::
+- Key: f m (magit-fetch-modules) ::
 
   This command fetches all submodules.  With a prefix argument it
   fetches all remotes of all submodules.
