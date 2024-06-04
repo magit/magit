@@ -675,7 +675,7 @@ made to the repository outside of Magit.
 - User Option: magit-refresh-status-buffer ::
 
   When this option is non-nil, then the status buffer is automatically
-  refreshed after running git for side-effects, in addition to the
+  refreshed after running Git for side-effects, in addition to the
   current Magit buffer, which is always refreshed automatically.
 
   Only set this to nil after exhausting all other options to improve
@@ -1838,18 +1838,18 @@ sections are available.  There is one additional command.
 
 - Variable: magit-git-debug ::
 
-  This option controls whether additional reporting of git errors is
+  This option controls whether additional reporting of Git errors is
   enabled.
 
-  Magit basically calls git for one of these two reasons: for
+  Magit basically calls Git for one of these two reasons: for
   side-effects or to do something with its standard output.
 
-  When git is run for side-effects then its output, including error
+  When Git is run for side-effects then its output, including error
   messages, go into the process buffer which is shown when using ~$~.
 
-  When git's output is consumed in some way, then it would be too
+  When Git's output is consumed in some way, then it would be too
   expensive to also insert it into this buffer, but when this
-  option is non-nil and git returns with a non-zero exit status,
+  option is non-nil and Git returns with a non-zero exit status,
   then at least its standard error is inserted into this buffer.
 
   This is only intended for debugging purposes.  Do not enable this
@@ -1857,7 +1857,7 @@ sections are available.  There is one additional command.
 
   This is only intended for debugging purposes.  Do not enable this
   permanently, that would negatively affect performance.  Also note
-  that just because git exits with a non-zero exit status and prints
+  that just because Git exits with a non-zero exit status and prints
   an error message that usually doesn't mean that it is an error as
   far as Magit is concerned, which is another reason we usually hide
   these error messages.  Whether some error message is relevant in
@@ -2035,9 +2035,9 @@ Emacs is searching for ~git~.
 
 - User Option: magit-git-global-arguments ::
 
-  The arguments set here are used every time the git executable is run
+  The arguments set here are used every time the Git executable is run
   as a subprocess.  They are placed right after the executable itself
-  and before the git command - as in ~git HERE... COMMAND REST~.  For
+  and before the Git command - as in ~git HERE... COMMAND REST~.  For
   valid arguments see [[man:git]]
 
   Be careful what you add here, especially if you are using Tramp to
@@ -3467,7 +3467,7 @@ that they are available here too.
   ~commit~ sections.  There is a trade off to be made between
   performance and reliability:
 
-  - ~slow~ calls git for every word to be absolutely sure.
+  - ~slow~ calls Git for every word to be absolutely sure.
   - ~quick~ skips words less than seven characters long.
   - ~quicker~ additionally skips words that don't contain a number.
   - ~quickest~ uses all words that are at least seven characters long
@@ -6151,7 +6151,7 @@ you will acquire a good enough understanding through practice.
 
 For other sequence operations such as cherry-picking, a similar section
 is displayed, but they lack some of the features described above, due
-to limitations in the git commands used to implement them.  Most
+to limitations in the Git commands used to implement them.  Most
 importantly these sequences only support "picking" a commit but not
 other actions such as "rewording", and they do not keep track of the
 commits which have already been applied.
@@ -8055,7 +8055,7 @@ numbers of tags.  It would therefore be a good idea to disable
 When showing logs, Magit limits the number of commits initially shown
 in the hope that this avoids unnecessary work.  When ~--graph~ is
 used, then this unfortunately does not have the desired effect for
-large histories.  Junio, Git's maintainer, said on the git mailing
+large histories.  Junio, Git's maintainer, said on the Git mailing
 list (https://www.spinics.net/lists/git/msg232230.html): "~--graph~ wants
 to compute the whole history and the max-count only affects the output
 phase after ~--graph~ does its computation".
@@ -8295,51 +8295,51 @@ commands that have side-effects, but that should be avoided.
 
 - Function: magit-git-exit-code &rest args ::
 
-  Executes git with ARGS and returns its exit code.
+  Executes Git with ARGS and returns its exit code.
 
 - Function: magit-git-success &rest args ::
 
-  Executes git with ARGS and returns ~t~ if the exit code is ~0~, ~nil~
+  Executes Git with ARGS and returns ~t~ if the exit code is ~0~, ~nil~
   otherwise.
 
 - Function: magit-git-failure &rest args ::
 
-  Executes git with ARGS and returns ~t~ if the exit code is ~1~, ~nil~
+  Executes Git with ARGS and returns ~t~ if the exit code is ~1~, ~nil~
   otherwise.
 
 - Function: magit-git-true &rest args ::
 
-  Executes git with ARGS and returns ~t~ if the first line printed by
-  git is the string "true", ~nil~ otherwise.
+  Executes Git with ARGS and returns ~t~ if the first line printed by
+  Git is the string "true", ~nil~ otherwise.
 
 - Function: magit-git-false &rest args ::
 
-  Executes git with ARGS and returns ~t~ if the first line printed by
-  git is the string "false", ~nil~ otherwise.
+  Executes Git with ARGS and returns ~t~ if the first line printed by
+  Git is the string "false", ~nil~ otherwise.
 
 - Function: magit-git-insert &rest args ::
 
-  Executes git with ARGS and inserts its output at point.
+  Executes Git with ARGS and inserts its output at point.
 
 - Function: magit-git-string &rest args ::
 
-  Executes git with ARGS and returns the first line of its output.  If
+  Executes Git with ARGS and returns the first line of its output.  If
   there is no output or if it begins with a newline character, then
   this returns ~nil~.
 
 - Function: magit-git-lines &rest args ::
 
-  Executes git with ARGS and returns its output as a list of lines.
+  Executes Git with ARGS and returns its output as a list of lines.
   Empty lines anywhere in the output are omitted.
 
 - Function: magit-git-items &rest args ::
 
-  Executes git with ARGS and returns its null-separated output as a
+  Executes Git with ARGS and returns its null-separated output as a
   list.  Empty items anywhere in the output are omitted.
 
-  If the value of option ~magit-git-debug~ is non-nil and git exits with
+  If the value of option ~magit-git-debug~ is non-nil and Git exits with
   a non-zero exit status, then warn about that in the echo area and
-  add a section containing git's standard error in the current
+  add a section containing Git's standard error in the current
   repository's process buffer.
 
 - Function: magit-process-git destination &rest args ::
@@ -8366,7 +8366,7 @@ they occur we need to be able to debug them.
   Whether to report errors that occur when using ~magit-git-insert~,
   ~magit-git-string~, ~magit-git-lines~, or ~magit-git-items~.  This does
   not actually raise an error.  Instead a message is shown in the echo
-  area, and git's standard error is insert into a new section in the
+  area, and Git's standard error is insert into a new section in the
   current repository's process buffer.
 
 - Function: magit-git-str &rest args ::
@@ -8380,31 +8380,31 @@ they occur we need to be able to debug them.
 
 *** Calling Git for Effect
 
-These functions are used to run git to produce some effect.  Most
-Magit commands that actually run git do so by using such a function.
+These functions are used to run Git to produce some effect.  Most
+Magit commands that actually run Git do so by using such a function.
 
-Because we do not need to consume git's output when using these
+Because we do not need to consume Git's output when using these
 functions, their output is instead logged into a per-repository
 buffer, which can be shown using ~$~ from a Magit buffer or ~M-x
 magit-process~ elsewhere.
 
 These functions can have an effect in two distinct ways.  Firstly,
-running git may change something, i.e., create or push a new commit.
+running Git may change something, i.e., create or push a new commit.
 Secondly, that change may require that Magit buffers are refreshed to
 reflect the changed state of the repository.  But refreshing isn't
 always desirable, so only some of these functions do perform such a
-refresh after git has returned.
+refresh after Git has returned.
 
-Sometimes it is useful to run git asynchronously.  For example, when
+Sometimes it is useful to run Git asynchronously.  For example, when
 the user has just initiated a push, then there is no reason to make
 her wait until that has completed.  In other cases it makes sense to
-wait for git to complete before letting the user do something else.
+wait for Git to complete before letting the user do something else.
 For example after staging a change it is useful to wait until after
 the refresh because that also automatically moves to the next change.
 
 - Function: magit-call-git &rest args ::
 
-  Calls git synchronously with ARGS.
+  Calls Git synchronously with ARGS.
 
 - Function: magit-call-process program &rest args ::
 
@@ -8412,21 +8412,21 @@ the refresh because that also automatically moves to the next change.
 
 - Function: magit-run-git &rest args ::
 
-  Calls git synchronously with ARGS and then refreshes.
+  Calls Git synchronously with ARGS and then refreshes.
 
 - Function: magit-run-git-with-input &rest args ::
 
-  Calls git synchronously with ARGS and sends it the content of the
+  Calls Git synchronously with ARGS and sends it the content of the
   current buffer on standard input.
 
   If the current buffer's ~default-directory~ is on a remote
-  filesystem, this function actually runs git asynchronously.  But
+  filesystem, this function actually runs Git asynchronously.  But
   then it waits for the process to return, so the function itself is
   synchronous.
 
 - Function: magit-git &rest args ::
 
-  Calls git synchronously with ARGS for side-effects only.  This
+  Calls Git synchronously with ARGS for side-effects only.  This
   function does not refresh the buffer.
 
 - Function: magit-git-wash washer &rest args ::
@@ -8513,7 +8513,7 @@ And now for the asynchronous variants.
 - Variable: magit-process-raise-error ::
 
   When this is non-nil, then ~magit-process-sentinel~ raises an error if
-  git exits with a non-zero exit status.  For debugging purposes.
+  Git exits with a non-zero exit status.  For debugging purposes.
 
 ** Section Plumbing
 *** Creating Sections
@@ -9003,14 +9003,14 @@ like it better.
 Also see https://magit.vc/assets/videos/magic.mp4.
 Also see https://emacs.stackexchange.com/questions/13696.
 
-*** How to show git's output?
+*** How to show Git's output?
 
-To show the output of recently run git commands, press ~$~ (or, if that
+To show the output of recently run Git commands, press ~$~ (or, if that
 isn't available, ~M-x magit-process-buffer~).  This will show a buffer
-containing a section per git invocation; as always press ~TAB~ to expand
+containing a section per Git invocation; as always press ~TAB~ to expand
 or collapse them.
 
-By default, git's output is only inserted into the process buffer if it
+By default, Git's output is only inserted into the process buffer if it
 is run for side-effects.  When the output is consumed in some way,
 also inserting it into the process buffer would be too expensive.  For
 debugging purposes, it's possible to do so anyway by setting
@@ -9293,22 +9293,22 @@ issue.
 
 - Key: M-x magit-toggle-git-debug ::
 
-  This command toggles whether additional git errors are reported.
+  This command toggles whether additional Git errors are reported.
 
-  Magit basically calls git for one of these two reasons: for
+  Magit basically calls Git for one of these two reasons: for
   side-effects or to do something with its standard output.
 
-  When git is run for side-effects then its output, including error
+  When Git is run for side-effects then its output, including error
   messages, go into the process buffer which is shown when using ~$~.
 
-  When git's output is consumed in some way, then it would be too
+  When Git's output is consumed in some way, then it would be too
   expensive to also insert it into this buffer, but when this
-  option is non-nil and git returns with a non-zero exit status,
+  option is non-nil and Git returns with a non-zero exit status,
   then at least its standard error is inserted into this buffer.
 
   This is only intended for debugging purposes.  Do not enable this
   permanently, that would negatively affect performance.  Also note
-  that just because git exits with a non-zero exit status and prints
+  that just because Git exits with a non-zero exit status and prints
   an error message that usually doesn't mean that it is an error as
   far as Magit is concerned, which is another reason we usually hide
   these error messages.  Whether some error message is relevant in
