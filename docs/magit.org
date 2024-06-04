@@ -1841,28 +1841,26 @@ sections are available.  There is one additional command.
   This option controls whether additional reporting of Git errors is
   enabled.
 
-  Magit basically calls Git for one of these two reasons: for
+  Magit usually calls Git for one of two reasons: to cause
   side-effects or to do something with its standard output.
 
-  When Git is run for side-effects then its output, including error
-  messages, go into the process buffer which is shown when using ~$~.
+  When Git is run for side-effects, then its output---including error
+  messages---is written to the process buffer that is shown when using
+  ~$~.
 
-  When Git's output is consumed in some way, then it would be too
-  expensive to also insert it into this buffer, but when this
-  option is non-nil and Git returns with a non-zero exit status,
-  then at least its standard error is inserted into this buffer.
-
-  This is only intended for debugging purposes.  Do not enable this
-  permanently, that would negatively affect performance.
+  When Git's standard output is consumed in some way, then it would be
+  too expensive to also insert it into this buffer. However, when this
+  option is non-nil and Git returns with a non-zero (non-success) exit
+  status, then standard /error/ output /is/ inserted into this buffer.
 
   This is only intended for debugging purposes.  Do not enable this
-  permanently, that would negatively affect performance.  Also note
-  that just because Git exits with a non-zero exit status and prints
-  an error message that usually doesn't mean that it is an error as
-  far as Magit is concerned, which is another reason we usually hide
-  these error messages.  Whether some error message is relevant in
-  the context of some unexpected behavior has to be judged on a case
-  by case basis.
+  permanently, because that would negatively affect performance.  Also
+  note that even when Git exits with a non-zero exit status and prints
+  an error message, that doesn't necessarily mean that it is an error
+  as far as Magit is concerned, which is another reason we usually
+  hide these error messages.  Whether some error message is relevant
+  in the context of some unexpected behavior must be judged on a
+  case-by-case basis.
 
   The command ~magit-toggle-git-debug~ changes the value of this
   variable.
