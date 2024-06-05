@@ -10042,7 +10042,7 @@ numbers of tags.  It would therefore be a good idea to disable
 When showing logs, Magit limits the number of commits initially shown
 in the hope that this avoids unnecessary work.  When @code{--graph} is
 used, then this unfortunately does not have the desired effect for
-large histories.  Junio, Git's maintainer, said on the git mailing
+large histories.  Junio, Git's maintainer, said on the Git mailing
 list (@uref{https://www.spinics.net/lists/git/msg232230.html}): "@code{--graph} wants
 to compute the whole history and the max-count only affects the output
 phase after @code{--graph} does its computation".
