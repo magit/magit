@@ -9113,8 +9113,8 @@ undo that setting in Magit by customizing ~magit-git-global-arguments~.
 
 *** Point is wrong in the ~COMMIT_EDITMSG~ buffer
 
-Neither Magit nor `git-commit` fiddle with point in the buffer used to
-write commit messages, so something else must be doing it.
+Neither Magit nor ~git-commit.el~ fiddle with point in the buffer used
+to write commit messages, so something else must be doing it.
 
 You have probably globally enabled a mode which restores point in
 file-visiting buffers.  It might be a bit surprising, but when you
