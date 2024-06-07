@@ -3,16 +3,27 @@ include ../default.mk
 
 ## ###################################################################
 
-.PHONY: texi install clean AUTHORS.md stats
+.PHONY: install clean AUTHORS.md stats
 
 all: info
 
 ## Build #############################################################
 
+texi: $(TEXIPAGES)
 info: $(INFOPAGES) dir
 html: $(HTMLFILES)
 pdf:  $(PDFFILES)
 epub: $(EPUBFILES)
+
+ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH) -l ol-man
+ORG_EVAL += --eval "(progn $$ORG_MAN_EXPORT)"
+ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
+ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
+ORG_EVAL += --funcall org-texinfo-export-to-texinfo
+
+%.texi: %.org
+	@printf "Generating $@\n"
+	@$(EMACS) $(ORG_ARGS) $< $(ORG_EVAL)
 
 %.info: %.texi
 	@printf "Generating $@\n"
@@ -83,17 +94,6 @@ clean:
 	@$(RMDIR) $(GENSTATS_DIR)
 
 ## Release management ################################################
-
-ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH) -l ol-man
-ORG_EVAL += --eval "(progn $$ORG_MAN_EXPORT)"
-ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
-ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
-ORG_EVAL += --funcall org-texinfo-export-to-texinfo
-
-texi:
-	@printf "Generating $(PKG).texi\n"
-	@$(EMACS) $(ORG_ARGS) $(PKG).org $(ORG_EVAL)
-	@$(EMACS) $(ORG_ARGS) magit-section.org $(ORG_EVAL)
 
 authors: AUTHORS.md
 
