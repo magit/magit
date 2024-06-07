@@ -150,7 +150,7 @@ release: $(PUBLISH_TARGETS)
 	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
 	"$(subst $(space),$(comma),$(addprefix $(RELEASE_PATH),$(CFRONT_PATHS)))" > /dev/null
 
-# Statistics #########################################################
+## Statistics ########################################################
 
 stats:
 	@printf "Generating statistics\n"
@@ -164,7 +164,7 @@ stats-upload:
 	@aws cloudfront create-invalidation \
 	--distribution-id $(CFRONT_DIST) --paths "/stats/*" > /dev/null
 
-# Lisp ###############################################################
+## Lisp ##############################################################
 
 # When making changes here, then also adjust the copy in magit-base.el.
 define ORG_MAN_EXPORT
@@ -189,7 +189,7 @@ the %s(1) manpage.
 endef
 export ORG_MAN_EXPORT
 
-# Templates ##########################################################
+## Templates #########################################################
 
 define AUTHORS_HEADER
 The following people have contributed to Magit.
