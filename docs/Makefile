@@ -1,13 +1,11 @@
 -include ../config.mk
 include ../default.mk
 
-## ###################################################################
-
 .PHONY: install clean AUTHORS.md stats
 
-all: info
-
 ## Build #############################################################
+
+docs: texi info html html-dir pdf
 
 texi: $(TEXIPAGES)
 info: $(INFOPAGES) dir
