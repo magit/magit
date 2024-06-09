@@ -1015,8 +1015,9 @@ as argument."
 
 (add-hook 'magit-credential-hook #'magit-maybe-start-credential-cache-daemon)
 
-(defun tramp-sh-handle-start-file-process--magit-tramp-process-environment
-    (fn name buffer program &rest args)
+(define-advice tramp-sh-handle-start-file-process
+    (:around (fn name buffer program &rest args)
+             magit-tramp-process-environment)
   (if magit-tramp-process-environment
       (apply fn name buffer
              (car magit-tramp-process-environment)
@@ -1024,19 +1025,14 @@ as argument."
                      (cons program args)))
     (apply fn name buffer program args)))
 
-(advice-add 'tramp-sh-handle-start-file-process :around
-            #'tramp-sh-handle-start-file-process--magit-tramp-process-environment)
-
-(defun tramp-sh-handle-process-file--magit-tramp-process-environment
-    (fn program &optional infile destination display &rest args)
+(define-advice tramp-sh-handle-process-file
+    (:around (fn program &optional infile destination display &rest args)
+             magit-tramp-process-environment)
   (if magit-tramp-process-environment
       (apply fn "env" infile destination display
              (append magit-tramp-process-environment
                      (cons program args)))
     (apply fn program infile destination display args)))
-
-(advice-add 'tramp-sh-handle-process-file :around
-            #'tramp-sh-handle-process-file--magit-tramp-process-environment)
 
 (defvar-keymap magit-mode-line-process-map
   :doc "Keymap for `mode-line-process'."

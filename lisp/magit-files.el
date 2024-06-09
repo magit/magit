@@ -184,13 +184,11 @@ then only after asking.  A non-nil value for REVERT is ignored if REV is
     (set-buffer-modified-p nil)
     (goto-char (point-min))))
 
-(defun magit--lsp--disable-when-visiting-blob (fn &rest args)
+(define-advice lsp (:around (fn &rest args) magit-find-file)
   "Do nothing when visiting blob using `magit-find-file' and similar.
 See also https://github.com/doomemacs/doomemacs/pull/6309."
   (unless magit-buffer-revision
     (apply fn args)))
-
-(advice-add 'lsp :around #'magit--lsp--disable-when-visiting-blob)
 
 ;;; Find Index
 

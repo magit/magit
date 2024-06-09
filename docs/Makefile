@@ -166,8 +166,7 @@ stats-upload:
 
 # When making changes here, then also adjust the copy in magit-base.el.
 define ORG_MAN_EXPORT
-(advice-add 'org-man-export :around 'org-man-export--magit-gitman)
-(defun org-man-export--magit-gitman (fn link description format)
+(define-advice org-man-export (:around (fn link description format) gitman)
   (if (and (eq format 'texinfo) ;'
            (string-match-p "\\`git" link))
       (replace-regexp-in-string "%s" link "

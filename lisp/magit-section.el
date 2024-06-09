@@ -774,12 +774,11 @@ Slight trimmed down."
                   (magit--menu-bar-keymap keymap))))
   menu)
 
-(advice-add 'context-menu-region :around
-            (lambda (fn menu click)
-              "Disable in `magit-section-mode' buffers."
-              (if (derived-mode-p 'magit-section-mode)
-                  menu
-                (funcall fn menu click))))
+(define-advice context-menu-region (:around (fn menu click) magit-section-mode)
+  "Disable in `magit-section-mode' buffers."
+  (if (derived-mode-p 'magit-section-mode)
+      menu
+    (funcall fn menu click)))
 
 ;;; Commands
 ;;;; Movement
@@ -1981,7 +1980,7 @@ When `magit-section-preserve-visibility' is nil, do nothing."
   (or (eq search-invisible t)
       (not (isearch-range-invisible beg end))))
 
-(defun isearch-clean-overlays@magit-mode (fn)
+(define-advice isearch-clean-overlays (:around (fn) magit-mode)
   (if (derived-mode-p 'magit-mode)
       (let ((pos (point)))
         (dolist (section magit-section--opened-sections)
@@ -1989,9 +1988,6 @@ When `magit-section-preserve-visibility' is nil, do nothing."
             (magit-section-hide section)))
         (setq magit-section--opened-sections nil))
     (funcall fn)))
-
-(advice-add 'isearch-clean-overlays :around
-            #'isearch-clean-overlays@magit-mode)
 
 ;;; Utilities
 

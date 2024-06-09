@@ -1121,7 +1121,7 @@ the value in the symbol's `saved-value' property if any, or
 ;;; Kludges for Info Manuals
 
 ;;;###autoload
-(defun Info-follow-nearest-node--magit-gitman (fn &optional fork)
+(define-advice Info-follow-nearest-node (:around (fn &optional fork) gitman)
   (let ((node (Info-get-token
                (point) "\\*note[ \n\t]+"
                "\\*note[ \n\t]+\\([^:]*\\):\\(:\\|[ \n\t]*(\\)?")))
@@ -1132,19 +1132,12 @@ the value in the symbol's `saved-value' property if any, or
                   (man (match-string 1 node)))
           ('woman (require 'woman)
                   (woman (match-string 1 node)))
-          (_
-           (user-error "Invalid value for `magit-view-git-manual-method'")))
+          (_ (user-error "Invalid value for `magit-view-git-manual-method'")))
       (funcall fn fork))))
-
-;;;###autoload
-(advice-add 'Info-follow-nearest-node :around
-            #'Info-follow-nearest-node--magit-gitman)
 
 ;; When making changes here, then also adjust the copy in docs/Makefile.
 ;;;###autoload
-(advice-add 'org-man-export :around #'org-man-export--magit-gitman)
-;;;###autoload
-(defun org-man-export--magit-gitman (fn link description format)
+(define-advice org-man-export (:around (fn link description format) gitman)
   (if (and (eq format 'texinfo)
            (string-prefix-p "git" link))
       (string-replace "%s" link "
