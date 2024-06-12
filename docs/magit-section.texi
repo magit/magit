@@ -216,9 +216,10 @@ If optional ROOT is non-nil, then search in that section tree
 instead of in the one whose root @code{magit-root-section} is.
 @end defun
 
-@defun magit-section-lineage section
+@defun magit-section-lineage section &optional raw
 Return the lineage of SECTION@.
-The return value has the form @code{(TYPE...)}.
+If optional RAW is non-nil, return a list of section objects,
+beginning with SECTION, otherwise return a list of section types.
 @end defun
 
 @defun magit-section-content-p section

@@ -596,9 +596,8 @@ instead of in the one whose root `magit-root-section' is."
 
 (defun magit-section-lineage (section &optional raw)
   "Return the lineage of SECTION.
-If optional RAW is non-nil, return a list of section object
-beginning with SECTION, otherwise return a list of section
-types."
+If optional RAW is non-nil, return a list of section objects, beginning
+with SECTION, otherwise return a list of section types."
   (cons (if raw section (oref section type))
         (and-let* ((parent (oref section parent)))
           (magit-section-lineage parent raw))))

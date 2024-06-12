@@ -171,10 +171,11 @@ source for suitable examples before asking me for help.  Thanks!
   If optional ROOT is non-nil, then search in that section tree
   instead of in the one whose root ~magit-root-section~ is.
 
-- Function: magit-section-lineage section ::
+- Function: magit-section-lineage section &optional raw ::
 
   Return the lineage of SECTION.
-  The return value has the form ~(TYPE...)~.
+  If optional RAW is non-nil, return a list of section objects,
+  beginning with SECTION, otherwise return a list of section types.
 
 - Function: magit-section-content-p section ::
 
