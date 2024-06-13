@@ -2415,6 +2415,7 @@ with the variables' values as arguments, which were recorded by
    #b00011000
    #b00011000
    #b00000000])
+
 (define-fringe-bitmap 'magit-fringe-bitmap-
   [#b00000000
    #b00000000
@@ -2434,6 +2435,7 @@ with the variables' values as arguments, which were recorded by
    #b00110000
    #b01100000
    #b00000000])
+
 (define-fringe-bitmap 'magit-fringe-bitmapv
   [#b00000000
    #b10000010
@@ -2453,6 +2455,7 @@ with the variables' values as arguments, which were recorded by
    #b00111000
    #b01110000
    #b11100000])
+
 (define-fringe-bitmap 'magit-fringe-bitmap-boldv
   [#b10000001
    #b11000011
