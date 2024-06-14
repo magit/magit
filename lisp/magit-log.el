@@ -763,6 +763,7 @@ restrict the log to the lines that the region touches."
    (cons current-prefix-arg
          (and (region-active-p)
               (magit-file-relative-name)
+              (not (derived-mode-p 'dired-mode))
               (save-restriction
                 (widen)
                 (list (line-number-at-pos (region-beginning))
@@ -782,9 +783,7 @@ restrict the log to the lines that the region touches."
        (let ((args (car (magit-log-arguments))))
          (when (and follow (not (member "--follow" args)))
            (push "--follow" args))
-         (when (and (file-regular-p
-                     (expand-file-name file (magit-toplevel)))
-                    beg end)
+         (when (and beg end)
            (setq args (cons (format "-L%s,%s:%s" beg end file)
                             (cl-delete "-L" args :test
                                        #'string-prefix-p)))
