@@ -31,6 +31,7 @@
 (require 'magit-base)
 (require 'magit-git)
 
+(require 'benchmark)
 (require 'browse-url)
 (require 'format-spec)
 (require 'help-mode)
@@ -1457,7 +1458,10 @@ The additional output can be found in the *Messages* buffer."
     (if magit-refresh-verbose
         (let ((start (current-time)))
           (message "Running %s..." hook)
-          (run-hooks hook)
+          (run-hook-wrapped
+           hook
+           (lambda (fn)
+             (message "  %-50s %f" fn (benchmark-elapse (funcall fn)))))
           (message "Running %s...done (%.3fs)" hook
                    (float-time (time-subtract (current-time) start))))
       (run-hooks hook))))
