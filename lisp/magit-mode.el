@@ -1455,10 +1455,21 @@ The additional output can be found in the *Messages* buffer."
 (defun magit-run-hook-with-benchmark (hook)
   (when hook
     (if magit-refresh-verbose
-        (let ((start (current-time)))
-          (message "Running %s..." hook)
-          (run-hooks hook)
-          (message "Running %s...done (%.3fs)" hook
+        (let ((start (current-time))
+              (wrapped-hooks (make-symbol (symbol-name hook))))
+          (setf (symbol-value wrapped-hooks)
+                (seq-map (lambda (hook)
+                           (lambda ()
+                             (let ((start (current-time)))
+                               (funcall hook)
+                               (message "Running %s...done (%.3fs)" hook
+                                        (float-time (time-subtract
+                                                     (current-time)
+                                                     start))))))
+                         (symbol-value hook)))
+          (message "Running %s..." wrapped-hooks)
+          (run-hooks wrapped-hooks)
+          (message "Running %s...done (%.3fs)" wrapped-hooks
                    (float-time (time-subtract (current-time) start))))
       (run-hooks hook))))
 
