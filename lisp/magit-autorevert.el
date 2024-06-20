@@ -152,7 +152,7 @@ and code surrounding the definition of this function."
       (magit-auto-revert-mode 1)
       (magit-message
        "Turning on magit-auto-revert-mode...done%s"
-       (let ((elapsed (float-time (time-subtract nil start))))
+       (let ((elapsed (float-time (time-since start))))
          (if (> elapsed 0.2)
              (format " (%.3fs, %s buffers checked)" elapsed
                      (length (buffer-list)))
