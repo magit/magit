@@ -1454,17 +1454,17 @@ The additional output can be found in the *Messages* buffer."
            (if magit-refresh-verbose "Enabled" "Disabled")))
 
 (defun magit-run-hook-with-benchmark (hook)
-  (when hook
-    (if magit-refresh-verbose
-        (let ((start (current-time)))
-          (message "Running %s..." hook)
-          (run-hook-wrapped
-           hook
-           (lambda (fn)
-             (message "  %-50s %f" fn (benchmark-elapse (funcall fn)))))
-          (message "Running %s...done (%.3fs)" hook
-                   (float-time (time-subtract (current-time) start))))
-      (run-hooks hook))))
+  (cond
+   ((not hook))
+   (magit-refresh-verbose
+    (message "Running %s..." hook)
+    (message "Running %s...done (%.3fs)" hook
+             (benchmark-elapse
+               (run-hook-wrapped
+                hook
+                (lambda (fn)
+                  (message "  %-50s %f" fn (benchmark-elapse (funcall fn))))))))
+   ((run-hooks hook))))
 
 ;;; _
 (provide 'magit-mode)
