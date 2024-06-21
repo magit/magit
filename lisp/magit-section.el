@@ -1760,10 +1760,10 @@ invisible."
   (kill-local-variable 'redisplay-unhighlight-region-function)
   (when magit-show-long-lines-warning
     (setq magit-show-long-lines-warning nil)
-    (display-warning 'magit "\
+    (display-warning 'magit (format "\
 Emacs has enabled redisplay shortcuts
 in this buffer because there are lines whose length go beyond
-`long-line-treshold' \(%s characters).  As a result, section
+`long-line-threshold' \(%s characters).  As a result, section
 highlighting and the special appearance of the region has been
 disabled.  Some existing highlighting might remain in effect.
 
@@ -1773,7 +1773,7 @@ and recreate the buffer.
 
 This message won't be shown for this session again.  To disable
 it for all future sessions, set `magit-show-long-lines-warning'
-to nil." :warning)))
+to nil." (bound-and-true-p long-line-threshold)) :warning)))
 
 (cl-defgeneric magit-section-get-relative-position (section))
 
