@@ -2723,20 +2723,17 @@ or a ref which is not a branch, then it inserts nothing."
 
 (defun magit-insert-revision-notes ()
   "Insert commit notes into a revision buffer."
-  (let* ((var "core.notesRef")
-         (def (or (magit-get var) "refs/notes/commits")))
+  (let ((default (or (magit-get "core.notesRef") "refs/notes/commits")))
     (dolist (ref (magit-list-active-notes-refs))
-      (magit-insert-section
-          ( notes ref (not (equal ref def))
+      (when-let ((note (with-temp-buffer
+                         (magit-git-insert "-c" (concat "core.notesRef=" ref)
+                                           "notes" "show" magit-buffer-revision)
+                         (magit-revision--wash-message))))
+        (magit-insert-section
+          ( notes ref (not (equal ref default))
             :heading-highlight-face 'magit-diff-hunk-heading-highlight)
-        (let ((beg (point))
-              (rev magit-buffer-revision))
-          (insert (with-temp-buffer
-                    (magit-git-insert "-c" (concat "core.notesRef=" ref)
-                                      "notes" "show" rev)
-                    (magit-revision--wash-message)))
-          (if (= (point) beg)
-              (magit-cancel-section)
+          (let ((beg (point)))
+            (insert note)
             (goto-char beg)
             (end-of-line)
             (insert (format " (%s)"
