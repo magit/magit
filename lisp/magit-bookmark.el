@@ -65,7 +65,7 @@
             ('undefined
              (delq nil (list magit-buffer-typearg magit-buffer-range-hashed))))
           (if magit-buffer-diff-files
-              (concat " -- " (mapconcat #'identity magit-buffer-diff-files " "))
+              (concat " -- " (string-join magit-buffer-diff-files " "))
             "")))
 
 ;;;; Revision
@@ -79,7 +79,7 @@
   (format "magit-revision(%s %s)"
           (magit-rev-abbrev magit-buffer-revision)
           (if magit-buffer-diff-files
-              (mapconcat #'identity magit-buffer-diff-files " ")
+              (string-join magit-buffer-diff-files " ")
             (magit-rev-format "%s" magit-buffer-revision))))
 
 ;;;; Stash
@@ -93,7 +93,7 @@
   (format "magit-stash(%s %s)"
           (magit-rev-abbrev magit-buffer-revision)
           (if magit-buffer-diff-files
-              (mapconcat #'identity magit-buffer-diff-files " ")
+              (string-join magit-buffer-diff-files " ")
             (magit-rev-format "%s" magit-buffer-revision))))
 
 (cl-defmethod magit-bookmark--get-child-value
@@ -112,9 +112,9 @@
 
 (cl-defmethod magit-bookmark-name (&context (major-mode magit-log-mode))
   (format "magit-log(%s%s)"
-          (mapconcat #'identity magit-buffer-revisions " ")
+          (string-join magit-buffer-revisions " ")
           (if magit-buffer-log-files
-              (concat " -- " (mapconcat #'identity magit-buffer-log-files " "))
+              (concat " -- " (string-join magit-buffer-log-files " "))
             "")))
 
 ;;;; Cherry

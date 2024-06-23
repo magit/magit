@@ -302,7 +302,7 @@ If no merge is in progress, do nothing."
            (range (magit--merge-range (car heads))))
       (magit-insert-section (unmerged range)
         (magit-insert-heading
-          (format "Merging %s:" (mapconcat #'identity heads ", ")))
+          (format "Merging %s:" (string-join heads ", ")))
         (magit--insert-log nil
           range
           (let ((args magit-buffer-log-args))

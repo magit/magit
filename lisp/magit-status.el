@@ -530,7 +530,7 @@ the status buffer causes this section to disappear again."
         (when magit-buffer-diff-files
           (insert " -- ")))
       (when magit-buffer-diff-files
-        (insert (mapconcat #'identity magit-buffer-diff-files " ")))
+        (insert (string-join magit-buffer-diff-files " ")))
       (insert ?\n))))
 
 ;;;; Reference Headers

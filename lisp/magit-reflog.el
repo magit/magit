@@ -196,9 +196,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                   command))
          (text (if (string= command "commit")
                    label
-                 (mapconcat #'identity
-                            (delq nil (list command option type))
-                            " "))))
+                 (string-join (delq nil (list command option type)) " "))))
     (format "%-16s "
             (magit--propertize-face
              text (or (cdr (assoc label magit-reflog-labels))

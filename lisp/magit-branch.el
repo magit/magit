@@ -434,9 +434,7 @@ when using `magit-branch-and-checkout'."
                  (if magit-completing-read--silent-default
                      (format "%s (starting at `%s')" prompt choice)
                    "Name for new branch")
-                 (let ((def (mapconcat #'identity
-                                       (cdr (split-string choice "/"))
-                                       "/")))
+                 (let ((def (string-join (cdr (split-string choice "/")) "/")))
                    (and (member choice (magit-list-remote-branch-names))
                         (not (member def (magit-list-local-branch-names)))
                         def)))

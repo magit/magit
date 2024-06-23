@@ -68,7 +68,7 @@
                  (push (buffer-substring-no-properties (point) to) chunks))
                (goto-char to)
                (< (point) (point-max))))
-      (let ((result (mapconcat #'identity (nreverse chunks) nil)))
+      (let ((result (string-join (nreverse chunks))))
         (unless raw
           (setq result (string-trim result)))
         result))))

@@ -772,7 +772,7 @@ See info node `(magit)Debugging Tools' for more information."
         (arg (and (or (null (car keys))
                       (string-prefix-p "--" (car keys)))
                   (pop keys)))
-        (key (mapconcat #'identity keys ".")))
+        (key (string-join keys ".")))
     (if (and magit--refresh-cache (not arg))
         (magit-config-get-from-cached-list key)
       (magit-git-items "config" arg "-z" "--get-all" key))))
@@ -783,7 +783,7 @@ Also see `magit-git-config-p'."
   (let ((arg (and (or (null (car keys))
                       (string-prefix-p "--" (car keys)))
                   (pop keys)))
-        (key (mapconcat #'identity keys ".")))
+        (key (string-join keys ".")))
     (equal (if magit--refresh-cache
                (car (last (magit-config-get-from-cached-list key)))
              (magit-git-str "config" arg "--bool" key))
@@ -794,7 +794,7 @@ Also see `magit-git-config-p'."
   (let ((arg (and (or (null (car keys))
                       (string-prefix-p "--" (car keys)))
                   (pop keys)))
-        (key (mapconcat #'identity keys ".")))
+        (key (string-join keys ".")))
     (if value
         (magit-git-success "config" arg key value)
       (magit-git-success "config" arg "--unset" key))
@@ -808,7 +808,7 @@ Also see `magit-git-config-p'."
   (let ((arg (and (or (null (car keys))
                       (string-prefix-p "--" (car keys)))
                   (pop keys)))
-        (var (mapconcat #'identity keys ".")))
+        (var (string-join keys ".")))
     (when (magit-get var)
       (magit-call-git "config" arg "--unset-all" var))
     (dolist (v values)
@@ -2425,15 +2425,14 @@ and this option only controls what face is used.")
                  0 (length target) 'magit-branch-upstream nil target)
                 (setq upstream target)
                 (setq combined (delete target combined))))))
-        (mapconcat #'identity
-                   (flatten-tree `(,state
-                                   ,head
-                                   ,upstream
-                                   ,@(nreverse tags)
-                                   ,@(nreverse combined)
-                                   ,@(nreverse remotes)
-                                   ,@other))
-                   " ")))))
+        (string-join (flatten-tree `(,state
+                                     ,head
+                                     ,upstream
+                                     ,@(nreverse tags)
+                                     ,@(nreverse combined)
+                                     ,@(nreverse remotes)
+                                     ,@other))
+                     " ")))))
 
 (defun magit-object-type (object)
   (magit-git-string "cat-file" "-t" object))

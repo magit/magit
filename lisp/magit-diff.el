@@ -2002,8 +2002,7 @@ Staging and applying changes is documented in info node
                (0)
                (1 (concat " in file " (car magit-buffer-diff-files)))
                (_ (concat " in files "
-                          (mapconcat #'identity magit-buffer-diff-files
-                                     ", ")))))))
+                          (string-join magit-buffer-diff-files ", ")))))))
   (setq magit-buffer-range-hashed
         (and magit-buffer-range (magit-hash-range magit-buffer-range)))
   (magit-insert-section (diffbuf)
@@ -2396,7 +2395,7 @@ section or a child thereof."
                                      (or file orig)))
                            (format "--- %s\n" (or orig "/dev/null"))
                            (format "+++ %s\n" (or file "/dev/null")))))
-      (setq header (mapconcat #'identity header ""))
+      (setq header (string-join header))
       (magit-diff-insert-file-section
        file orig status modes rename header binary nil)))))
 
@@ -2578,7 +2577,7 @@ Staging and applying changes is documented in info node
              (0)
              (1 (concat " limited to file " (car magit-buffer-diff-files)))
              (_ (concat " limited to files "
-                        (mapconcat #'identity magit-buffer-diff-files ", "))))))
+                        (string-join magit-buffer-diff-files ", "))))))
   (magit-insert-section (commitbuf)
     (magit-run-section-hook 'magit-revision-sections-hook)))
 
@@ -3557,7 +3556,7 @@ last (visual) lines of the region."
         (forward-line)))
     (let ((buffer-list-update-hook nil)) ; #3759
       (with-temp-buffer
-        (insert (mapconcat #'identity (reverse patch) ""))
+        (insert (string-join (reverse patch)))
         (diff-fixup-modifs (point-min) (point-max))
         (setq patch (buffer-string))))
     patch))

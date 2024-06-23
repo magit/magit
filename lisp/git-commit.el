@@ -1235,9 +1235,8 @@ Added to `font-lock-extend-region-functions'."
                       ;; because in repositories have thousands of
                       ;; branches that would be very slow.  See #4353.
                       (format "\\(\\(?:%s\\)\\|\\)\\([^']+\\)"
-                              (mapconcat #'identity
-                                         (magit-list-local-branch-names)
-                                         "\\|")))
+                              (string-join (magit-list-local-branch-names)
+                                           "\\|")))
                   "\\([^']*\\)"))
     (setq-local font-lock-multiline t)
     (add-hook 'font-lock-extend-region-functions

@@ -1156,11 +1156,11 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (defun magit-log-header-line-sentence (revs args files)
   "Return string containing all arguments."
   (concat "Commits in "
-          (mapconcat #'identity revs " ")
+          (string-join revs " ")
           (and (member "--reverse" args)
                " in reverse")
           (and files (concat " touching "
-                             (mapconcat #'identity files " ")))
+                             (string-join files " ")))
           (--some (and (string-prefix-p "-L" it)
                        (concat " " it))
                   args)))

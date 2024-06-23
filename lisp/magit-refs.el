@@ -309,7 +309,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     (setq magit-refs-show-commit-count nil))
   (magit-set-header-line-format
    (format "%s %s" magit-buffer-upstream
-           (mapconcat #'identity magit-buffer-arguments " ")))
+           (string-join magit-buffer-arguments " ")))
   (magit-insert-section (branchbuf)
     (magit-run-section-hook 'magit-refs-sections-hook))
   (add-hook 'kill-buffer-hook #'magit-preserve-section-visibility-cache))
@@ -527,7 +527,7 @@ line is inserted at all."
     (magit-insert-section (branchdesc branch t)
       (magit-insert-heading branch ": " (car desc))
       (when (cdr desc)
-        (insert (mapconcat #'identity (cdr desc) "\n"))
+        (insert (string-join (cdr desc) "\n"))
         (insert "\n\n")))))
 
 (defun magit-insert-tags ()

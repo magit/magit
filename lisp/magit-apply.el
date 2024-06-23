@@ -187,10 +187,8 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
     (magit-apply-patch
      file args
      (concat (oref file header)
-             (mapconcat #'identity
-                        (magit-apply--adjust-hunk-new-starts
-                         (mapcar #'magit-apply--section-content hunks))
-                        "")))))
+             (string-join (magit-apply--adjust-hunk-new-starts
+                           (mapcar #'magit-apply--section-content hunks)))))))
 
 (defun magit-apply-hunk (hunk &rest args)
   (let ((file (oref hunk parent)))

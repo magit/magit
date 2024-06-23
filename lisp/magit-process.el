@@ -516,7 +516,7 @@ and still alive), as well as the respective Magit status buffer.
 
 See `magit-start-process' for more information."
   (message "Running %s %s" (magit-git-executable)
-           (let ((m (mapconcat #'identity (flatten-tree args) " ")))
+           (let ((m (string-join (flatten-tree args) " ")))
              (remove-list-of-text-properties 0 (length m) '(face) m)
              m))
   (magit-start-git nil args))
@@ -717,7 +717,7 @@ Magit status buffer."
        " "
        (propertize (magit--ellipsis)
                    'font-lock-face 'magit-section-heading
-                   'help-echo (mapconcat #'identity (seq-take args global) " "))
+                   'help-echo (string-join (seq-take args global) " "))
        " "
        (propertize (mapconcat #'shell-quote-argument (seq-drop args global) " ")
                    'font-lock-face 'magit-section-heading))))
@@ -1284,7 +1284,7 @@ Limited by `magit-process-error-tooltip-max-lines'."
       (let ((inhibit-message t))
         (when heading
           (setq lines (cons heading lines)))
-        (message (mapconcat #'identity lines "\n"))))))
+        (message (string-join lines "\n"))))))
 
 ;;; _
 (provide 'magit-process)

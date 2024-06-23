@@ -408,7 +408,7 @@ to recover from making a mistake here, but don't count on it."
         (if (cdr modified)
             (message "Omitting %s modules with uncommitted changes: %s"
                      (length modified)
-                     (mapconcat #'identity modified ", "))
+                     (string-join modified ", "))
           (message "Omitting module %s, it has uncommitted changes"
                    (car modified)))
         (setq modules (cl-set-difference modules modified :test #'equal))))
