@@ -1525,16 +1525,31 @@ its body cannot be collapsed.  If a section does have a heading,
 then its height must be exactly one line, including a trailing
 newline character.  This isn't enforced, you are responsible for
 getting it right.  The only exception is that this function does
-insert a newline character if necessary."
+insert a newline character if necessary
+
+If provided, optional CHILD-COUNT must evaluate to an integer or
+boolean.  If t, then the count is determined once the children have been
+inserted, using `magit-insert-child-count' (which see).  For historic
+reasons, if the heading ends with \":\", the count is substituted for
+that, at this time as well.  If `magit-section-show-child-count' is nil,
+no counts are inserted
+
+\n(fn [CHILD-COUNT] &rest STRINGS)"
   (declare (indent defun))
   (when args
-    (let ((heading (apply #'concat args)))
+    (let ((count (and (or (integerp (car args))
+                          (booleanp (car args)))
+                      (pop args)))
+          (heading (apply #'concat args)))
       (insert (if (or (text-property-not-all 0 (length heading)
                                              'font-lock-face nil heading)
                       (text-property-not-all 0 (length heading)
                                              'face nil heading))
                   heading
-                (propertize heading 'font-lock-face 'magit-section-heading)))))
+                (propertize heading 'font-lock-face 'magit-section-heading)))
+      (when (and count magit-section-show-child-count)
+        (insert (propertize (format " (%s)" count)
+                            'font-lock-face 'magit-section-child-count)))))
   (unless (bolp)
     (insert ?\n))
   (when (fboundp 'magit-maybe-make-margin-overlay)
@@ -1622,16 +1637,25 @@ with \" (N)\", where N is the number of child sections.
 This function is called by `magit-insert-section' after that has
 evaluated its BODY.  Admittedly that's a bit of a hack."
   (let (content count)
-    (when (and magit-section-show-child-count
-               (setq content (oref section content))
-               (setq count (length (oref section children)))
-               (> count 0)
-               (eq (char-before (1- content)) ?:))
+    (cond
+     ((not (and magit-section-show-child-count
+                (setq content (oref section content))
+                (setq count (length (oref section children)))
+                (> count 0))))
+     ((eq (char-before (- content 1)) ?:)
       (save-excursion
         (goto-char (- content 2))
         (insert (magit--propertize-face (format " (%s)" count)
                                         'magit-section-child-count))
-        (delete-char 1)))))
+        (delete-char 1)))
+     ((and (eq (char-before (- content 4)) ?\s)
+           (eq (char-before (- content 3)) ?\()
+           (eq (char-before (- content 2)) ?t )
+           (eq (char-before (- content 1)) ?\)))
+      (save-excursion
+        (goto-char (- content 3))
+        (delete-char 1)
+        (insert (format "%s" count)))))))
 
 ;;; Highlight
 

@@ -86,7 +86,7 @@ source for suitable examples before asking me for help.  Thanks!
   a section by washing Git's output and Git didn't actually output
   anything this time around.
 
-- Function: magit-insert-heading &rest args ::
+- Function: magit-insert-heading [child-count] &rest args ::
 
   Insert the heading for the section currently being inserted.
 
@@ -114,6 +114,13 @@ source for suitable examples before asking me for help.  Thanks!
   newline character.  This isn't enforced, you are responsible for
   getting it right.  The only exception is that this function does
   insert a newline character if necessary.
+
+  If provided, optional CHILD-COUNT must evaluate to an integer or
+  boolean.  If t, then the count is determined once the children have been
+  inserted, using ~magit-insert-child-count~ (which see).  For historic
+  reasons, if the heading ends with ":", the count is substituted for
+  that, at this time as well.  If ~magit-section-show-child-count~ is nil,
+  no counts are inserted
 
 - Macro: magit-insert-section-body &rest body ::
 
