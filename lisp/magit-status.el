@@ -707,6 +707,15 @@ remote in alphabetic order."
 (magit-define-section-jumper magit-jump-to-untracked
   "Untracked files" untracked)
 
+(magit-define-section-jumper magit-jump-to-tracked
+  "Tracked files" tracked)
+
+(magit-define-section-jumper magit-jump-to-skip-worktree
+  "Skip-worktree files" skip-worktree)
+
+(magit-define-section-jumper magit-jump-to-assume-unchanged
+  "Assume-unchanged files" assume-unchanged)
+
 (defun magit-insert-untracked-files ()
   "Maybe insert a list or tree of untracked files.
 
@@ -727,8 +736,6 @@ value of that variable can be set using \"D -- DIRECTORY RET g\"."
                             (lambda () (magit-untracked-files nil base (not all)))
                             (not all))))))
 
-(magit-define-section-jumper magit-jump-to-tracked "Tracked files" tracked)
-
 (defun magit-insert-tracked-files ()
   "Insert a tree of tracked files.
 
@@ -745,9 +752,6 @@ directory, then limit the list to files below that.  The value
 of that variable can be set using \"D -- DIRECTORY RET g\"."
   (magit-insert-files 'ignored #'magit-ignored-files))
 
-(magit-define-section-jumper magit-jump-to-skip-worktree
-  "Skip-worktree files" skip-worktree)
-
 (defun magit-insert-skip-worktree-files ()
   "Insert a tree of skip-worktree files.
 
@@ -755,9 +759,6 @@ If the first element of `magit-buffer-diff-files' is a
 directory, then limit the list to files below that.  The value
 of that variable can be set using \"D -- DIRECTORY RET g\"."
   (magit-insert-files 'skip-worktree #'magit-skip-worktree-files))
-
-(magit-define-section-jumper magit-jump-to-assume-unchanged
-  "Assume-unchanged files" assume-unchanged)
 
 (defun magit-insert-assume-unchanged-files ()
   "Insert a tree of files that are assumed to be unchanged.
