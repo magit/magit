@@ -723,11 +723,9 @@ value of that variable can be set using \"D -- DIRECTORY RET g\"."
       (let* ((all (equal show "all"))
              (base (car magit-buffer-diff-files))
              (base (and base (file-directory-p base) base)))
-        (when-let ((files (magit-untracked-files nil base (not all))))
-          (magit-insert-section (untracked)
-            (magit-insert-heading "Untracked files:")
-            (magit-insert-files files base (not all))
-            (insert ?\n)))))))
+        (magit-insert-files 'untracked
+                            (lambda () (magit-untracked-files nil base (not all)))
+                            (not all))))))
 
 (magit-define-section-jumper magit-jump-to-tracked "Tracked files" tracked)
 
@@ -737,13 +735,7 @@ value of that variable can be set using \"D -- DIRECTORY RET g\"."
 If the first element of `magit-buffer-diff-files' is a
 directory, then limit the list to files below that.  The value
 value of that variable can be set using \"D -- DIRECTORY RET g\"."
-  (when-let ((files (magit-list-files)))
-    (let* ((base (car magit-buffer-diff-files))
-           (base (and base (file-directory-p base) base)))
-      (magit-insert-section (tracked nil t)
-        (magit-insert-heading "Tracked files:")
-        (magit-insert-files files base)
-        (insert ?\n)))))
+  (magit-insert-files 'tracked #'magit-list-files))
 
 (defun magit-insert-ignored-files ()
   "Insert a tree of ignored files.
@@ -751,13 +743,7 @@ value of that variable can be set using \"D -- DIRECTORY RET g\"."
 If the first element of `magit-buffer-diff-files' is a
 directory, then limit the list to files below that.  The value
 of that variable can be set using \"D -- DIRECTORY RET g\"."
-  (when-let ((files (magit-ignored-files)))
-    (let* ((base (car magit-buffer-diff-files))
-           (base (and base (file-directory-p base) base)))
-      (magit-insert-section (tracked nil t)
-        (magit-insert-heading "Ignored files:")
-        (magit-insert-files files base)
-        (insert ?\n)))))
+  (magit-insert-files 'ignored #'magit-ignored-files))
 
 (magit-define-section-jumper magit-jump-to-skip-worktree
   "Skip-worktree files" skip-worktree)
@@ -768,13 +754,7 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
 If the first element of `magit-buffer-diff-files' is a
 directory, then limit the list to files below that.  The value
 of that variable can be set using \"D -- DIRECTORY RET g\"."
-  (when-let ((files (magit-skip-worktree-files)))
-    (let* ((base (car magit-buffer-diff-files))
-           (base (and base (file-directory-p base) base)))
-      (magit-insert-section (skip-worktree nil t)
-        (magit-insert-heading "Skip-worktree files:")
-        (magit-insert-files files base)
-        (insert ?\n)))))
+  (magit-insert-files 'skip-worktree #'magit-skip-worktree-files))
 
 (magit-define-section-jumper magit-jump-to-assume-unchanged
   "Assume-unchanged files" assume-unchanged)
@@ -785,15 +765,21 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
 If the first element of `magit-buffer-diff-files' is a
 directory, then limit the list to files below that.  The value
 of that variable can be set using \"D -- DIRECTORY RET g\"."
-  (when-let ((files (magit-assume-unchanged-files)))
+  (magit-insert-files 'assume-unchanged #'magit-assume-unchanged-files))
+
+(defun magit-insert-files (type fn &optional nogroup)
+  (when-let ((files (funcall fn)))
     (let* ((base (car magit-buffer-diff-files))
-           (base (and base (file-directory-p base) base)))
-      (magit-insert-section (assume-unchanged nil t)
-        (magit-insert-heading "Assume-unchanged files:")
-        (magit-insert-files files base)
+           (base (and base (file-directory-p base) base))
+           (title (symbol-name type)))
+      (magit-insert-section ((eval type) nil t)
+        (magit-insert-heading (format "%c%s files:"
+                                      (capitalize (aref title 0))
+                                      (substring title 1)))
+        (magit-insert-files-1 files base nogroup)
         (insert ?\n)))))
 
-(defun magit-insert-files (files directory &optional nogroup)
+(defun magit-insert-files-1 (files directory &optional nogroup)
   (while (and files (or nogroup
                         (not directory)
                         (string-prefix-p directory (car files))))
@@ -805,7 +791,7 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
         (magit-insert-section (file dir t)
           (insert (propertize dir 'file 'magit-filename) ?\n)
           (magit-insert-heading)
-          (setq files (magit-insert-files files dir))))))
+          (setq files (magit-insert-files-1 files dir))))))
   files)
 
 ;;; _
