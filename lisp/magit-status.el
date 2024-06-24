@@ -349,6 +349,8 @@ init file: (global-set-key (kbd \"C-x g\") \\='magit-status-quick)."
      :if (lambda () (memq 'magit-insert-tracked-files magit-status-sections-hook)))
     ("n " "Untracked" magit-jump-to-untracked
      :if (lambda () (memq 'magit-insert-untracked-files magit-status-sections-hook)))
+    ("i " "Ignored" magit-jump-to-ignored
+     :if (lambda () (memq 'magit-insert-ignored-files magit-status-sections-hook)))
     ("u " "Unstaged" magit-jump-to-unstaged
      :if (lambda () (memq 'magit-insert-unstaged-changes magit-status-sections-hook)))
     ("s " "Staged" magit-jump-to-staged
@@ -373,7 +375,7 @@ init file: (global-set-key (kbd \"C-x g\") \\='magit-status-quick)."
      :if (lambda () (memq 'magit-insert-assume-unchanged-files magit-status-sections-hook)))
     ("w " "Skip worktree" magit-jump-to-skip-worktree
      :if (lambda () (memq 'magit-insert-skip-worktree-files magit-status-sections-hook)))]
-   [("i" "Using Imenu" imenu)]])
+   [("j" "Using Imenu" imenu)]])
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at Git status.
@@ -709,6 +711,9 @@ remote in alphabetic order."
 
 (magit-define-section-jumper magit-jump-to-tracked
   "Tracked files" tracked)
+
+(magit-define-section-jumper magit-jump-to-ignored
+  "Ignored files" ignored)
 
 (magit-define-section-jumper magit-jump-to-skip-worktree
   "Skip-worktree files" skip-worktree)
