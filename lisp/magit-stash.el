@@ -609,7 +609,7 @@ If there is no stash buffer in the same frame, then do nothing."
 This shows the notes for stash@{N} but not for the other commits
 that make up the stash."
   (magit-insert-section (note)
-    (magit-insert-heading "Notes")
+    (magit-insert-heading t "Notes")
     (magit-git-insert "notes" "show" magit-buffer-revision)
     (magit-cancel-section 'if-empty)
     (insert "\n")))
