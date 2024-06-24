@@ -1088,10 +1088,16 @@ tracked file."
 (defun magit-tracked-files ()
   (magit-list-files "--cached"))
 
-(defun magit-untracked-files (&optional all files)
-  (magit-list-files "--other"
-                    (and (not all) "--exclude-standard")
-                    "--" files))
+(defun magit-untracked-files (&optional all files compact)
+  (if compact
+      (--mapcat (and (eq (aref it 0) ??)
+                     (list (substring it 3)))
+                (magit-git-items "status" "-z" "--porcelain"
+                                 (magit-ignore-submodules-p t)
+                                 "--" files))
+    (magit-list-files "--other"
+                      (and (not all) "--exclude-standard")
+                      "--" files)))
 
 (defun magit-modified-files (&optional nomodules files)
   (magit-git-items "diff-index" "-z" "--name-only"
