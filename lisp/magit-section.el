@@ -895,6 +895,9 @@ With a prefix argument also expand it." heading)
      ,@(and inserter
             `(:if (lambda () (memq ',inserter
                               (bound-and-true-p magit-status-sections-hook)))))
+     :inapt-if-not (lambda () (magit-get-section
+                          (cons (cons ',type ,value)
+                                (magit-section-ident magit-root-section))))
      (interactive "P")
      (if-let ((section (magit-get-section
                         (cons (cons ',type ,value)
