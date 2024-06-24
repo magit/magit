@@ -2994,7 +2994,7 @@ It the SECTION has a different type, then do nothing."
 (defun magit-insert-unstaged-changes ()
   "Insert section showing unstaged changes."
   (magit-insert-section (unstaged)
-    (magit-insert-heading "Unstaged changes:")
+    (magit-insert-heading t "Unstaged changes")
     (magit--insert-diff nil
       "diff" magit-buffer-diff-args "--no-prefix"
       "--" magit-buffer-diff-files)))
@@ -3017,7 +3017,7 @@ It the SECTION has a different type, then do nothing."
   ;; Avoid listing all files as deleted when visiting a bare repo.
   (unless (magit-bare-repo-p)
     (magit-insert-section (staged)
-      (magit-insert-heading "Staged changes:")
+      (magit-insert-heading t "Staged changes")
       (magit--insert-diff nil
         "diff" "--cached" magit-buffer-diff-args "--no-prefix"
         "--" magit-buffer-diff-files))))

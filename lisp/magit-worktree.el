@@ -160,7 +160,7 @@ If there is only one worktree, then insert nothing."
   (let ((worktrees (magit-list-worktrees)))
     (when (length> worktrees 1)
       (magit-insert-section (worktrees)
-        (magit-insert-heading "Worktrees:")
+        (magit-insert-heading t "Worktrees")
         (let* ((cols
                 (mapcar
                  (lambda (config)

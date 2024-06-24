@@ -535,7 +535,7 @@ line is inserted at all."
   (when-let ((tags (magit-git-lines "tag" "--list" "-n" magit-buffer-arguments)))
     (let ((_head (magit-rev-parse "HEAD")))
       (magit-insert-section (tags)
-        (magit-insert-heading "Tags:")
+        (magit-insert-heading (length tags) "Tags")
         (dolist (tag tags)
           (string-match "^\\([^ \t]+\\)[ \t]+\\([^ \t\n].*\\)?" tag)
           (let ((tag (match-string 1 tag))
@@ -616,7 +616,7 @@ line is inserted at all."
 (defun magit-insert-local-branches ()
   "Insert sections showing all local branches."
   (magit-insert-section (local nil)
-    (magit-insert-heading "Branches:")
+    (magit-insert-heading t "Branches")
     (dolist (line (magit-refs--format-local-branches))
       (pcase-let ((`(,branch . ,strings) line))
         (magit-insert-section

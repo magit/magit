@@ -520,9 +520,10 @@ instead of \"Stashes:\"."
 
 (defun magit-stashes-refresh-buffer ()
   (magit-insert-section (stashesbuf)
-    (magit-insert-heading (if (equal magit-buffer-refname "refs/stash")
-                              "Stashes:"
-                            (format "Stashes [%s]:" magit-buffer-refname)))
+    (magit-insert-heading t
+      (if (equal magit-buffer-refname "refs/stash")
+          "Stashes"
+        (format "Stashes [%s]" magit-buffer-refname)))
     (magit-git-wash (apply-partially #'magit-log-wash-log 'stash)
       "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" magit-buffer-refname)))
 

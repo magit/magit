@@ -274,7 +274,7 @@ bisect run'."
   "While bisecting, insert section visualizing the bisect state."
   (when (magit-bisect-in-progress-p)
     (magit-insert-section (bisect-view)
-      (magit-insert-heading "Bisect Rest:")
+      (magit-insert-heading t "Bisect Rest")
       (magit-git-wash (apply-partially #'magit-log-wash-log 'bisect-vis)
         "bisect" "visualize" "git" "log"
         "--format=%h%x00%D%x00%s" "--decorate=full"
@@ -286,7 +286,7 @@ bisect run'."
   "While bisecting, insert section logging bisect progress."
   (when (magit-bisect-in-progress-p)
     (magit-insert-section (bisect-log)
-      (magit-insert-heading "Bisect Log:")
+      (magit-insert-heading t "Bisect Log")
       (magit-git-wash #'magit-wash-bisect-log "bisect" "log")
       (insert ?\n))))
 

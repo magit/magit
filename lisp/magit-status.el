@@ -779,9 +779,10 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
            (base (and base (file-directory-p base) base))
            (title (symbol-name type)))
       (magit-insert-section ((eval type) nil t)
-        (magit-insert-heading (format "%c%s files:"
-                                      (capitalize (aref title 0))
-                                      (substring title 1)))
+        (magit-insert-heading (length files)
+          (format "%c%s files"
+                  (capitalize (aref title 0))
+                  (substring title 1)))
         (magit-insert-files-1 files base nogroup)
         (insert ?\n)))))
 
