@@ -2989,7 +2989,8 @@ It the SECTION has a different type, then do nothing."
   "<2>" (magit-menu-item "Stage all"   #'magit-stage)
   "<1>" (magit-menu-item "Visit diff"  #'magit-diff-unstaged))
 
-(magit-define-section-jumper magit-jump-to-unstaged "Unstaged changes" unstaged)
+(magit-define-section-jumper magit-jump-to-unstaged
+  "Unstaged changes" unstaged nil magit-insert-unstaged-changes)
 
 (defun magit-insert-unstaged-changes ()
   "Insert section showing unstaged changes."
@@ -3010,7 +3011,8 @@ It the SECTION has a different type, then do nothing."
   "<2>" (magit-menu-item "Unstage all" #'magit-unstage)
   "<1>" (magit-menu-item "Visit diff"  #'magit-diff-staged))
 
-(magit-define-section-jumper magit-jump-to-staged "Staged changes" staged)
+(magit-define-section-jumper magit-jump-to-staged
+  "Staged changes" staged nil magit-insert-staged-changes)
 
 (defun magit-insert-staged-changes ()
   "Insert section showing staged changes."

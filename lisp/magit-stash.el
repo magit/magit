@@ -467,7 +467,7 @@ Then apply STASH, dropping it if it applies cleanly."
   "<1>" (magit-menu-item "Visit %v"  #'magit-stash-show))
 
 (magit-define-section-jumper magit-jump-to-stashes
-  "Stashes" stashes "refs/stash")
+  "Stashes" stashes "refs/stash" magit-insert-stashes)
 
 (cl-defun magit-insert-stashes (&optional (ref   "refs/stash")
                                           (heading "Stashes:"))

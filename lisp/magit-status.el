@@ -342,40 +342,22 @@ init file: (global-set-key (kbd \"C-x g\") \\='magit-status-quick)."
 
 (transient-define-prefix magit-status-jump ()
   "In a Magit-Status buffer, jump to a section."
-  ["Jump to"
-   [("z " "Stashes" magit-jump-to-stashes
-     :if (lambda () (memq 'magit-insert-stashes magit-status-sections-hook)))
-    ("t " "Tracked" magit-jump-to-tracked
-     :if (lambda () (memq 'magit-insert-tracked-files magit-status-sections-hook)))
-    ("n " "Untracked" magit-jump-to-untracked
-     :if (lambda () (memq 'magit-insert-untracked-files magit-status-sections-hook)))
-    ("i " "Ignored" magit-jump-to-ignored
-     :if (lambda () (memq 'magit-insert-ignored-files magit-status-sections-hook)))
-    ("u " "Unstaged" magit-jump-to-unstaged
-     :if (lambda () (memq 'magit-insert-unstaged-changes magit-status-sections-hook)))
-    ("s " "Staged" magit-jump-to-staged
-     :if (lambda () (memq 'magit-insert-staged-changes magit-status-sections-hook)))]
-   [("fu" "Unpulled from upstream" magit-jump-to-unpulled-from-upstream
-     :if (lambda () (memq 'magit-insert-unpulled-from-upstream magit-status-sections-hook)))
-    ("fp" "Unpulled from pushremote" magit-jump-to-unpulled-from-pushremote
-     :if (lambda () (memq 'magit-insert-unpulled-from-pushremote magit-status-sections-hook)))
-    ("pu" magit-jump-to-unpushed-to-upstream
-     :if (lambda ()
-           (or (memq 'magit-insert-unpushed-to-upstream-or-recent magit-status-sections-hook)
-               (memq 'magit-insert-unpushed-to-upstream magit-status-sections-hook)))
-     :description (lambda ()
-                    (let ((upstream (magit-get-upstream-branch)))
-                      (if (or (not upstream)
-                              (magit-rev-ancestor-p "HEAD" upstream))
-                          "Recent commits"
-                        "Unmerged into upstream"))))
-    ("pp" "Unpushed to pushremote" magit-jump-to-unpushed-to-pushremote
-     :if (lambda () (memq 'magit-insert-unpushed-to-pushremote magit-status-sections-hook)))
-    ("a " "Assumed unstaged" magit-jump-to-assume-unchanged
-     :if (lambda () (memq 'magit-insert-assume-unchanged-files magit-status-sections-hook)))
-    ("w " "Skip worktree" magit-jump-to-skip-worktree
-     :if (lambda () (memq 'magit-insert-skip-worktree-files magit-status-sections-hook)))]
-   [("j" "Using Imenu" imenu)]])
+  [["Jump to"
+    ("z " magit-jump-to-stashes)
+    ("t " magit-jump-to-tracked)
+    ("n " magit-jump-to-untracked)
+    ("i " magit-jump-to-ignored)
+    ("u " magit-jump-to-unstaged)
+    ("s " magit-jump-to-staged)]
+   [""
+    ("fu" magit-jump-to-unpulled-from-upstream)
+    ("fp" magit-jump-to-unpulled-from-pushremote)
+    ("pu" magit-jump-to-unpushed-to-upstream)
+    ("pp" magit-jump-to-unpushed-to-pushremote)
+    ("a " magit-jump-to-assume-unchanged)
+    ("w " magit-jump-to-skip-worktree)]
+   ["Jump using"
+    ("j"  "Imenu" imenu)]])
 
 (define-derived-mode magit-status-mode magit-mode "Magit"
   "Mode for looking at Git status.
@@ -707,19 +689,20 @@ remote in alphabetic order."
   "<1>" (magit-menu-item "Stage files"   #'magit-stage))
 
 (magit-define-section-jumper magit-jump-to-untracked
-  "Untracked files" untracked)
+  "Untracked files" untracked nil magit-insert-untracked-files)
 
 (magit-define-section-jumper magit-jump-to-tracked
-  "Tracked files" tracked)
+  "Tracked files" tracked nil magit-insert-tracked-files)
 
 (magit-define-section-jumper magit-jump-to-ignored
-  "Ignored files" ignored)
+  "Ignored files" ignored nil magit-insert-ignored-files)
 
 (magit-define-section-jumper magit-jump-to-skip-worktree
-  "Skip-worktree files" skip-worktree)
+  "Skip-worktree files" skip-worktree nil magit-insert-skip-worktree-files)
 
 (magit-define-section-jumper magit-jump-to-assume-unchanged
-  "Assume-unchanged files" assume-unchanged)
+  "Assume-unchanged files" assume-unchanged nil
+  magit-insert-assume-unchanged-files)
 
 (defun magit-insert-untracked-files ()
   "Maybe insert a list or tree of untracked files.

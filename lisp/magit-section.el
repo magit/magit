@@ -880,14 +880,21 @@ If there is no previous sibling section, then move to the parent."
   (unless (pos-visible-in-window-p (oref section end))
     (set-window-start (selected-window) (oref section start))))
 
-(defmacro magit-define-section-jumper (name heading type &optional value)
+(defmacro magit-define-section-jumper
+    (name heading type &optional value inserter &rest properties)
   "Define an interactive function to go some section.
 Together TYPE and VALUE identify the section.
 HEADING is the displayed heading of the section."
   (declare (indent defun))
-  `(defun ,name (&optional expand)
+  `(transient-define-suffix ,name (&optional expand)
      ,(format "Jump to the section \"%s\".
 With a prefix argument also expand it." heading)
+     ,@properties
+     ,@(and (not (plist-member properties :description))
+            (list :description heading))
+     ,@(and inserter
+            `(:if (lambda () (memq ',inserter
+                              (bound-and-true-p magit-status-sections-hook)))))
      (interactive "P")
      (if-let ((section (magit-get-section
                         (cons (cons ',type ,value)
