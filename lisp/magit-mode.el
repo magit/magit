@@ -1412,9 +1412,9 @@ repositories."
   "Zap caches for the current repository.
 
 Remove the repository's entry from `magit-repository-local-cache',
-remove the host's entry from `magit--host-git-version-cache', set
-`magit-section-visibility-cache' to nil for all Magit buffers of
-the repository and set `magit--libgit-available-p' to `unknown'.
+remove the host's entry from `magit--host-git-version-cache', and
+set `magit-section-visibility-cache' to nil for all Magit buffers
+of the repository.
 
 With a prefix argument or if optional ALL is non-nil, discard the
 mentioned caches completely."
@@ -1438,8 +1438,7 @@ mentioned caches completely."
                             :key #'car :test #'equal)))
          (dolist (buffer (magit-mode-get-buffers))
            (with-current-buffer buffer
-             (setq magit-section-visibility-cache nil)))))
-  (setq magit--libgit-available-p 'unknown))
+             (setq magit-section-visibility-cache nil))))))
 
 ;;; Utilities
 

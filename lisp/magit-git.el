@@ -65,41 +65,6 @@
   (cl-pushnew 'orig-rev eieio--known-slot-names)
   (cl-pushnew 'number eieio--known-slot-names))
 
-;;; Git implementations
-
-(defvar magit-inhibit-libgit t
-  "Whether to inhibit the use of libgit.
-Use of libgit is inhibited by default because support for libgit
-in magit is only a stub for now.  There is no benefit in using
-it.")
-
-(defvar magit--libgit-available-p 'unknown
-  "Whether libgit is available.
-Use the function by the same name instead of this variable.")
-
-(defun magit--libgit-available-p ()
-  (if (eq magit--libgit-available-p 'unknown)
-      (setq magit--libgit-available-p
-            (and module-file-suffix
-                 (let ((libgit (locate-library "libgit")))
-                   (and libgit
-                        (or (locate-library "libegit2")
-                            (let ((load-path
-                                   (cons (expand-file-name
-                                          (convert-standard-filename "build")
-                                          (file-name-directory libgit))
-                                         load-path)))
-                              (locate-library "libegit2")))))))
-    magit--libgit-available-p))
-
-(defun magit-gitimpl ()
-  "Return the Git implementation used in this repository."
-  (if (and (not magit-inhibit-libgit)
-           (not (file-remote-p default-directory))
-           (magit--libgit-available-p))
-      'libgit
-    'git))
-
 ;;; Options
 
 ;; For now this is shared between `magit-process' and `magit-git'.

@@ -1,7 +1,5 @@
 name: Test
 on: [push, pull_request]
-env:
-  BUILD_MAGIT_LIBGIT: "false"
 jobs:
   test:
     name: Test
