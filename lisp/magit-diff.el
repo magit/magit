@@ -2655,8 +2655,7 @@ or a ref which is not a branch, then it inserts nothing."
   (magit-insert-section
       ( commit-message nil nil
         :heading-highlight-face 'magit-diff-revision-summary-highlight)
-    (let* ((beg (point))
-           (rev magit-buffer-revision)
+    (let* ((rev magit-buffer-revision)
            (msg (with-temp-buffer
                   (magit-rev-insert-format "%B" rev)
                   (magit-revision--wash-message))))
@@ -2675,7 +2674,7 @@ or a ref which is not a branch, then it inserts nothing."
             ;; Start after beg to prevent a (commit text) section from
             ;; starting at the same point as the (commit-message)
             ;; section.
-            (goto-char (1+ beg))
+            (goto-char (1+ (point)))
             (while (not (eobp))
               (re-search-forward "\\_<" nil 'move)
               (let ((beg (point)))
@@ -2703,9 +2702,9 @@ or a ref which is not a branch, then it inserts nothing."
                         (magit-insert-section (commit text)
                           (goto-char end))))))))))
         (save-excursion
-          (forward-line)
-          (magit--add-face-text-property
-           beg (point) 'magit-diff-revision-summary)
+          (magit--add-face-text-property (point)
+                                         (progn (forward-line) (point))
+                                         'magit-diff-revision-summary)
           (magit-insert-heading))
         (when magit-diff-highlight-keywords
           (save-excursion
@@ -2731,20 +2730,20 @@ or a ref which is not a branch, then it inserts nothing."
         (magit-insert-section
           ( notes ref (not (equal ref default))
             :heading-highlight-face 'magit-diff-hunk-heading-highlight)
-          (let ((beg (point)))
-            (insert msg)
-            (goto-char beg)
+          (save-excursion (insert msg))
+          (save-excursion
             (end-of-line)
             (insert (format " (%s)"
                             (propertize (if (string-prefix-p "refs/notes/" ref)
                                             (substring ref 11)
                                           ref)
-                                        'font-lock-face 'magit-refname)))
-            (forward-char)
-            (magit--add-face-text-property beg (point) 'magit-diff-hunk-heading)
-            (magit-insert-heading)
-            (goto-char (point-max))
-            (insert ?\n)))))))
+                                        'font-lock-face 'magit-refname))))
+          (magit--add-face-text-property (point)
+                                         (progn (forward-line) (point))
+                                         'magit-diff-revision-summary)
+          (magit-insert-heading)
+          (goto-char (point-max))
+          (insert ?\n))))))
 
 (defun magit-revision--wash-message ()
   (let ((major-mode 'git-commit-mode))
