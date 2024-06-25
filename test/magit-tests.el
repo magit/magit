@@ -37,12 +37,11 @@
   (declare (indent 0) (debug t))
   (let ((dir (make-symbol "dir")))
     `(let ((,dir (file-name-as-directory (make-temp-file "magit-" t)))
-           (process-environment process-environment)
            (magit-git-global-arguments
             (nconc (list "-c" "protocol.file.allow=always")
+                   (list "-c" "user.name=\"A U Thor\"")
+                   (list "-c" "user.email=\"a.u.thor@example.com\"")
                    magit-git-global-arguments)))
-       (push "GIT_AUTHOR_NAME=A U Thor" process-environment)
-       (push "GIT_AUTHOR_EMAIL=a.u.thor@example.com" process-environment)
        (condition-case err
            (cl-letf (((symbol-function #'message) (lambda (&rest _))))
              (let ((default-directory (file-truename ,dir)))
