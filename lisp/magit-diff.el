@@ -2720,6 +2720,8 @@ or a ref which is not a branch, then it inserts nothing."
           (put-text-property (match-beginning 0)
                              (match-end 0)
                              'font-lock-face 'magit-keyword))))
+    (run-hook-wrapped 'magit-wash-message-hook
+                      (lambda (fn) (save-excursion (funcall fn))))
     (buffer-string)))
 
 (defun magit-revision--wash-message-hashes ()
