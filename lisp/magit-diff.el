@@ -2662,38 +2662,7 @@ or a ref which is not a branch, then it inserts nothing."
       (if (not msg)
           (insert "(no message)\n")
         (save-excursion (insert msg))
-        (when magit-revision-use-hash-sections
-          (save-excursion
-            ;; Start after beg to prevent a (commit text) section from
-            ;; starting at the same point as the (commit-message)
-            ;; section.
-            (goto-char (1+ (point)))
-            (while (not (eobp))
-              (re-search-forward "\\_<" nil 'move)
-              (let ((beg (point)))
-                (re-search-forward "\\_>" nil t)
-                (when (> (point) beg)
-                  (let ((text (buffer-substring-no-properties beg (point))))
-                    (when (pcase magit-revision-use-hash-sections
-                            ('quickest ; false negatives and positives
-                             (and (>= (length text) 7)
-                                  (string-match-p "[0-9]" text)
-                                  (string-match-p "[a-z]" text)))
-                            ('quicker  ; false negatives (number-less hashes)
-                             (and (>= (length text) 7)
-                                  (string-match-p "[0-9]" text)
-                                  (magit-commit-p text)))
-                            ('quick    ; false negatives (short hashes)
-                             (and (>= (length text) 7)
-                                  (magit-commit-p text)))
-                            ('slow
-                             (magit-commit-p text)))
-                      (put-text-property beg (point)
-                                         'font-lock-face 'magit-hash)
-                      (let ((end (point)))
-                        (goto-char beg)
-                        (magit-insert-section (commit text)
-                          (goto-char end))))))))))
+        (magit-revision--wash-message-hashes)
         (save-excursion
           (magit--add-face-text-property (point)
                                          (progn (forward-line) (point))
@@ -2715,6 +2684,7 @@ or a ref which is not a branch, then it inserts nothing."
           ( notes ref (not (equal ref default))
             :heading-highlight-face 'magit-diff-hunk-heading-highlight)
           (save-excursion (insert msg))
+          (magit-revision--wash-message-hashes)
           (save-excursion
             (end-of-line)
             (insert (format " (%s)"
@@ -2751,6 +2721,39 @@ or a ref which is not a branch, then it inserts nothing."
                              (match-end 0)
                              'font-lock-face 'magit-keyword))))
     (buffer-string)))
+
+(defun magit-revision--wash-message-hashes ()
+  (when magit-revision-use-hash-sections
+    (save-excursion
+      ;; Start after beg to prevent a (commit text) section from
+      ;; starting at the same point as the (commit-message)
+      ;; section.
+      (while (not (eobp))
+        (re-search-forward "\\_<" nil 'move)
+        (let ((beg (point)))
+          (re-search-forward "\\_>" nil t)
+          (when (> (point) beg)
+            (let ((text (buffer-substring-no-properties beg (point))))
+              (when (pcase magit-revision-use-hash-sections
+                      ('quickest ; false negatives and positives
+                       (and (>= (length text) 7)
+                            (string-match-p "[0-9]" text)
+                            (string-match-p "[a-z]" text)))
+                      ('quicker  ; false negatives (number-less hashes)
+                       (and (>= (length text) 7)
+                            (string-match-p "[0-9]" text)
+                            (magit-commit-p text)))
+                      ('quick    ; false negatives (short hashes)
+                       (and (>= (length text) 7)
+                            (magit-commit-p text)))
+                      ('slow
+                       (magit-commit-p text)))
+                (put-text-property beg (point)
+                                   'font-lock-face 'magit-hash)
+                (let ((end (point)))
+                  (goto-char beg)
+                  (magit-insert-section (commit text)
+                    (goto-char end)))))))))))
 
 (defun magit-insert-revision-headers ()
   "Insert headers about the commit into a revision buffer."
