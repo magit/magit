@@ -2655,20 +2655,20 @@ or a ref which is not a branch, then it inserts nothing."
   (magit-insert-section
       ( commit-message nil nil
         :heading-highlight-face 'magit-diff-revision-summary-highlight)
-    (let* ((rev magit-buffer-revision)
-           (msg (with-temp-buffer
-                  (save-excursion (magit-rev-insert-format "%B" rev))
-                  (magit-revision--wash-message))))
-      (if (not msg)
-          (insert "(no message)\n")
-        (save-excursion (insert msg))
-        (magit-revision--wash-message-hashes)
-        (save-excursion
-          (magit--add-face-text-property (point)
-                                         (progn (forward-line) (point))
-                                         'magit-diff-revision-summary)
-          (magit-insert-heading))
-        (goto-char (point-max))))))
+    (if-let* ((rev magit-buffer-revision)
+              (msg (with-temp-buffer
+                     (save-excursion (magit-rev-insert-format "%B" rev))
+                     (magit-revision--wash-message))))
+        (progn
+          (save-excursion (insert msg))
+          (magit-revision--wash-message-hashes)
+          (save-excursion
+            (magit--add-face-text-property (point)
+                                           (progn (forward-line) (point))
+                                           'magit-diff-revision-summary)
+            (magit-insert-heading))
+          (goto-char (point-max)))
+      (insert "(no message)\n"))))
 
 (defun magit-insert-revision-notes ()
   "Insert commit notes into a revision buffer."
