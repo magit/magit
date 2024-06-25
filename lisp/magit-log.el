@@ -1946,7 +1946,7 @@ Show the last `magit-log-section-commit-count' commits."
     (magit-insert-section ((eval (or type 'recent))
                            (or value range)
                            t)
-      (magit-insert-heading t "Recent commits")
+      (magit-insert-heading "Recent commits")
       (magit--insert-log nil range
         (cons (format "-n%d" magit-log-section-commit-count)
               (--remove (string-prefix-p "-n" it)
