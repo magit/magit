@@ -2669,6 +2669,12 @@ or a ref which is not a branch, then it inserts nothing."
           (let ((fill-column (min magit-revision-fill-summary-line
                                   (window-width (get-buffer-window nil t)))))
             (fill-region (point) (line-end-position))))
+        (when magit-diff-highlight-keywords
+          (save-excursion
+            (while (re-search-forward "\\[[^[]*\\]" nil t)
+              (put-text-property (match-beginning 0)
+                                 (match-end 0)
+                                 'font-lock-face 'magit-keyword))))
         (when magit-revision-use-hash-sections
           (save-excursion
             ;; Start after beg to prevent a (commit text) section from
@@ -2706,16 +2712,6 @@ or a ref which is not a branch, then it inserts nothing."
                                          (progn (forward-line) (point))
                                          'magit-diff-revision-summary)
           (magit-insert-heading))
-        (when magit-diff-highlight-keywords
-          (save-excursion
-            (while (re-search-forward "\\[[^[]*\\]" nil t)
-              (let ((beg (match-beginning 0))
-                    (end (match-end 0)))
-                (put-text-property
-                 beg end 'font-lock-face
-                 (if-let ((face (get-text-property beg 'font-lock-face)))
-                     (list face 'magit-keyword)
-                   'magit-keyword))))))
         (goto-char (point-max))))))
 
 (defun magit-insert-revision-notes ()
