@@ -2657,24 +2657,11 @@ or a ref which is not a branch, then it inserts nothing."
         :heading-highlight-face 'magit-diff-revision-summary-highlight)
     (let* ((rev magit-buffer-revision)
            (msg (with-temp-buffer
-                  (magit-rev-insert-format "%B" rev)
+                  (save-excursion (magit-rev-insert-format "%B" rev))
                   (magit-revision--wash-message))))
       (if (not msg)
           (insert "(no message)\n")
         (save-excursion (insert msg))
-        (save-excursion
-          (while (search-forward "\r\n" nil t) ; Remove trailing CRs.
-            (delete-region (match-beginning 0) (1+ (match-beginning 0)))))
-        (when magit-revision-fill-summary-line
-          (let ((fill-column (min magit-revision-fill-summary-line
-                                  (window-width (get-buffer-window nil t)))))
-            (fill-region (point) (line-end-position))))
-        (when magit-diff-highlight-keywords
-          (save-excursion
-            (while (re-search-forward "\\[[^[]*\\]" nil t)
-              (put-text-property (match-beginning 0)
-                                 (match-end 0)
-                                 'font-lock-face 'magit-keyword))))
         (when magit-revision-use-hash-sections
           (save-excursion
             ;; Start after beg to prevent a (commit text) section from
@@ -2720,8 +2707,9 @@ or a ref which is not a branch, then it inserts nothing."
     (dolist (ref (magit-list-active-notes-refs))
       (when-let* ((rev magit-buffer-revision)
                   (msg (with-temp-buffer
-                         (magit-git-insert "-c" (concat "core.notesRef=" ref)
-                                           "notes" "show" rev)
+                         (save-excursion
+                           (magit-git-insert "-c" (concat "core.notesRef=" ref)
+                                             "notes" "show" rev))
                          (magit-revision--wash-message))))
         (magit-insert-section
           ( notes ref (not (equal ref default))
@@ -2748,8 +2736,21 @@ or a ref which is not a branch, then it inserts nothing."
   (unless (memq git-commit-major-mode '(nil text-mode))
     (funcall git-commit-major-mode)
     (font-lock-ensure))
-  (and (> (point-max) (point-min))
-       (buffer-string)))
+  (when (> (point-max) (point-min))
+    (save-excursion
+      (while (search-forward "\r\n" nil t) ; Remove trailing CRs.
+        (delete-region (match-beginning 0) (1+ (match-beginning 0)))))
+    (when magit-revision-fill-summary-line
+      (let ((fill-column (min magit-revision-fill-summary-line
+                              (window-width (get-buffer-window nil t)))))
+        (fill-region (point) (line-end-position))))
+    (when magit-diff-highlight-keywords
+      (save-excursion
+        (while (re-search-forward "\\[[^[]*\\]" nil t)
+          (put-text-property (match-beginning 0)
+                             (match-end 0)
+                             'font-lock-face 'magit-keyword))))
+    (buffer-string)))
 
 (defun magit-insert-revision-headers ()
   "Insert headers about the commit into a revision buffer."
