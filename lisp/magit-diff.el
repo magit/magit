@@ -2655,15 +2655,14 @@ or a ref which is not a branch, then it inserts nothing."
   (magit-insert-section
       ( commit-message nil nil
         :heading-highlight-face 'magit-diff-revision-summary-highlight)
-    (let ((beg (point))
-          (rev magit-buffer-revision))
-      (insert (with-temp-buffer
-                (magit-rev-insert-format "%B" rev)
-                (magit-revision--wash-message)))
-      (if (= (point) (+ beg 2))
-          (progn (delete-char -2)
-                 (insert "(no message)\n"))
-        (goto-char beg)
+    (let* ((beg (point))
+           (rev magit-buffer-revision)
+           (msg (with-temp-buffer
+                  (magit-rev-insert-format "%B" rev)
+                  (magit-revision--wash-message))))
+      (if (not msg)
+          (insert "(no message)\n")
+        (save-excursion (insert msg))
         (save-excursion
           (while (search-forward "\r\n" nil t) ; Remove trailing CRs.
             (delete-region (match-beginning 0) (1+ (match-beginning 0)))))
@@ -2722,20 +2721,18 @@ or a ref which is not a branch, then it inserts nothing."
 
 (defun magit-insert-revision-notes ()
   "Insert commit notes into a revision buffer."
-  (let* ((var "core.notesRef")
-         (def (or (magit-get var) "refs/notes/commits")))
+  (let ((default (or (magit-get "core.notesRef") "refs/notes/commits")))
     (dolist (ref (magit-list-active-notes-refs))
-      (magit-insert-section
-          ( notes ref (not (equal ref def))
+      (when-let* ((rev magit-buffer-revision)
+                  (msg (with-temp-buffer
+                         (magit-git-insert "-c" (concat "core.notesRef=" ref)
+                                           "notes" "show" rev)
+                         (magit-revision--wash-message))))
+        (magit-insert-section
+          ( notes ref (not (equal ref default))
             :heading-highlight-face 'magit-diff-hunk-heading-highlight)
-        (let ((beg (point))
-              (rev magit-buffer-revision))
-          (insert (with-temp-buffer
-                    (magit-git-insert "-c" (concat "core.notesRef=" ref)
-                                      "notes" "show" rev)
-                    (magit-revision--wash-message)))
-          (if (= (point) beg)
-              (magit-cancel-section)
+          (let ((beg (point)))
+            (insert msg)
             (goto-char beg)
             (end-of-line)
             (insert (format " (%s)"
@@ -2756,7 +2753,8 @@ or a ref which is not a branch, then it inserts nothing."
   (unless (memq git-commit-major-mode '(nil text-mode))
     (funcall git-commit-major-mode)
     (font-lock-ensure))
-  (buffer-string))
+  (and (> (point-max) (point-min))
+       (buffer-string)))
 
 (defun magit-insert-revision-headers ()
   "Insert headers about the commit into a revision buffer."
