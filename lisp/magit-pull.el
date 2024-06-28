@@ -47,7 +47,8 @@
    (lambda () (if magit-pull-or-fetch "Pull arguments" "Arguments"))
    ("-f" "Fast-forward only" "--ff-only")
    ("-r" "Rebase local commits" ("-r" "--rebase"))
-   ("-A" "Autostash" "--autostash" :level 7)]
+   ("-A" "Autostash" "--autostash" :level 7)
+   ("-F" "Force" ("-f" "--force"))]
   [:description
    (lambda ()
      (if-let ((branch (magit-get-current-branch)))

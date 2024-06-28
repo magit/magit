@@ -37,7 +37,8 @@
   ["Arguments"
    ("-p" "Prune deleted branches" ("-p" "--prune"))
    ("-t" "Fetch all tags" ("-t" "--tags"))
-   (7 "-u" "Fetch full history" "--unshallow")]
+   (7 "-u" "Fetch full history" "--unshallow")
+   ("-F" "Force" ("-f" "--force"))]
   ["Fetch from"
    ("p" magit-fetch-from-pushremote)
    ("u" magit-fetch-from-upstream)
