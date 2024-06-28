@@ -459,7 +459,6 @@ Magit-Section is documented in info node `(magit-section)'."
   (setq show-trailing-whitespace nil)
   (setq-local symbol-overlay-inhibit-map t)
   (setq list-buffers-directory (abbreviate-file-name default-directory))
-  ;; (hack-dir-local-variables-non-file-buffer)
   (make-local-variable 'text-property-default-nonsticky)
   (push (cons 'keymap t) text-property-default-nonsticky)
   (add-hook 'pre-command-hook #'magit-section-pre-command-hook nil t)
