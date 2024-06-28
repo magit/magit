@@ -937,7 +937,8 @@ returning the truename."
 (define-error 'magit-outside-git-repo "Not inside Git repository")
 (define-error 'magit-corrupt-git-config "Corrupt Git configuration")
 (define-error 'magit-git-executable-not-found
-  "Git executable cannot be found (see https://magit.vc/goto/e6a78ed2)")
+              (concat "Git executable cannot be found "
+                      "(see https://magit.vc/goto/e6a78ed2)"))
 
 (defun magit--assert-usable-git ()
   (if (not (compat-call executable-find (magit-git-executable) t))

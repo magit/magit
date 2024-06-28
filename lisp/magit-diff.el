@@ -2681,8 +2681,8 @@ or a ref which is not a branch, then it inserts nothing."
                                              "notes" "show" rev))
                          (magit-revision--wash-message))))
         (magit-insert-section
-          ( notes ref (not (equal ref default))
-            :heading-highlight-face 'magit-diff-hunk-heading-highlight)
+            ( notes ref (not (equal ref default))
+              :heading-highlight-face 'magit-diff-hunk-heading-highlight)
           (save-excursion (insert msg))
           (magit-revision--wash-message-hashes)
           (save-excursion

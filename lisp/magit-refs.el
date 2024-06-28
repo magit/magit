@@ -639,7 +639,7 @@ line is inserted at all."
 %(upstream:short)%00%(upstream)%00%(upstream:track)%00"
                                   (if magit-refs-show-push-remote "\
 %(push:remotename)%00%(push)%00%(push:track)%00%(subject)"
-                                 "%00%00%00%(subject)"))
+                                    "%00%00%00%(subject)"))
                           "refs/heads"
                           magit-buffer-arguments))))
     (unless (magit-get-current-branch)
