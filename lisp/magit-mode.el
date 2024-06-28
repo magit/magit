@@ -553,7 +553,7 @@ to the kill ring."
 
 Magit is documented in info node `(magit)'."
   :group 'magit
-  (hack-dir-local-variables-non-file-buffer)
+  (magit-hack-dir-local-variables)
   (face-remap-add-relative 'header-line 'magit-header-line)
   (setq mode-line-process (magit-repository-local-get 'mode-line-process))
   (setq-local revert-buffer-function #'magit-refresh-buffer)
@@ -561,6 +561,13 @@ Magit is documented in info node `(magit)'."
   (setq-local imenu-create-index-function #'magit--imenu-create-index)
   (setq-local imenu-default-goto-function #'magit--imenu-goto-function)
   (setq-local isearch-filter-predicate #'magit-section--open-temporarily))
+
+(defun magit-hack-dir-local-variables ()
+  "Like `hack-dir-local-variables-non-file-buffer' but ignore some variables."
+  (let ((ignored-local-variables
+         `(show-trailing-whitespace
+           ,@ignored-local-variables)))
+    (hack-dir-local-variables-non-file-buffer)))
 
 ;;; Local Variables
 

@@ -310,7 +310,7 @@ Used when `magit-process-display-mode-line-error' is non-nil."
 (define-derived-mode magit-process-mode magit-mode "Magit Process"
   "Mode for looking at Git process output."
   :group 'magit-process
-  (hack-dir-local-variables-non-file-buffer)
+  (magit-hack-dir-local-variables)
   (setq magit--imenu-item-types 'process))
 
 (defun magit-process-buffer (&optional nodisplay)

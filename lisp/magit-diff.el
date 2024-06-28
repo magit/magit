@@ -1959,7 +1959,7 @@ Staging and applying changes is documented in info node
 
 \\{magit-diff-mode-map}"
   :group 'magit-diff
-  (hack-dir-local-variables-non-file-buffer)
+  (magit-hack-dir-local-variables)
   (setq magit--imenu-item-types 'file))
 
 (put 'magit-diff-mode 'magit-diff-default-arguments
@@ -2554,7 +2554,7 @@ Staging and applying changes is documented in info node
 
 \\{magit-revision-mode-map}"
   :group 'magit-revision
-  (hack-dir-local-variables-non-file-buffer))
+  (magit-hack-dir-local-variables))
 
 (put 'magit-revision-mode 'magit-diff-default-arguments
      '("--stat" "--no-ext-diff"))
@@ -2900,7 +2900,7 @@ Refer to user option `magit-revision-insert-related-refs-display-alist'."
 (define-derived-mode magit-merge-preview-mode magit-diff-mode "Magit Merge"
   "Mode for previewing a merge."
   :group 'magit-diff
-  (hack-dir-local-variables-non-file-buffer))
+  (magit-hack-dir-local-variables))
 
 (put 'magit-merge-preview-mode 'magit-diff-default-arguments
      '("--no-ext-diff"))

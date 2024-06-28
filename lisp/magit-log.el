@@ -1061,7 +1061,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 
 \\{magit-log-mode-map}"
   :group 'magit-log
-  (hack-dir-local-variables-non-file-buffer)
+  (magit-hack-dir-local-variables)
   (setq magit--imenu-item-types 'commit))
 
 (put 'magit-log-mode 'magit-log-default-arguments
@@ -1690,7 +1690,7 @@ to visit the commit at point.
 Type \\[magit-log-select-pick] to select the commit at point.
 Type \\[magit-log-select-quit] to abort without selecting a commit."
   :group 'magit-log
-  (hack-dir-local-variables-non-file-buffer))
+  (magit-hack-dir-local-variables))
 
 (put 'magit-log-select-mode 'magit-log-default-arguments
      '("--graph" "-n256" "--decorate"))
@@ -1790,7 +1790,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 
 \\{magit-cherry-mode-map}"
   :group 'magit-log
-  (hack-dir-local-variables-non-file-buffer)
+  (magit-hack-dir-local-variables)
   (setq magit--imenu-group-types 'cherries))
 
 (defun magit-cherry-setup-buffer (head upstream)

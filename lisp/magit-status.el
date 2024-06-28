@@ -386,7 +386,7 @@ Type \\[magit-commit] to create a commit.
 
 \\{magit-status-mode-map}"
   :group 'magit-status
-  (hack-dir-local-variables-non-file-buffer)
+  (magit-hack-dir-local-variables)
   (when magit-status-initial-section
     (add-hook 'magit-post-create-buffer-hook
               #'magit-status-goto-initial-section nil t))
