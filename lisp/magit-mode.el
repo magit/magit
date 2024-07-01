@@ -621,7 +621,7 @@ The buffer's major-mode should derive from `magit-section-mode'."
                          bindings))))
 
 (defun magit-setup-buffer-internal ( mode locked bindings
-                                     &optional buffer-or-name)
+                                     &optional buffer-or-name directory)
   (let* ((value   (and locked
                        (with-temp-buffer
                          (pcase-dolist (`(,var ,val) bindings)
@@ -637,6 +637,8 @@ The buffer's major-mode should derive from `magit-section-mode'."
       (setq buffer (magit-generate-new-buffer mode value)))
     (with-current-buffer buffer
       (setq magit-previous-section section)
+      (when directory
+        (setq default-directory directory))
       (funcall mode)
       (magit-xref-setup #'magit-setup-buffer-internal bindings)
       (pcase-dolist (`(,var ,val) bindings)
