@@ -1036,7 +1036,7 @@ as argument."
 
 (defvar-keymap magit-mode-line-process-map
   :doc "Keymap for `mode-line-process'."
-  "<mode-line> <mouse-1>" ''magit-process-buffer)
+  "<mode-line> <mouse-1>" 'magit-process-buffer)
 
 (defun magit-process-set-mode-line (program args)
   "Display the git command (sans arguments) in the mode line."
