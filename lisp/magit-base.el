@@ -1153,19 +1153,26 @@ the %s(1) manpage.
 
 ;;; Kludges for Package Managers
 
-(defun magit--straight-chase-links (filename)
+(defun magit--chase-links (filename)
   "Chase links in FILENAME until a name that is not a link.
 
 This is the same as `file-chase-links', except that it also
-handles fake symlinks that are created by the package manager
-straight.el on Windows.
+handles fake symlinks that are created by source based package managers
+//=(e.g. Elpaca, straight.el) on Windows.
 
 See <https://github.com/raxod502/straight.el/issues/520>."
-  (when (and (bound-and-true-p straight-symlink-emulation-mode)
-             (fboundp 'straight-chase-emulated-symlink))
-    (when-let ((target (straight-chase-emulated-symlink filename)))
-      (unless (eq target 'broken)
-        (setq filename target))))
+  (when-let ((manager (cond ((bound-and-true-p straight-symlink-mode) 'straight)
+                            ((bound-and-true-p elpaca-no-symlink-mode) 'elpaca)))
+             (build (cond ((eq manager 'straight) (bound-and-true-p straight-build-dir))
+                          ((eq manager 'elpaca) (bound-and-true-p elpaca-builds-directory))))
+             ((string-prefix-p build filename))
+             (repo (cond ((eq manager 'straight)
+                          (when (bound-and-true-p straight-base-dir)
+                            (expand-file-name "repos/magit/lisp/" straight-base-dir)))
+                         ((eq manager 'elpaca)
+                          (when (bound-and-true-p elpaca-repos-directory)
+                            (expand-file-name "magit/lisp/" elpaca-repos-directory))))))
+    (setq filename (expand-file-name (file-name-nondirectory filename) repo)))
   (file-chase-links filename))
 
 ;;; Kludges for older Emacs versions
