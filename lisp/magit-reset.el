@@ -36,7 +36,8 @@
   :man-page "git-reset"
   [["Reset"
     ("b" "branch" magit-branch-reset)
-    ("f" "file"   magit-file-checkout)]
+    ("f" "file"   magit-file-checkout)
+    ("d" "dir"    magit-dir-checkout)]
    ["Reset this"
     ("m" "mixed    (HEAD and index)" magit-reset-mixed)
     ("s" "soft     (HEAD only)"      magit-reset-soft)

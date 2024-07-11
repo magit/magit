@@ -6356,6 +6356,11 @@ Also see [[man:git-reset]]
   Update file in the working tree and index to the contents from a
   revision.  Both the revision and file are read from the user.
 
+- Key: X d (magit-dir-checkout) ::
+
+  Update directory in the working tree and index to the contents from
+  a revision. Both the revision and directory are read from the user.
+
 ** Stashing
 
 Also see [[man:git-stash]]

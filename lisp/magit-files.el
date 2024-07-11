@@ -493,9 +493,24 @@ Git, then fallback to using `delete-file'."
   (magit-with-toplevel
     (magit-run-git "checkout" rev "--" file)))
 
+(defun magit-dir-checkout (rev dir)
+  "Checkout DIR from REV."
+  (interactive
+   (let ((rev (magit-read-branch-or-commit
+               "Checkout from revision" magit-buffer-revision)))
+     (list rev (magit-read-dir-from-rev rev "Checkout dir"))))
+  (magit-with-toplevel
+    (magit-run-git "checkout" rev "--" dir)))
+
 ;;; Read File
 
 (defvar magit-read-file-hist nil)
+(defvar magit-read-dir-hist nil)
+
+(defun magit-read-dir-from-rev (rev prompt &optional default)
+  (let ((dirs (magit-revision-directories rev)))
+    (magit-completing-read
+     prompt dirs nil t nil 'magit-read-dir-hist)))
 
 (defun magit-read-file-from-rev (rev prompt &optional default)
   (let ((files (magit-revision-files rev)))
