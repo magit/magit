@@ -507,7 +507,7 @@ Git, then fallback to using `delete-file'."
 (defvar magit-read-file-hist nil)
 (defvar magit-read-dir-hist nil)
 
-(defun magit-read-dir-from-rev (rev prompt &optional default)
+(defun magit-read-dir-from-rev (rev prompt)
   (let ((dirs (magit-revision-directories rev)))
     (magit-completing-read
      prompt dirs nil t nil 'magit-read-dir-hist)))
