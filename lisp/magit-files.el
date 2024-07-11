@@ -500,7 +500,8 @@ Git, then fallback to using `delete-file'."
 (defun magit-read-file-from-rev (rev prompt &optional default include-dirs)
   (let ((files (magit-revision-files rev)))
     (when include-dirs
-      (setq files (sort (nconc files (magit-revision-directories rev)))))
+      (setq files (sort (nconc files (magit-revision-directories rev))
+                        #'string<)))
     (magit-completing-read
      prompt files nil t nil 'magit-read-file-hist
      (car (member (or default (magit-current-file)) files)))))
