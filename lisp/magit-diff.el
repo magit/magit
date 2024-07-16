@@ -1673,6 +1673,7 @@ the Magit-Status buffer for DIRECTORY."
                    (magit-diff-visit--range-from spec)
                  (magit-diff-visit--range-to spec)))
          (buf  (if (or goto-worktree
+                       (equal magit-buffer-typearg "--no-index")
                        (and (not (stringp rev))
                             (or magit-diff-visit-avoid-head-blob
                                 (not goto-from))))
@@ -1705,9 +1706,10 @@ the Magit-Status buffer for DIRECTORY."
                             (magit-current-section) nil)
                            (oref file-section source))
                       (oref file-section value))))
-      (if expand
-          (expand-file-name file (magit-toplevel))
-        file)
+      (cond ((equal magit-buffer-typearg "--no-index")
+             (concat "/" file))
+            (expand (expand-file-name file (magit-toplevel)))
+            (file))
     (when assert
       (user-error "No file at point"))))
 
