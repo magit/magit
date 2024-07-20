@@ -634,11 +634,11 @@ prompt is confusing."
         (cond
          ((magit-confirm 'delete-branch-on-remote
             (format "Deleting local %s.  Also delete on %s"
-                    (magit-ref-fullname (car branches))
-                    remote)
+                    (string-replace "%" "%%" (magit-ref-fullname (car branches)))
+                    (string-replace "%" "%%" remote))
             (format "Deleting %d local refs.  Also delete on %s"
                     (length refs)
-                    remote)
+                    (string-replace "%" "%%" remote))
             'noabort refs)
           ;; The ref may actually point at another rev on the remote,
           ;; but this is better than nothing.
@@ -724,7 +724,8 @@ prompt is confusing."
           (when (member refspec refspecs)
             (if (and (length= refspecs 1)
                      (magit-confirm 'delete-pr-remote
-                       (format "Also delete remote %s (%s)" remote
+                       (format "Also delete remote %s (%s)"
+                               (string-replace "%" "%%" remote)
                                "no pull-request branch remains")
                        nil t))
                 (magit-call-git "remote" "rm" remote)
