@@ -548,9 +548,11 @@ of a side, then keep that side without prompting."
       (funcall apply section "--reverse" "--index"))))
 
 (defun magit-discard-hunks (sections)
-  (magit-confirm 'discard (format "Discard %s hunks from %s"
+  (magit-confirm 'discard (format "Discard %d hunks from %s"
                                   (length sections)
-                                  (magit-section-parent-value (car sections))))
+                                  (string-replace
+                                   "%" "%%"
+                                   (magit-section-parent-value (car sections)))))
   (magit-discard-apply-n sections #'magit-apply-hunks))
 
 (defun magit-discard-apply-n (sections apply)
@@ -738,9 +740,11 @@ so causes the change to be applied to the index as well."
 
 (defun magit-reverse-hunks (sections args)
   (magit-confirm 'reverse
-    (format "Reverse %s hunks from %s"
+    (format "Reverse %d hunks from %s"
             (length sections)
-            (magit-section-parent-value (car sections))))
+            (string-replace
+             "%" "%%"
+             (magit-section-parent-value (car sections)))))
   (magit-reverse-apply sections #'magit-apply-hunks args))
 
 (defun magit-reverse-file (section args)

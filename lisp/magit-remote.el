@@ -206,8 +206,10 @@ the now stale refspecs.  Other stale branches are not removed."
         (if (if (length= stale 1)
                 (pcase-let ((`(,refspec . ,refs) (car stale)))
                   (magit-confirm 'prune-stale-refspecs
-                    (format "Prune stale refspec %s and branch %%s" refspec)
-                    (format "Prune stale refspec %s and %%d branches" refspec)
+                    (format "Prune stale refspec %s and branch %%s"
+                            (string-replace "%" "%%" refspec))
+                    (format "Prune stale refspec %s and %%d branches"
+                            (string-replace "%" "%%" refspec))
                     nil refs))
               (magit-confirm 'prune-stale-refspecs nil
                 (format "Prune %%d stale refspecs and %d branches"
