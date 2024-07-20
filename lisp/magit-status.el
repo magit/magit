@@ -756,6 +756,14 @@ directory, then limit the list to files below that.  The value
 of that variable can be set using \"D -- DIRECTORY RET g\"."
   (magit-insert-files 'assume-unchanged #'magit-assume-unchanged-files))
 
+(defvar magit-file-section-indent nil
+  "Indentation used for simple `file' sections.
+If non-nil, this must be a string or character, and is used as
+indentation of `file' sections inserted by `magit-insert-*-files'.
+`file' sections that are part of diffs are not affected.  This is mainly
+intended as a workaround for https://github.com/magit/magit/issues/5176,
+in which case ?\N{ZERO WIDTH SPACE} is a good value.")
+
 (defun magit-insert-files (type fn &optional nogroup)
   (when-let ((files (funcall fn)))
     (let* ((base (car magit-buffer-diff-files))
@@ -777,8 +785,12 @@ of that variable can be set using \"D -- DIRECTORY RET g\"."
       (if (or nogroup (equal dir directory))
           (let ((file (pop files)))
             (magit-insert-section (file file)
+              (when magit-file-section-indent
+                (insert magit-file-section-indent))
               (insert (propertize file 'font-lock-face 'magit-filename) ?\n)))
         (magit-insert-section (file dir t)
+          (when magit-file-section-indent
+            (insert magit-file-section-indent))
           (insert (propertize dir 'file 'magit-filename) ?\n)
           (magit-insert-heading)
           (setq files (magit-insert-files-1 files dir))))))
