@@ -633,12 +633,12 @@ prompt is confusing."
              (offset (1+ (length remote))))
         (cond
          ((magit-confirm 'delete-branch-on-remote
-            (format "Deleting local %s.  Also delete on %s"
-                    (magit-ref-fullname (car branches))
-                    remote)
-            (format "Deleting %d local refs.  Also delete on %s"
-                    (length refs)
-                    remote)
+            (list "Deleting local %s.  Also delete on %s"
+                  (magit-ref-fullname (car branches))
+                  remote)
+            (list "Deleting %d local refs.  Also delete on %s"
+                  (length refs)
+                  remote)
             'noabort refs)
           ;; The ref may actually point at another rev on the remote,
           ;; but this is better than nothing.
@@ -724,8 +724,8 @@ prompt is confusing."
           (when (member refspec refspecs)
             (if (and (length= refspecs 1)
                      (magit-confirm 'delete-pr-remote
-                       (format "Also delete remote %s (%s)" remote
-                               "no pull-request branch remains")
+                       (list "Also delete remote %s (%s)" remote
+                             "no pull-request branch remains")
                        nil t))
                 (magit-call-git "remote" "rm" remote)
               (magit-call-git "config" "--unset-all" variable

@@ -794,6 +794,16 @@ ACTION is a member of option `magit-slow-confirm'."
 (cl-defun magit-confirm ( action &optional prompt prompt-n noabort
                           (items nil sitems) prompt-suffix)
   (declare (indent defun))
+  (when (and prompt (listp prompt))
+    (setq prompt
+          (apply #'format (car prompt)
+                 (mapcar (lambda (a) (if (stringp a) (string-replace "%" "%%" a) a))
+                         (cdr prompt)))))
+  (when (and prompt-n (listp prompt-n))
+    (setq prompt-n
+          (apply #'format (car prompt-n)
+                 (mapcar (lambda (a) (if (stringp a) (string-replace "%" "%%" a) a))
+                         (cdr prompt-n)))))
   (setq prompt-n (format (concat (or prompt-n prompt) "? ") (length items)))
   (setq prompt   (format (concat (or prompt (magit-confirm-make-prompt action))
                                  "? ")
