@@ -38,7 +38,7 @@
 (declare-function magit-insert-upstream-branch-header "magit-status"
                   (&optional branch pull keyword))
 (declare-function magit-read-file-from-rev "magit-files"
-                  (rev prompt &optional default))
+                  (rev prompt &optional default include-dirs))
 (declare-function magit-rebase--get-state-lines "magit-sequence"
                   (file))
 (declare-function magit-show-commit "magit-diff"
