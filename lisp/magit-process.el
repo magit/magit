@@ -651,18 +651,21 @@ Magit status buffer."
 (defun magit-parse-git-async (&rest args)
   (setq args (magit-process-git-arguments args))
   (let ((command-buf (current-buffer))
-        (process-buf (generate-new-buffer " *temp*"))
+        (stdout-buf (generate-new-buffer " *git-stdout*"))
+        (stderr-buf (generate-new-buffer " *git-stderr*"))
         (toplevel (magit-toplevel)))
-    (with-current-buffer process-buf
+    (with-current-buffer stdout-buf
       (setq default-directory toplevel)
       (let ((process
-             (let ((process-connection-type nil)
-                   (process-environment (magit-process-environment))
-                   (default-process-coding-system
-                    (magit--process-coding-system)))
-               (apply #'start-file-process "git" process-buf
-                      (magit-git-executable) args))))
+             (let ((process-environment (magit-process-environment)))
+               (make-process :name "git"
+                             :buffer stdout-buf
+                             :stderr stderr-buf
+                             :command (cons (magit-git-executable) args)
+                             :coding (magit--process-coding-system)
+                             :file-handler t))))
         (process-put process 'command-buf command-buf)
+        (process-put process 'stderr-buf stderr-buf)
         (process-put process 'parsed (point))
         (setq magit-this-process process)
         process))))

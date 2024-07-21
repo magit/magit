@@ -453,6 +453,7 @@ modes is toggled, then this mode also gets toggled automatically.
   (let ((status (process-status process)))
     (when (memq status '(exit signal))
       (kill-buffer (process-buffer process))
+      (kill-buffer (process-get process 'stderr-buf))
       (if (and (eq status 'exit)
                (zerop (process-exit-status process)))
           (unless quiet
