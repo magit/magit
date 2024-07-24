@@ -2,7 +2,7 @@
 ** Breaking changes
 
 - Removed several functions, variables and variable values that were obsoleted
-  in past releases go:
+  in past releases:
   - bc18ba942f Remove ~git-commit-fill-column~, obsolete since v2.11.0
   - 6b4f7f5811 Remove ~magit-section-when~, obsolete since v2.90.0
   - a8c92cc35d Remove face aliases, obsolete since v2.12.0 and v3.0.0
@@ -308,7 +308,7 @@
   a Dired buffer to ~git blame~, leading to some commands (e.g., ~magit-checkout~)
   erroring when called from a Dired buffer.  #4560
 
-- ~magit-convert-filename-for-git~ needed yet another tweaks on Windows.  #4557
+- ~magit-convert-filename-for-git~ needed yet another tweak on Windows.  #4557
 
 - For Helm users, calling ~magit-stash-drop~ on the "Stashes" section has been
   broken since v3.0.0.  #4571
@@ -338,7 +338,7 @@
   commit hash.  #4602
 
 - ~git-commit.el~ didn't always use ~magit-git-executable~, instead hard coding
-  "git", even Magit is available.  77255776cb
+  "git", even if Magit is available.  77255776cb
 
 - ~magit-global-core.notesRef~ and ~magit-global-core.displayRef~ didn't actually
   handle global value.  0f96d39834
