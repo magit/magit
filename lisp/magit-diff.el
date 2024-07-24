@@ -80,6 +80,7 @@
                   (&optional whoami file-name))
 (declare-function magit-diff-edit-hunk-commit "magit-extras" (file))
 (declare-function magit-smerge-keep-current "magit-apply" ())
+(declare-function magit-smerge-keep-all "magit-apply" ())
 (declare-function magit-smerge-keep-upper "magit-apply" ())
 (declare-function magit-smerge-keep-base "magit-apply" ())
 (declare-function magit-smerge-keep-lower "magit-apply" ())
@@ -2076,6 +2077,7 @@ keymap is the parent of their keymaps."
 (defvar-keymap magit-hunk-section-smerge-map
   :doc "Keymap bound to `smerge-command-prefix' in `magit-hunk-section-map'."
   "RET" #'magit-smerge-keep-current
+  "a"   #'magit-smerge-keep-all
   "u"   #'magit-smerge-keep-upper
   "b"   #'magit-smerge-keep-base
   "l"   #'magit-smerge-keep-lower)
