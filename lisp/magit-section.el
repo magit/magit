@@ -2149,6 +2149,7 @@ If optional SECTION is nil, use the current section."
 FUNCTION has to move point forward or return nil."
   (while (and (not (eobp)) (funcall function))))
 
+;;;###autoload
 (defun magit-add-section-hook (hook function &optional at append local)
   "Add to the value of section hook HOOK the function FUNCTION.
 
