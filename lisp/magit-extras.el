@@ -905,6 +905,18 @@ patch application, a cherry-pick, a revert, or a bisect."
         ((magit-sequencer-in-progress-p) (magit-sequencer-abort))
         ((magit-bisect-in-progress-p)    (magit-bisect-reset))))
 
+;;;###autoload
+(defun magit-back-to-indentation ()
+  "Move point to the first non-whitespace character on this line.
+In Magit diffs, also skip over - and + at the beginning of the line."
+  (interactive "^")
+  (beginning-of-line 1)
+  (when (and (magit-section-match 'hunk)
+             (looking-at "[-+]*"))
+    (goto-char (match-end 0)))
+  (skip-syntax-forward " " (line-end-position))
+  (backward-prefix-chars))
+
 ;;; _
 (provide 'magit-extras)
 ;;; magit-extras.el ends here

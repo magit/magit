@@ -413,10 +413,11 @@ recommended value."
   "C-c C-w" 'magit-copy-thing
   "C-w"     'magit-copy-section-value
   "M-w"     'magit-copy-buffer-revision
-  "<remap> <previous-line>"      'magit-previous-line
-  "<remap> <next-line>"          'magit-next-line
-  "<remap> <evil-previous-line>" 'evil-previous-visual-line
-  "<remap> <evil-next-line>"     'evil-next-visual-line)
+  "<remap> <back-to-indentation>" 'magit-back-to-indentation
+  "<remap> <previous-line>"       'magit-previous-line
+  "<remap> <next-line>"           'magit-next-line
+  "<remap> <evil-previous-line>"  'evil-previous-visual-line
+  "<remap> <evil-next-line>"      'evil-next-visual-line)
 
 (defun magit-delete-thing ()
   "This is a placeholder command, which signals an error if called.
