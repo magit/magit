@@ -1540,9 +1540,9 @@ The visited version depends on what changes the diff is about.
 
 1. If the diff shows uncommitted changes (i.e., stage or unstaged
    changes), then visit the file in the working tree (i.e., the
-   same \"real\" file that `find-file' would visit.  In all other
-   cases visit a \"blob\" (i.e., the version of a file as stored
-   in some commit).
+   same \"real\" file that `find-file' would visit).  In all
+   other cases visit a \"blob\" (i.e., the version of a file as
+   stored in some commit).
 
 2. If point is on a removed line, then visit the blob for the
    first parent of the commit that removed that line, i.e., the
