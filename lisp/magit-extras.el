@@ -912,7 +912,9 @@ In Magit diffs, also skip over - and + at the beginning of the line."
   (interactive "^")
   (beginning-of-line 1)
   (when (and (magit-section-match 'hunk)
-             (looking-at "[-+]*"))
+             (looking-at (if (oref (magit-current-section) combined)
+                             "^ ?[-+]+"
+                           "^[-+]")))
     (goto-char (match-end 0)))
   (skip-syntax-forward " " (line-end-position))
   (backward-prefix-chars))
