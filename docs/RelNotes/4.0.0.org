@@ -270,7 +270,8 @@
 
 - ~magit-status-quick~ wasn't autoloaded.  #4519
 
-- Magit's version could not be detect if it was installed using Straight.  #4526
+- Magit's version could not be detected if it was installed using Straight.
+  #4526
 
 - Automatic saving of file-visiting buffers was broken inside remote
   repositories that are accessed using Tramp.  #4292
