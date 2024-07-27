@@ -389,11 +389,11 @@ as well as the current repository's status buffer are refreshed.
 Process output goes into a new section in the buffer returned by
 `magit-process-buffer'."
   (let ((magit--refresh-cache (list (cons 0 0))))
-    (magit-call-git args)
-    (when (member (car args) '("init" "clone"))
-      ;; Creating a new repository invalidates the cache.
-      (setq magit--refresh-cache nil))
-    (magit-refresh)))
+    (prog1 (magit-call-git args)
+      (when (member (car args) '("init" "clone"))
+        ;; Creating a new repository invalidates the cache.
+        (setq magit--refresh-cache nil))
+      (magit-refresh))))
 
 (defvar magit-pre-call-git-hook nil)
 
