@@ -66,15 +66,14 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
     (magit-diff-visit-directory path)))
 
 ;;;###autoload
-(defun magit-worktree-branch (path branch start-point &optional force)
+(defun magit-worktree-branch (path branch start-point)
   "Create a new BRANCH and check it out in a new worktree at PATH."
   (interactive
    `(,(funcall magit-worktree-read-directory-name-function
                "Create worktree: ")
-     ,@(magit-branch-read-args "Create and checkout branch")
-     ,current-prefix-arg))
-  (when (zerop (magit-run-git "worktree" "add" (if force "-B" "-b")
-                              branch (magit--expand-worktree path) start-point))
+     ,@(magit-branch-read-args "Create and checkout branch")))
+  (when (zerop (magit-run-git "worktree" "add" "-b" branch
+                              (magit--expand-worktree path) start-point))
     (magit-diff-visit-directory path)))
 
 ;;;###autoload
