@@ -265,6 +265,7 @@ If it contains \"%s\" then the directory is substituted for that."
 
 (define-derived-mode magit-repolist-mode tabulated-list-mode "Repos"
   "Major mode for browsing a list of Git repositories."
+  :group 'magit-repolist
   (setq-local x-stretch-cursor nil)
   (setq tabulated-list-padding 0)
   (add-hook 'tabulated-list-revert-hook #'magit-repolist-refresh nil t)
