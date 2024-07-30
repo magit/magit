@@ -636,6 +636,7 @@ These sections can be expanded to show the respective commits."
 
 (define-derived-mode magit-submodule-list-mode tabulated-list-mode "Modules"
   "Major mode for browsing a list of Git submodules."
+  :interactive nil
   :group 'magit-repolist
   (setq-local x-stretch-cursor nil)
   (setq tabulated-list-padding 0)

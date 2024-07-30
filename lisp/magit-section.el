@@ -447,6 +447,7 @@ if any."
   "Parent major mode from which major modes with Magit-like sections inherit.
 
 Magit-Section is documented in info node `(magit-section)'."
+  :interactive nil
   :group 'magit-section
   (buffer-disable-undo)
   (setq truncate-lines t)

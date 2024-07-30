@@ -511,6 +511,7 @@ instead of \"Stashes:\"."
 
 (define-derived-mode magit-stashes-mode magit-reflog-mode "Magit Stashes"
   "Mode for looking at lists of stashes."
+  :interactive nil
   :group 'magit-log
   (magit-hack-dir-local-variables))
 
@@ -572,6 +573,7 @@ If there is no stash buffer in the same frame, then do nothing."
 
 (define-derived-mode magit-stash-mode magit-diff-mode "Magit Stash"
   "Mode for looking at individual stashes."
+  :interactive nil
   :group 'magit-diff
   (magit-hack-dir-local-variables)
   (setq magit--imenu-group-types '(commit)))

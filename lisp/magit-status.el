@@ -385,6 +385,7 @@ Staging and applying changes is documented in info node
 Type \\[magit-commit] to create a commit.
 
 \\{magit-status-mode-map}"
+  :interactive nil
   :group 'magit-status
   (magit-hack-dir-local-variables)
   (when magit-status-initial-section

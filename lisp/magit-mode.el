@@ -553,6 +553,7 @@ to the kill ring."
   "Parent major mode from which Magit major modes inherit.
 
 Magit is documented in info node `(magit)'."
+  :interactive nil
   :group 'magit
   (magit-hack-dir-local-variables)
   (face-remap-add-relative 'header-line 'magit-header-line)

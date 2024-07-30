@@ -294,6 +294,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 Type \\[magit-reset] to reset `HEAD' to the commit at point.
 
 \\{magit-refs-mode-map}"
+  :interactive nil
   :group 'magit-refs
   (magit-hack-dir-local-variables)
   (setq magit--imenu-group-types '(local remote tags)))

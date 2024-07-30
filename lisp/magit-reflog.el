@@ -150,6 +150,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 Type \\[magit-reset] to reset `HEAD' to the commit at point.
 
 \\{magit-reflog-mode-map}"
+  :interactive nil
   :group 'magit-log
   (magit-hack-dir-local-variables)
   (setq magit--imenu-item-types 'commit))

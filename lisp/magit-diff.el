@@ -1961,6 +1961,7 @@ Staging and applying changes is documented in info node
 \\[magit-reverse] to reverse it.
 
 \\{magit-diff-mode-map}"
+  :interactive nil
   :group 'magit-diff
   (magit-hack-dir-local-variables)
   (setq magit--imenu-item-types 'file))
@@ -2557,6 +2558,7 @@ Staging and applying changes is documented in info node
 \\[magit-reverse] to reverse it.
 
 \\{magit-revision-mode-map}"
+  :interactive nil
   :group 'magit-revision
   (magit-hack-dir-local-variables))
 
@@ -2903,6 +2905,7 @@ Refer to user option `magit-revision-insert-related-refs-display-alist'."
 
 (define-derived-mode magit-merge-preview-mode magit-diff-mode "Magit Merge"
   "Mode for previewing a merge."
+  :interactive nil
   :group 'magit-diff
   (magit-hack-dir-local-variables))
 
