@@ -1259,11 +1259,9 @@ Added to `font-lock-extend-region-functions'."
                 (delete-region (point) (point-max)))))
            (let ((diff-default-read-only nil))
              (diff-mode))
-           (let (font-lock-verbose font-lock-support-mode)
-             (if (fboundp 'font-lock-ensure)
-                 (font-lock-ensure)
-               (with-no-warnings
-                 (font-lock-fontify-buffer))))
+           (let ((font-lock-verbose nil)
+                 (font-lock-support-mode nil))
+             (font-lock-ensure))
            (let ((pos (point-min)))
              (while-let ((next (next-single-property-change pos 'face)))
                (put-text-property pos next 'font-lock-face
