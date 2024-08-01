@@ -1725,8 +1725,14 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
    (append args
            (car (magit-log--get-value 'magit-log-select-mode
                                       magit-direct-use-buffer-arguments))))
-  (when initial
-    (magit-log-goto-commit-section initial))
+  (if initial
+      (magit-log-goto-commit-section initial)
+    (while-let ((rev (magit-section-value-if 'commit))
+                ((string-match-p "\\`\\(fixup\\|squash\\)!"
+                                 (magit-rev-format "%s" rev)))
+                (section (magit-current-section))
+                (next (car (magit-section-siblings section 'next))))
+      (magit-section-goto next)))
   (setq magit-log-select-pick-function pick)
   (setq magit-log-select-quit-function quit)
   (when magit-log-select-show-usage
