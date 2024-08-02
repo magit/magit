@@ -177,10 +177,12 @@ All Contributors
 - Ivan Brennan
 - Jan Tatarik
 - Jasper St. Pierre
+- JD Smith
 - Jean-Louis Giordano
 - Jeff Bellegarde
 - Jeff Dairiki
 - Jeremy Meng
+- Jeremy Sowden
 - Jesse Alama
 - Jim Blandy
 - Joakim Jalap
@@ -253,6 +255,7 @@ All Contributors
 - Markus Beppler
 - Martin Joerg
 - Martin Polden
+- Matt Beshara
 - Matthew Fluet
 - Matthew Kraai
 - Matthieu Hauglustaine
@@ -310,6 +313,7 @@ All Contributors
 - Pieter Praet
 - Pieter van Oostrum
 - Prathamesh Sonpatki
+- Pratyush Yadav
 - Pritam Baral
 - rabio
 - Radon Rosborough
