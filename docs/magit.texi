@@ -5592,7 +5592,7 @@ Visit the @code{HEAD} commit and navigate to the change that should
 not have been included in that commit.
 @item
 Type @code{u} (@code{magit-unstage}) to reverse it in the index.
-This assumes that @code{magit-unstage-committed-changes} is non-nil.
+This assumes that @code{magit-unstage-committed} is non-nil.
 @item
 Type @code{c e} to extend @code{HEAD} with the staged changes,
 including those that were already staged before.

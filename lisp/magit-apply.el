@@ -783,7 +783,7 @@ a separate commit.  A typical workflow would be:
 1. Visit the `HEAD' commit and navigate to the change that should
    not have been included in that commit.
 2. Type \"u\" (`magit-unstage') to reverse it in the index.
-   This assumes that `magit-unstage-committed-changes' is non-nil.
+   This assumes that `magit-unstage-committed' is non-nil.
 3. Type \"c e\" to extend `HEAD' with the staged changes,
    including those that were already staged before.
 4. Optionally stage the remaining changes using \"s\" or \"S\"
