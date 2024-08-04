@@ -171,6 +171,9 @@
 
 - Improve the diff shown while committing.  #3246
 
+- ~magit-reverse~ is now permitted in diff buffers between HEAD and
+  the working tree.  e94b6ebfdb #5090
+
 - Register a ~bookmark-handler-type~ for our handler.  adf5848ea7
 
 - Added new option ~magit-log-merged-commit-count~. #4711
