@@ -451,8 +451,7 @@ conversion."
 (defun magit-process-environment ()
   ;; The various w32 hacks are only applicable when running on the local
   ;; machine.  A local binding of process-environment different from the
-  ;; top-level value affects the environment used in
-  ;; tramp-sh-handle-{start-file-process,process-file}.
+  ;; top-level value affects the environment used by Tramp.
   (let ((local (not (file-remote-p default-directory))))
     (append magit-git-environment
             (and local
@@ -1018,25 +1017,6 @@ as argument."
                               #'magit-maybe-start-credential-cache-daemon)))))))
 
 (add-hook 'magit-credential-hook #'magit-maybe-start-credential-cache-daemon)
-
-(define-advice tramp-sh-handle-start-file-process
-    (:around (fn name buffer program &rest args)
-             magit-tramp-process-environment)
-  (if magit-tramp-process-environment
-      (apply fn name buffer
-             (car magit-tramp-process-environment)
-             (append (cdr magit-tramp-process-environment)
-                     (cons program args)))
-    (apply fn name buffer program args)))
-
-(define-advice tramp-sh-handle-process-file
-    (:around (fn program &optional infile destination display &rest args)
-             magit-tramp-process-environment)
-  (if magit-tramp-process-environment
-      (apply fn "env" infile destination display
-             (append magit-tramp-process-environment
-                     (cons program args)))
-    (apply fn program infile destination display args)))
 
 (defvar-keymap magit-mode-line-process-map
   :doc "Keymap for `mode-line-process'."
