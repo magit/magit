@@ -192,7 +192,7 @@ define set_package_requires_nongnu
     (insert-file-contents file)
     (re-search-forward "^;; Package-Version: ")
     (delete-region (point) (line-end-position))
-    (insert (concat version "$(DEV_SUFFIX)"))
+    (insert version)
     (re-search-forward "^;; Package-Requires: (\n")
     (let ((beg (point)))
       (forward-line)
@@ -233,7 +233,7 @@ define set_package_requires_melpa
 
 (with-temp-file "lisp/git-commit-pkg.el"
   (insert (format
-"(define-package \"git-commit\" \"$(GIT_COMMIT_VERSION)$(DEV_SUFFIX)\"
+"(define-package \"git-commit\" \"$(GIT_COMMIT_VERSION)\"
   \"Edit Git commit messages.\"
   '((emacs       %S)
     (compat      %S)
@@ -248,7 +248,7 @@ define set_package_requires_melpa
 
 (with-temp-file "lisp/magit-pkg.el"
   (insert (format
-"(define-package \"magit\" \"$(MAGIT_VERSION)$(DEV_SUFFIX)\"
+"(define-package \"magit\" \"$(MAGIT_VERSION)\"
   \"A Git porcelain inside Emacs.\"
   '((emacs         %S)
     (compat        %S)
@@ -271,7 +271,7 @@ define set_package_requires_melpa
 
 (with-temp-file "lisp/magit-section-pkg.el"
   (insert (format
-"(define-package \"magit-section\" \"$(MAGIT_SECTION_VERSION)$(DEV_SUFFIX)\"
+"(define-package \"magit-section\" \"$(MAGIT_SECTION_VERSION)\"
   \"Sections for read-only buffers.\"
   '((emacs  %S)
     (compat %S)
@@ -318,7 +318,6 @@ _bump-versions:
         $$set_package_requires_melpa)"
 
 bump-snapshots:
-	@$(eval DEV_SUFFIX := $(DEV_VERSION_SUFFIX))
 	@$(BATCH) --eval "(let (\
         $$set_package_versions)\
         $$set_package_requires_nongnu)"
