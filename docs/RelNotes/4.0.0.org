@@ -1,4 +1,27 @@
-* Magit v4.0.0 Release Notes (unreleased)
+* It's Magit!  A Git Porcelain inside Emacs
+
+Magit is a text-based Git user interface that puts an unmatched focus
+on streamlining workflows.  Commands are invoked using short mnemonic
+key sequences that take the cursor's position in the highly actionable
+interface into account to provide context-sensitive behavior.
+
+With Magit you can do nearly everything that you can do when using Git
+on the command-line, but at greater speed and while taking advantage
+of advanced features that previously seemed too daunting to use on a
+daily basis.  Many users will find that by using Magit they can become
+more effective Git user.
+
+For more information about Magit, see https://magit.vc.
+
+* Magit v4.0.0 Release Notes
+
+Released 8th August 2024 by Jonas Bernoulli.
+
+I am pleased to announce the release of Magit version 4.0.0,
+representing 1077 commits by 69 contributors over three years.
+
+Also see https://emacsair.me/2024/08/08/magit-4.0.
+
 ** Breaking changes
 
 - Dropped support for Emacs 25.  7c794201c4
@@ -450,3 +473,75 @@
 - 9d4192b7b1 [[https://github.com/magit/magit/issues/5116][#5116]] Fix visiting file from buffer created with magit-diff-paths
 - ad68015aa1 [[https://github.com/magit/magit/issues/5178][#5178]] magit-confirm: Directly support two rounds of prompt formatting
 - f31cf79b27 [[https://github.com/magit/magit/issues/5175][#5175]] magit-parse-git-async: Discard stderr for now
+
+* Authors
+
+   899  Jonas Bernoulli
+    78  Kyle Meyer
+     7  Nacho Barrientos
+     5  Basil L. Contovounesios
+     4  Andrey Smirnov
+     4  Damien Cassou
+     4  Park Zhou
+     4  Phil Sainty
+     4  Stefan Kangas
+     3  Daniel Mendler
+     2  Aaron L. Zeng
+     2  Alex Kreisher
+     2  Ben North
+     2  Brennan Vincent
+     2  Martin Joerg
+     2  Nicholas Vollmer
+     2  ziggy
+     1  Adam Jones
+     1  Adam Porter
+     1  Allen Li
+     1  Andrew Zipperer
+     1  Angel de Vicente
+     1  Arialdo Martini
+     1  Bastian Beranek
+     1  Ben Zanin
+     1  Brian Leung
+     1  Cameron Chaparro
+     1  Christian Tietze
+     1  Christopher Carlile
+     1  Daanturo
+     1  Dan Kessler
+     1  Daniel Martín
+     1  Ellis Kenyo
+     1  Eugene Mikhaylov
+     1  Eyal Soha
+     1  Frédéric Giquel
+     1  Greg Steuck
+     1  Géza Herman
+     1  JD Smith
+     1  Jean-Louis Giordano
+     1  Jeremy Sowden
+     1  Johannes Maier
+     1  Jorge Israel Peña
+     1  Li Chen
+     1  Lin Sun
+     1  Lénaïc Huard
+     1  Magnar Sveen
+     1  Markus Beppler
+     1  Matt Beshara
+     1  Ola Nilsson
+     1  Paul Pogonyshev
+     1  Philipp Stephani
+     1  Pieter van Oostrum
+     1  Pratyush Yadav
+     1  Rahul Rameshbabu
+     1  Robert Irelan
+     1  Roland Marchand
+     1  Ron Parker
+     1  Sean Allred
+     1  Sean Farley
+     1  Sean Whitton
+     1  Shuguang Sun
+     1  StrawberryTea
+     1  Ulrich Müller
+     1  Vladimir Ivanov
+     1  Waqar Hameed
+     1  dependabot[bot]
+     1  hokomo
+     1  shoefone
