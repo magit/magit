@@ -2645,7 +2645,7 @@ and this option only controls what face is used.")
                  prompt
                  (cl-union (and local-branch
                                 (if remote
-                                    (concat remote "/" local-branch)
+                                    (list local-branch)
                                   (--map (concat it "/" local-branch)
                                          (magit-list-remotes))))
                            (magit-list-remote-branch-names remote t)
