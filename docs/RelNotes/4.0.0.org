@@ -20,7 +20,7 @@ Released 8th August 2024 by Jonas Bernoulli.
 I am pleased to announce the release of Magit version 4.0.0,
 representing 1077 commits by 69 contributors over three years.
 
-Also see https://emacsair.me/2024/08/08/magit-4.0.
+Also see https://emacsair.me/2024/08/09/magit-4.0.
 
 ** Breaking changes
 
