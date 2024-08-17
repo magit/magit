@@ -110,6 +110,7 @@ ELGS = magit-autoloads.el magit-version.el
 VERSION ?= $(shell \
   test -e $(TOP).git && \
   git describe --tags --abbrev=0 --always | cut -c2-)
+REVDESC := $(shell test -e $(TOP).git && git describe --tags)
 
 EMACS_VERSION = 26.1
 

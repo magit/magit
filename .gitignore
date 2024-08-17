@@ -3,6 +3,7 @@
 /docs/*.info
 /docs/*.pdf
 /docs/*.texi
+/docs/.revdesc
 /docs/dir
 /docs/stats/
 /lisp/*-autoloads.el

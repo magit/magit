@@ -24,7 +24,11 @@ redo-docs:
 	@touch $(ORGPAGES)
 	@make docs
 
-%.texi: %.org
+.revdesc: ;
+_    := $(shell test "$(REVDESC)" = "$$(cat .revdesc 2> /dev/null)" ||\
+        echo "$(REVDESC)" > .revdesc)
+
+%.texi: %.org .revdesc
 	@printf "Generating $@\n"
 	@$(EMACS) $(ORG_ARGS) $< $(ORG_EVAL)
 
