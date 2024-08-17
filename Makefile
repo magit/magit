@@ -160,7 +160,7 @@ publish:
 release:
 	@$(MAKE) -C docs release
 
-dist: magit-$(VERSION).tar.gz
+dist: clean-docs clean-archives versionlib info magit-$(VERSION).tar.gz
 	@$(RMDIR) magit-$(VERSION)
 	@$(RM) magit-version.el
 
@@ -171,7 +171,7 @@ DIST_ROOT_FILES = LICENSE default.mk Makefile README.md CHANGELOG
 DIST_LISP_FILES = $(addprefix lisp/,$(ELS) magit-version.el Makefile)
 DIST_DOCS_FILES = $(addprefix docs/,$(TEXIPAGES) AUTHORS.md Makefile)
 
-magit-$(VERSION).tar.gz: lisp versionlib info
+magit-$(VERSION).tar.gz:
 	@printf "Packing $@\n"
 	@$(MKDIR) magit-$(VERSION)
 	@$(CP) $(DIST_ROOT_FILES) magit-$(VERSION)
