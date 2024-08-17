@@ -5,6 +5,6 @@
 
 #+macro: kbd (eval (let ((case-fold-search nil) (regexp (regexp-opt '("SPC" "RET" "LFD" "TAB" "BS" "ESC" "DELETE" "SHIFT" "Ctrl" "Meta" "Alt" "Cmd" "Super" "UP" "LEFT" "RIGHT" "DOWN") 'words))) (format "@@texinfo:@kbd{@@%s@@texinfo:}@@" (replace-regexp-in-string regexp "@@texinfo:@key{@@\\&@@texinfo:}@@" $1 t))))
 #+macro: year (eval (format-time-string "%Y"))
-#+macro: version (eval (or (getenv "PACKAGE_REVDESC") (getenv "PACKAGE_VERSION") (ignore-errors (car (process-lines "git" "describe" "--exact"))) (ignore-errors (concat (car (process-lines "git" "describe" (if (getenv "AMEND") "HEAD~" "HEAD"))) "+1"))))
+#+macro: version (eval (if-let ((tag (ignore-errors (car (process-lines "git" "describe" "--exact-match"))))) (concat "version " (substring tag 1)) (or (ignore-errors (car (process-lines "git" "describe"))) "version (unknown)")))
 
 #+language: en
