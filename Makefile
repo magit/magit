@@ -163,6 +163,8 @@ release:
 	@$(MAKE) -C docs release
 
 dist: magit-$(VERSION).tar.gz
+	@$(RMDIR) magit-$(VERSION)
+	@$(RM) magit-version.el
 
 versionlib:
 	@$(MAKE) -C lisp versionlib
@@ -180,7 +182,6 @@ magit-$(VERSION).tar.gz: lisp versionlib info
 	@$(MKDIR) magit-$(VERSION)/docs
 	@$(CP) $(DIST_DOCS_FILES) magit-$(VERSION)/docs
 	@$(TAR) cz --mtime=./magit-$(VERSION) -f magit-$(VERSION).tar.gz magit-$(VERSION)
-	@$(RMDIR) magit-$(VERSION)
 
 define set_package_requires_nongnu
 
