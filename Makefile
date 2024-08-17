@@ -80,6 +80,9 @@ lisp:
 docs:
 	@$(MAKE) -C docs docs
 
+texi:
+	@$(MAKE) -C docs texi
+
 info:
 	@$(MAKE) -C docs info
 
@@ -149,9 +152,6 @@ clean-stats:
 	@$(MAKE) -C docs clean-stats
 
 ## Release management ################################################
-
-texi:
-	@$(MAKE) -C docs texi
 
 authors:
 	@$(MAKE) -C docs authors
