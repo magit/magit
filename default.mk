@@ -43,14 +43,17 @@ GITSTATS_ARGS ?= -c style=https://magit.vc/assets/stats.css \
 ## Files #############################################################
 
 PKG       = magit
+PKGSTEXI  = magit magit-section
 PACKAGES  = magit magit-section git-commit
 
-TEXIPAGES = $(addsuffix .texi,$(filter-out git-commit,$(PACKAGES)))
-INFOPAGES = $(addsuffix .info,$(filter-out git-commit,$(PACKAGES)))
-HTMLFILES = $(addsuffix .html,$(filter-out git-commit,$(PACKAGES)))
-HTMLDIRS  = $(filter-out git-commit,$(PACKAGES))
-PDFFILES  = $(addsuffix .pdf,$(filter-out git-commit,$(PACKAGES)))
-EPUBFILES = $(addsuffix .epub,$(filter-out git-commit,$(PACKAGES)))
+ORGPAGES  = $(addsuffix .org,$(PKGSTEXI))
+TEXIPAGES = $(addsuffix .texi,$(PKGSTEXI))
+INFOPAGES = $(addsuffix .info,$(PKGSTEXI))
+HTMLFILES = $(addsuffix .html,$(PKGSTEXI))
+HTMLTOPS  = $(addsuffix /index.html,$(PKGSTEXI))
+HTMLDIRS  = $(PKGSTEXI)
+PDFFILES  = $(addsuffix .pdf,$(PKGSTEXI))
+EPUBFILES = $(addsuffix .epub,$(PKGSTEXI))
 
 ELS  = git-commit.el
 ELS += magit-section.el
@@ -224,8 +227,6 @@ DEPS += with-editor/lisp
 
 DOMAIN      ?= magit.vc
 CFRONT_DIST ?= E2LUHBKU1FBV02
-
-PUBLISH_TARGETS ?= html html-dir pdf
 
 DOCBOOK_XSL ?= /usr/share/xml/docbook/stylesheet/docbook-xsl/epub/docbook.xsl
 

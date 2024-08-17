@@ -23,6 +23,7 @@ help:
 	$(info make lisp             - compile elisp)
 	$(info make redo             - re-compile elisp)
 	$(info make docs             - generate all manual formats)
+	$(info make redo-docs        - re-generate all manual formats)
 	$(info make texi             - generate texi manuals)
 	$(info make info             - generate info manuals)
 	$(info make html             - generate html manual files)
@@ -69,14 +70,17 @@ help:
 
 ## Build #############################################################
 
-redo: clean-lisp lisp
-
 lisp:
 	@$(MAKE) -C lisp lisp
 	@$(MAKE) -C test lisp
 
+redo: clean-lisp lisp
+
 docs:
 	@$(MAKE) -C docs docs
+
+redo-docs:
+	@$(MAKE) -C docs redo-docs
 
 texi:
 	@$(MAKE) -C docs texi

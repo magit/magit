@@ -7,17 +7,22 @@ include ../default.mk
 
 docs: texi info html html-dir pdf
 
-texi: $(TEXIPAGES)
-info: $(INFOPAGES) dir
-html: $(HTMLFILES)
-pdf:  $(PDFFILES)
-epub: $(EPUBFILES)
+texi:     $(TEXIPAGES)
+info:     $(INFOPAGES) dir
+html:     $(HTMLFILES)
+html-dir: $(HTMLTOPS)
+pdf:      $(PDFFILES)
+epub:     $(EPUBFILES)
 
 ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH) -l ol-man
 ORG_EVAL += --eval "(progn $$ORG_MAN_EXPORT)"
 ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
 ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
 ORG_EVAL += --funcall org-texinfo-export-to-texinfo
+
+redo-docs:
+	@touch $(ORGPAGES)
+	@make docs
 
 %.texi: %.org
 	@printf "Generating $@\n"
@@ -46,7 +51,8 @@ HTML_FIXUP_MENU   = '/<\/body>/i<div id="s-css-s--menu"><\/div>'
 	@$(MAKEINFO) --html --no-split $(MANUAL_HTML_ARGS) $<
 	@sed -i -e $(HTML_FIXUP_CSS) -e $(HTML_FIXUP_ONLOAD) -e $(HTML_FIXUP_MENU) $@
 
-html-dir: $(TEXIFILES)
+%/index.html: %.texi
+	@$(RMDIR) $(HTMLDIRS)
 	@printf "Generating magit/*.html\n"
 	@$(MAKEINFO) --html -o $(PKG)/ $(MANUAL_HTML_ARGS) magit.texi
 	@for f in $$(find magit -name '*.html') ; do \
@@ -118,8 +124,8 @@ comma := ,
 empty :=
 space := $(empty) $(empty)
 
-publish: $(PUBLISH_TARGETS)
-	@printf "Uploading manuals... $(PUBLISH_TARGETS)\n"
+publish: redo-docs
+	@printf "Uploading snapshot manuals...\n"
 	@aws s3 cp $(PKG).html $(PUBLISH_TARGET)
 	@aws s3 cp $(PKG).pdf  $(PUBLISH_TARGET)
 	@printf "upload: ./$(PKG)/* to $(PUBLISH_TARGET)*\n"
@@ -132,7 +138,7 @@ publish: $(PUBLISH_TARGETS)
 	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
 	"$(subst $(space),$(comma),$(addprefix $(PUBLISH_PATH),$(CFRONT_PATHS)))" > /dev/null
 
-release: $(PUBLISH_TARGETS)
+release: redo-docs
 	@printf "Uploading release manuals...\n"
 	@aws s3 cp $(PKG).html $(RELEASE_TARGET)
 	@aws s3 cp $(PKG).pdf  $(RELEASE_TARGET)
