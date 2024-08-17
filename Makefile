@@ -167,12 +167,9 @@ dist: magit-$(VERSION).tar.gz
 versionlib:
 	@$(MAKE) -C lisp versionlib
 
-DIST_ROOT_FILES = LICENSE default.mk Makefile README.md
+DIST_ROOT_FILES = LICENSE default.mk Makefile README.md CHANGELOG
 DIST_LISP_FILES = $(addprefix lisp/,$(ELS) magit-version.el Makefile)
 DIST_DOCS_FILES = $(addprefix docs/,$(TEXIPAGES) AUTHORS.md Makefile)
-ifneq ("$(wildcard docs/RelNotes/$(VERSION).txt)","")
-  DIST_DOCS_FILES += docs/RelNotes/$(VERSION).txt
-endif
 
 magit-$(VERSION).tar.gz: lisp versionlib info
 	@printf "Packing $@\n"
