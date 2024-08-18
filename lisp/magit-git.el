@@ -740,7 +740,7 @@ See info node `(magit)Debugging Tools' for more information."
         (key (string-join keys ".")))
     (if (and magit--refresh-cache (not arg))
         (magit-config-get-from-cached-list key)
-      (magit-git-items "config" arg "-z" "--get-all" key))))
+      (magit-git-items "config" arg "-z" "--get-all" "--include" key))))
 
 (defun magit-get-boolean (&rest keys)
   "Return the boolean value of the Git variable specified by KEYS.
@@ -751,7 +751,7 @@ Also see `magit-git-config-p'."
         (key (string-join keys ".")))
     (equal (if magit--refresh-cache
                (car (last (magit-config-get-from-cached-list key)))
-             (magit-git-str "config" arg "--bool" key))
+             (magit-git-str "config" arg "--bool" "--include" key))
            "true")))
 
 (defun magit-set (value &rest keys)
