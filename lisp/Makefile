@@ -109,6 +109,7 @@ install: lisp versionlib
 clean:
 	@printf " Cleaning lisp/*...\n"
 	@$(RM) *.elc $(ELGS)
+	@$(RM) ../test/magit-tests.elc
 
 ## Templates #########################################################
 
