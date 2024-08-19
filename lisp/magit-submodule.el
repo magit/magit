@@ -68,22 +68,22 @@ is inserted.  If it is nil, then all sections listed in
      ((:sort magit-repolist-version<)))
     ("Branch"   20 magit-repolist-column-branch
      ())
-    ("B<U" 3 magit-repolist-column-unpulled-from-upstream
-     ((:right-align t)
-      (:sort <)))
-    ("B>U" 3 magit-repolist-column-unpushed-to-upstream
-     ((:right-align t)
-      (:sort <)))
     ("B<P" 3 magit-repolist-column-unpulled-from-pushremote
+     ((:right-align t)
+      (:sort <)))
+    ("B<U" 3 magit-repolist-column-unpulled-from-upstream
      ((:right-align t)
       (:sort <)))
     ("B>P" 3 magit-repolist-column-unpushed-to-pushremote
      ((:right-align t)
       (:sort <)))
-    ("B"   3 magit-repolist-column-branches
+    ("B>U" 3 magit-repolist-column-unpushed-to-upstream
      ((:right-align t)
       (:sort <)))
     ("S"   3 magit-repolist-column-stashes
+     ((:right-align t)
+      (:sort <)))
+    ("B"   3 magit-repolist-column-branches
      ((:right-align t)
       (:sort <))))
   "List of columns displayed by `magit-list-submodules'.
