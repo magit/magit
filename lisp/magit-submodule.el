@@ -62,10 +62,12 @@ is inserted.  If it is nil, then all sections listed in
   :options '(hl-line-mode))
 
 (defcustom magit-submodule-list-columns
-  '(("Path"     25 magit-modulelist-column-path   nil)
+  '(("Path"     25 magit-modulelist-column-path
+     ())
     ("Version"  25 magit-repolist-column-version
      ((:sort magit-repolist-version<)))
-    ("Branch"   20 magit-repolist-column-branch   nil)
+    ("Branch"   20 magit-repolist-column-branch
+     ())
     ("B<U" 3 magit-repolist-column-unpulled-from-upstream
      ((:right-align t)
       (:sort <)))
