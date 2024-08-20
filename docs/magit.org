@@ -11,6 +11,10 @@
 
 #+setupfile: .orgconfig
 
+# Emacs on GNU ELPA build server is too old, so all "man:" links
+# will be broken, but this at least allows us to generate the manual.
+#+options: broken-links:mark
+
 Magit is an interface to the version control system Git, implemented
 as an Emacs package.  Magit aspires to be a complete Git porcelain.
 While we cannot (yet) claim that Magit wraps and improves upon each
