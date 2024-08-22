@@ -605,10 +605,7 @@ acts similarly to `completing-read', except for the following:
     (let ((command this-command)
           (reply (funcall
                   magit-completing-read-function
-                  (format-prompt
-                   prompt
-                   (and (funcall magit-completing-read-default-prompt-predicate)
-                        def))
+                  (magit--format-prompt prompt def)
                   (if (and (not (functionp collection))
                            def
                            (not (member def collection)))
@@ -623,6 +620,13 @@ acts similarly to `completing-read', except for the following:
               (user-error "Nothing selected")
             nil)
         reply))))
+
+(defun magit--format-prompt (prompt default)
+  (format-prompt (if (string-suffix-p ": " prompt)
+                     (substring prompt 0 -2)
+                   prompt)
+                 (and (funcall magit-completing-read-default-prompt-predicate)
+                      default)))
 
 (defun magit--completion-table (collection)
   (lambda (string pred action)
@@ -684,7 +688,8 @@ third-party completion frameworks."
         (if no-split nil (bound-and-true-p helm-crm-default-separator)))
        ;; And now, the moment we have all been waiting for...
        (values (completing-read-multiple
-                prompt table predicate require-match initial-input
+                (magit--format-prompt prompt def)
+                table predicate require-match initial-input
                 hist def inherit-input-method)))
     (if no-split input values)))
 
