@@ -1,13 +1,16 @@
 blank_issues_enabled: false
 contact_links:
-  - name: "💡 Suggest a feature"
-    url: https://github.com/magit/magit/discussions
-    about: Start a discussion suggest an improvement or a new feature.
+  - name: "💕 Please support my work on Magit and other Emacs projects"
+    url: https://github.com/sponsors/tarsius
+    about: Thanks! Any support helps. These donations from users are my only income.
+  - name: "💡 Suggest a feature ☛ please open a discussion instead of an issue"
+    url: https://github.com/magit/magit/discussions/categories/ideas
+    about: Start a discussion suggesting an improvement or a new feature.
   - name: "🆘 Ask the community for support"
     url: https://www.reddit.com/r/emacs
     about: Please also consider supporting others.
-  - name: "🆘 Ask the maintainers for support"
-    url: https://github.com/magit/magit/discussions
+  - name: "🆘 Ask the maintainers for support ☛ please open a discussion"
+    url: https://github.com/magit/magit/discussions/categories/q-a
     about: Please keep in mind that our bandwidth is limited.
   - name: "ℹ️ Magit FAQ"
     url: https://magit.vc/manual/magit/FAQ.html
