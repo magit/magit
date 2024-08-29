@@ -580,7 +580,7 @@ is run in the top-level directory of the current working tree."
 Use the function by the same name instead of this variable.")
 
 ;;;###autoload
-(defun magit-version (&optional print-dest interactive)
+(defun magit-version (&optional print-dest interactive nowarn)
   "Return the version of Magit currently in use.
 
 If optional argument PRINT-DEST is non-nil, also print the used
@@ -702,8 +702,7 @@ the output in the kill ring.
       (setq magit-version 'error)
       (when magit-version
         (push magit-version debug))
-      (unless (equal (getenv "CI") "true")
-        ;; The repository is a sparse clone.
+      (unless (or nowarn (equal (getenv "CI") "true"))
         (message "Cannot determine Magit's version %S" debug)))
     magit-version))
 
@@ -783,7 +782,7 @@ For X11 something like ~/.xinitrc should work.\n"
 (unless (bound-and-true-p byte-compile-current-file)
   (if after-init-time
       (progn (magit-startup-asserts)
-             (magit-version))
+             (magit-version nil nil t))
     (add-hook 'after-init-hook #'magit-startup-asserts t)
     (add-hook 'after-init-hook #'magit-version t)))
 
