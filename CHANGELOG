@@ -1,6 +1,21 @@
 # -*- mode: org -*-
 * v4.1.0    UNRELEASED
 
+- Improved ~magit-tag-release~'s consistency and handling of arguments.
+  #5102
+
+- Updated tooling and other housekeeping.
+
+Bug fixes:
+
+- Only use an explicit range in ~magit-insert-recent-commits~, when also
+  using ~--graph~.  With ~--graph~ it increases performance noticeably,
+  but without it decreases performance somewhat.  #5075
+
+- ~magit-completing-read-multiple~ now shows the default choice in the
+  prompt, if a completion framework is used, for which that is useful.
+  #5205.
+
 * Older releases
 
 See ~docs/RelNotes/~.
