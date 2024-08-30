@@ -1232,7 +1232,7 @@ Added to `font-lock-extend-region-functions'."
                       ;; Font-Lock wants every submatch to succeed, so
                       ;; also match the empty string.  Avoid listing
                       ;; remote branches and using `regexp-quote',
-                      ;; because in repositories have thousands of
+                      ;; because in repositories that have thousands of
                       ;; branches that would be very slow.  See #4353.
                       (format "\\(\\(?:%s\\)\\|\\)\\([^']+\\)"
                               (string-join (magit-list-local-branch-names)
