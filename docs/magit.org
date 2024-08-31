@@ -7,7 +7,7 @@
 #+texinfo_dir_category: Emacs
 #+texinfo_dir_title: Magit: (magit).
 #+texinfo_dir_desc: Using Git from Emacs with Magit.
-#+subtitle: for version 4.0.0
+#+subtitle: for version 4.1.0
 
 #+setupfile: .orgconfig
 
@@ -24,7 +24,7 @@ directly from within Emacs.  While many fine Git clients exist, only
 Magit and Git itself deserve to be called porcelains.
 
 #+texinfo: @noindent
-This manual is for Magit version 4.0.0.
+This manual is for Magit version 4.1.0.
 
 #+texinfo: @insertcopying
 :END:

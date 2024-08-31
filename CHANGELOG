@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v4.1.0    UNRELEASED
+* v4.1.0    2024-09-01
 
 - The library ~git-commit.el~ is no longer distributed as a separate
   package, ~git-commit~, but as part of the ~magit~ package.
