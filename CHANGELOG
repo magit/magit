@@ -1,6 +1,9 @@
 # -*- mode: org -*-
 * v4.1.0    UNRELEASED
 
+- The library ~git-commit.el~ is no longer distributed as a separate
+  package, ~git-commit~, but as part of the ~magit~ package.
+
 - Improved ~magit-tag-release~'s consistency and handling of arguments.
   #5102
 
