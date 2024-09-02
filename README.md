@@ -141,4 +141,4 @@ Thanks to all of you, may (the history of) the source be with you!
 [peter]:   https://github.com/pjweisberg
 [phil]:    https://github.com/philjackson
 [remi]:    https://github.com/vanicat
-[yann]:    https://github.com/sigma
+[yann]:    https://yann.hodique.info
