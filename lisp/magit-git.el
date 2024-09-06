@@ -1249,7 +1249,7 @@ Sorted from longest to shortest CYGWIN name."
   "Return t if there are any staged changes.
 If optional FILES is non-nil, then only changes to those files
 are considered."
-  (magit-git-failure "diff" "--quiet" "--cached"
+  (magit-git-failure "diff" "--quiet" "--cached" "--no-renames"
                      (and ignore-submodules "--ignore-submodules")
                      "--" files))
 
