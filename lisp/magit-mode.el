@@ -896,7 +896,7 @@ The returned name is based on `magit-buffer-name-format' and
 takes `magit-uniquify-buffer-names' and VALUE, if non-nil, into
 account."
   (let ((m (substring (symbol-name mode) 0 -5))
-        (v (and value (format "%s" (if (listp value) value (list value)))))
+        (v (and value (format "%s" (ensure-list value))))
         (n (if magit-uniquify-buffer-names
                (file-name-nondirectory
                 (directory-file-name default-directory))

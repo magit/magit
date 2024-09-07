@@ -1597,9 +1597,7 @@ is explicitly expanded."
           (cons (lambda ()
                   (push magit-insert-section--current
                         header-sections))
-                (if (listp magit-insert-section-hook)
-                    magit-insert-section-hook
-                  (list magit-insert-section-hook)))))
+                (ensure-list magit-insert-section-hook))))
     (magit-run-section-hook hook)
     (when header-sections
       (insert "\n")
@@ -2271,7 +2269,7 @@ Configuration'."
   (while (< beg end)
     (let* ((pos (next-single-property-change beg 'font-lock-face object end))
            (val (get-text-property beg 'font-lock-face object))
-           (val (if (listp val) val (list val))))
+           (val (ensure-list val)))
       (put-text-property beg pos 'font-lock-face
                          (if append
                              (append val (list face))

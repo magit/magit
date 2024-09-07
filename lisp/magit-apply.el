@@ -337,7 +337,7 @@ With prefix argument FORCE, offer ignored files for completion."
     ;; For backward compatibility, and because of
     ;; the function's name, don't require a list.
     (magit-stage-1 (and force "--force")
-                   (if (listp files) files (list files)))))
+                   (ensure-list files))))
 
 ;;;###autoload
 (defun magit-stage-modified (&optional all)
@@ -465,7 +465,7 @@ ignored) files."
   (magit-with-toplevel
     ;; For backward compatibility, and because of
     ;; the function's name, don't require a list.
-    (magit-unstage-1 (if (listp files) files (list files)))))
+    (magit-unstage-1 (ensure-list files))))
 
 (defun magit-unstage-1 (files)
   (magit-wip-commit-before-change files " before unstage")
