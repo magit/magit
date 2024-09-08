@@ -271,8 +271,14 @@ This variable defaults to \"\" and is used to override the Tramp
 variable in `magit-start-process'.  This only has an effect when
 using Tramp 2.6.2 or greater.  This can also be set to `pty', in
 which case a pty is used instead of a pipe.  That also prevents
-the hanging, but comes with its own problems (see #20).  To fall
-back to the value of `tramp-pipe-stty-settings', set this
+the hanging, but doesn't work for files with DOS line endings
+\(see #20).
+
+For connections that have `tramp-direct-async-process' enabled,
+staging hunks hangs, unless this variable is set to `pty' (see
+#5220).
+
+To fall back to the value of `tramp-pipe-stty-settings', set this
 variable to nil.
 
 Also see https://github.com/magit/magit/issues/4720
