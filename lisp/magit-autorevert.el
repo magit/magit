@@ -95,6 +95,19 @@ seconds of user inactivity.  That is not desirable."
   :group 'magit-auto-revert
   :type 'boolean)
 
+(defcustom magit-auto-revert-remote-buffers nil
+  "Whether Magit reverts remote buffers immediately.
+
+If this is non-nil and either `global-auto-revert-mode' or
+`magit-auto-revert-mode' is enabled, then Magit will try
+to revert remote buffers visited using tramp. This might
+impact latency and performance of tramp.
+
+In all other cases, remote buffers will not be reverted."
+  :package-version '(magit . "4.1.0")
+  :group 'magit-auto-revert
+  :type 'boolean)
+
 ;;; Mode
 
 (defun magit-turn-on-auto-revert-mode-if-desired (&optional file)
@@ -102,15 +115,21 @@ seconds of user inactivity.  That is not desirable."
       (when-let ((buffer (find-buffer-visiting file)))
         (with-current-buffer buffer
           (magit-turn-on-auto-revert-mode-if-desired)))
-    (when (and (not auto-revert-mode)        ; see #3014
-               (not global-auto-revert-mode) ; see #3460
-               buffer-file-name
-               (file-readable-p buffer-file-name)
-               (compat-call executable-find (magit-git-executable) t)
-               (magit-toplevel)
-               (or (not magit-auto-revert-tracked-only)
-                   (magit-file-tracked-p buffer-file-name)))
-      (auto-revert-mode 1))))
+    
+    ;; only proceed if (1) file is not remote OR (2) file is remote,
+    ;; but magit-auto-revert-remote-buffers is non-nil, see #5222
+    (let ((is-remote-p (and buffer-file-name (file-remote-p buffer-file-name))))
+      (when (or (not is-remote-p)
+                (and is-remote-p magit-auto-revert-remote-buffers))
+        (when (and (not auto-revert-mode)      ; see #3014
+                   (not global-auto-revert-mode) ; see #3460
+                   buffer-file-name
+                   (file-readable-p buffer-file-name)
+                   (compat-call executable-find (magit-git-executable) t)
+                   (magit-toplevel)
+                   (or (not magit-auto-revert-tracked-only)
+                       (magit-file-tracked-p buffer-file-name)))
+          (auto-revert-mode 1))))))
 
 ;;;###autoload
 (define-globalized-minor-mode magit-auto-revert-mode auto-revert-mode
