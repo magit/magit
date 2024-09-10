@@ -105,6 +105,8 @@ seconds of user inactivity.  That is not desirable."
         ((and (not auto-revert-mode)        ; see #3014
               (not global-auto-revert-mode) ; see #3460
               buffer-file-name
+              (or auto-revert-remote-files  ; see #5422
+                  (not (file-remote-p buffer-file-name)))
               (file-readable-p buffer-file-name)
               (compat-call executable-find (magit-git-executable) t)
               (magit-toplevel)
