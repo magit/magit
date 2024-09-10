@@ -98,19 +98,19 @@ seconds of user inactivity.  That is not desirable."
 ;;; Mode
 
 (defun magit-turn-on-auto-revert-mode-if-desired (&optional file)
-  (if file
-      (when-let ((buffer (find-buffer-visiting file)))
-        (with-current-buffer buffer
-          (magit-turn-on-auto-revert-mode-if-desired)))
-    (when (and (not auto-revert-mode)        ; see #3014
-               (not global-auto-revert-mode) ; see #3460
-               buffer-file-name
-               (file-readable-p buffer-file-name)
-               (compat-call executable-find (magit-git-executable) t)
-               (magit-toplevel)
-               (or (not magit-auto-revert-tracked-only)
-                   (magit-file-tracked-p buffer-file-name)))
-      (auto-revert-mode 1))))
+  (cond (file
+         (when-let ((buffer (find-buffer-visiting file)))
+           (with-current-buffer buffer
+             (magit-turn-on-auto-revert-mode-if-desired))))
+        ((and (not auto-revert-mode)        ; see #3014
+              (not global-auto-revert-mode) ; see #3460
+              buffer-file-name
+              (file-readable-p buffer-file-name)
+              (compat-call executable-find (magit-git-executable) t)
+              (magit-toplevel)
+              (or (not magit-auto-revert-tracked-only)
+                  (magit-file-tracked-p buffer-file-name)))
+         (auto-revert-mode 1))))
 
 ;;;###autoload
 (define-globalized-minor-mode magit-auto-revert-mode auto-revert-mode
