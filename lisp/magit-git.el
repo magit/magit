@@ -1067,17 +1067,20 @@ tracked file."
 
 (defun magit-modified-files (&optional nomodules files)
   (magit-git-items "diff-index" "-z" "--name-only"
-                   (and nomodules "--ignore-submodules")
+                   ;; Work around a bug in Git v2.46.0. See #5212 and #5221.
+                   (if nomodules "--ignore-submodules" "--submodule=short")
                    (magit-headish) "--" files))
 
 (defun magit-unstaged-files (&optional nomodules files)
   (magit-git-items "diff-files" "-z" "--name-only" "--diff-filter=u"
-                   (and nomodules "--ignore-submodules")
+                   ;; Work around a bug in Git v2.46.0. See #5212 and #5221.
+                   (if nomodules "--ignore-submodules" "--submodule=short")
                    "--" files))
 
 (defun magit-staged-files (&optional nomodules files)
   (magit-git-items "diff-index" "-z" "--name-only" "--cached"
-                   (and nomodules "--ignore-submodules")
+                   ;; Work around a bug in Git v2.46.0. See #5212 and #5221.
+                   (if nomodules "--ignore-submodules" "--submodule=short")
                    (magit-headish) "--" files))
 
 (defun magit-binary-files (&rest args)
@@ -1250,7 +1253,10 @@ Sorted from longest to shortest CYGWIN name."
 If optional FILES is non-nil, then only changes to those files
 are considered."
   (magit-git-failure "diff" "--quiet" "--cached"
-                     (and ignore-submodules "--ignore-submodules")
+                     (if ignore-submodules
+                         "--ignore-submodules"
+                       ;; Work around a bug in Git v2.46.0. See #5212 and #5221.
+                       "--submodule=short")
                      "--" files))
 
 (defun magit-anything-unstaged-p (&optional ignore-submodules &rest files)
@@ -1258,7 +1264,10 @@ are considered."
 If optional FILES is non-nil, then only changes to those files
 are considered."
   (magit-git-failure "diff" "--quiet"
-                     (and ignore-submodules "--ignore-submodules")
+                     (if ignore-submodules
+                         "--ignore-submodules"
+                       ;; Work around a bug in Git v2.46.0. See #5212 and #5221.
+                       "--submodule=short")
                      "--" files))
 
 (defun magit-anything-modified-p (&optional ignore-submodules &rest files)
