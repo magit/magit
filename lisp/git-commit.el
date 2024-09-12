@@ -424,7 +424,9 @@ the redundant bindings, then set this to nil, before loading
   "C-c M-p" #'git-commit-search-message-backward
   "C-c M-n" #'git-commit-search-message-forward
   "C-c C-i" #'git-commit-insert-trailer
-  "C-c M-s" #'git-commit-save-message)
+  "C-c M-s" #'git-commit-save-message
+  "C-c C-d" 'magit-diff-while-committing
+  "C-c C-w" 'magit-pop-revision-stack)
 
 ;;; Menu
 

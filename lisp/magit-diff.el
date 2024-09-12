@@ -1273,8 +1273,6 @@ be committed."
     (user-error "No commit in progress"))
   (magit-commit-diff-1))
 
-(keymap-set git-commit-mode-map "C-c C-d" #'magit-diff-while-committing)
-
 ;;;###autoload
 (defun magit-diff-buffer-file ()
   "Show diff for the blob or file visited in the current buffer.

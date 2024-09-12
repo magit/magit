@@ -735,8 +735,6 @@ the minibuffer too."
               (delete-char -1)))))
     (user-error "Revision stack is empty")))
 
-(keymap-set git-commit-mode-map "C-c C-w" #'magit-pop-revision-stack)
-
 ;;;###autoload
 (defun magit-copy-section-value (arg)
   "Save the value of the current section for later use.
