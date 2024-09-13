@@ -1633,7 +1633,8 @@ is explicitly expanded."
 (defun magit-section-maybe-remove-heading-map (section)
   (with-slots (start content end keymap) section
     (when (= content end)
-      (put-text-property start end 'keymap keymap))))
+      (put-text-property start end 'keymap
+                         (if (symbolp keymap) (symbol-value keymap) keymap)))))
 
 (defun magit-insert-child-count (section)
   "Modify SECTION's heading to contain number of child sections.
