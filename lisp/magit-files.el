@@ -177,8 +177,10 @@ then only after asking.  A non-nil value for REVERT is ignored if REV is
       (setq buffer-file-coding-system last-coding-system-used))
     (let ((buffer-file-name magit-buffer-file-name)
           (after-change-major-mode-hook
-           (remq 'global-diff-hl-mode-enable-in-buffers
-                 after-change-major-mode-hook)))
+           (seq-difference after-change-major-mode-hook
+                           '(global-diff-hl-mode-enable-in-buffers
+                             eglot--maybe-activate-editing-mode)
+                           #'eq)))
       (normal-mode t))
     (setq buffer-read-only t)
     (set-buffer-modified-p nil)
