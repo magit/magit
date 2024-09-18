@@ -2233,15 +2233,31 @@ Configuration'."
       (setq entries (eval (car (get hook 'standard-value)))))
     (dolist (entry entries)
       (let ((magit--current-section-hook (cons (list hook entry)
-                                               magit--current-section-hook)))
+                                               magit--current-section-hook))
+            (use-cache (and magit-status--limited-refresh
+                            (not (memq entry magit-status--limited-refresh)))))
         (unless (memq entry magit-disabled-section-inserters)
-          (if (bound-and-true-p magit-refresh-verbose)
-              (let ((time (benchmark-elapse (apply entry args))))
-                (message "  %-50s %f %s" entry time
-                         (cond ((> time 0.03) "!!")
-                               ((> time 0.01) "!")
-                               (t ""))))
-            (apply entry args)))))))
+          (let ((magit--use-insert-cache use-cache)
+                (magit--refresh-cache (if use-cache
+                                          magit-status--refresh-cache
+                                        magit--refresh-cache)))
+            (if (bound-and-true-p magit-refresh-verbose)
+                (let ((time (benchmark-elapse (apply entry args))))
+                  (message "  %-50s %f %s" entry time
+                           (cond ((> time 0.03) "!!")
+                                 ((> time 0.01) "!")
+                                 (t ""))))
+              (apply entry args)))
+          (when (and magit-status--limited-refresh
+                     (null use-cache))
+              ;; Update the status cache
+              (cl-loop for (key . value) in (cdr magit--refresh-cache)
+                       do (if-let ((other (assoc key (cdr magit-status--refresh-cache))))
+                              (setf (cdr other) value)
+                            (push (cons key value) (cdr magit-status--refresh-cache))))
+              (dolist (cache magit--refresh-cache))))))
+    (unless magit-status--limited-refresh
+      (setq magit-status--refresh-cache magit--refresh-cache))))
 
 (cl-defun magit--overlay-at (pos prop &optional (val nil sval) testfn)
   (cl-find-if (lambda (o)

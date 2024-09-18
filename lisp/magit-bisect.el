@@ -242,7 +242,8 @@ bisect run'."
 ;;; Sections
 
 (defun magit-bisect-in-progress-p ()
-  (file-exists-p (expand-file-name "BISECT_LOG" (magit-gitdir))))
+  (magit--with-refresh-cache (list default-directory 'bisect-in-progress-p)
+    (file-exists-p (expand-file-name "BISECT_LOG" (magit-gitdir)))))
 
 (defun magit-bisect-terms ()
   (magit-file-lines (expand-file-name "BISECT_TERMS" (magit-gitdir))))

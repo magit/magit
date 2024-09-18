@@ -357,13 +357,14 @@ the process manually."
 
 (defun magit-cherry-pick-in-progress-p ()
   ;; .git/sequencer/todo does not exist when there is only one commit left.
-  (let ((dir (magit-gitdir)))
-    (or (file-exists-p (expand-file-name "CHERRY_PICK_HEAD" dir))
-        ;; And CHERRY_PICK_HEAD does not exist when a conflict happens
-        ;; while picking a series of commits with --no-commit.
-        (and-let* ((line (magit-file-line
-                          (expand-file-name "sequencer/todo" dir))))
-          (string-prefix-p "pick" line)))))
+  (magit--with-refresh-cache (list default-directory 'cherry-pick-in-progress-p)
+    (let ((dir (magit-gitdir)))
+      (or (file-exists-p (expand-file-name "CHERRY_PICK_HEAD" dir))
+          ;; And CHERRY_PICK_HEAD does not exist when a conflict happens
+          ;; while picking a series of commits with --no-commit.
+          (and-let* ((line (magit-file-line
+                            (expand-file-name "sequencer/todo" dir))))
+            (string-prefix-p "pick" line))))))
 
 ;;; Revert
 
@@ -415,13 +416,14 @@ without prompting."
 
 (defun magit-revert-in-progress-p ()
   ;; .git/sequencer/todo does not exist when there is only one commit left.
-  (let ((dir (magit-gitdir)))
-    (or (file-exists-p (expand-file-name "REVERT_HEAD" dir))
-        ;; And REVERT_HEAD does not exist when a conflict happens
-        ;; while reverting a series of commits with --no-commit.
-        (and-let* ((line (magit-file-line
-                          (expand-file-name "sequencer/todo" dir))))
-          (string-prefix-p "revert" line)))))
+  (magit--with-refresh-cache (list default-directory 'revert-in-progress-p)
+    (let ((dir (magit-gitdir)))
+      (or (file-exists-p (expand-file-name "REVERT_HEAD" dir))
+          ;; And REVERT_HEAD does not exist when a conflict happens
+          ;; while reverting a series of commits with --no-commit.
+          (and-let* ((line (magit-file-line
+                            (expand-file-name "sequencer/todo" dir))))
+            (string-prefix-p "revert" line))))))
 
 ;;; Patch
 
@@ -515,7 +517,8 @@ This discards all changes made since the sequence started."
   (magit-run-git "am" "--abort"))
 
 (defun magit-am-in-progress-p ()
-  (file-exists-p (expand-file-name "rebase-apply/applying" (magit-gitdir))))
+  (magit--with-refresh-cache (list default-directory 'am-in-progress-p)
+    (file-exists-p (expand-file-name "rebase-apply/applying" (magit-gitdir)))))
 
 ;;; Rebase
 
@@ -867,9 +870,10 @@ edit.  With a prefix argument the old message is reused as-is."
 
 (defun magit-rebase-in-progress-p ()
   "Return t if a rebase is in progress."
-  (let ((dir (magit-gitdir)))
-    (or (file-exists-p (expand-file-name "rebase-merge" dir))
-        (file-exists-p (expand-file-name "rebase-apply/onto" dir)))))
+  (magit--with-refresh-cache (list default-directory 'rebase-in-progress-p)
+    (let ((dir (magit-gitdir)))
+      (or (file-exists-p (expand-file-name "rebase-merge" dir))
+          (file-exists-p (expand-file-name "rebase-apply/onto" dir))))))
 
 (defun magit--rebase-resume-command ()
   (if (file-exists-p (expand-file-name "rebase-recursive" (magit-gitdir)))

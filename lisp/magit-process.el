@@ -414,8 +414,9 @@ before use.
 
 Process output goes into a new section in the buffer returned by
 `magit-process-buffer'."
-  (run-hooks 'magit-pre-call-git-hook)
-  (let ((default-process-coding-system (magit--process-coding-system)))
+  (let ((default-process-coding-system (magit--process-coding-system))
+        (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0)))))
+    (run-hooks 'magit-pre-call-git-hook)
     (apply #'magit-call-process
            (magit-git-executable)
            (magit-process-git-arguments args))))
@@ -579,8 +580,9 @@ current when this function was called (if it is a Magit buffer
 and still alive), as well as the respective Magit status buffer.
 
 See `magit-start-process' for more information."
-  (run-hooks 'magit-pre-start-git-hook)
-  (let ((default-process-coding-system (magit--process-coding-system)))
+  (let ((default-process-coding-system (magit--process-coding-system))
+        (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0)))))
+    (run-hooks 'magit-pre-start-git-hook)
     (apply #'magit-start-process (magit-git-executable) input
            (magit-process-git-arguments args))))
 

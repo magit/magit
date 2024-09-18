@@ -86,6 +86,10 @@ all."
   :group 'magit-status
   :type 'hook)
 
+(defvar magit-status--limited-refresh nil)
+(defvar magit-status--refresh-cache nil)
+(defvar magit-status--refresh-cache-toplevel nil)
+
 (defcustom magit-status-initial-section '(1)
   "The section point is placed on when a status buffer is created.
 
@@ -432,7 +436,12 @@ Type \\[magit-commit] to create a commit.
     buf))
 
 (defun magit-status-refresh-buffer ()
-  (magit-git-exit-code "update-index" "--refresh")
+  (unless (and magit-status--limited-refresh
+               (equal magit-status--refresh-cache-toplevel default-directory))
+    (setq magit-status--refresh-cache magit--refresh-cache
+          magit--insert-cache nil)
+    (magit-git-exit-code "update-index" "--refresh"))
+  (setq magit-status--refresh-cache-toplevel default-directory)
   (magit-insert-section (status)
     (magit-run-section-hook 'magit-status-sections-hook)))
 

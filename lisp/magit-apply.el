@@ -149,6 +149,13 @@ so causes the change to be applied to the index as well."
                      (concat (magit-diff-file-header section)
                              (magit-apply--section-content section))))
 
+
+(defun magit-apply--get-refresh ()
+  (pcase (magit-diff-type)
+    ('untracked '(magit-insert-untracked-files magit-insert-staged-changes))
+    ('unstaged '(magit-insert-unstaged-changes magit-insert-staged-changes))
+    ('staged '(magit-insert-untracked-files magit-insert-unstaged-changes magit-insert-staged-changes))))
+
 (defun magit-apply--adjust-hunk-new-starts (hunks)
   "Adjust new line numbers in headers of HUNKS for partial application.
 HUNKS should be a list of ordered, contiguous hunks to be applied
@@ -215,7 +222,10 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
               (magit-diff-hunk-region-patch hunk args))))))
 
 (defun magit-apply-patch (section:s args patch)
-  (let* ((files (if (atom section:s)
+  (let* ((magit-status--limited-refresh
+             (or magit-status--limited-refresh
+                 (magit-apply--get-refresh)))
+         (files (if (atom section:s)
                     (list (oref section:s value))
                   (--map (oref it value) section:s)))
          (command (symbol-name this-command))
@@ -354,13 +364,15 @@ ignored) files."
 
 (defun magit-stage-1 (arg &optional files)
   (magit-wip-commit-before-change files " before stage")
-  (magit-run-git "add" arg (if files (cons "--" files) "."))
+  (let ((magit-status--limited-refresh (magit-apply--get-refresh)))
+    (magit-run-git "add" arg (if files (cons "--" files) ".")))
   (when magit-auto-revert-mode
     (mapc #'magit-turn-on-auto-revert-mode-if-desired files))
   (magit-wip-commit-after-apply files " after stage"))
 
 (defun magit-stage-untracked (&optional intent)
-  (let* ((section (magit-current-section))
+  (let* ((magit-status--limited-refresh '(magit-insert-untracked-files magit-insert-staged-changes))
+         (section (magit-current-section))
          (files (pcase (magit-diff-scope)
                   ('file  (list (oref section value)))
                   ('files (magit-region-values nil t))
@@ -387,7 +399,7 @@ ignored) files."
                    (fboundp 'borg--sort-submodule-sections))
           (let* ((topdir (magit-toplevel))
                  (url (let ((default-directory
-                             (file-name-as-directory (expand-file-name repo))))
+                              (file-name-as-directory (expand-file-name repo))))
                         (or (magit-get "remote" (magit-get-some-remote) "url")
                             (concat (file-name-as-directory ".") repo))))
                  (package
@@ -469,9 +481,10 @@ ignored) files."
 
 (defun magit-unstage-1 (files)
   (magit-wip-commit-before-change files " before unstage")
-  (if (magit-no-commit-p)
-      (magit-run-git "rm" "--cached" "--" files)
-    (magit-run-git "reset" "HEAD" "--" files))
+  (let ((magit-status--limited-refresh (magit-apply--get-refresh)))
+    (if (magit-no-commit-p)
+        (magit-run-git "rm" "--cached" "--" files)
+      (magit-run-git "reset" "HEAD" "--" files)))
   (magit-wip-commit-after-apply files " after unstage"))
 
 (defun magit-unstage-intent (files)
@@ -490,7 +503,8 @@ ignored) files."
             (magit-untracked-files))
     (magit-confirm 'unstage-all-changes))
   (magit-wip-commit-before-change nil " before unstage")
-  (magit-run-git "reset" "HEAD" "--" magit-buffer-diff-files)
+  (let ((magit-status--limited-refresh (magit-apply--get-refresh)))
+    (magit-run-git "reset" "HEAD" "--" magit-buffer-diff-files))
   (magit-wip-commit-after-apply nil " after unstage"))
 
 (defvar magit-post-unstage-hook-commands
@@ -523,29 +537,37 @@ of a side, then keep that side without prompting."
       (`(,_     files) (magit-discard-files  s))
       (`(,_      list) (magit-discard-files  s)))))
 
+(defun magit-discard--get-refresh ()
+  (pcase (magit-diff-type)
+    ('untracked '(magit-insert-untracked-files))
+    ('unstaged '(magit-insert-unstaged-changes))
+    ('staged '(magit-insert-staged-changes))))
+
 (defun magit-discard-region (section)
   (magit-confirm 'discard "Discard region")
   (magit-discard-apply section 'magit-apply-region))
 
 (defun magit-discard-hunk (section)
   (magit-confirm 'discard "Discard hunk")
-  (let ((file (magit-section-parent-value section)))
+  (let ((magit-status--limited-refresh (magit-discard--get-refresh))
+        (file (magit-section-parent-value section)))
     (pcase (cddr (car (magit-file-status file)))
       ('(?U ?U) (magit-smerge-keep-current))
       (_ (magit-discard-apply section #'magit-apply-hunk)))))
 
 (defun magit-discard-apply (section apply)
-  (if (eq (magit-diff-type section) 'unstaged)
-      (funcall apply section "--reverse")
-    (if (magit-anything-unstaged-p
-         nil (if (magit-file-section-p section)
-                 (oref section value)
-               (magit-section-parent-value section)))
-        (progn (let ((magit-inhibit-refresh t))
-                 (funcall apply section "--reverse" "--cached")
-                 (funcall apply section "--reverse" "--reject"))
-               (magit-refresh))
-      (funcall apply section "--reverse" "--index"))))
+  (let ((magit-status--limited-refresh (magit-discard--get-refresh)))
+    (if (eq (magit-diff-type section) 'unstaged)
+       (funcall apply section "--reverse")
+     (if (magit-anything-unstaged-p
+          nil (if (magit-file-section-p section)
+                  (oref section value)
+                (magit-section-parent-value section)))
+         (progn (let ((magit-inhibit-refresh t))
+                  (funcall apply section "--reverse" "--cached")
+                  (funcall apply section "--reverse" "--reject"))
+                (magit-refresh))
+       (funcall apply section "--reverse" "--index")))))
 
 (defun magit-discard-hunks (sections)
   (magit-confirm 'discard
@@ -555,7 +577,8 @@ of a side, then keep that side without prompting."
   (magit-discard-apply-n sections #'magit-apply-hunks))
 
 (defun magit-discard-apply-n (sections apply)
-  (let ((section (car sections)))
+  (let ((magit-status--limited-refresh (magit-discard--get-refresh))
+        (section (car sections)))
     (if (eq (magit-diff-type section) 'unstaged)
         (funcall apply sections "--reverse")
       (if (magit-anything-unstaged-p
@@ -572,7 +595,8 @@ of a side, then keep that side without prompting."
   (magit-discard-files (list section)))
 
 (defun magit-discard-files (sections)
-  (let ((auto-revert-verbose nil)
+  (let ((magit-status--limited-refresh (magit-discard--get-refresh))
+        (auto-revert-verbose nil)
         (type (magit-diff-type (car sections)))
         (status (magit-file-status))
         files delete resurrect rename discard discard-new resolve)

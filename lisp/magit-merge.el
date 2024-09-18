@@ -266,7 +266,8 @@ then also remove the respective remote branch."
 ;;; Utilities
 
 (defun magit-merge-in-progress-p ()
-  (file-exists-p (expand-file-name "MERGE_HEAD" (magit-gitdir))))
+  (magit--with-refresh-cache (list default-directory 'merge-in-progress-p)
+    (file-exists-p (expand-file-name "MERGE_HEAD" (magit-gitdir)))))
 
 (defun magit--merge-range (&optional head)
   (unless head

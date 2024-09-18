@@ -467,37 +467,53 @@ If Git exits with a non-zero exit status, then show a message and
 add a section in the respective process buffer."
   (apply #'magit--git-insert nil args))
 
+(defvar magit--insert-cache nil)
+(defvar magit--use-insert-cache nil)
+
 (defun magit--git-insert (return-error &rest args)
   (setq args (magit-process-git-arguments args))
-  (if (or return-error magit-git-debug)
-      (let (log)
-        (unwind-protect
-            (let (exit errmsg)
-              (setq log (make-temp-file "magit-stderr"))
-              (delete-file log)
-              (setq exit (magit-process-git (list t log) args))
-              (when (> exit 0)
-                (when (file-exists-p log)
-                  (with-temp-buffer
-                    (insert-file-contents log)
-                    (goto-char (point-max))
-                    (setq errmsg
-                          (if (functionp magit-git-debug)
-                              (funcall magit-git-debug (buffer-string))
-                            (magit--locate-error-message))))
+  (let ((start (point))
+        (cached (assoc (cons default-directory args) magit--insert-cache))
+        ret log)
+    (if (and magit--use-insert-cache cached)
+        (progn (insert (cdr cached))
+               (goto-char (point-max))
+               0)
+      (if (or return-error magit-git-debug)
+          (unwind-protect
+              (let (exit errmsg)
+                (setq log (make-temp-file "magit-stderr"))
+                (delete-file log)
+                (setq exit (magit-process-git (list t log) args))
+                (when (> exit 0)
+                  (when (file-exists-p log)
+                    (with-temp-buffer
+                      (insert-file-contents log)
+                      (goto-char (point-max))
+                      (setq errmsg
+                            (if (functionp magit-git-debug)
+                                (funcall magit-git-debug (buffer-string))
+                              (magit--locate-error-message))))
+                    (unless return-error
+                      (let ((magit-git-debug nil))
+                        (with-current-buffer (magit-process-buffer t)
+                          (magit-process-insert-section default-directory
+                                                        magit-git-executable
+                                                        args exit log)))))
                   (unless return-error
-                    (let ((magit-git-debug nil))
-                      (with-current-buffer (magit-process-buffer t)
-                        (magit-process-insert-section default-directory
-                                                      magit-git-executable
-                                                      args exit log)))))
-                (unless return-error
-                  (if errmsg
-                      (message "%s" errmsg)
-                    (message "Git returned with exit-code %s" exit))))
-              (or errmsg exit))
-          (ignore-errors (delete-file log))))
-    (magit-process-git (list t nil) args)))
+                    (if errmsg
+                        (message "%s" errmsg)
+                      (message "Git returned with exit-code %s" exit))))
+                (setq ret (or errmsg exit)))
+            (ignore-errors (delete-file log)))
+        (setq ret (magit-process-git (list t nil) args)))
+      (let* ((end (point))
+            (buf (current-buffer))
+            (text (buffer-substring-no-properties start end)))
+        (if cached
+            (setcdr cached text)
+          (push (cons (cons default-directory args) text) magit--insert-cache)))
+      ret)))
 
 (defun magit--locate-error-message ()
   (goto-char (point-max))
@@ -533,9 +549,10 @@ Empty items anywhere in the output are omitted.
 
 If Git exits with a non-zero exit status, then report show a
 message and add a section in the respective process buffer."
-  (magit--with-temp-process-buffer
-    (apply #'magit-git-insert args)
-    (split-string (buffer-string) "\0" t)))
+  (magit--with-refresh-cache (cons default-directory args)
+    (magit--with-temp-process-buffer
+      (apply #'magit-git-insert args)
+      (split-string (buffer-string) "\0" t))))
 
 (defvar magit--git-wash-keep-error nil) ; experimental
 
@@ -937,8 +954,8 @@ returning the truename."
 (define-error 'magit-outside-git-repo "Not inside Git repository")
 (define-error 'magit-corrupt-git-config "Corrupt Git configuration")
 (define-error 'magit-git-executable-not-found
-              (concat "Git executable cannot be found "
-                      "(see https://magit.vc/goto/e6a78ed2)"))
+  (concat "Git executable cannot be found "
+          "(see https://magit.vc/goto/e6a78ed2)"))
 
 (defun magit--assert-usable-git ()
   (if (not (compat-call executable-find (magit-git-executable) t))
@@ -2556,8 +2573,8 @@ and this option only controls what face is used.")
              ;; they are much more likely to be intended as just that:
              ;; punctuation and delimiters.
              (string (thread-first string
-                       (string-trim-left  "[(</]")
-                       (string-trim-right "[])>/.,;!]"))))
+                                   (string-trim-left  "[(</]")
+                                   (string-trim-right "[])>/.,;!]"))))
     (let (disallow)
       (when (or (string-match-p "\\.\\." string)
                 (string-match-p "/\\." string))
