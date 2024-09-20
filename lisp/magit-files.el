@@ -178,7 +178,8 @@ then only after asking.  A non-nil value for REVERT is ignored if REV is
     (let ((buffer-file-name magit-buffer-file-name)
           (after-change-major-mode-hook
            (seq-difference after-change-major-mode-hook
-                           '(global-diff-hl-mode-enable-in-buffers
+                           '(global-diff-hl-mode-enable-in-buffer ; Emacs >= 30
+                             global-diff-hl-mode-enable-in-buffers ; Emacs < 30
                              eglot--maybe-activate-editing-mode)
                            #'eq)))
       (normal-mode t))
