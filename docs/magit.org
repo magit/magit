@@ -5170,7 +5170,7 @@ The variables are described in [[*Branch Git Variables]].
   anyway and the previously current branch is not touched.
 
   This is useful to create a feature branch after work has already
-  began on the old branch (likely but not necessarily "master").
+  begun on the old branch (likely but not necessarily "master").
 
   If the current branch is a member of the value of option
   ~magit-branch-prefer-remote-upstream~ (which see), then the current
