@@ -1,4 +1,21 @@
 # -*- mode: org -*-
+* v4.1.1    UNRELEASED
+
+- Avoid unnecessary when ~auto-revert-remote-files~ is ~nil~.  #5222
+
+Bug fixes:
+
+- Added a workaround for a regression in Git v2.46.0.  #5212
+
+- Section-specific bindings were removed when a section was expanded
+  whose body is not inserted until the expansion takes place.
+  9395de2c94
+
+- Addressed an incompatibility with Eglot.  #5226
+
+- Adapted to a change in ~define-globalized-minor-mode~ in Emacs 30,
+  which caused ~diff-hl-mode~ to be enabled in blob buffers.  #5229
+
 * v4.1.0    2024-09-01
 
 - The library ~git-commit.el~ is no longer distributed as a separate
