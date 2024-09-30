@@ -19,6 +19,9 @@ Bug fixes:
 - Adapted to a change in ~define-globalized-minor-mode~ in Emacs 30,
   which caused ~diff-hl-mode~ to be enabled in blob buffers.  #5229
 
+- When adding the commit at point to the completion defaults, it was
+  assumed that ~minibuffer-default-add-function~ cannot be nil.
+
 * v4.1.0    2024-09-01
 
 - The library ~git-commit.el~ is no longer distributed as a separate
