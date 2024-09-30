@@ -1,7 +1,7 @@
 # -*- mode: org -*-
 * v4.1.1    UNRELEASED
 
-- Avoid unnecessary when ~auto-revert-remote-files~ is ~nil~.  #5222
+- Avoid unnecessary work when ~auto-revert-remote-files~ is ~nil~.  #5222
 
 Bug fixes:
 
