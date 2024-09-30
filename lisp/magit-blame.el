@@ -652,7 +652,7 @@ modes is toggled, then this mode also gets toggled automatically.
                 ;; Special case of the special case described in
                 ;; `magit-blame--make-margin-overlay'.  For empty
                 ;; lines it is not possible to show both overlays
-                ;; without the line being to high.
+                ;; without the line being too high.
                 (not (= (point) (line-end-position)))))
           magit-blame-separator))))
 
