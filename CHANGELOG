@@ -3,6 +3,9 @@
 
 - Avoid unnecessary work when ~auto-revert-remote-files~ is ~nil~.  #5222
 
+- Improved default choice offered by ~magit-branch-reset~ and
+  ~magit-reset-*~.  #5230
+
 Bug fixes:
 
 - Added a workaround for a regression in Git v2.46.0.  #5212
