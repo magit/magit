@@ -2620,13 +2620,16 @@ and this option only controls what face is used.")
                              secondary-default
                              (magit-get-current-branch))))
 
-(defun magit-read-branch-or-commit (prompt &optional secondary-default)
-  (let ((minibuffer-default-add-function (magit--minibuf-default-add-commit)))
-    (or (magit-completing-read prompt (magit-list-refnames nil t)
+(defun magit-read-branch-or-commit (prompt &optional secondary-default exclude)
+  (let ((current (magit-get-current-branch))
+        (atpoint (magit-branch-or-commit-at-point))
+        (minibuffer-default-add-function (magit--minibuf-default-add-commit)))
+    (or (magit-completing-read prompt
+                               (delete exclude (magit-list-refnames nil t))
                                nil nil nil 'magit-revision-history
-                               (or (magit-branch-or-commit-at-point)
+                               (or (and (not (equal atpoint exclude)) atpoint)
                                    secondary-default
-                                   (magit-get-current-branch)))
+                                   (and (not (equal current exclude)) current)))
         (user-error "Nothing selected"))))
 
 (defun magit-read-range-or-commit (prompt &optional secondary-default)
