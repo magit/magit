@@ -683,11 +683,7 @@ modes is toggled, then this mode also gets toggled automatically.
             (propertize format 'font-lock-face face)
             (cl-flet* ((p0 (s f)
                          (propertize s 'font-lock-face
-                                     (if face
-                                         (if (listp face)
-                                             face
-                                           (list f face))
-                                       f)))
+                                     (if face (cons f (ensure-list face)) f)))
                        (p1 (k f)
                          (p0 (cdr (assoc k revinfo)) f))
                        (p2 (k1 k2 f)

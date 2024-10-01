@@ -22,6 +22,9 @@ Bug fixes:
 - When adding the commit at point to the completion defaults, it was
   assumed that ~minibuffer-default-add-function~ cannot be nil.
 
+- ~magit-blame--format-string-1~ didn't handle a list of faces
+  correctly.
+
 * v4.1.0    2024-09-01
 
 - The library ~git-commit.el~ is no longer distributed as a separate
