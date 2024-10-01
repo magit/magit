@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v4.1.1    UNRELEASED
+* v4.1.1    2024-10-01
 
 - Avoid unnecessary work when ~auto-revert-remote-files~ is ~nil~.  #5222
 
@@ -21,9 +21,10 @@ Bug fixes:
 
 - When adding the commit at point to the completion defaults, it was
   assumed that ~minibuffer-default-add-function~ cannot be nil.
+  6d0075f523
 
 - ~magit-blame--format-string-1~ didn't handle a list of faces
-  correctly.
+  correctly.  5395798301
 
 - Addressed an incompatibility with Indent-Bars.  #5233
 
