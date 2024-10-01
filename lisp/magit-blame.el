@@ -644,7 +644,10 @@ modes is toggled, then this mode also gets toggled automatically.
   (overlay-put
    ov 'before-string
    (if-let ((format (magit-blame--style-get 'heading-format)))
-       (magit-blame--format-string ov format 'magit-blame-heading)
+       ;; Use `default' as the last face to avoid picking up any face
+       ;; attributes from the first character of the text on which we
+       ;; put the overlay.  See #5233.
+       (magit-blame--format-string ov format '(magit-blame-heading default))
      (and (magit-blame--style-get 'show-lines)
           (or (not (magit-blame--style-get 'margin-format))
               (save-excursion

@@ -25,6 +25,8 @@ Bug fixes:
 - ~magit-blame--format-string-1~ didn't handle a list of faces
   correctly.
 
+- Addressed an incompatibility with Indent-Bars.  #5233
+
 * v4.1.0    2024-09-01
 
 - The library ~git-commit.el~ is no longer distributed as a separate
