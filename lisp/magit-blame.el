@@ -346,7 +346,7 @@ in `magit-blame-read-only-mode-map' instead."
                (and (cl-find-if (lambda (style)
                                   (assq 'margin-format (cdr style)))
                                 magit-blame-styles)))
-         (magit-blame--update-margin))
+         (magit-blame--update-margin 'enable))
         (t
          (when (process-live-p magit-blame-process)
            (kill-process magit-blame-process)
@@ -365,7 +365,7 @@ in `magit-blame-read-only-mode-map' instead."
          (kill-local-variable 'magit-blame-disabled-modes)
          (kill-local-variable 'magit-blame-type)
          (kill-local-variable 'magit-blame--style)
-         (magit-blame--update-margin)
+         (magit-blame--update-margin 'disable)
          (magit-blame--remove-overlays))))
 
 (defun magit-blame--refresh ()
@@ -537,6 +537,8 @@ modes is toggled, then this mode also gets toggled automatically.
 
 ;;; Display
 
+(defvar-local magit-blame--previous-margin-width nil)
+
 (defsubst magit-blame--style-get (key)
   (cdr (assoc key (cdr magit-blame--style))))
 
@@ -604,8 +606,15 @@ modes is toggled, then this mode also gets toggled automatically.
     (overlay-put ov 'magit-blame-highlight t)
     (magit-blame--update-highlight-overlay ov)))
 
-(defun magit-blame--update-margin ()
-  (setq left-margin-width (or (magit-blame--style-get 'margin-width) 0))
+(defun magit-blame--update-margin (&optional action)
+  (when (eq action 'enable)
+    (setq magit-blame--previous-margin-width left-margin-width))
+  (setq left-margin-width
+        (if (eq action 'disable)
+            (prog1 magit-blame--previous-margin-width
+              (setq magit-blame--previous-margin-width nil))
+          (or (magit-blame--style-get 'margin-width)
+              magit-blame--previous-margin-width)))
   (set-window-buffer (selected-window) (current-buffer)))
 
 (defun magit-blame--update-overlays ()

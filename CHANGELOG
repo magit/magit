@@ -1,4 +1,12 @@
 # -*- mode: org -*-
+* v4.1.2    UNRELEASED
+
+Bug fixes:
+
+- If the left margin was in use before ~magit-blame-mode~ started using
+  that margin, then the old width was not restored when the mode was
+  disabled.  #5236
+
 * v4.1.1    2024-10-01
 
 - Avoid unnecessary work when ~auto-revert-remote-files~ is ~nil~.  #5222
