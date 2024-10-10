@@ -619,7 +619,7 @@ Magit status buffer."
                         ;; Defaults to "", to allow staging hunks over
                         ;; Tramp again.  #4720
                         magit-tramp-pipe-stty-settings)
-                   tramp-pipe-stty-settings))
+                   (bound-and-true-p tramp-pipe-stty-settings)))
               (process-environment (magit-process-environment))
               (default-process-coding-system (magit--process-coding-system)))
           (apply #'start-file-process

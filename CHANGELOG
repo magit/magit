@@ -7,6 +7,10 @@ Bug fixes:
   that margin, then the old width was not restored when the mode was
   disabled.  #5236
 
+- Prior to Tramp being loaded, setting ~magit-tramp-pipe-stty-settings~
+  to ~nil~ resulted in an error, due to ~tramp-pipe-stty-settings~ not
+  being bound yet.  #5240
+
 * v4.1.1    2024-10-01
 
 - Avoid unnecessary work when ~auto-revert-remote-files~ is ~nil~.  #5222
