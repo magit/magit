@@ -639,7 +639,7 @@ whenever a buffer is saved to a file inside the respective repository
 by adding a hook, like so:
 
 #+begin_src emacs-lisp
-  (with-eval-after-load 'magit-mode
+  (with-eval-after-load 'magit
     (add-hook 'after-save-hook 'magit-after-save-refresh-status t))
 #+end_src
 
