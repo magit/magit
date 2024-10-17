@@ -611,9 +611,8 @@ prompt is confusing."
                    (cl-set-difference branches unmerged :test #'equal))
              (user-error "Abort"))))
      (list branches force)))
-  (let* ((refs (mapcar #'magit-ref-fullname branches))
-         (ambiguous (--remove it refs)))
-    (when ambiguous
+  (let ((refs (mapcar #'magit-ref-fullname branches)))
+    (when-let ((ambiguous (--remove it refs)))
       (user-error
        "%s ambiguous.  Please cleanup using git directly."
        (let ((len (length ambiguous)))
