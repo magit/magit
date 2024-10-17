@@ -292,13 +292,12 @@ depending on the value of option `magit-commit-squash-confirm'."
 (defun magit-commit-squash-internal
     (option commit &optional args rebase edit confirmed)
   (when-let ((args (magit-commit-assert args (not edit))))
-    (when commit
-      (when (and rebase (not (magit-rev-ancestor-p commit "HEAD")))
-        (magit-read-char-case
-            (format "%s isn't an ancestor of HEAD.  " commit) nil
-          (?c "[c]reate without rebasing" (setq rebase nil))
-          (?s "[s]elect other"            (setq commit nil))
-          (?a "[a]bort"                   (user-error "Quit")))))
+    (when (and commit rebase (not (magit-rev-ancestor-p commit "HEAD")))
+      (magit-read-char-case
+          (format "%s isn't an ancestor of HEAD.  " commit) nil
+        (?c "[c]reate without rebasing" (setq rebase nil))
+        (?s "[s]elect other"            (setq commit nil))
+        (?a "[a]bort"                   (user-error "Quit"))))
     (when commit
       (setq commit (magit-rebase-interactive-assert commit t)))
     (if (and commit
