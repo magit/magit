@@ -937,20 +937,20 @@ is displayed in the current frame."
 (defun magit-log-move-to-parent (&optional n)
   "Move to the Nth parent of the current commit."
   (interactive "p")
-  (when (derived-mode-p 'magit-log-mode)
-    (when (magit-section-match 'commit)
-      (let* ((section (magit-current-section))
-             (parent-rev (format "%s^%s" (oref section value) (or n 1))))
-        (if-let ((parent-hash (magit-rev-parse "--short" parent-rev)))
-            (if-let ((parent (--first (equal (oref it value)
-                                             parent-hash)
-                                      (magit-section-siblings section 'next))))
-                (magit-section-goto parent)
-              (user-error
-               (substitute-command-keys
-                (concat "Parent " parent-hash " not found.  Try typing "
-                        "\\[magit-log-double-commit-limit] first"))))
-          (user-error "Parent %s does not exist" parent-rev))))))
+  (when (and (derived-mode-p 'magit-log-mode)
+             (magit-section-match 'commit))
+    (let* ((section (magit-current-section))
+           (parent-rev (format "%s^%s" (oref section value) (or n 1))))
+      (if-let ((parent-hash (magit-rev-parse "--short" parent-rev)))
+          (if-let ((parent (--first (equal (oref it value)
+                                           parent-hash)
+                                    (magit-section-siblings section 'next))))
+              (magit-section-goto parent)
+            (user-error
+             (substitute-command-keys
+              (concat "Parent " parent-hash " not found.  Try typing "
+                      "\\[magit-log-double-commit-limit] first"))))
+        (user-error "Parent %s does not exist" parent-rev)))))
 
 (defun magit-log-move-to-revision (rev)
   "Read a revision and move to it in current log buffer.
