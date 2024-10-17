@@ -794,7 +794,7 @@ argument."
            (push (list value default-directory) magit-revision-stack)
            (kill-new (message "%s" (or (and current-prefix-arg ref)
                                        value)))))
-        ((kill-new (message "%s" value))))))))
+        (t (kill-new (message "%s" value))))))))
 
 ;;;###autoload
 (defun magit-copy-buffer-revision ()
