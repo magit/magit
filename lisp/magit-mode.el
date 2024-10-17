@@ -1132,12 +1132,11 @@ Note that refreshing a Magit buffer is done by re-creating its
 contents from scratch, which can be slow in large repositories.
 If you are not satisfied with Magit's performance, then you
 should obviously not add this function to that hook."
-  (when (and (not magit--disable-save-buffers)
-             (magit-inside-worktree-p t))
-    (when-let ((buffer (ignore-errors
-                         (magit-get-mode-buffer 'magit-status-mode))))
-      (add-to-list 'magit-after-save-refresh-buffers buffer)
-      (add-hook 'post-command-hook #'magit-after-save-refresh-buffers))))
+  (when-let (((and (not magit--disable-save-buffers)
+                   (magit-inside-worktree-p t)))
+             (buf (ignore-errors (magit-get-mode-buffer 'magit-status-mode))))
+    (add-to-list 'magit-after-save-refresh-buffers buf)
+    (add-hook 'post-command-hook #'magit-after-save-refresh-buffers)))
 
 (defun magit-maybe-save-repository-buffers ()
   "Maybe save file-visiting buffers belonging to the current repository.

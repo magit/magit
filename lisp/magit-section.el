@@ -631,17 +631,17 @@ with SECTION, otherwise return a list of section types."
         `(menu-item
           ,(if (oref section hidden) "Expand section" "Collapse section")
           magit-section-toggle))
-      (unless (oref section hidden)
-        (when-let ((children (oref section children)))
-          (when (seq-some #'magit-section-content-p children)
-            (when (seq-some (lambda (c) (oref c hidden)) children)
-              (keymap-set-after menu "<magit-section-show-children>"
-                `(menu-item "Expand children"
-                            magit-section-show-children)))
-            (when (seq-some (lambda (c) (not (oref c hidden))) children)
-              (keymap-set-after menu "<magit-section-hide-children>"
-                `(menu-item "Collapse children"
-                            magit-section-hide-children))))))
+      (when-let (((not (oref section hidden)))
+                 (children (oref section children)))
+        (when (seq-some #'magit-section-content-p children)
+          (when (seq-some (lambda (c) (oref c hidden)) children)
+            (keymap-set-after menu "<magit-section-show-children>"
+              `(menu-item "Expand children"
+                          magit-section-show-children)))
+          (when (seq-some (lambda (c) (not (oref c hidden))) children)
+            (keymap-set-after menu "<magit-section-hide-children>"
+              `(menu-item "Collapse children"
+                          magit-section-hide-children)))))
       (keymap-set-after menu "<separator-magit-1>" menu-bar-separator))
     (keymap-set-after menu "<magit-describe-section>"
       `(menu-item "Describe section" magit-describe-section))

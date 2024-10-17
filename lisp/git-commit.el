@@ -489,7 +489,7 @@ the redundant bindings, then set this to nil, before loading
 (defun git-commit-file-not-found ()
   ;; cygwin git will pass a cygwin path (/cygdrive/c/foo/.git/...),
   ;; try to handle this in window-nt Emacs.
-  (when-let
+  (when-let*
       ((file (and (or (string-match-p git-commit-filename-regexp
                                       buffer-file-name)
                       (and (boundp 'git-rebase-filename-regexp)
@@ -497,11 +497,11 @@ the redundant bindings, then set this to nil, before loading
                                            buffer-file-name)))
                   (not (file-accessible-directory-p
                         (file-name-directory buffer-file-name)))
-                  (magit-expand-git-file-name (substring buffer-file-name 2)))))
-    (when (file-accessible-directory-p (file-name-directory file))
-      (let ((inhibit-read-only t))
-        (insert-file-contents file t)
-        t))))
+                  (magit-expand-git-file-name (substring buffer-file-name 2))))
+       ((file-accessible-directory-p (file-name-directory file)))
+       (inhibit-read-only t))
+    (insert-file-contents file t)
+    t))
 
 (when (eq system-type 'windows-nt)
   (add-hook 'find-file-not-found-functions #'git-commit-file-not-found))
@@ -747,11 +747,11 @@ With a numeric prefix ARG, go back ARG comments."
       ;; Unlike `log-edit-previous-comment' we save the current
       ;; non-empty and newly written comment, because otherwise
       ;; it would be irreversibly lost.
-      (when-let ((message (git-commit-buffer-message)))
-        (unless (ring-member log-edit-comment-ring message)
-          (ring-insert log-edit-comment-ring message)
-          (cl-incf arg)
-          (setq len (ring-length log-edit-comment-ring))))
+      (when-let* ((message (git-commit-buffer-message))
+                  ((not (ring-member log-edit-comment-ring message))))
+        (ring-insert log-edit-comment-ring message)
+        (cl-incf arg)
+        (setq len (ring-length log-edit-comment-ring)))
       ;; Delete the message but not the instructions at the end.
       (save-restriction
         (goto-char (point-min))

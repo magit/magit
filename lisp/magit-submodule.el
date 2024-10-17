@@ -590,39 +590,39 @@ These sections can be expanded to show the respective commits."
 
 (defun magit--insert-modules-logs (heading type range)
   "For internal use, don't add to a hook."
-  (unless (magit-ignore-submodules-p)
-    (when-let ((modules (magit-list-module-paths)))
-      (magit-insert-section ((eval type) nil t)
-        (string-match "\\`\\(.+\\) \\([^ ]+\\)\\'" heading)
-        (magit-insert-heading
-          (propertize (match-string 1 heading)
-                      'font-lock-face 'magit-section-heading)
-          " "
-          (propertize (match-string 2 heading)
-                      'font-lock-face 'magit-branch-remote)
-          ":")
-        (dolist (module modules)
-          (when-let* ((default-directory (expand-file-name module))
-                      ((file-exists-p (expand-file-name ".git")))
-                      (lines (magit-git-lines "-c" "push.default=current"
-                                              "log" "--oneline" range))
-                      (count (length lines))
-                      ((> count 0)))
-            (magit-insert-section
-                ( module module t
-                  :range range)
-              (magit-insert-heading count
-                (propertize module 'font-lock-face 'magit-diff-file-heading))
-              (dolist (line lines)
-                (string-match magit-log-module-re line)
-                (let ((rev (match-string 1 line))
-                      (msg (match-string 2 line)))
-                  (magit-insert-section (module-commit rev t)
-                    (insert (propertize rev 'font-lock-face 'magit-hash) " "
-                            (funcall magit-log-format-message-function rev msg)
-                            "\n")))))))
-        (magit-cancel-section 'if-empty)
-        (insert ?\n)))))
+  (when-let (((not (magit-ignore-submodules-p)))
+             (modules (magit-list-module-paths)))
+    (magit-insert-section ((eval type) nil t)
+      (string-match "\\`\\(.+\\) \\([^ ]+\\)\\'" heading)
+      (magit-insert-heading
+        (propertize (match-string 1 heading)
+                    'font-lock-face 'magit-section-heading)
+        " "
+        (propertize (match-string 2 heading)
+                    'font-lock-face 'magit-branch-remote)
+        ":")
+      (dolist (module modules)
+        (when-let* ((default-directory (expand-file-name module))
+                    ((file-exists-p (expand-file-name ".git")))
+                    (lines (magit-git-lines "-c" "push.default=current"
+                                            "log" "--oneline" range))
+                    (count (length lines))
+                    ((> count 0)))
+          (magit-insert-section
+              ( module module t
+                :range range)
+            (magit-insert-heading count
+              (propertize module 'font-lock-face 'magit-diff-file-heading))
+            (dolist (line lines)
+              (string-match magit-log-module-re line)
+              (let ((rev (match-string 1 line))
+                    (msg (match-string 2 line)))
+                (magit-insert-section (module-commit rev t)
+                  (insert (propertize rev 'font-lock-face 'magit-hash) " "
+                          (funcall magit-log-format-message-function rev msg)
+                          "\n")))))))
+      (magit-cancel-section 'if-empty)
+      (insert ?\n))))
 
 ;;; List
 

@@ -1649,10 +1649,10 @@ The amount of time spent searching is limited by
                           (magit-git-lines
                            "for-each-ref" "refs/heads"
                            "--format=%(refname:short)\t%(upstream:short)"))))
-    (when-let ((old (assoc oldname branches)))
-      (unless (assoc newname branches)
-        (magit-call-git "branch" "-m" oldname newname)
-        (setcar old newname)))
+    (when-let ((old (assoc oldname branches))
+               ((not (assoc newname branches))))
+      (magit-call-git "branch" "-m" oldname newname)
+      (setcar old newname))
     (let ((new (if (magit-branch-p newname)
                    newname
                  (concat remote "/" newname))))
@@ -2439,10 +2439,11 @@ and this option only controls what face is used.")
                     (expand-file-name "index.magit." (magit-gitdir))))))
        (unwind-protect
            (magit-with-toplevel
-             (when-let ((tree ,tree))
-               (unless (magit-git-success "read-tree" ,arg tree
-                                          (concat "--index-output=" ,file))
-                 (error "Cannot read tree %s" tree)))
+             (when-let* ((tree ,tree)
+                         ((not (magit-git-success
+                                "read-tree" ,arg tree
+                                (concat "--index-output=" ,file)))))
+               (error "Cannot read tree %s" tree))
              (with-environment-variables (("GIT_INDEX_FILE" ,file))
                ,@body))
          (ignore-errors

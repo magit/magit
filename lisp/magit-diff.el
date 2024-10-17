@@ -796,9 +796,9 @@ and `:slant'."
   (pcase-let ((`(,args ,files)
                (magit-diff--get-value 'magit-diff-mode
                                       magit-prefix-use-buffer-arguments)))
-    (unless (eq transient-current-command 'magit-dispatch)
-      (when-let ((file (magit-file-relative-name)))
-        (setq files (list file))))
+    (when-let ((not (eq transient-current-command 'magit-dispatch))
+               (file (magit-file-relative-name)))
+      (setq files (list file)))
     (oset obj value (if files `(("--" ,@files) ,args) args))))
 
 (cl-defmethod transient-init-value ((obj magit-diff-refresh-prefix))
@@ -830,13 +830,13 @@ and `:slant'."
            (eq major-mode mode))
       (setq args  magit-buffer-diff-args)
       (setq files magit-buffer-diff-files))
-     ((and (memq use-buffer-args '(always selected))
-           (when-let ((buffer (magit-get-mode-buffer
-                               mode nil
-                               (eq use-buffer-args 'selected))))
-             (setq args  (buffer-local-value 'magit-buffer-diff-args buffer))
-             (setq files (buffer-local-value 'magit-buffer-diff-files buffer))
-             t)))
+     ((when-let (((memq use-buffer-args '(always selected)))
+                 (buffer (magit-get-mode-buffer
+                          mode nil
+                          (eq use-buffer-args 'selected))))
+        (setq args  (buffer-local-value 'magit-buffer-diff-args buffer))
+        (setq files (buffer-local-value 'magit-buffer-diff-files buffer))
+        t))
      ((plist-member (symbol-plist mode) 'magit-diff-current-arguments)
       (setq args (get mode 'magit-diff-current-arguments)))
      ((when-let ((elt (assq (intern (format "magit-diff:%s" mode))
@@ -2793,25 +2793,25 @@ or a ref which is not a branch, then it inserts nothing."
         (magit--insert-related-refs
          magit-buffer-revision "--contains" "Contained"
          (memq magit-revision-insert-related-refs '(all mixed))))
-      (when (magit-revision-insert-related-refs-display-p 'follows)
-        (when-let ((follows (magit-get-current-tag magit-buffer-revision t)))
-          (let ((tag (car  follows))
-                (cnt (cadr follows)))
-            (magit-insert-section (tag tag)
-              (insert
-               (format "Follows:    %s (%s)\n"
-                       (propertize tag 'font-lock-face 'magit-tag)
-                       (propertize (number-to-string cnt)
-                                   'font-lock-face 'magit-branch-local)))))))
-      (when (magit-revision-insert-related-refs-display-p 'precedes)
-        (when-let ((precedes (magit-get-next-tag magit-buffer-revision t)))
-          (let ((tag (car  precedes))
-                (cnt (cadr precedes)))
-            (magit-insert-section (tag tag)
-              (insert (format "Precedes:   %s (%s)\n"
-                              (propertize tag 'font-lock-face 'magit-tag)
-                              (propertize (number-to-string cnt)
-                                          'font-lock-face 'magit-tag)))))))
+      (when-let (((magit-revision-insert-related-refs-display-p 'follows))
+                 (follows (magit-get-current-tag magit-buffer-revision t)))
+        (let ((tag (car  follows))
+              (cnt (cadr follows)))
+          (magit-insert-section (tag tag)
+            (insert
+             (format "Follows:    %s (%s)\n"
+                     (propertize tag 'font-lock-face 'magit-tag)
+                     (propertize (number-to-string cnt)
+                                 'font-lock-face 'magit-branch-local))))))
+      (when-let (((magit-revision-insert-related-refs-display-p 'precedes))
+                 (precedes (magit-get-next-tag magit-buffer-revision t)))
+        (let ((tag (car  precedes))
+              (cnt (cadr precedes)))
+          (magit-insert-section (tag tag)
+            (insert (format "Precedes:   %s (%s)\n"
+                            (propertize tag 'font-lock-face 'magit-tag)
+                            (propertize (number-to-string cnt)
+                                        'font-lock-face 'magit-tag))))))
       (insert ?\n))))
 
 (defun magit-revision-insert-related-refs-display-p (sym)
@@ -2854,21 +2854,21 @@ Refer to user option `magit-revision-insert-related-refs-display-alist'."
 (defun magit-insert-revision-gravatar (beg rev email regexp)
   (save-excursion
     (goto-char beg)
-    (when (re-search-forward regexp nil t)
-      (when-let ((window (get-buffer-window)))
-        (let* ((column   (length (match-string 0)))
-               (font-obj (query-font (font-at (point) window)))
-               (size     (* 2 (+ (aref font-obj 4)
-                                 (aref font-obj 5))))
-               (align-to (+ column
-                            (ceiling (/ size (aref font-obj 7) 1.0))
-                            1))
-               (gravatar-size (- size 2)))
-          (ignore-errors ; service may be unreachable
-            (gravatar-retrieve email #'magit-insert-revision-gravatar-cb
-                               (list gravatar-size rev
-                                     (point-marker)
-                                     align-to column))))))))
+    (when-let (((re-search-forward regexp nil t))
+               (window (get-buffer-window)))
+      (let* ((column   (length (match-string 0)))
+             (font-obj (query-font (font-at (point) window)))
+             (size     (* 2 (+ (aref font-obj 4)
+                               (aref font-obj 5))))
+             (align-to (+ column
+                          (ceiling (/ size (aref font-obj 7) 1.0))
+                          1))
+             (gravatar-size (- size 2)))
+        (ignore-errors ; service may be unreachable
+          (gravatar-retrieve email #'magit-insert-revision-gravatar-cb
+                             (list gravatar-size rev
+                                   (point-marker)
+                                   align-to column)))))))
 
 (defun magit-insert-revision-gravatar-cb (image size rev marker align-to column)
   (unless (eq image 'error)
