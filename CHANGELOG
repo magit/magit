@@ -11,6 +11,9 @@ Bug fixes:
   to ~nil~ resulted in an error, due to ~tramp-pipe-stty-settings~ not
   being bound yet.  #5240
 
+- ~magit-copy-section-value~ no longer did anything for most section
+  types.  #5244.
+
 * v4.1.1    2024-10-01
 
 - Avoid unnecessary work when ~auto-revert-remote-files~ is ~nil~.  #5222
