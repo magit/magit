@@ -468,7 +468,7 @@ add a section in the respective process buffer."
   (apply #'magit--git-insert nil args))
 
 (defun magit--git-insert (return-error &rest args)
-  (setq args (magit-process-git-arguments args))
+  (setq args (flatten-tree args))
   (if (or return-error magit-git-debug)
       (let (log)
         (unwind-protect
@@ -488,9 +488,10 @@ add a section in the respective process buffer."
                   (unless return-error
                     (let ((magit-git-debug nil))
                       (with-current-buffer (magit-process-buffer t)
-                        (magit-process-insert-section default-directory
-                                                      magit-git-executable
-                                                      args exit log)))))
+                        (magit-process-insert-section
+                         default-directory magit-git-executable
+                         (magit-process-git-arguments args)
+                         exit log)))))
                 (unless return-error
                   (if errmsg
                       (message "%s" errmsg)

@@ -14,6 +14,9 @@ Bug fixes:
 - ~magit-copy-section-value~ no longer did anything for most section
   types.  #5244.
 
+- Global git arguments often got added twice to the list of arguments
+  ultimately passed to git.
+
 * v4.1.1    2024-10-01
 
 - Avoid unnecessary work when ~auto-revert-remote-files~ is ~nil~.  #5222
