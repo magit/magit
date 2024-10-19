@@ -55,6 +55,8 @@
 (declare-function magit-process-buffer "magit-process" (&optional nodisplay))
 (declare-function magit-process-file "magit-process"
                   (process &optional infile buffer display &rest args))
+(declare-function magit-process-finish-section "magit-process"
+                  (section exit-code))
 (declare-function magit-process-git "magit-process" (destination &rest args))
 (declare-function magit-process-insert-section "magit-process"
                   (pwd program args &optional errcode errlog))
@@ -488,10 +490,12 @@ insert the run command and stderr into the process buffer."
                   (when magit-git-debug
                     (let ((magit-git-debug nil))
                       (with-current-buffer (magit-process-buffer t)
-                        (magit-process-insert-section
-                         default-directory magit-git-executable
-                         (magit-process-git-arguments args)
-                         exit log)))))
+                        (magit-process-finish-section
+                         (magit-process-insert-section
+                          default-directory magit-git-executable
+                          (magit-process-git-arguments args)
+                          exit log)
+                         exit)))))
                 (when magit-git-debug
                   (if errmsg
                       (message "%s" errmsg)
