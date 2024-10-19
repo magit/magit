@@ -462,9 +462,9 @@ a boolean, then raise an error."
             (signal 'magit-invalid-git-boolean (list output))))))))
 
 (defun magit-git-insert (&rest args)
-  "Execute Git with ARGS, inserting its output at point.
-If Git exits with a non-zero exit status, then show a message and
-add a section in the respective process buffer."
+  "Execute Git with ARGS, insert stdout at point and return exit code.
+If `magit-git-debug' in non-nil and the exit code is non-zero, then
+insert the run command and stderr into the process buffer."
   (apply #'magit--git-insert nil args))
 
 (defun magit--git-insert (return-error &rest args)
