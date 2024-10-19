@@ -59,7 +59,7 @@
                   (section exit-code))
 (declare-function magit-process-git "magit-process" (destination &rest args))
 (declare-function magit-process-insert-section "magit-process"
-                  (pwd program args &optional errcode errlog))
+                  (pwd program args &optional errcode errlog face))
 (defvar magit-this-error)
 (defvar magit-process-error-message-regexps)
 
@@ -400,7 +400,8 @@ still subject to major changes.  Also see `magit-git-string-p'."
             (with-current-buffer (magit-process-buffer t)
               (magit-process-insert-section default-directory
                                             magit-git-executable args
-                                            status buf)))
+                                            status buf
+                                            'magit-section-secondary-heading)))
           (when-let ((status-buf (magit-get-mode-buffer 'magit-status-mode)))
             (let ((msg (magit--locate-error-message)))
               (with-current-buffer status-buf
@@ -494,7 +495,7 @@ insert the run command and stderr into the process buffer."
                          (magit-process-insert-section
                           default-directory magit-git-executable
                           (magit-process-git-arguments args)
-                          exit log)
+                          exit log 'magit-section-secondary-heading)
                          exit)))))
                 (cond ((not magit-git-debug))
                       (errmsg (message "%s" errmsg))

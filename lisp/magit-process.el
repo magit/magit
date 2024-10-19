@@ -691,7 +691,8 @@ Magit status buffer."
                 (prog1 (magit-process-insert-section pwd program args nil nil)
                   (backward-char 1))))))
 
-(defun magit-process-insert-section (pwd program args &optional errcode errlog)
+(defun magit-process-insert-section
+    (pwd program args &optional errcode errlog face)
   (let ((inhibit-read-only t)
         (magit-insert-section--current nil)
         (magit-insert-section--parent magit-root-section)
@@ -704,11 +705,12 @@ Magit status buffer."
                 "run "))
       (when magit-process-timestamp-format
         (insert (format-time-string magit-process-timestamp-format) " "))
-      (unless (equal (expand-file-name pwd)
-                     (expand-file-name default-directory))
-        (insert (file-relative-name pwd default-directory) ?\s))
-      (insert (magit-process--format-arguments program args))
-      (magit-insert-heading)
+      (let ((cmd (concat
+                  (and (not (equal (expand-file-name pwd)
+                                   (expand-file-name default-directory)))
+                       (concat (file-relative-name pwd default-directory) " "))
+                  (magit-process--format-arguments program args))))
+        (magit-insert-heading (if face (propertize cmd 'face face) cmd)))
       (when errlog
         (if (bufferp errlog)
             (insert (with-current-buffer errlog
