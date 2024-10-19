@@ -706,8 +706,10 @@ Magit status buffer."
       (when magit-process-timestamp-format
         (insert (format-time-string magit-process-timestamp-format) " "))
       (let ((cmd (concat
-                  (and (not (equal (expand-file-name pwd)
-                                   (expand-file-name default-directory)))
+                  (and (not (equal
+                             (file-name-as-directory (expand-file-name pwd))
+                             (file-name-as-directory (expand-file-name
+                                                      default-directory))))
                        (concat (file-relative-name pwd default-directory) " "))
                   (magit-process--format-arguments program args))))
         (magit-insert-heading (if face (propertize cmd 'face face) cmd)))
