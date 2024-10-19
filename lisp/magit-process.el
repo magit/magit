@@ -311,6 +311,7 @@ Used when `magit-process-display-mode-line-error' is non-nil."
 (defvar-keymap magit-process-mode-map
   :doc "Keymap for `magit-process-mode'."
   :parent magit-mode-map
+  "<remap> <magit-refresh>"      #'undefined
   "<remap> <magit-delete-thing>" #'magit-process-kill)
 
 (define-derived-mode magit-process-mode magit-mode "Magit Process"
