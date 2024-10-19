@@ -485,14 +485,14 @@ add a section in the respective process buffer."
                           (if (functionp magit-git-debug)
                               (funcall magit-git-debug (buffer-string))
                             (magit--locate-error-message))))
-                  (unless return-error
+                  (when magit-git-debug
                     (let ((magit-git-debug nil))
                       (with-current-buffer (magit-process-buffer t)
                         (magit-process-insert-section
                          default-directory magit-git-executable
                          (magit-process-git-arguments args)
                          exit log)))))
-                (unless return-error
+                (when magit-git-debug
                   (if errmsg
                       (message "%s" errmsg)
                     (message "Git returned with exit-code %s" exit))))
