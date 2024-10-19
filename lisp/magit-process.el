@@ -808,7 +808,7 @@ Magit status buffer."
       ;; Find last ^M in string.  If one was found, ignore
       ;; everything before it and delete the current line.
       (when-let ((ret-pos (cl-position ?\r string :from-end t)))
-        (cl-callf substring string (1+ ret-pos))
+        (setq string (substring string (1+ ret-pos)))
         (delete-region (line-beginning-position) (point)))
       (setq string (magit-process-remove-bogus-errors string))
       (insert (propertize string 'magit-section

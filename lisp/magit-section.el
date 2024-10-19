@@ -1603,7 +1603,7 @@ is explicitly expanded."
       (insert "\n")
       ;; Make the first header into the parent of the rest.
       (when (cdr header-sections)
-        (cl-callf nreverse header-sections)
+        (setq header-sections (nreverse header-sections))
         (let* ((1st-header (pop header-sections))
                (header-parent (oref 1st-header parent)))
           (oset header-parent children (list 1st-header))
