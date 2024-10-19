@@ -478,7 +478,7 @@ insert the run command and stderr into the process buffer."
               (setq log (make-temp-file "magit-stderr"))
               (delete-file log)
               (setq exit (magit-process-git (list t log) args))
-              (when (> exit 0)
+              (when (or (> exit 0) (eq magit-git-debug 'all))
                 (when (file-exists-p log)
                   (with-temp-buffer
                     (insert-file-contents log)
@@ -496,10 +496,10 @@ insert the run command and stderr into the process buffer."
                           (magit-process-git-arguments args)
                           exit log)
                          exit)))))
-                (when magit-git-debug
-                  (if errmsg
-                      (message "%s" errmsg)
-                    (message "Git returned with exit-code %s" exit))))
+                (cond ((not magit-git-debug))
+                      (errmsg (message "%s" errmsg))
+                      ((zerop exit))
+                      ((message "Git returned with exit-code %s" exit))))
               (or errmsg exit))
           (ignore-errors (delete-file log))))
     (magit-process-git (list t nil) args)))
