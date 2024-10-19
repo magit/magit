@@ -1181,31 +1181,7 @@ Limited by `magit-process-error-tooltip-max-lines'."
     (dired-uncache default-dir))
   (when (buffer-live-p process-buf)
     (with-current-buffer process-buf
-      (let ((inhibit-read-only t)
-            (marker (oref section start)))
-        (goto-char marker)
-        (save-excursion
-          (delete-char 3)
-          (set-marker-insertion-type marker nil)
-          (insert (propertize (format "%3s" arg)
-                              'magit-section section
-                              'font-lock-face (if (= arg 0)
-                                                  'magit-process-ok
-                                                'magit-process-ng)))
-          (set-marker-insertion-type marker t))
-        (when magit-process-finish-apply-ansi-colors
-          (ansi-color-apply-on-region (oref section content)
-                                      (oref section end)))
-        (if (= (oref section end)
-               (+ (line-end-position) 2))
-            (save-excursion
-              (goto-char (1+ (line-end-position)))
-              (delete-char -1)
-              (oset section content nil))
-          (when (and (= arg 0)
-                     (not (--any-p (eq (window-buffer it) process-buf)
-                                   (window-list))))
-            (magit-section-hide section))))))
+      (magit-process-finish-section section arg)))
   (if (= arg 0)
       ;; Unset the `mode-line-process' value upon success.
       (magit-process-unset-mode-line default-dir)
@@ -1237,6 +1213,34 @@ Limited by `magit-process-error-tooltip-max-lines'."
                    "See")
                  (buffer-name process-buf))))))
   arg)
+
+(defun magit-process-finish-section (section exit-code)
+  (let ((inhibit-read-only t)
+        (buffer (current-buffer))
+        (marker (oref section start)))
+    (goto-char marker)
+    (save-excursion
+      (delete-char 3)
+      (set-marker-insertion-type marker nil)
+      (insert (propertize (format "%3s" exit-code)
+                          'magit-section section
+                          'font-lock-face (if (= exit-code 0)
+                                              'magit-process-ok
+                                            'magit-process-ng)))
+      (set-marker-insertion-type marker t))
+    (when magit-process-finish-apply-ansi-colors
+      (ansi-color-apply-on-region (oref section content)
+                                  (oref section end)))
+    (if (= (oref section end)
+           (+ (line-end-position) 2))
+        (save-excursion
+          (goto-char (1+ (line-end-position)))
+          (delete-char -1)
+          (oset section content nil))
+      (when (and (= exit-code 0)
+                 (not (--any-p (eq (window-buffer it) buffer)
+                               (window-list))))
+        (magit-section-hide section)))))
 
 (defun magit-process-display-buffer (process)
   (when (process-live-p process)
