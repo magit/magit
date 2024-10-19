@@ -693,6 +693,7 @@ Magit status buffer."
 
 (defun magit-process-insert-section (pwd program args &optional errcode errlog)
   (let ((inhibit-read-only t)
+        (magit-insert-section--current nil)
         (magit-insert-section--parent magit-root-section)
         (magit-insert-section--oldroot nil))
     (goto-char (1- (point-max)))
