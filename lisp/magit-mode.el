@@ -435,7 +435,7 @@ which actually visits the thing at point."
   (interactive)
   (if (eq transient-current-command 'magit-dispatch)
       (call-interactively (key-binding (this-command-keys)))
-    (if-let ((url (browse-url-url-at-point)))
+    (if-let ((url (thing-at-point 'url t)))
         (browse-url url)
       (user-error "There is no thing at point that could be visited"))))
 (put 'magit-visit-thing 'completion-predicate #'ignore)
@@ -456,7 +456,7 @@ buffer."
 Where applicable, other keymaps remap this command to another,
 which actually visits thing at point using `browse-url'."
   (interactive)
-  (if-let ((url (browse-url-url-at-point)))
+  (if-let ((url (thing-at-point 'url t)))
       (browse-url url)
     (user-error "There is no thing at point that could be browsed")))
 (put 'magit-browse-thing 'completion-predicate #'ignore)
