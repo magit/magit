@@ -522,10 +522,11 @@ current when this function was called (if it is a Magit buffer
 and still alive), as well as the respective Magit status buffer.
 
 See `magit-start-process' for more information."
-  (message "Running %s %s" (magit-git-executable)
-           (let ((m (string-join (flatten-tree args) " ")))
-             (remove-list-of-text-properties 0 (length m) '(face) m)
-             m))
+  (let ((message-log-max nil))
+    (message "Running %s %s" (magit-git-executable)
+             (let ((m (string-join (flatten-tree args) " ")))
+               (remove-list-of-text-properties 0 (length m) '(face) m)
+               m)))
   (magit-start-git nil args))
 
 (defun magit-run-git-with-editor (&rest args)
