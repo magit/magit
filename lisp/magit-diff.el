@@ -55,9 +55,9 @@
 (declare-function magit-merge-in-progress-p "magit-merge" ())
 (declare-function magit--merge-range "magit-merge" (&optional head))
 ;; For `magit-diff--dwim'
-(declare-function forge--pullreq-range "forge-pullreq"
+(declare-function forge--pullreq-range "ext:forge-pullreq"
                   (pullreq &optional endpoints))
-(declare-function forge--pullreq-ref "forge-pullreq" (pullreq))
+(declare-function forge--pullreq-ref "ext:forge-pullreq" (pullreq))
 ;; For `magit-diff-wash-diff'
 (declare-function ansi-color-apply-on-region "ansi-color")
 ;; For `magit-diff-wash-submodule'
