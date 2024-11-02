@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v4.1.2    UNRELEASED
+* v4.1.2    2024-11-02
 
 - Add various minor process logging improvements:
   5b30c05d3a magit--git-insert: Collapse process section if appropriate
