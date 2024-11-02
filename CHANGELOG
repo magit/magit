@@ -1,6 +1,13 @@
 # -*- mode: org -*-
 * v4.1.2    UNRELEASED
 
+- Add various minor process logging improvements:
+  5b30c05d3a magit--git-insert: Collapse process section if appropriate
+  b11524120e magit--git-insert: Optionally always log to process buffer
+  cd6cf89d6a Use different face for debug-only process sections
+  bba06845de magit-process-insert-section: Improve file-path comparision
+  f2a6133443 magit-run-git-async: No longer clutter ~*Messages*~ buffer
+
 Bug fixes:
 
 - If the left margin was in use before ~magit-blame-mode~ started using
@@ -15,7 +22,20 @@ Bug fixes:
   types.  #5244.
 
 - Global git arguments often got added twice to the list of arguments
-  ultimately passed to git.
+  ultimately passed to git.  914285a5e8
+
+- Inserting the headers of status buffers involves temporary changes
+  to ~magit-insert-section-hook~.  These changes were not restricted to
+  the current buffer, causing errors when ~magit-git-debug~ is enabled
+  and we thus insert sections in the process buffer, while the status
+  buffer is being refreshed.  11e13640c4
+
+- Some ~git~ errors were not logged despite ~magit-git-debug~ being
+  enabled.  874fb0fede
+
+- ~magit-browse-thing~ and ~magit-visit-thing~ tried to turn anything
+  at point into an URL.  Now the bail if there is no URL at point.
+  7c842b8ac0
 
 * v4.1.1    2024-10-01
 
