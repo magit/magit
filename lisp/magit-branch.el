@@ -208,14 +208,11 @@ has to be used to view and change branch related variables."
 (transient-define-prefix magit-branch (branch)
   "Add, configure or remove a branch."
   :man-page "git-branch"
-  [:if (lambda ()
-         (and magit-branch-direct-configure
-              (oref (transient-prefix-object) scope)))
+  [:if (lambda () (and magit-branch-direct-configure (transient-scope)))
    :description
    (lambda ()
      (concat (propertize "Configure " 'face 'transient-heading)
-             (propertize (oref (transient-prefix-object) scope)
-                         'face 'magit-branch-local)))
+             (propertize (transient-scope) 'face 'magit-branch-local)))
    ("d" magit-branch.<branch>.description)
    ("u" magit-branch.<branch>.merge/remote)
    ("r" magit-branch.<branch>.rebase)
@@ -859,8 +856,7 @@ and also rename the respective reflog file."
   [:description
    (lambda ()
      (concat (propertize "Configure " 'face 'transient-heading)
-             (propertize (oref (transient-prefix-object) scope)
-                         'face 'magit-branch-local)))
+             (propertize (transient-scope) 'face 'magit-branch-local)))
    ("d" magit-branch.<branch>.description)
    ("u" magit-branch.<branch>.merge/remote)
    ("r" magit-branch.<branch>.rebase)
@@ -903,7 +899,7 @@ and also rename the respective reflog file."
   :class 'magit--git-branch:upstream)
 
 (cl-defmethod transient-init-value ((obj magit--git-branch:upstream))
-  (when-let* ((branch (oref (transient-prefix-object) scope))
+  (when-let* ((branch (transient-scope))
               (remote (magit-get "branch" branch "remote"))
               (merge  (magit-get "branch" branch "merge")))
     (oset obj value (list remote merge))))
@@ -911,20 +907,19 @@ and also rename the respective reflog file."
 (cl-defmethod transient-infix-read ((obj magit--git-branch:upstream))
   (if (oref obj value)
       (oset obj value nil)
-    (magit-read-upstream-branch (oref (transient-prefix-object) scope)
-                                "Upstream")))
+    (magit-read-upstream-branch (transient-scope) "Upstream")))
 
 (cl-defmethod transient-infix-set ((obj magit--git-branch:upstream) refname)
-  (magit-set-upstream-branch (oref (transient-prefix-object) scope) refname)
+  (magit-set-upstream-branch (transient-scope) refname)
   (oset obj value
-        (and-let* ((branch (oref (transient-prefix-object) scope))
+        (and-let* ((branch (transient-scope))
                    (r (magit-get "branch" branch "remote"))
                    (m (magit-get "branch" branch "merge")))
           (list r m)))
   (magit-refresh))
 
 (cl-defmethod transient-format ((obj magit--git-branch:upstream))
-  (let ((branch (oref (transient-prefix-object) scope)))
+  (let ((branch (transient-scope)))
     (format-spec
      (oref obj format)
      `((?k . ,(transient-format-key obj))

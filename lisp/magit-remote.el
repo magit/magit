@@ -68,9 +68,7 @@ has to be used to view and change remote related variables."
   :man-page "git-remote"
   :value '("-f")
   ["Variables"
-   :if (lambda ()
-         (and magit-remote-direct-configure
-              (oref (transient-prefix-object) scope)))
+   :if (lambda () (and magit-remote-direct-configure (transient-scope)))
    ("u" magit-remote.<remote>.url)
    ("U" magit-remote.<remote>.fetch)
    ("s" magit-remote.<remote>.pushurl)
@@ -315,8 +313,7 @@ refspec."
   [:description
    (lambda ()
      (concat (propertize "Configure " 'face 'transient-heading)
-             (propertize (oref (transient-prefix-object) scope)
-                         'face 'magit-branch-remote)))
+             (propertize (transient-scope) 'face 'magit-branch-remote)))
    ("u" magit-remote.<remote>.url)
    ("U" magit-remote.<remote>.fetch)
    ("s" magit-remote.<remote>.pushurl)
