@@ -546,7 +546,7 @@ message and add a section in the respective process buffer."
     (apply #'magit-git-insert args)
     (split-string (buffer-string) "\0" t)))
 
-(defvar magit--git-wash-keep-error nil) ; experimental
+(defvar magit--git-wash-keep-error t)
 
 (defun magit-git-wash (washer &rest args)
   "Execute Git with ARGS, inserting washed output at point.
