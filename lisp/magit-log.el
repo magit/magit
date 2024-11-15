@@ -1177,7 +1177,8 @@ Do not add this to a hook variable."
   (setq magit-section-preserve-visibility t) ; TODO do it here?
   (let ((magit-git-global-arguments
          (remove "--literal-pathspecs" magit-git-global-arguments)))
-    (magit--git-wash (apply-partially #'magit-log-wash-log 'log) keep-error
+    (magit--git-wash (apply-partially #'magit-log-wash-log 'log)
+        (or keep-error magit--git-wash-keep-error)
       "log"
       (format "--format=%s%%h%%x0c%s%%x0c%s%%x0c%%aN%%x0c%s%%x0c%%s%s"
               (if (and (member "--left-right" args)
