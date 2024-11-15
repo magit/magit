@@ -485,9 +485,12 @@ insert the run command and stderr into the process buffer."
                     (insert-file-contents log)
                     (goto-char (point-max))
                     (setq errmsg
-                          (if (functionp magit-git-debug)
-                              (funcall magit-git-debug (buffer-string))
-                            (magit--locate-error-message))))
+                          (cond
+                           ((eq return-error 'full)
+                            (buffer-string))
+                           ((functionp magit-git-debug)
+                            (funcall magit-git-debug (buffer-string)))
+                           ((magit--locate-error-message)))))
                   (when magit-git-debug
                     (let ((magit-git-debug nil))
                       (with-current-buffer (magit-process-buffer t)
@@ -558,7 +561,7 @@ call function WASHER with ARGS as its sole argument."
   (declare (indent 2))
   (setq args (flatten-tree args))
   (let ((beg (point))
-        (exit (magit--git-insert keep-error args)))
+        (exit (magit--git-insert (and keep-error 'full) args)))
     (when (stringp exit)
       (goto-char beg)
       (insert (propertize exit 'face 'error))
