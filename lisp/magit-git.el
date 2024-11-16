@@ -1260,10 +1260,15 @@ Sorted from longest to shortest CYGWIN name."
   "Return t if there are any staged changes.
 If optional FILES is non-nil, then only changes to those files
 are considered."
+  ;; The "--submodule=short" is needed to work around a bug in Git v2.46.0
+  ;; and v2.46.1.  See #5212 and #5221.  There are actually two related
+  ;; bugs, both of which are fixed in v2.46.2, with the following commits,
+  ;; but there is no workaround for the second bug.
+  ;; 11591850dd diff: report dirty submodules as changes in builtin_diff()
+  ;; 87cf96094a diff: report copies and renames as changes in run_diff_cmd()
   (magit-git-failure "diff" "--quiet" "--cached"
                      (if ignore-submodules
                          "--ignore-submodules"
-                       ;; Work around a bug in Git v2.46.0. See #5212 and #5221.
                        "--submodule=short")
                      "--" files))
 
