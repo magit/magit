@@ -285,7 +285,7 @@ single module from the user."
     (magit-run-git-async "submodule" "init" "--" modules)))
 
 ;;;###autoload (autoload 'magit-submodule-populate "magit-submodule" nil t)
-(transient-define-suffix magit-submodule-populate (modules)
+(transient-define-suffix magit-submodule-populate (modules args)
   "Create MODULES working directories, checking out the recorded commits.
 
 With a prefix argument act on all suitable modules.  Otherwise,
@@ -295,11 +295,13 @@ single module from the user."
   ;; This is the command that actually "initializes" modules.
   ;; A module is initialized when it has a working directory,
   ;; a gitlink, and a .gitmodules entry.
-  :description "Populate       git submodule update --init"
+  :class 'magit--git-submodule-suffix
+  :description "Populate       git submodule update --init [--recursive]"
   (interactive
-   (list (magit-module-confirm "Populate" 'magit-module-no-worktree-p)))
+   (list (magit-module-confirm "Populate" 'magit-module-no-worktree-p)
+         (magit-submodule-arguments "--recursive")))
   (magit-with-toplevel
-    (magit-run-git-async "submodule" "update" "--init" "--" modules)))
+    (magit-run-git-async "submodule" "update" "--init" args "--" modules)))
 
 ;;;###autoload (autoload 'magit-submodule-update "magit-submodule" nil t)
 (transient-define-suffix magit-submodule-update (modules args)
