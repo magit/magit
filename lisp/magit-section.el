@@ -2436,12 +2436,7 @@ with the variables' values as arguments, which were recorded by
   (format "%s%s"
           (substring (symbol-name major-mode) 0 -5)
           (if-let ((vars (get major-mode 'magit-bookmark-variables)))
-              (mapcan (lambda (var)
-                        (let ((val (symbol-value var)))
-                          (if (and val (atom val))
-                              (list val)
-                            val)))
-                      vars)
+              (mapcan (lambda (var) (ensure-list (symbol-value var))) vars)
             "")))
 
 ;;; Bitmaps
