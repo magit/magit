@@ -882,10 +882,6 @@ PARENT is used as the parent of the returned keymap."
   "Use `auth-source-search' to get a password.
 If found, return the password.  Otherwise, return nil.
 
-To use this function add it to the appropriate hook
-  (add-hook \\='magit-process-find-password-functions
-            \\='magit-process-password-auth-source)
-
 KEY typically derives from a prompt such as:
   Password for \\='https://yourname@github.com\\='
 in which case it would be the string
