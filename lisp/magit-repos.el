@@ -502,9 +502,9 @@ instead."
                           (or (magit-toplevel) default-directory)))))
 
 (defun magit-list-repos ()
-  (cl-mapcan (pcase-lambda (`(,dir . ,depth))
-               (magit-list-repos-1 dir depth))
-             magit-repository-directories))
+  (mapcan (pcase-lambda (`(,dir . ,depth))
+            (magit-list-repos-1 dir depth))
+          magit-repository-directories))
 
 (defun magit-list-repos-1 (directory depth)
   (cond ((file-readable-p (expand-file-name ".git" directory))

@@ -1051,7 +1051,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
       (when magit-refresh-verbose
         (message "Refreshing buffer `%s'..." (buffer-name)))
       (let* ((buffer (current-buffer))
-             (windows (cl-mapcan
+             (windows (mapcan
                        (lambda (window)
                          (with-selected-window window
                            (with-current-buffer buffer

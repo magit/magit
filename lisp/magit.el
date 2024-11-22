@@ -514,7 +514,7 @@ is run in the top-level directory of the current working tree."
 (defun magit-read-gpg-secret-key
     (prompt &optional initial-input history predicate default)
   (require 'epa)
-  (let* ((keys (cl-mapcan
+  (let* ((keys (mapcan
                 (lambda (cert)
                   (and (or (not predicate)
                            (funcall predicate cert))

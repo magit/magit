@@ -871,10 +871,10 @@ See info node `(magit)Debugging Tools' for more information."
               #'shell-quote-argument
               `(,(concat invocation-directory invocation-name)
                 "-Q" "--eval" "(setq debug-on-error t)"
-                ,@(cl-mapcan
+                ,@(mapcan
                    (lambda (dir) (list "-L" dir))
                    (delete-dups
-                    (cl-mapcan
+                    (mapcan
                      (lambda (lib)
                        (if-let ((path (locate-library lib)))
                            (list (file-name-directory path))
@@ -911,11 +911,11 @@ as STRING."
         (i 0))
     `(let ((,s ,string))
        (let ,(save-match-data
-               (cl-mapcan (lambda (sym)
-                            (cl-incf i)
-                            (and (not (eq (aref (symbol-name sym) 0) ?_))
-                                 (list (list sym (list 'match-string i s)))))
-                          varlist))
+               (mapcan (lambda (sym)
+                         (cl-incf i)
+                         (and (not (eq (aref (symbol-name sym) 0) ?_))
+                              (list (list sym (list 'match-string i s)))))
+                       varlist))
          ,@body))))
 
 (defun magit-delete-line ()

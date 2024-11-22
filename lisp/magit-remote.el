@@ -209,8 +209,8 @@ the now stale refspecs.  Other stale branches are not removed."
                     nil refs))
               (magit-confirm 'prune-stale-refspecs nil
                 (format "Prune %%d stale refspecs and %d branches"
-                        (length (cl-mapcan (lambda (s) (copy-sequence (cdr s)))
-                                           stale)))
+                        (length (mapcan (lambda (s) (copy-sequence (cdr s)))
+                                        stale)))
                 nil
                 (mapcar (pcase-lambda (`(,refspec . ,refs))
                           (concat refspec "\n"

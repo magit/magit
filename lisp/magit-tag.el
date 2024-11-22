@@ -226,7 +226,7 @@ a tag qualifies as a release tag."
     (mapcar
      #'cdr
      (nreverse
-      (cl-sort (cl-mapcan
+      (cl-sort (mapcan
                 (lambda (line)
                   (and (string-match " +" line)
                        (let ((tag (substring line 0 (match-beginning 0)))
