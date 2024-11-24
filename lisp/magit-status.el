@@ -708,14 +708,14 @@ remote in alphabetic order."
 (defun magit-insert-untracked-files ()
   "Maybe insert a list or tree of untracked files.
 
-Do so depending on the value of `status.showUntrackedFiles'.
-Note that even if the value is `all', Magit still initially
-only shows directories.  But the directory sections can then
-be expanded using \"TAB\".
+Do so depending on the value of `status.showUntrackedFiles'.  Note
+that even if the value is `all', Magit still initially only shows
+directories.  But the directory sections can then be expanded using
+\"TAB\".
 
-If the first element of `magit-buffer-diff-files' is a
-directory, then limit the list to files below that.  The value
-value of that variable can be set using \"D -- DIRECTORY RET g\"."
+If the first element of `magit-buffer-diff-files' is a directory, then
+limit the list to files below that.  The value of that variable can be
+set using \"D -- DIRECTORY RET g\"."
   (let ((show (or (magit-get "status.showUntrackedFiles") "normal")))
     (unless (equal show "no")
       (let* ((all (equal show "all"))

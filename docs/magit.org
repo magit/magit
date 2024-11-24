@@ -2244,6 +2244,10 @@ By default the following functions are also members of that hook:
   directories.  But the directory sections can then be expanded using
   ~TAB~.
 
+  If the first element of ~magit-buffer-diff-files~ is a directory, then
+  limit the list to files below that.  The value of that variable can
+  be set using ~D -- DIRECTORY RET g~.
+
 - Function: magit-insert-unstaged-changes ::
 
   Insert section showing unstaged changes.
