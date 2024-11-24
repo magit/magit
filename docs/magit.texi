@@ -2844,6 +2844,10 @@ Do so depending on the value of @code{status.showUntrackedFiles}.  Note
 that even if the value is @code{all}, Magit still initially only shows
 directories.  But the directory sections can then be expanded using
 @code{TAB}.
+
+If the first element of @code{magit-buffer-diff-files} is a directory, then
+limit the list to files below that.  The value of that variable can
+be set using @code{D -- DIRECTORY RET g}.
 @end defun
 
 @defun magit-insert-unstaged-changes
