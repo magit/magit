@@ -6427,7 +6427,7 @@ Also see [[man:git-stash]]
   the index stored in the stash, if any.  This may fail because
   applying the stash could result in conflicts and those have to
   be stored in the index, making it impossible to also store the
-  stash's index there as well.
+  stash's index there.
 
   If the above failed, then try ~git stash apply~.  This fails
   (with or without ~--index~) if there are any uncommitted
@@ -6452,7 +6452,7 @@ Also see [[man:git-stash]]
   the index stored in the stash, if any.  This may fail because
   applying the stash could result in conflicts and those have to
   be stored in the index, making it impossible to also store the
-  stash's index there as well.
+  stash's index there.
 
   If the above failed, then try ~git stash apply~.  This fails
   (with or without ~--index~) if there are any uncommitted

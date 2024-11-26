@@ -266,7 +266,7 @@ First try \"git stash apply --index\", which tries to preserve
 the index stored in the stash, if any.  This may fail because
 applying the stash could result in conflicts and those have to
 be stored in the index, making it impossible to also store the
-stash's index there as well.
+stash's index there.
 
 If the above failed, then try \"git stash apply\".  This fails
 \(with or without \"--index\") if there are any uncommitted
@@ -288,7 +288,7 @@ First try \"git stash pop --index\", which tries to preserve
 the index stored in the stash, if any.  This may fail because
 applying the stash could result in conflicts and those have to
 be stored in the index, making it impossible to also store the
-stash's index there as well.
+stash's index there.
 
 If the above failed, then try \"git stash apply\".  This fails
 \(with or without \"--index\") if there are any uncommitted
