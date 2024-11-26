@@ -6423,6 +6423,11 @@ Also see [[man:git-stash]]
 
   Apply a stash to the working tree.
 
+  When using a Git release before v2.38.0, simply run ~git stash apply~
+  or with a prefix argument ~git stash apply --index~.
+
+  When using Git v2.38.0 or later, behave more intelligently:
+
   First try ~git stash apply --index~, which tries to preserve
   the index stored in the stash, if any.  This may fail because
   applying the stash could result in conflicts and those have to
@@ -6447,6 +6452,11 @@ Also see [[man:git-stash]]
   Apply a stash to the working tree.  On complete success (if the
   stash can be applied without any conflicts, and while preserving
   the stash's index) then remove the stash from stash list.
+
+  When using a Git release before v2.38.0, simply run ~git stash pop~
+  or with a prefix argument ~git stash pop --index~.
+
+  When using Git v2.38.0 or later, behave more intelligently:
 
   First try ~git stash pop --index~, which tries to preserve
   the index stored in the stash, if any.  This may fail because

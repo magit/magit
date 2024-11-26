@@ -7913,6 +7913,11 @@ prefix arguments are equivalent to @code{--all}-.
 @findex magit-stash-apply
 Apply a stash to the working tree.
 
+When using a Git release before v2.38.0, simply run @code{git stash apply}
+or with a prefix argument @code{git stash apply --index}.
+
+When using Git v2.38.0 or later, behave more intelligently:
+
 First try @code{git stash apply --index}, which tries to preserve
 the index stored in the stash, if any.  This may fail because
 applying the stash could result in conflicts and those have to
@@ -7938,6 +7943,11 @@ without being prompted.
 Apply a stash to the working tree.  On complete success (if the
 stash can be applied without any conflicts, and while preserving
 the stash's index) then remove the stash from stash list.
+
+When using a Git release before v2.38.0, simply run @code{git stash pop}
+or with a prefix argument @code{git stash pop --index}.
+
+When using Git v2.38.0 or later, behave more intelligently:
 
 First try @code{git stash pop --index}, which tries to preserve
 the index stored in the stash, if any.  This may fail because

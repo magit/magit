@@ -262,6 +262,11 @@ specifying a list of files to be stashed."
 (defun magit-stash-apply (stash)
   "Apply a stash to the working tree.
 
+When using a Git release before v2.38.0, simply run \"git stash
+apply\" or with a prefix argument \"git stash apply --index\".
+
+When using Git v2.38.0 or later, behave more intelligently:
+
 First try \"git stash apply --index\", which tries to preserve
 the index stored in the stash, if any.  This may fail because
 applying the stash could result in conflicts and those have to
@@ -284,6 +289,11 @@ the user whether to use \"--3way\" or \"--reject\"."
 (defun magit-stash-pop (stash)
   "Apply a stash to the working tree, on success remove it from stash list.
 
+When using a Git release before v2.38.0, simply run \"git stash
+pop\" or with a prefix argument \"git stash pop --index\".
+
+When using Git v2.38.0 or later, behave more intelligently:
+
 First try \"git stash pop --index\", which tries to preserve
 the index stored in the stash, if any.  This may fail because
 applying the stash could result in conflicts and those have to
@@ -303,29 +313,50 @@ the user whether to use \"--3way\" or \"--reject\"."
   (magit-stash--apply "pop" stash))
 
 (defun magit-stash--apply (action stash)
-  (or (= (magit-call-git "stash" action "--index" stash) 0)
-      ;; The stash's index could not be applied, so always keep the stash.
-      (= (magit-call-git "stash" "apply" stash) 0)
-      (let* ((range (format "%s^..%s" stash stash))
-             (stashed (magit-git-items "diff" "-z" "--name-only" range "--"))
-             (conflicts (cl-sort (cl-union (magit-unstaged-files t stashed)
-                                           (magit-untracked-files t stashed)
-                                           :test #'equal)
-                                 #'string<))
-             (arg (cond
-                   ((not conflicts) "--3way")
-                   ((magit-confirm-files
-                     'stash-apply-3way conflicts
-                     "Apply stash using `--3way', which requires first staging"
-                     "(else use `--reject')"
-                     t)
-                    (magit-stage-1 nil conflicts)
-                    "--3way")
-                   ("--reject"))))
-        (with-temp-buffer
-          (magit-git-insert "diff" range)
-          (magit-run-git-with-input "apply" arg "-"))))
-  (magit-refresh))
+  (if (magit-git-version< "2.38.0")
+      (magit-run-git "stash" action stash (and current-prefix-arg "--index"))
+    (or (magit--run-git-stash action "--index" stash)
+        ;; The stash's index could not be applied, so always keep the stash.
+        (magit--run-git-stash "apply" stash)
+        (let* ((range (format "%s^..%s" stash stash))
+               (stashed (magit-git-items "diff" "-z" "--name-only" range "--"))
+               (conflicts (cl-sort (cl-union (magit-unstaged-files t stashed)
+                                             (magit-untracked-files t stashed)
+                                             :test #'equal)
+                                   #'string<))
+               (arg (cond
+                     ((not conflicts) "--3way")
+                     ((magit-confirm-files
+                       'stash-apply-3way conflicts
+                       "Apply stash using `--3way', which requires first staging"
+                       "(else use `--reject')"
+                       t)
+                      (magit-stage-1 nil conflicts)
+                      "--3way")
+                     ("--reject"))))
+          (with-temp-buffer
+            (magit-git-insert "diff" range)
+            (magit-run-git-with-input "apply" arg "-"))))
+    (magit-refresh)))
+
+(defun magit--run-git-stash (&rest args)
+  (magit--with-temp-process-buffer
+    (let ((exit (save-excursion
+                  (with-environment-variables (("LC_ALL" "en_US.utf8"))
+                    (magit-process-git t "stash" args))))
+          (buffer (current-buffer))
+          (failed (looking-at "\\`error: \
+Your local changes to the following files would be overwritten by merge")))
+      (with-current-buffer (magit-process-buffer t)
+        (magit-process-finish-section
+         (magit-process-insert-section default-directory magit-git-executable
+                                       (magit-process-git-arguments args)
+                                       exit buffer)
+         exit))
+      (pcase (list exit failed)
+        (`(0  ,_) t) ; no conflict
+        (`(1 nil) t) ; successfully installed conflict
+        (_ nil)))))  ; could not install conflict, or genuine error
 
 ;;;###autoload
 (defun magit-stash-drop (stash)
