@@ -256,7 +256,9 @@ specifying a list of files to be stashed."
                  (list t)))
   (if transient
       (transient-setup 'magit-stash-push)
-    (magit-run-git "stash" "push" args)))
+    (magit-run-git "stash" "push"
+                   (seq-filter #'atom args)
+                   (assoc "--" args))))
 
 ;;;###autoload
 (defun magit-stash-apply (stash)
