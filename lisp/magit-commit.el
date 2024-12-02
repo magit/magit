@@ -290,7 +290,7 @@ depending on the value of option `magit-commit-squash-confirm'."
   (magit-commit-squash-internal "--squash" commit args t))
 
 (defun magit-commit-squash-internal
-    (option commit &optional args rebase edit confirmed)
+    (option commit &optional args rebase edit confirmed commit-prefix)
   (when-let ((args (magit-commit-assert args (not edit))))
     (when (and commit rebase (not (magit-rev-ancestor-p commit "HEAD")))
       (magit-read-char-case
@@ -305,7 +305,10 @@ depending on the value of option `magit-commit-squash-confirm'."
                  (not (or rebase
                           current-prefix-arg
                           magit-commit-squash-confirm))))
-        (let ((magit-commit-show-diff nil))
+        (let ((magit-commit-show-diff nil)
+              (commit (if commit-prefix
+                          (concat commit-prefix commit)
+                        commit)))
           (push (concat option "=" commit) args)
           (unless edit
             (push "--no-edit" args))
@@ -322,7 +325,7 @@ depending on the value of option `magit-commit-squash-confirm'."
         (magit-log-select
           (lambda (commit)
             (when (and (magit-commit-squash-internal option commit args
-                                                     rebase edit t)
+                                                     rebase edit t commit-prefix)
                        rebase)
               (magit-commit-amend-assert commit)
               (magit-rebase-interactive-1 commit
