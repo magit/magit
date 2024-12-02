@@ -314,7 +314,7 @@ Also see https://emacsair.me/2024/08/09/magit-4.0.
 
 - ~magit-diff-wash-submodule~ didn't account for empty commit messages.  [[https://github.com/magit/magit/issues/4538][#4538]]
 
-- Empty face definitions weren't defined properly, resulting in "rouge" faces.
+- Empty face definitions weren't defined properly, resulting in "rogue" faces.
   a66b86d511
 
 - ~magit-remote-at-point~ could return invalid values on branch sections.

@@ -21,7 +21,7 @@ Bug fixes:
   5b30c05d3a magit--git-insert: Collapse process section if appropriate
   b11524120e magit--git-insert: Optionally always log to process buffer
   cd6cf89d6a Use different face for debug-only process sections
-  bba06845de magit-process-insert-section: Improve file-path comparision
+  bba06845de magit-process-insert-section: Improve file-path comparison
   f2a6133443 magit-run-git-async: No longer clutter ~*Messages*~ buffer
 
 Bug fixes:
