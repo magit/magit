@@ -142,6 +142,7 @@ Also see https://github.com/magit/magit/issues/4132."
     ("f" "Fixup"          magit-commit-fixup)
     ("s" "Squash"         magit-commit-squash)
     ("A" "Augment"        magit-commit-augment)
+    ("m" "Fixup amend"    magit-commit-fixup-amend)
     (6 "x" "Absorb changes" magit-commit-autofixup)
     (6 "X" "Absorb modules" magit-commit-absorb-modules)]
    [""
@@ -249,6 +250,17 @@ depending on the value of option `magit-commit-squash-confirm'."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
   (magit-commit-squash-internal "--fixup" commit args))
+
+;;;###autoload
+(defun magit-commit-fixup-amend (&optional commit args)
+  "Create a fixup amend commit.
+
+With a prefix argument the target COMMIT has to be confirmed.
+Otherwise the commit at point may be used without confirmation
+depending on the value of option `magit-commit-squash-confirm'."
+  (interactive (list (magit-commit-at-point)
+                     (magit-commit-arguments)))
+  (magit-commit-squash-internal "--fixup" commit args nil t nil "amend:"))
 
 ;;;###autoload
 (defun magit-commit-squash (&optional commit args)
