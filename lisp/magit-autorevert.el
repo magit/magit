@@ -22,7 +22,7 @@
 
 ;;; Code:
 
-(require 'magit-git)
+(require 'magit-process)
 
 (require 'autorevert)
 
