@@ -24,8 +24,8 @@
 ;;     (dash "2.19.1")
 ;;     (magit-section "4.1.2")
 ;;     (seq "2.24")
-;;     (transient "0.7.8")
-;;     (with-editor "3.4.2"))
+;;     (transient "0.8.0")
+;;     (with-editor "3.4.3"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
