@@ -15,6 +15,10 @@ Bug fixes:
   for the user to resolve that are more complicated than they need to
   be.  #5253
 
+- ~magit-stash-push~ placed ~--~ before other arguments.  #5260
+
+- ~magit-autoload~ failed to require ~magit-process~.  #5263
+
 * v4.1.2    2024-11-02
 
 - Add various minor process logging improvements:
