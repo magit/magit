@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v4.1.3    UNRELEASED
+* v4.1.3    2024-12-06
 
 - For most important sections, if an error occurs while inserting the
   section, the error message is now displayed in the section body.
