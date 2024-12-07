@@ -17,7 +17,7 @@ Bug fixes:
 
 - ~magit-stash-push~ placed ~--~ before other arguments.  #5260
 
-- ~magit-autoload~ failed to require ~magit-process~.  #5263
+- ~magit-autorevert~ failed to require ~magit-process~.  #5263
 
 * v4.1.2    2024-11-02
 
