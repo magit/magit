@@ -30,7 +30,7 @@
 (transient-define-prefix magit-subtree ()
   "Import or export subtrees."
   :man-page "git-subtree"
-  ["Actions"
+  ["Subtree actions"
    ("i" "Import" magit-subtree-import)
    ("e" "Export" magit-subtree-export)])
 
@@ -42,7 +42,7 @@
    (magit-subtree:--prefix)
    (magit-subtree:--message)
    ("-s" "Squash" "--squash")]
-  ["Actions"
+  ["Subtree import actions"
    [("a" "Add"        magit-subtree-add)
     ("c" "Add commit" magit-subtree-add-commit)]
    [("m" "Merge"      magit-subtree-merge)
@@ -59,7 +59,7 @@
    (magit-subtree:--onto)
    ("-i" "Ignore joins" "--ignore-joins")
    ("-j" "Rejoin"       "--rejoin")]
-  ["Actions"
+  ["Subtree export actions"
    ("p" "Push"          magit-subtree-push)
    ("s" "Split"         magit-subtree-split)])
 
