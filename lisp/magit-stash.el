@@ -446,7 +446,7 @@ Then apply STASH, dropping it if it applies cleanly."
                                                 (t "local"))))))
 
 (defun magit-stash-store (message ref commit)
-  (magit-update-ref ref message commit t))
+  (magit-update-ref ref message commit))
 
 (defun magit-stash-create (message index worktree untracked)
   (unless (magit-rev-parse "--verify" "HEAD")

@@ -178,11 +178,6 @@ with a prefix argument."
                  (list nil (transient-args 'magit-fetch-modules))))
   (if transient
       (transient-setup 'magit-fetch-modules)
-    (when-let (((magit-git-version< "2.8.0"))
-               (value (transient-arg-value "--jobs=" args)))
-      (message "Dropping --jobs; not supported by Git v%s"
-               (magit-git-version))
-      (setq args (remove (format "--jobs=%s" value) args)))
     (magit-with-toplevel
       (magit-run-git-async "fetch" "--recurse-submodules" args))))
 

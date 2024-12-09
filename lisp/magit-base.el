@@ -32,7 +32,7 @@
 
 ;;; Code:
 
-(defconst magit--minimal-git "2.2.0")
+(defconst magit--minimal-git "2.25.0")
 (defconst magit--minimal-emacs "26.1")
 
 (require 'cl-lib)

@@ -2143,11 +2143,9 @@ keymap is the parent of their keymaps."
                (flatten-tree args))
               (magit-git-global-arguments
                (remove "--literal-pathspecs" magit-git-global-arguments)))
-    ;; As of Git 2.19.0, we need to generate diffs with
-    ;; --ita-visible-in-index so that `magit-stage' can work with
-    ;; intent-to-add files (see #4026).
-    (when (and (not (equal cmd "merge-tree"))
-               (magit-git-version>= "2.19.0"))
+    ;; We need to generate diffs with --ita-visible-in-index so that
+    ;; `magit-stage' can work with intent-to-add files (see #4026).
+    (unless (equal cmd "merge-tree")
       (push "--ita-visible-in-index" args))
     (setq args (magit-diff--maybe-add-stat-arguments args))
     (when (cl-member-if (lambda (arg) (string-prefix-p "--color-moved" arg)) args)

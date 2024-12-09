@@ -1406,27 +1406,13 @@ ref that should have been excluded, then that is discarded and
 this function returns nil instead.  This is unfortunate because
 there might be other refs that do match.  To fix that, update
 Git."
-  (if (magit-git-version< "2.13")
-      (and-let*
-          ((ref (magit-git-string "name-rev" "--name-only" "--no-undefined"
-                                  (and pattern (concat "--refs=" pattern))
-                                  rev)))
-        (if (and pattern
-                 (string-match-p "\\`refs/[^/]+/\\*\\'" pattern))
-            (let ((namespace (substring pattern 0 -1)))
-              (and (not (or (string-suffix-p "HEAD" ref)
-                            (and (string-match-p namespace ref)
-                                 (not (magit-rev-verify
-                                       (concat namespace ref))))))
-                   ref))
-          ref))
-    (magit-git-string "name-rev" "--name-only" "--no-undefined"
-                      (and pattern (concat "--refs=" pattern))
-                      (and pattern
-                           (not not-anchored)
-                           (list "--exclude=*/HEAD"
-                                 (concat "--exclude=*/" pattern)))
-                      rev)))
+  (magit-git-string "name-rev" "--name-only" "--no-undefined"
+                    (and pattern (concat "--refs=" pattern))
+                    (and pattern
+                         (not not-anchored)
+                         (list "--exclude=*/HEAD"
+                               (concat "--exclude=*/" pattern)))
+                    rev))
 
 (defun magit-rev-branch (rev)
   (and-let* ((name (magit-rev-name rev "refs/heads/*")))
@@ -2122,13 +2108,9 @@ would claim a worktree is bare, even though the working tree is
 specified using `core.worktree'."
   (let ((remote (file-remote-p default-directory))
         worktrees worktree)
-    (dolist (line (let ((magit-git-global-arguments
-                         ;; KLUDGE At least in Git v2.8.3 this argument
-                         ;; would trigger a segfault.
-                         (remove "--no-pager" magit-git-global-arguments)))
-                    (if (magit-git-version>= "2.36")
-                        (magit-git-items "worktree" "list" "--porcelain" "-z")
-                      (magit-git-lines "worktree" "list" "--porcelain"))))
+    (dolist (line (if (magit-git-version>= "2.36")
+                      (magit-git-items "worktree" "list" "--porcelain" "-z")
+                    (magit-git-lines "worktree" "list" "--porcelain")))
       (cond ((string-prefix-p "worktree" line)
              (let ((path (substring line 9)))
                (when remote
@@ -2475,27 +2457,12 @@ and this option only controls what face is used.")
 (defun magit-update-files (files)
   (magit-git-success "update-index" "--add" "--remove" "--" files))
 
-(defun magit-update-ref (ref message rev &optional stashish)
+(defun magit-update-ref (ref message rev)
   (let ((magit--refresh-cache nil))
-    (or (if (magit-git-version>= "2.6.0")
-            (zerop (magit-call-git "update-ref" "--create-reflog"
+    (unless (zerop (magit-call-git "update-ref" "--create-reflog"
                                    "-m" message ref rev
                                    (or (magit-rev-verify ref) "")))
-          ;; `--create-reflog' didn't exist before v2.6.0
-          (let ((oldrev  (magit-rev-verify ref))
-                (logfile (expand-file-name (concat "logs/" ref)
-                                           (magit-gitdir))))
-            (unless (file-exists-p logfile)
-              (when oldrev
-                (magit-git-success "update-ref" "-d" ref oldrev))
-              (make-directory (file-name-directory logfile) t)
-              (with-temp-file logfile)
-              (when (and oldrev (not stashish))
-                (magit-git-success "update-ref" "-m" "enable reflog"
-                                   ref oldrev ""))))
-          (magit-git-success "update-ref" "-m" message ref rev
-                             (or (magit-rev-verify ref) "")))
-        (error "Cannot update %s with %s" ref rev))))
+      (error "Cannot update %s with %s" ref rev))))
 
 (defconst magit-range-re
   (concat "\\`\\([^ \t]*[^.]\\)?"       ; revA

@@ -135,9 +135,7 @@ directory where the repository has been cloned."
   ["Setup arguments"
    ("-o" "Set name of remote"     ("-o" "--origin="))
    ("-b" "Set HEAD branch"        ("-b" "--branch="))
-   (magit-clone:--filter
-    :if (lambda () (magit-git-version>= "2.17.0"))
-    :level 7)
+   (magit-clone:--filter :level 7)
    ("-g" "Separate git directory" "--separate-git-dir="
     transient-read-directory :level 7)
    ("-t" "Use template directory" "--template="
@@ -150,9 +148,7 @@ directory where the repository has been cloned."
    ("s" "shallow"            magit-clone-shallow)
    ("d" "shallow since date" magit-clone-shallow-since :level 7)
    ("e" "shallow excluding"  magit-clone-shallow-exclude :level 7)
-   (">" "sparse checkout"    magit-clone-sparse
-    :if (lambda () (magit-git-version>= "2.25.0"))
-    :level 6)
+   (">" "sparse checkout"    magit-clone-sparse :level 6)
    ("b" "bare"               magit-clone-bare)
    ("m" "mirror"             magit-clone-mirror)]
   (interactive (list (or magit-clone-always-transient current-prefix-arg)))
@@ -278,9 +274,6 @@ Then show the status buffer for the new repository."
              (unless magit-clone-set-remote-head
                (magit-remote-unset-head remote))))
          (when (and sparse checkout)
-           (when (magit-git-version< "2.25.0")
-             (user-error
-              "`git sparse-checkout' not available until Git v2.25"))
            (let ((default-directory directory))
              (magit-call-git "sparse-checkout" "init" "--cone")
              (magit-call-git "checkout" (magit-get-current-branch))))

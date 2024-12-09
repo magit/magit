@@ -317,11 +317,9 @@ commit message."
                        ;; Note: `update-index' is used instead of `add'
                        ;; because `add' will fail if a file is already
                        ;; deleted in the temporary index.
-                       (magit-call-git
-                        "update-index" "--add" "--remove"
-                        (and (magit-git-version>= "2.25.0")
-                             "--ignore-skip-worktree-entries")
-                        "--" files)
+                       (magit-call-git "update-index" "--add" "--remove"
+                                       "--ignore-skip-worktree-entries"
+                                       "--" files)
                      (magit-with-toplevel
                        (magit-call-git "add" "-u" ".")))
                    (magit-git-string "write-tree"))))

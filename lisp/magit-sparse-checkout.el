@@ -43,13 +43,6 @@
   "Return non-nil if working tree is a sparse checkout."
   (magit-get-boolean "core.sparsecheckout"))
 
-(defun magit-sparse-checkout--assert-version ()
-  ;; Older versions of Git have the ability to define sparse checkout
-  ;; patterns in .git/info/sparse-checkout, but the sparse-checkout
-  ;; command isn't available until 2.25.0.
-  (when (magit-git-version< "2.25.0")
-    (user-error "`git sparse-checkout' not available until Git v2.25")))
-
 (defun magit-sparse-checkout--auto-enable ()
   (if (magit-sparse-checkout-enabled-p)
       (unless (magit-get-boolean "core.sparsecheckoutcone")
@@ -89,7 +82,6 @@ See the `git sparse-checkout' manpage for details about
 (defun magit-sparse-checkout-enable (&optional args)
   "Convert the working tree to a sparse checkout."
   (interactive (list (transient-args 'magit-sparse-checkout)))
-  (magit-sparse-checkout--assert-version)
   (magit-run-git-async "sparse-checkout" "init" "--cone" args))
 
 ;;;###autoload
@@ -104,7 +96,6 @@ directories, call `magit-sparse-checkout-add' instead."
           ;; dealing with very large trees, listing all subdirectories
           ;; may need to be reconsidered.
           (magit-revision-directories "HEAD"))))
-  (magit-sparse-checkout--assert-version)
   (magit-sparse-checkout--auto-enable)
   (magit-run-git-async "sparse-checkout" "set" directories))
 
@@ -124,7 +115,6 @@ directories, call `magit-sparse-checkout-set' instead."
                       (regexp-opt (magit-sparse-checkout-directories)))))
              (lambda (d) (string-match-p re d)))
            (magit-revision-directories "HEAD")))))
-  (magit-sparse-checkout--assert-version)
   (magit-sparse-checkout--auto-enable)
   (magit-run-git-async "sparse-checkout" "add" directories))
 
@@ -135,7 +125,6 @@ Some operations such as merging or rebasing may need to check out
 files that aren't included in the sparse checkout.  Call this
 command to reset to the sparse checkout state."
   (interactive)
-  (magit-sparse-checkout--assert-version)
   (magit-run-git-async "sparse-checkout" "reapply"))
 
 ;;;###autoload
@@ -145,7 +134,6 @@ Note that disabling the sparse checkout does not clear the
 configured directories.  Call `magit-sparse-checkout-enable' to
 restore the previous sparse checkout."
   (interactive)
-  (magit-sparse-checkout--assert-version)
   (magit-run-git-async "sparse-checkout" "disable"))
 
 ;;; Miscellaneous
