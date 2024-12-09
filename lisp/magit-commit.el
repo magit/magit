@@ -142,6 +142,7 @@ Also see https://github.com/magit/magit/issues/4132."
     ("f" "Fixup"          magit-commit-fixup)
     ("s" "Squash"         magit-commit-squash)
     ("A" "Augment"        magit-commit-augment)
+    ("m" "Fixup amend"    magit-commit-fixup-amend)
     (6 "x" "Absorb changes" magit-commit-autofixup)
     (6 "X" "Absorb modules" magit-commit-absorb-modules)]
    [""
@@ -251,6 +252,17 @@ depending on the value of option `magit-commit-squash-confirm'."
   (magit-commit-squash-internal "--fixup" commit args))
 
 ;;;###autoload
+(defun magit-commit-fixup-amend (&optional commit args)
+  "Create a fixup amend commit.
+
+With a prefix argument the target COMMIT has to be confirmed.
+Otherwise the commit at point may be used without confirmation
+depending on the value of option `magit-commit-squash-confirm'."
+  (interactive (list (magit-commit-at-point)
+                     (magit-commit-arguments)))
+  (magit-commit-squash-internal "--fixup" commit args nil t nil "amend:"))
+
+;;;###autoload
 (defun magit-commit-squash (&optional commit args)
   "Create a squash commit, without editing the squash message.
 
@@ -290,7 +302,7 @@ depending on the value of option `magit-commit-squash-confirm'."
   (magit-commit-squash-internal "--squash" commit args t))
 
 (defun magit-commit-squash-internal
-    (option commit &optional args rebase edit confirmed)
+    (option commit &optional args rebase edit confirmed commit-prefix)
   (when-let ((args (magit-commit-assert args (not edit))))
     (when (and commit rebase (not (magit-rev-ancestor-p commit "HEAD")))
       (magit-read-char-case
@@ -305,7 +317,10 @@ depending on the value of option `magit-commit-squash-confirm'."
                  (not (or rebase
                           current-prefix-arg
                           magit-commit-squash-confirm))))
-        (let ((magit-commit-show-diff nil))
+        (let ((magit-commit-show-diff nil)
+              (commit (if commit-prefix
+                          (concat commit-prefix commit)
+                        commit)))
           (push (concat option "=" commit) args)
           (unless edit
             (push "--no-edit" args))
@@ -322,7 +337,7 @@ depending on the value of option `magit-commit-squash-confirm'."
         (magit-log-select
           (lambda (commit)
             (when (and (magit-commit-squash-internal option commit args
-                                                     rebase edit t)
+                                                     rebase edit t commit-prefix)
                        rebase)
               (magit-commit-amend-assert commit)
               (magit-rebase-interactive-1 commit
