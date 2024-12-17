@@ -502,12 +502,16 @@ commits before and half after."
    ["Commit limiting"
     (magit-log:-n)
     (magit:--author)
+    (7 magit-log:--since)
+    (7 magit-log:--until)
     (magit-log:--grep)
     (7 "-i" "Search case-insensitive" ("-i" "--regexp-ignore-case"))
     (7 "-I" "Invert search pattern"   "--invert-grep")
     (magit-log:-G)
     (magit-log:-S)
-    (magit-log:-L)]
+    (magit-log:-L)
+    (7 "=m" "Omit merges"            "--no-merges")
+    (7 "=p" "First parent"           "--first-parent")]
    ["History simplification"
     (  "-D" "Simplify by decoration"                  "--simplify-by-decoration")
     (magit:--)
