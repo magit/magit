@@ -649,8 +649,8 @@ the input isn't tacked to the comment."
 
 (defun git-commit-setup-changelog-support ()
   "Treat ChangeLog entries as unindented paragraphs."
-  (when (fboundp 'log-indent-fill-entry) ; New in Emacs 27.
-    (setq-local fill-paragraph-function #'log-indent-fill-entry))
+  (when (fboundp 'log-edit-fill-entry) ; New in Emacs 27.
+    (setq-local fill-paragraph-function #'log-edit-fill-entry))
   (setq-local fill-indent-according-to-mode t)
   (setq-local paragraph-start (concat paragraph-start "\\|\\*\\|(")))
 
