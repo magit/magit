@@ -879,12 +879,12 @@ and `:slant'."
    (magit-diff:--diff-merges)
    (magit-diff:-M)
    (magit-diff:-C)
-   (5 "-R" "Reverse sides"                "-R")
+   (5 magit-diff:-R)
    (5 magit-diff:--color-moved)
    (5 magit-diff:--color-moved-ws)
-   ("-x" "Disallow external diff drivers" "--no-ext-diff")
-   ("-s" "Show stats"                     "--stat")
-   ("=g" "Show signature"                 "--show-signature")]
+   (magit-diff:--no-ext-diff)
+   (magit-diff:--stat)
+   (magit-diff:--show-signature)]
   ["Actions"
    [("d" "Dwim"          magit-diff-dwim)
     ("r" "Diff range"    magit-diff-range)
@@ -914,15 +914,12 @@ and `:slant'."
    (magit-diff:--diff-merges)
    (magit-diff:-M)
    (magit-diff:-C)
-   (5 "-R" "Reverse sides"                "-R"
-      :if-derived magit-diff-mode)
+   (5 magit-diff:-R)
    (5 magit-diff:--color-moved)
    (5 magit-diff:--color-moved-ws)
-   ("-x" "Disallow external diff drivers" "--no-ext-diff")
-   ("-s" "Show stats"                     "--stat"
-    :if-derived magit-diff-mode)
-   ("=g" "Show signature"                 "--show-signature"
-    :if-derived magit-diff-mode)]
+   (magit-diff:--no-ext-diff)
+   (magit-diff:--stat)
+   (magit-diff:--show-signature)]
   [["Refresh"
     ("g" "buffer"                   magit-diff-refresh)
     ("s" "buffer and set defaults"  transient-set-and-exit)
@@ -1059,6 +1056,36 @@ and `:slant'."
     (?s "[s]pace change" "ignore-space-change")
     (?a "[a]ll space"    "ignore-all-space")
     (?n "[n]o"           "no")))
+
+(transient-define-argument magit-diff:-R ()
+  :description "Reverse sides"
+  :class 'transient-switch
+  :argument "-R"
+  :if 'magit-diff-argument-predicate)
+
+(transient-define-argument magit-diff:--no-ext-diff ()
+  :description "Disallow external diff drivers"
+  :class 'transient-switch
+  :argument "--no-ext-diff"
+  :key "-x")
+
+(transient-define-argument magit-diff:--stat ()
+  :description "Show stats"
+  :class 'transient-switch
+  :argument "--stat"
+  :key "-s"
+  :if 'magit-diff-argument-predicate)
+
+(transient-define-argument magit-diff:--show-signature ()
+  :description "Show signature"
+  :class 'transient-switch
+  :argument "--show-signature"
+  :key "=g"
+  :if 'magit-diff-argument-predicate)
+
+(defun magit-diff-argument-predicate ()
+  (or (eq transient--prefix 'magit-diff)
+      (derived-mode-p 'magit-diff-mode)))
 
 ;;;; Setup Commands
 
