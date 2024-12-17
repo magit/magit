@@ -205,7 +205,7 @@ bisect run'."
        (list :file (expand-file-name "BISECT_CMD_OUTPUT" (magit-gitdir)))
        "bisect" "start" bad good args)
       (magit-refresh)))
-  (magit--with-connection-local-variables
+  (with-connection-local-variables
     (magit-git-bisect "run" (list shell-file-name
                                   shell-command-switch cmdline))))
 

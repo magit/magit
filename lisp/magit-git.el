@@ -1456,8 +1456,6 @@ Git."
 
 (defun magit-name-tag (rev &optional lax)
   (and-let* ((name (magit-rev-name rev "refs/tags/*")))
-    ;; The progn is necessary to work around debbugs#31840.  This, and all
-    ;; the other instances, can be removed once we require at least Emacs 27.
     (progn
       (when (string-suffix-p "^0" name)
         (setq name (substring name 0 -2)))
@@ -2257,7 +2255,7 @@ If `first-parent' is set, traverse only first parents."
     (cdr (split-string str))))
 
 (defun magit-patch-id (rev)
-  (magit--with-connection-local-variables
+  (with-connection-local-variables
     (magit--with-temp-process-buffer
       (magit-process-file
        shell-file-name nil '(t nil) nil shell-command-switch

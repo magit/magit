@@ -33,7 +33,7 @@
 ;;; Code:
 
 (defconst magit--minimal-git "2.25.0")
-(defconst magit--minimal-emacs "26.1")
+(defconst magit--minimal-emacs "27.1")
 
 (require 'cl-lib)
 (require 'compat)
@@ -1031,49 +1031,6 @@ This function should be named `version>=' and be part of Emacs."
 
 ;;; Kludges for Emacs Bugs
 
-(when (< emacs-major-version 27)
-  ;; Work around https://debbugs.gnu.org/cgi/bugreport.cgi?bug=21559.
-  ;; Fixed by cb55ccae8be946f1562d74718086a4c8c8308ee5 in Emacs 27.1.
-  (with-eval-after-load 'vc-git
-    (defun vc-git-conflicted-files (directory)
-      "Return the list of files with conflicts in DIRECTORY."
-      (let* ((status
-              (vc-git--run-command-string directory "diff-files"
-                                          "--name-status"))
-             (lines (when status (split-string status "\n" 'omit-nulls)))
-             files)
-        (dolist (line lines files)
-          (when (string-match "\\([ MADRCU?!]\\)[ \t]+\\(.+\\)" line)
-            (let ((state (match-string 1 line))
-                  (file (match-string 2 line)))
-              (when (equal state "U")
-                (push (expand-file-name file directory) files)))))))))
-
-(when (< emacs-major-version 27)
-  (defun vc-git--call@bug21559 (fn buffer command &rest args)
-    "Backport https://debbugs.gnu.org/cgi/bugreport.cgi?bug=21559."
-    (let ((process-environment process-environment))
-      (when revert-buffer-in-progress-p
-        (push "GIT_OPTIONAL_LOCKS=0" process-environment))
-      (apply fn buffer command args)))
-  (advice-add 'vc-git--call :around 'vc-git--call@bug21559)
-
-  (defun vc-git-command@bug21559
-      (fn buffer okstatus file-or-list &rest flags)
-    "Backport https://debbugs.gnu.org/cgi/bugreport.cgi?bug=21559."
-    (let ((process-environment process-environment))
-      (when revert-buffer-in-progress-p
-        (push "GIT_OPTIONAL_LOCKS=0" process-environment))
-      (apply fn buffer okstatus file-or-list flags)))
-  (advice-add 'vc-git-command :around 'vc-git-command@bug21559)
-
-  (defun auto-revert-handler@bug21559 (fn)
-    "Backport https://debbugs.gnu.org/cgi/bugreport.cgi?bug=21559."
-    (let ((revert-buffer-in-progress-p t))
-      (funcall fn)))
-  (advice-add 'auto-revert-handler :around 'auto-revert-handler@bug21559)
-  )
-
 (defun magit-which-function ()
   "Return current function name based on point.
 
@@ -1192,33 +1149,6 @@ See <https://github.com/raxod502/straight.el/issues/520>."
                      (expand-file-name "magit/lisp/" elpaca-repos-directory))))))
     (setq filename (expand-file-name (file-name-nondirectory filename) repo)))
   (file-chase-links filename))
-
-;;; Kludges for older Emacs versions
-
-(if (fboundp 'with-connection-local-variables)
-    (defalias 'magit--with-connection-local-variables
-      #'with-connection-local-variables)
-  (defmacro magit--with-connection-local-variables (&rest body)
-    "Abridged `with-connection-local-variables' for pre Emacs 27 compatibility.
-Bind shell file name and switch for remote execution.
-`with-connection-local-variables' isn't available until Emacs 27.
-This kludge provides the minimal functionality required by
-Magit."
-    `(if (file-remote-p default-directory)
-         (pcase-let ((`(,shell-file-name ,shell-command-switch)
-                      (with-no-warnings ; about unknown tramp functions
-                        (require 'tramp)
-                        (let ((vec (tramp-dissect-file-name
-                                    default-directory)))
-                          (list (tramp-get-method-parameter
-                                 vec 'tramp-remote-shell)
-                                (string-join (tramp-get-method-parameter
-                                              vec 'tramp-remote-shell-args)
-                                             " "))))))
-           ,@body)
-       ,@body)))
-
-(put 'magit--with-connection-local-variables 'lisp-indent-function 'defun)
 
 ;;; Miscellaneous
 

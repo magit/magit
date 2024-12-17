@@ -170,12 +170,12 @@ and then turned on again when turning off the latter."
 ;;; Faces
 
 (defface magit-blame-highlight
-  `((((class color) (background light))
-     ,@(and (>= emacs-major-version 27) '(:extend t))
+  '((((class color) (background light))
+     :extend t
      :background "grey80"
      :foreground "black")
     (((class color) (background dark))
-     ,@(and (>= emacs-major-version 27) '(:extend t))
+     :extend t
      :background "grey25"
      :foreground "white"))
   "Face used for highlighting when blaming.
@@ -199,7 +199,7 @@ Also see option `magit-blame-styles'."
   :group 'magit-faces)
 
 (defface magit-blame-heading
-  `((t ,@(and (>= emacs-major-version 27) '(:extend t))
+  '((t :extend t
        :inherit magit-blame-highlight
        :weight normal
        :slant normal))
@@ -718,13 +718,12 @@ modes is toggled, then this mode also gets toggled automatically.
       str)))
 
 (defun magit-blame--format-separator ()
-  (propertize
-   (concat (propertize "\s" 'display '(space :height (2)))
-           (propertize "\n" 'line-height t))
-   'font-lock-face `(:background
-                     ,(face-attribute 'magit-blame-heading
-                                      :background nil t)
-                     ,@(and (>= emacs-major-version 27) '(:extend t)))))
+  (propertize (concat (propertize "\s" 'display '(space :height (2)))
+                      (propertize "\n" 'line-height t))
+              'font-lock-face
+              `( :extend t
+                 :background
+                 ,(face-attribute 'magit-blame-heading :background nil t))))
 
 (defun magit-blame--format-time-string (time tz)
   (let* ((time-format (or (magit-blame--style-get 'time-format)

@@ -19,7 +19,7 @@
 
 ;; Package-Version: 4.1.3
 ;; Package-Requires: (
-;;     (emacs "26.1")
+;;     (emacs "27.1")
 ;;     (compat "30.0.0.0")
 ;;     (dash "2.19.1")
 ;;     (magit-section "4.1.3")
@@ -481,7 +481,7 @@ is run in the top-level directory of the current working tree."
 (defun magit--shell-command (command &optional directory)
   (let ((default-directory (or directory default-directory)))
     (with-environment-variables (("GIT_PAGER" "cat"))
-      (magit--with-connection-local-variables
+      (with-connection-local-variables
         (magit-with-editor
           (magit-start-process shell-file-name nil
                                shell-command-switch command)))))
