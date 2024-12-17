@@ -3258,7 +3258,7 @@ are highlighted."
       (setq highlight nil))
     (cond (highlight
            (unless (oref section hidden)
-             (add-to-list 'magit-section-highlighted-sections section)
+             (cl-pushnew section magit-section-highlighted-sections)
              (cond ((memq section magit-section-unhighlight-sections)
                     (setq magit-section-unhighlight-sections
                           (delq section magit-section-unhighlight-sections)))
@@ -3267,7 +3267,7 @@ are highlighted."
           (t
            (cond ((and (oref section hidden)
                        (memq section magit-section-unhighlight-sections))
-                  (add-to-list 'magit-section-highlighted-sections section)
+                  (cl-pushnew section magit-section-highlighted-sections)
                   (setq magit-section-unhighlight-sections
                         (delq section magit-section-unhighlight-sections)))
                  (t

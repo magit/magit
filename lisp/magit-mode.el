@@ -878,7 +878,7 @@ If a frame, then only consider buffers on that frame."
       (setq magit-buffer-locked-p (and value t))
       (magit-restore-section-visibility-cache mode))
     (when magit-uniquify-buffer-names
-      (add-to-list 'uniquify-list-buffers-directory-modes mode)
+      (cl-pushnew mode uniquify-list-buffers-directory-modes)
       (with-current-buffer buffer
         (setq list-buffers-directory (abbreviate-file-name default-directory)))
       (let ((uniquify-buffer-name-style
@@ -1135,7 +1135,7 @@ should obviously not add this function to that hook."
   (when-let (((and (not magit--disable-save-buffers)
                    (magit-inside-worktree-p t)))
              (buf (ignore-errors (magit-get-mode-buffer 'magit-status-mode))))
-    (add-to-list 'magit-after-save-refresh-buffers buf)
+    (cl-pushnew buf magit-after-save-refresh-buffers)
     (add-hook 'post-command-hook #'magit-after-save-refresh-buffers)))
 
 (defun magit-maybe-save-repository-buffers ()
