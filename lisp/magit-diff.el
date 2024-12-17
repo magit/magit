@@ -868,20 +868,20 @@ and `:slant'."
   ["Limit arguments"
    (magit:--)
    (magit-diff:--ignore-submodules)
-   ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
-   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))
-   (5 "-D" "Omit preimage for deletes"    ("-D" "--irreversible-delete"))]
+   ("-b" "Ignore whitespace changes"  ("-b" "--ignore-space-change"))
+   ("-w" "Ignore all whitespace"      ("-w" "--ignore-all-space"))
+   ("-D" "Omit preimage for deletes"  ("-D" "--irreversible-delete") :level 5)]
   ["Context arguments"
    (magit-diff:-U)
-   ("-W" "Show surrounding functions"     ("-W" "--function-context"))]
+   ("-W" "Show surrounding functions" ("-W" "--function-context"))]
   ["Tune arguments"
    (magit-diff:--diff-algorithm)
    (magit-diff:--diff-merges)
    (magit-diff:-M)
    (magit-diff:-C)
-   (5 magit-diff:-R)
-   (5 magit-diff:--color-moved)
-   (5 magit-diff:--color-moved-ws)
+   (magit-diff:-R               :level 5)
+   (magit-diff:--color-moved    :level 5)
+   (magit-diff:--color-moved-ws :level 5)
    (magit-diff:--no-ext-diff)
    (magit-diff:--stat)
    (magit-diff:--show-signature)]
@@ -903,20 +903,20 @@ and `:slant'."
   ["Limit arguments"
    (magit:--)
    (magit-diff:--ignore-submodules)
-   ("-b" "Ignore whitespace changes"      ("-b" "--ignore-space-change"))
-   ("-w" "Ignore all whitespace"          ("-w" "--ignore-all-space"))
-   (5 "-D" "Omit preimage for deletes"    ("-D" "--irreversible-delete"))]
+   ("-b" "Ignore whitespace changes"  ("-b" "--ignore-space-change"))
+   ("-w" "Ignore all whitespace"      ("-w" "--ignore-all-space"))
+   ("-D" "Omit preimage for deletes"  ("-D" "--irreversible-delete") :level 5)]
   ["Context arguments"
    (magit-diff:-U)
-   ("-W" "Show surrounding functions"     ("-W" "--function-context"))]
+   ("-W" "Show surrounding functions" ("-W" "--function-context"))]
   ["Tune arguments"
    (magit-diff:--diff-algorithm)
    (magit-diff:--diff-merges)
    (magit-diff:-M)
    (magit-diff:-C)
-   (5 magit-diff:-R)
-   (5 magit-diff:--color-moved)
-   (5 magit-diff:--color-moved-ws)
+   (magit-diff:-R               :level 5)
+   (magit-diff:--color-moved    :level 5)
+   (magit-diff:--color-moved-ws :level 5)
    (magit-diff:--no-ext-diff)
    (magit-diff:--stat)
    (magit-diff:--show-signature)]
