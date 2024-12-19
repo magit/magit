@@ -1078,7 +1078,25 @@ and `:slant'."
 
 ;;;###autoload
 (defun magit-diff-dwim (&optional args files)
-  "Show changes for the thing at point."
+  "Show changes for the thing at point.
+
+For example, if point is on a commit, show the changes introduced by
+that commit.  Likewise if point is on the section titled \"Unstaged
+changes\", then show those changes in a separate buffer.  Generally
+speaking, compare the thing at point with the most logical, trivial
+and (in *any* situation) at least potentially useful other thing it
+could be compared to.
+
+When the region selects commits, then compare the two commits at
+either end.  There are different ways two commits can be compared.
+In the buffer showing the diff, you can control how the comparison,
+is done, using \"D r\" and \"D f\".
+
+This function does not always show the changes that you might want
+to view in any given situation.  You can think of the changes being
+shown as the smallest common denominator.  There is no AI involved.
+If this command never does what you want, then ignore it, and instead
+use the commands that allow you to explicitly specify what you need."
   (interactive (magit-diff-arguments))
   (let ((default-directory default-directory)
         (section (magit-current-section)))
