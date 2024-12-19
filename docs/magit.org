@@ -9370,6 +9370,11 @@ issue.
   This command profiles refreshing the current Magit buffer and then
   displays the results.
 
+- Key: M-x magit-toggle-profiling ::
+
+  This command starts profiling Magit and Forge, or if profiling is
+  already in progress, it instead stops that and displays the results.
+
 - Key: M-x with-editor-debug ::
 
   This command displays a buffer containing information about the

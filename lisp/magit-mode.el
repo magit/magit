@@ -1109,6 +1109,23 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   (elp-results)
   (elp-reset-all))
 
+(defun magit-toggle-profiling ()
+  "Start profiling Magit, or if in progress, stop and display the results."
+  (interactive)
+  (require (quote elp))
+  (cond ((catch 'in-progress
+           (mapatoms (lambda (symbol)
+                       (and (get symbol elp-timer-info-property)
+                            (throw 'in-progress t)))))
+         (message "Stop profiling and display results...")
+         (elp-results)
+         (elp-restore-all))
+        (t
+         (message "Start profiling Magit and Forge...")
+         (elp-reset-all)
+         (elp-instrument-package "magit-")
+         (elp-instrument-package "forge-"))))
+
 ;;; Save File-Visiting Buffers
 
 (defvar magit--disable-save-buffers nil)

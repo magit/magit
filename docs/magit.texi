@@ -11456,6 +11456,11 @@ Also see @ref{Git Executable}.
 This command profiles refreshing the current Magit buffer and then
 displays the results.
 
+@item @kbd{M-x magit-toggle-profiling}
+@findex magit-toggle-profiling
+This command starts profiling Magit and Forge, or if profiling is
+already in progress, it instead stops that and displays the results.
+
 @item @kbd{M-x with-editor-debug}
 @findex with-editor-debug
 This command displays a buffer containing information about the
