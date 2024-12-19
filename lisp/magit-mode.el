@@ -1095,9 +1095,11 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   (require (quote elp))
   (when (fboundp 'elp-reset-all)
     (elp-reset-all)
+    (message "Profiling Magit and Forge...")
     (elp-instrument-package "magit-")
     (elp-instrument-package "forge-")
     (magit-refresh-buffer)
+    (message "Profiling Magit and Forge...done")
     (elp-results)
     (elp-reset-all)))
 
