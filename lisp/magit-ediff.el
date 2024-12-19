@@ -335,7 +335,7 @@ FILE has to be relative to the top directory of the repository."
             (buffer-local-value 'buffer-file-coding-system bufC*))
            (bufA* (magit-find-file-noselect-1 "HEAD" file t))
            (bufB* (magit-find-file-index-noselect file t)))
-      (setf (buffer-local-value 'buffer-read-only bufB*) nil)
+      (with-current-buffer bufB* (setq buffer-read-only nil))
       (magit-ediff-buffers
        (bufA bufA*)
        (bufB bufB*)
@@ -344,7 +344,7 @@ FILE has to be relative to the top directory of the repository."
        (lambda ()
          (when (buffer-live-p ediff-buffer-B)
            (when lockB
-             (setf (buffer-local-value 'buffer-read-only bufB) t))
+             (with-current-buffer bufB (setq buffer-read-only t)))
            (when (buffer-modified-p ediff-buffer-B)
              (with-current-buffer ediff-buffer-B
                (magit-update-index))))
