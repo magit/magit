@@ -39,6 +39,13 @@
 (require 'transient)
 
 (defvar bookmark-make-record-function)
+
+(eval-when-compile (require 'elp))
+(declare-function elp-reset-all "elp" ())
+(declare-function elp-instrument-package "elp" (prefix))
+(declare-function elp-results "elp" ())
+(declare-function elp-restore-all "elp" ())
+
 (defvar magit--wip-inhibit-autosave)
 (defvar magit-wip-after-save-local-mode)
 (declare-function magit-wip-get-ref "magit-wip" ())
@@ -1093,15 +1100,14 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   "Profile refreshing the current Magit buffer."
   (interactive)
   (require (quote elp))
-  (when (fboundp 'elp-reset-all)
-    (elp-reset-all)
-    (message "Profiling Magit and Forge...")
-    (elp-instrument-package "magit-")
-    (elp-instrument-package "forge-")
-    (magit-refresh-buffer)
-    (message "Profiling Magit and Forge...done")
-    (elp-results)
-    (elp-reset-all)))
+  (elp-reset-all)
+  (message "Profiling Magit and Forge...")
+  (elp-instrument-package "magit-")
+  (elp-instrument-package "forge-")
+  (magit-refresh-buffer)
+  (message "Profiling Magit and Forge...done")
+  (elp-results)
+  (elp-reset-all))
 
 ;;; Save File-Visiting Buffers
 
