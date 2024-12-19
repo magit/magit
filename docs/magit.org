@@ -9365,6 +9365,11 @@ issue.
 
   Also see [[*Git Executable]].
 
+- Key: M-x magit-profile-refresh-buffer ::
+
+  This command profiles refreshing the current Magit buffer and then
+  displays the results.
+
 - Key: M-x with-editor-debug ::
 
   This command displays a buffer containing information about the
