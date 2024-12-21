@@ -457,8 +457,7 @@ arguments.  This command requires git-absorb executable, which
 is available from https://github.com/tummychow/git-absorb.
 See `magit-commit-autofixup' for an alternative implementation."
   ["Arguments"
-   ("-f" "Skip safety checks"       ("-f" "--force"))
-   ("-v" "Display more output"      ("-v" "--verbose"))]
+   ("-f" "Skip safety checks"       ("-f" "--force"))]
   ["Actions"
    ("x"  "Absorb" magit-commit-absorb)]
   (interactive (if current-prefix-arg
