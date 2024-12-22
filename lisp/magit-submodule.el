@@ -640,10 +640,7 @@ These sections can be expanded to show the respective commits."
   :interactive nil
   :group 'magit-repolist
   (setq-local tabulated-list-revert-hook
-              (list #'magit-submodule-list-refresh t))
-  (setq imenu-prev-index-position-function
-        #'magit-repolist--imenu-prev-index-position)
-  (setq imenu-extract-index-name-function #'tabulated-list-get-id))
+              (list #'magit-submodule-list-refresh t)))
 
 (defvar-local magit-submodule-list-predicate nil)
 
