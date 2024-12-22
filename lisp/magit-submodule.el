@@ -635,12 +635,10 @@ These sections can be expanded to show the respective commits."
   :doc "Local keymap for Magit-Submodule-List mode buffers."
   :parent magit-repolist-mode-map)
 
-(define-derived-mode magit-submodule-list-mode tabulated-list-mode "Modules"
+(define-derived-mode magit-submodule-list-mode magit-repolist-mode "Modules"
   "Major mode for browsing a list of Git submodules."
   :interactive nil
   :group 'magit-repolist
-  (setq-local x-stretch-cursor nil)
-  (setq tabulated-list-padding 0)
   (add-hook 'tabulated-list-revert-hook #'magit-submodule-list-refresh nil t)
   (setq imenu-prev-index-position-function
         #'magit-repolist--imenu-prev-index-position)
