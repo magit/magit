@@ -639,7 +639,8 @@ These sections can be expanded to show the respective commits."
   "Major mode for browsing a list of Git submodules."
   :interactive nil
   :group 'magit-repolist
-  (add-hook 'tabulated-list-revert-hook #'magit-submodule-list-refresh nil t)
+  (setq-local tabulated-list-revert-hook
+              (list #'magit-submodule-list-refresh t))
   (setq imenu-prev-index-position-function
         #'magit-repolist--imenu-prev-index-position)
   (setq imenu-extract-index-name-function #'tabulated-list-get-id))

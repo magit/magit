@@ -271,7 +271,8 @@ If it contains \"%s\" then the directory is substituted for that."
   :group 'magit-repolist
   (setq-local x-stretch-cursor nil)
   (setq tabulated-list-padding 0)
-  (add-hook 'tabulated-list-revert-hook #'magit-repolist-refresh nil t)
+  (setq-local tabulated-list-revert-hook
+              (list #'magit-repolist-refresh t))
   (setq imenu-prev-index-position-function
         #'magit-repolist--imenu-prev-index-position)
   (setq imenu-extract-index-name-function #'tabulated-list-get-id))
