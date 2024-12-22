@@ -667,7 +667,7 @@ These sections can be expanded to show the respective commits."
              (and (file-exists-p ".git")
                   (or (not magit-submodule-list-predicate)
                       (funcall magit-submodule-list-predicate module))
-                  (list module
+                  (list default-directory
                         (vconcat
                          (mapcar (pcase-lambda (`(,title ,width ,fn ,props))
                                    (or (funcall fn `((:path  ,module)
