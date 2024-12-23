@@ -264,7 +264,7 @@ If you run into problems, then please see the [[*FAQ]].  Also see the
 [[*Debugging Tools]].
 
 And last but not least please consider making a donation, to ensure
-that I can keep working on Magit.  See https://magit.vc/donations.
+that I can keep working on Magit.  See https://magit.vc/donate.
 for various donation options.
 
 * Getting Started
@@ -9066,7 +9066,7 @@ also affects the diffs displayed inside Magit.
 
 *** How does branching and pushing work?
 
-Please see [[*Branching]] and https://emacsair.me/2016/01/17/magit-2.4
+Please see [[*Branching]] and https://emacsair.me/2016/01/18/magit-2.4
 
 *** Should I disable VC?
 
