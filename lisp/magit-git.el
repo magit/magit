@@ -2302,24 +2302,11 @@ and this option only controls what face is used.")
 
 (defun magit-format-ref-labels (string)
   (save-match-data
-    (let ((regexp "\\(, \\|tag: \\|HEAD -> \\)")
-          names)
-      (if (and (derived-mode-p 'magit-log-mode)
-               (member "--simplify-by-decoration" magit-buffer-log-args))
-          (let ((branches (magit-list-local-branch-names))
-                (re (format "^%s/.+" (regexp-opt (magit-list-remotes)))))
-            (setq names
-                  (--map (cond ((string-equal it "HEAD")     it)
-                               ((string-prefix-p "refs/" it) it)
-                               ((member it branches) (concat "refs/heads/" it))
-                               ((string-match re it) (concat "refs/remotes/" it))
-                               (t                    (concat "refs/" it)))
-                         (split-string
-                          (string-replace "tag: " "refs/tags/" string)
-                          regexp t))))
-        (setq names (split-string string regexp t)))
+    (let ((refs (split-string
+                 (replace-regexp-in-string "\\(tag: \\|HEAD -> \\)" "" string)
+                 ", " t)))
       (let (state head upstream tags branches remotes other combined)
-        (dolist (ref names)
+        (dolist (ref refs)
           (let* ((face (cdr (--first (string-match (car it) ref)
                                      magit-ref-namespaces)))
                  (name (magit--propertize-face
