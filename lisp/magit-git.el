@@ -225,37 +225,23 @@ framework ultimately determines how the collection is displayed."
 
 ;;; Git
 
-(defvar magit-git-debug nil
-  "Whether to enable additional reporting of git errors.
+(defvar magit-git-debug nil)
+
+(defun magit-toggle-git-debug ()
+  "Toggle whether additional git errors are reported.
 
 Magit basically calls git for one of these two reasons: for
 side-effects or to do something with its standard output.
 
 When git is run for side-effects then its output, including error
-messages, go into the process buffer which is shown when using \
-\\<magit-status-mode-map>\\[magit-process-buffer].
+messages, go into the process buffer which is shown when using ~$~.
 
 When git's output is consumed in some way, then it would be too
-expensive to also insert it into this buffer, but when this
-option is non-nil and git returns with a non-zero exit status,
-then at least its standard error is inserted into this buffer.
+expensive to also insert it into this buffer, but with this command
+that can be enabled temporarily.  In that case, if git returns with
+a non-zero exit status, then at least its standard error is inserted
+into this buffer.
 
-This is only intended for debugging purposes.  Do not enable this
-permanently, that would negatively affect performance.  Also note
-that just because git exits with a non-zero exit status and prints
-an error message that usually doesn't mean that it is an error as
-far as Magit is concerned, which is another reason we usually hide
-these error messages.  Whether some error message is relevant in
-the context of some unexpected behavior has to be judged on a case
-by case basis.
-
-The command `magit-toggle-git-debug' changes the value of this
-variable.
-
-Also see `magit-process-extreme-logging'.")
-
-(defun magit-toggle-git-debug ()
-  "Toggle whether additional git errors are reported.
 See info node `(magit)Debugging Tools' for more information."
   (interactive)
   (setq magit-git-debug (not magit-git-debug))
