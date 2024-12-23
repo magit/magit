@@ -1981,7 +1981,9 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
 
 (defun magit-list-special-refnames ()
   (let ((gitdir (magit-gitdir)))
-    (seq-keep (lambda (name) (file-exists-p (expand-file-name name gitdir)))
+    (seq-keep (lambda (name)
+                (and (file-exists-p (expand-file-name name gitdir))
+                     name))
               magit-special-refnames)))
 
 (defun magit-list-branch-names ()
