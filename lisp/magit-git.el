@@ -2309,8 +2309,13 @@ and this option only controls what face is used.")
       (dolist (ref refs)
         (let* ((face (cdr (--first (string-match (car it) ref)
                                    magit-ref-namespaces)))
-               (name (magit--propertize-face
-                      (or (match-string 1 ref) ref) face)))
+               (name (match-string 1 ref))
+               (name (if (and name
+                              (not (string-prefix-p "refs/tags/" ref))
+                              (magit-rev-verify (concat "refs/tags/" name)))
+                         (magit-ref-abbrev ref)
+                       (or name ref)))
+               (name (magit--propertize-face name face)))
           (cl-case face
             ((magit-bisect-bad magit-bisect-skip magit-bisect-good)
              (setq state name))
