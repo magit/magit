@@ -25,6 +25,8 @@ Bug fixes:
 - In logs, no longer strip ~heads/~ prefix from branch names if a tag
   with the same name exists.
 
+- ~magit-list-special-refnames~ returned nonsense.  #5277
+
 * v4.1.3    2024-12-06
 
 - For most important sections, if an error occurs while inserting the
