@@ -9012,7 +9012,7 @@ to pronounce Magit like magic, while taking into account that C and T
 do not sound the same.
 
 The German "Magie" is not pronounced the same as the English "magic",
-so if you speak German then you can use the above rationale to justify
+so if you speak German, then you can use the above rationale to justify
 using the former pronunciation; ~Mag{ie => it}~.
 
 You can also choose to use the former pronunciation just because you
@@ -9024,30 +9024,31 @@ Also see https://emacs.stackexchange.com/questions/13696.
 *** How to show git's output?
 
 To show the output of recently run git commands, press ~$~ (or, if that
-isn't available, ~M-x magit-process-buffer~).  This will show a buffer
+isn't available, use ~M-x magit-process-buffer~).  This shows a buffer
 containing a section per git invocation; as always press ~TAB~ to expand
 or collapse them.
 
-By default, git's output is only inserted into the process buffer if it
-is run for side-effects.  When the output is consumed in some way,
-also inserting it into the process buffer would be too expensive.  For
-debugging purposes, it's possible to do so anyway by setting
-~magit-git-debug~ to ~t~.
+By default, git's output is only inserted into the process buffer if
+it is run for side-effects.  When the output is consumed in some way,
+also inserting it into the process buffer would be too expensive.
+For debugging purposes, it's possible to do so anyway, using ~M-x
+magit-toggle-git-debug~.
 
 *** How to install the gitman info manual?
 
 Git's manpages can be exported as an info manual called ~gitman~.
 Magit's own info manual links to nodes in that manual instead of the
-actual manpages because Info doesn't support linking to manpages.
+actual manpages, simply because Info doesn't support linking to
+manpages.
 
 Unfortunately some distributions do not install the ~gitman~ manual by
-default and you will have to install a separate documentation package
+default and you would have to install a separate documentation package
 to get it.
 
-Magit patches Info adding the ability to visit links to the ~gitman~
-Info manual by instead viewing the respective manpage.  If you prefer
+Magit patches info, adding the ability to visit links to the ~gitman~
+info manual, by instead viewing the respective manpage.  If you prefer
 that approach, then set the value of ~magit-view-git-manual-method~ to
-one of the supported packages ~man~ or ~woman~, e.g.:
+one of the supported Emacs packages ~man~ or ~woman~, e.g.:
 
 #+begin_src emacs-lisp
   (setq magit-view-git-manual-method 'man)
@@ -9100,7 +9101,7 @@ commit.  Also see [[*Performance]].
 *** I am having problems committing
 
 That likely means that Magit is having problems finding an appropriate
-emacsclient executable.  See [[info:with-editor#Configuring With-Editor]]
+~emacsclient~ executable.  See [[info:with-editor#Configuring With-Editor]]
 and [[info:with-editor#Debugging]].
 
 *** I am using MS Windows and cannot push with Magit
@@ -9134,7 +9135,7 @@ undo that setting in Magit by customizing ~magit-git-global-arguments~.
 Neither Magit nor ~git-commit.el~ fiddle with point in the buffer used
 to write commit messages, so something else must be doing it.
 
-You have probably globally enabled a mode which restores point in
+You have probably globally enabled a mode, which restores point in
 file-visiting buffers.  It might be a bit surprising, but when you
 write a commit message, then you are actually editing a file.
 
