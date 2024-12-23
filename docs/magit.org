@@ -1863,16 +1863,6 @@ sections are available.  There is one additional command.
   relevant in the context of some unexpected behavior has to be judged
   on a case by case basis.
 
-- Variable: magit-process-extreme-logging ::
-
-  This option controls whether ~magit-process-file~ logs to the
-  ~*Messages*~ buffer.
-
-  Only intended for temporary use when you try to figure out how
-  Magit uses Git behind the scene.  Output that normally goes to
-  the magit-process buffer continues to go there.  Not all output
-  goes to either of these two buffers.
-
 *** Git Process Status
 
 When a Git process is running for side-effects, Magit displays an
@@ -9347,6 +9337,18 @@ issue.
   This command toggles whether Magit refreshes buffers verbosely.
   Enabling this helps figuring out which sections are bottlenecks.
   The additional output can be found in the ~*Messages*~ buffer.
+
+- Key: M-x magit-toggle-subprocess-record ::
+
+  This command toggles whether subprocess invocations are recorded.
+
+  When enabled, all subprocesses started by ~magit-process-file~ are
+  logged into the buffer specified by ~magit-process-record-buffer-name~
+  using the format ~magit-process-record-entry-format~.  This is for
+  debugging purposes.
+
+  This is in addition to and distinct from the default logging done by
+  default, and additional logging enabled with ~magit-toggle-git-debug~.
 
 - Key: M-x magit-debug-git-executable ::
 

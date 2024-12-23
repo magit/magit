@@ -38,6 +38,7 @@
 (require 'auth-source)
 (require 'with-editor)
 
+(defvar messages-buffer-name)
 (defvar y-or-n-p-map)
 
 ;;; Options
@@ -91,16 +92,6 @@ When this is nil, no sections are ever removed."
   :package-version '(magit . "2.1.0")
   :group 'magit-process
   :type '(choice (const :tag "Never remove old sections" nil) integer))
-
-(defvar magit-process-extreme-logging nil
-  "Whether `magit-process-file' logs to the *Messages* buffer.
-
-Only intended for temporary use when you try to figure out how
-Magit uses Git behind the scene.  Output that normally goes to
-the magit-process buffer continues to go there.  Not all output
-goes to either of these two buffers.
-
-Also see `magit-git-debug'.")
 
 (defcustom magit-process-error-tooltip-max-lines 20
   "The number of lines for `magit-process-error-lines' to return.
@@ -371,6 +362,27 @@ optional NODISPLAY is non-nil also display it."
 
 (defvar magit-process-raise-error nil)
 
+(defvar magit-process-record-invocations nil)
+(defvar magit-process-record-buffer-name " *magit-process-file record*")
+(defvar magit-process-record-entry-format "%T %%d $ %%a")
+
+(defun magit-toggle-subprocess-record ()
+  "Toggle whether subprocess invocations are recorded.
+
+When enabled, all subprocesses started by `magit-process-file' are
+logged into the buffer specified by `magit-process-record-buffer-name'
+using the format `magit-process-record-entry-format'.  This is for
+debugging purposes.
+
+This is in addition to and distinct from the default logging done by
+default, and additional logging enabled with ~magit-toggle-git-debug~.
+
+For alternatives, see info node `(magit)Debugging Tools'."
+  (interactive)
+  (setq magit-process-record-invocations (not magit-process-record-invocations))
+  (message "Recording of subprocess invocations %s"
+           (if magit-process-record-invocations "enabled" "disabled")))
+
 (defun magit-git (&rest args)
   "Call Git synchronously in a separate process, for side-effects.
 
@@ -446,12 +458,16 @@ ensure unix eol conversion."
 
 (defun magit-process-file (process &optional infile buffer display &rest args)
   "Process files synchronously in a separate process.
-Identical to `process-file' but temporarily enable Cygwin's
-\"noglob\" option during the call and ensure unix eol
-conversion."
-  (when magit-process-extreme-logging
-    (let ((inhibit-message t))
-      (message "$ %s" (magit-process--format-arguments process args))))
+Similar to `process-file' but temporarily enable Cygwin's
+\"noglob\" option during the call and ensure unix eol conversion."
+  (when magit-process-record-invocations
+    (let ((messages-buffer-name magit-process-record-buffer-name)
+          (inhibit-message t))
+      (message "%s"
+               (format-spec
+                (format-time-string magit-process-record-entry-format)
+                `((?d . ,(abbreviate-file-name default-directory))
+                  (?a . ,(magit-process--format-arguments process args)))))))
   (let ((process-environment (magit-process-environment))
         (default-process-coding-system (magit--process-coding-system)))
     (apply #'process-file process infile buffer display args)))

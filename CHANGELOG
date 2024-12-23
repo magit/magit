@@ -7,6 +7,8 @@
 
 - Added new command ~magit-toggle-profiling~.  f637dd1877
 
+- Added new command ~magit-toggle-subprocess-record~.
+
 Bug fixes:
 
 - Fixed a regression in ~transient-init-value~.  5b4c4aea1b
