@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v4.2.0    UNRELEASED
+* v4.2.0    2025-01-01
 
 - At least Git 2.25.0 is required now.  033a0c0cdc
 
@@ -7,7 +7,7 @@
 
 - Added new command ~magit-toggle-profiling~.  f637dd1877
 
-- Added new command ~magit-toggle-subprocess-record~.
+- Added new command ~magit-toggle-subprocess-record~.  ec1f403af1
 
 Bug fixes:
 
@@ -23,7 +23,7 @@ Bug fixes:
   #5272
 
 - In logs, no longer strip ~heads/~ prefix from branch names if a tag
-  with the same name exists.
+  with the same name exists.  5cb3492464
 
 - ~magit-list-special-refnames~ returned nonsense.  #5277
 
