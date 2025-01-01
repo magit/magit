@@ -94,44 +94,6 @@ Interface Concepts
 * Mouse Support::
 * Running Git::
 
-Modes and Buffers
-
-* Switching Buffers::
-* Naming Buffers::
-* Quitting Windows::
-* Automatic Refreshing of Magit Buffers::
-* Automatic Saving of File-Visiting Buffers::
-* Automatic Reverting of File-Visiting Buffers::
-
-
-Sections
-
-* Section Movement::
-* Section Visibility::
-* Section Hooks::
-* Section Types and Values::
-* Section Options::
-
-
-Completion, Confirmation and the Selection
-
-* Action Confirmation::
-* Completion and Confirmation::
-* The Selection::
-* The hunk-internal region::
-* Support for Completion Frameworks::
-* Additional Completion Options::
-
-
-Running Git
-
-* Viewing Git Output::
-* Git Process Status::
-* Running Git Manually::
-* Git Executable::
-* Global Git Arguments::
-
-
 Inspecting
 
 * Status Buffer::
@@ -143,43 +105,6 @@ Inspecting
 * Bisecting::
 * Visiting Files and Blobs::
 * Blaming::
-
-Status Buffer
-
-* Status Sections::
-* Status Header Sections::
-* Status Module Sections::
-* Status Options::
-
-
-Logging
-
-* Refreshing Logs::
-* Log Buffer::
-* Log Margin::
-* Select from Log::
-* Reflog::
-* Cherries::
-
-
-Diffing
-
-* Refreshing Diffs::
-* Commands Available in Diffs::
-* Diff Options::
-* Revision Buffer::
-
-
-References Buffer
-
-* References Sections::
-
-
-Visiting Files and Blobs
-
-* General-Purpose Visit Commands::
-* Visiting Files and Blobs from a Diff::
-
 
 Manipulating
 
@@ -196,36 +121,6 @@ Manipulating
 * Resetting::
 * Stashing::
 
-Staging and Unstaging
-
-* Staging from File-Visiting Buffers::
-
-
-Committing
-
-* Initiating a Commit::
-* Editing Commit Messages::
-
-
-Branching
-
-* The Two Remotes::
-* Branch Commands::
-* Branch Git Variables::
-* Auxiliary Branch Commands::
-
-
-Rebasing
-
-* Editing Rebase Sequences::
-* Information About In-Progress Rebase::
-
-
-Cherry Picking
-
-* Reverting::
-
-
 Transferring
 
 * Remotes::
@@ -234,12 +129,6 @@ Transferring
 * Pushing::
 * Plain Patches::
 * Maildir Patches::
-
-Remotes
-
-* Remote Commands::
-* Remote Git Variables::
-
 
 Miscellaneous
 
@@ -255,29 +144,10 @@ Miscellaneous
 * Commands for Buffers Visiting Files::
 * Minor Mode for Buffers Visiting Blobs::
 
-Submodules
-
-* Listing Submodules::
-* Submodule Transient::
-
-
-Wip Modes
-
-* Wip Graph::
-* Legacy Wip Modes::
-
-
 Customizing
 
 * Per-Repository Configuration::
 * Essential Settings::
-
-Essential Settings
-
-* Safety::
-* Performance::
-* Global Bindings::
-
 
 Plumbing
 
@@ -286,55 +156,10 @@ Plumbing
 * Refreshing Buffers::
 * Conventions::
 
-Calling Git
-
-* Getting a Value from Git::
-* Calling Git for Effect::
-
-
-Section Plumbing
-
-* Creating Sections::
-* Section Selection::
-* Matching Sections::
-
-
-Conventions
-
-* Theming Faces::
-
-
 FAQ
 
 * FAQ - How to @dots{}?::
 * FAQ - Issues and Errors::
-
-FAQ - How to @dots{}?
-
-* How to pronounce Magit?::
-* How to show git's output?::
-* How to install the gitman info manual?::
-* How to show diffs for gpg-encrypted files?::
-* How does branching and pushing work?::
-* Should I disable VC@?::
-
-
-FAQ - Issues and Errors
-
-* Magit is slow::
-* I changed several thousand files at once and now Magit is unusable::
-* I am having problems committing::
-* I am using MS Windows and cannot push with Magit::
-* I am using macOS and SOMETHING works in shell, but not in Magit: I am using macOS and SOMETHING works in shell but not in Magit. 
-* Expanding a file to show the diff causes it to disappear::
-* Point is wrong in the @code{COMMIT_EDITMSG} buffer::
-* The mode-line information isn't always up-to-date::
-* A branch and tag sharing the same name breaks SOMETHING::
-* My Git hooks work on the command-line but not inside Magit::
-* @code{git-commit-mode} isn't used when committing from the command-line::
-* Point ends up inside invisible text when jumping to a file-visiting buffer::
-* I am no longer able to save popup defaults::
-
 
 @end detailmenu
 @end menu
@@ -751,16 +576,7 @@ then the former buffer is instead deleted and the latter is
 displayed in its place.
 @end table
 
-@menu
-* Switching Buffers::
-* Naming Buffers::
-* Quitting Windows::
-* Automatic Refreshing of Magit Buffers::
-* Automatic Saving of File-Visiting Buffers::
-* Automatic Reverting of File-Visiting Buffers::
-@end menu
-
-@node Switching Buffers
+@anchor{Switching Buffers}
 @subsection Switching Buffers
 
 @defun magit-display-buffer buffer &optional display-function
@@ -865,7 +681,7 @@ whether the window should be deleted when its last Magit buffer is
 buried.
 @end defun
 
-@node Naming Buffers
+@anchor{Naming Buffers}
 @subsection Naming Buffers
 
 @defopt magit-generate-buffer-name-function
@@ -949,7 +765,7 @@ This is done using the @code{uniquify} package; customize its options to
 control how buffer names are uniquified.
 @end defopt
 
-@node Quitting Windows
+@anchor{Quitting Windows}
 @subsection Quitting Windows
 
 @table @asis
@@ -996,7 +812,7 @@ and the buried buffer was the last remaining Magit buffer that was
 ever displayed in the window, then that is deleted.
 @end defun
 
-@node Automatic Refreshing of Magit Buffers
+@anchor{Automatic Refreshing of Magit Buffers}
 @subsection Automatic Refreshing of Magit Buffers
 
 After running a command which may change the state of the current
@@ -1067,7 +883,7 @@ you are not satisfied with Magit's performance, then you should
 obviously not add this function to that hook.
 @end defun
 
-@node Automatic Saving of File-Visiting Buffers
+@anchor{Automatic Saving of File-Visiting Buffers}
 @subsection Automatic Saving of File-Visiting Buffers
 
 File-visiting buffers are by default saved at certain points in time.
@@ -1088,7 +904,7 @@ such buffers.  If this is @code{dontask} then this is done without user
 intervention.  If it is @code{t} then the user has to confirm each save.
 @end defopt
 
-@node Automatic Reverting of File-Visiting Buffers
+@anchor{Automatic Reverting of File-Visiting Buffers}
 @subsection Automatic Reverting of File-Visiting Buffers
 
 By default Magit automatically reverts buffers that are visiting files
@@ -1195,12 +1011,8 @@ The options with the @code{auto-revert-} prefix are located in the Custom
 group named @code{auto-revert}.  The other, Magit-specific, options are
 located in the @code{magit} group.
 
-@menu
-* Risk of Reverting Automatically::
-@end menu
-
-@node Risk of Reverting Automatically
-@unnumberedsubsubsec Risk of Reverting Automatically
+@anchor{Risk of Reverting Automatically}
+@subsubheading Risk of Reverting Automatically
 
 For the vast majority of users, automatically reverting file-visiting
 buffers after they have changed on disk is harmless.
@@ -1257,15 +1069,7 @@ make sense for a particular section type (as opposed to just behaving
 differently depending on the type) are usually bound in section type
 keymaps.
 
-@menu
-* Section Movement::
-* Section Visibility::
-* Section Hooks::
-* Section Types and Values::
-* Section Options::
-@end menu
-
-@node Section Movement
+@anchor{Section Movement}
 @subsection Section Movement
 
 To move within a section use the usual keys (@code{C-p}, @code{C-n}, @code{C-b}, @code{C-f} etc),
@@ -1398,7 +1202,7 @@ to adjust this delay and/or the keyboard repeat rate and delay of
 your graphical environment or operating system.
 @end defopt
 
-@node Section Visibility
+@anchor{Section Visibility}
 @subsection Section Visibility
 
 Magit provides many commands for changing the visibility of sections,
@@ -1583,7 +1387,7 @@ doing so is kinda ugly.
 @end itemize
 @end defopt
 
-@node Section Hooks
+@anchor{Section Hooks}
 @subsection Section Hooks
 
 Which sections are inserted into certain buffers is controlled with
@@ -1629,7 +1433,7 @@ should not be abused for other side-effects.
 
 To remove a function from a section hook, use @code{remove-hook}.
 
-@node Section Types and Values
+@anchor{Section Types and Values}
 @subsection Section Types and Values
 
 Each section has a type, for example @code{hunk}, @code{file}, and @code{commit}.
@@ -1664,7 +1468,7 @@ of all text belonging to any section of the respective type.  If such
 a map does not exist for a certain type, then you can define it
 yourself, and it will automatically be used.
 
-@node Section Options
+@anchor{Section Options}
 @subsection Section Options
 
 This section describes options that have an effect on more than just a
@@ -1853,16 +1657,7 @@ command and therefore respects @code{magit-direct-use-buffer-arguments}.
 @node Completion Confirmation and the Selection
 @section Completion, Confirmation and the Selection
 
-@menu
-* Action Confirmation::
-* Completion and Confirmation::
-* The Selection::
-* The hunk-internal region::
-* Support for Completion Frameworks::
-* Additional Completion Options::
-@end menu
-
-@node Action Confirmation
+@anchor{Action Confirmation}
 @subsection Action Confirmation
 
 By default many actions that could potentially lead to data loss have
@@ -2071,7 +1866,7 @@ adding all of these symbols individually.
 @end itemize
 @end defopt
 
-@node Completion and Confirmation
+@anchor{Completion and Confirmation}
 @subsection Completion and Confirmation
 
 Many Magit commands ask the user to select from a list of possible
@@ -2138,7 +1933,7 @@ a chance to abort.  DEFAULT can also be @code{nil}, in which case the
 entry has no effect.
 @end itemize
 
-@node The Selection
+@anchor{The Selection}
 @subsection The Selection
 
 If the region is active, then many Magit commands act on the things
@@ -2193,7 +1988,7 @@ even when a valid Magit selection or a hunk-internal region exists.
 See the doc-string for more information.
 @end defvar
 
-@node The hunk-internal region
+@anchor{The hunk-internal region}
 @subsection The hunk-internal region
 
 Somewhat related to the Magit selection described in the previous
@@ -2214,7 +2009,7 @@ among other targets, act on a hunk.  If the hunk-internal region is
 active, then such commands act only on the marked part of the hunk
 instead of on the complete hunk.
 
-@node Support for Completion Frameworks
+@anchor{Support for Completion Frameworks}
 @subsection Support for Completion Frameworks
 
 The built-in option @code{completing-read-function} specifies the low-level
@@ -2312,7 +2107,7 @@ add the default to the prompt, using the format specified by
 @end itemize
 @end defun
 
-@node Additional Completion Options
+@anchor{Additional Completion Options}
 @subsection Additional Completion Options
 
 @defopt magit-list-refs-sortby
@@ -2337,15 +2132,7 @@ older Emacs release, set @code{magit-section-show-context-menu-for-emacs<28}.
 @node Running Git
 @section Running Git
 
-@menu
-* Viewing Git Output::
-* Git Process Status::
-* Running Git Manually::
-* Git Executable::
-* Global Git Arguments::
-@end menu
-
-@node Viewing Git Output
+@anchor{Viewing Git Output}
 @subsection Viewing Git Output
 
 Magit runs Git either for side-effects (e.g., when pushing) or to get
@@ -2399,7 +2186,7 @@ relevant in the context of some unexpected behavior has to be judged
 on a case by case basis.
 @end table
 
-@node Git Process Status
+@anchor{Git Process Status}
 @subsection Git Process Status
 
 When a Git process is running for side-effects, Magit displays an
@@ -2420,7 +2207,7 @@ customize the @code{magit-process-display-mode-line-error} user option.
 Process errors are additionally indicated at the top of the status
 buffer.
 
-@node Running Git Manually
+@anchor{Running Git Manually}
 @subsection Running Git Manually
 
 While Magit provides many Emacs commands to interact with Git, it does
@@ -2508,7 +2295,7 @@ With a prefix argument this acts as a transient prefix command,
 allowing the user to select the mergetool and change some settings.
 @end table
 
-@node Git Executable
+@anchor{Git Executable}
 @subsection Git Executable
 
 When Magit calls Git, then it may do so using the absolute path to the
@@ -2573,7 +2360,7 @@ Emacs in the echo area.  Non-interactively this just returns the
 Magit version.
 @end table
 
-@node Global Git Arguments
+@anchor{Global Git Arguments}
 @subsection Global Git Arguments
 
 @defopt magit-git-global-arguments
@@ -2765,14 +2552,7 @@ like pretty much every other keymap:
 @end lisp
 @end deffn
 
-@menu
-* Status Sections::
-* Status Header Sections::
-* Status Module Sections::
-* Status Options::
-@end menu
-
-@node Status Sections
+@anchor{Status Sections}
 @subsection Status Sections
 
 The contents of status buffers is controlled using the hook
@@ -2936,7 +2716,7 @@ all others with "-".
 See @ref{References Buffer} for some more section inserters, which could be
 used here.
 
-@node Status Header Sections
+@anchor{Status Header Sections}
 @subsection Status Header Sections
 
 The contents of status buffers is controlled using the hook
@@ -3011,7 +2791,7 @@ remote in alphabetic order.
 Insert a header line about the current user.
 @end defun
 
-@node Status Module Sections
+@anchor{Status Module Sections}
 @subsection Status Module Sections
 
 The contents of status buffers is controlled using the hook
@@ -3075,7 +2855,7 @@ push-remote yet.  These sections can be expanded to show the
 respective commits.
 @end defun
 
-@node Status Options
+@anchor{Status Options}
 @subsection Status Options
 
 @defopt magit-status-margin
@@ -3347,16 +3127,7 @@ Two additional commands that show the log for the file or blob that is
 being visited in the current buffer exists, see @ref{Commands for Buffers Visiting Files}.  The command @code{magit-cherry} also shows a log, see
 @ref{Cherries}.
 
-@menu
-* Refreshing Logs::
-* Log Buffer::
-* Log Margin::
-* Select from Log::
-* Reflog::
-* Cherries::
-@end menu
-
-@node Refreshing Logs
+@anchor{Refreshing Logs}
 @subsection Refreshing Logs
 
 The transient prefix command @code{magit-log-refresh}, on @code{L}, can be used to
@@ -3400,7 +3171,7 @@ affected because their local values have already been initialized.
 Show or hide the margin.
 @end table
 
-@node Log Buffer
+@anchor{Log Buffer}
 @subsection Log Buffer
 
 @table @asis
@@ -3545,7 +3316,7 @@ using the faces named @code{magit-signature-*} (which see).
 
 For a description of @code{magit-log-margin} see @ref{Log Margin}.
 
-@node Log Margin
+@anchor{Log Margin}
 @subsection Log Margin
 
 In buffers which show one or more logs, it is possible to show
@@ -3628,7 +3399,7 @@ This command cycles the style used for the margin.
 This command shows or hides details in the margin.
 @end table
 
-@node Select from Log
+@anchor{Select from Log}
 @subsection Select from Log
 
 When the user has to select a recent commit that is reachable from
@@ -3687,7 +3458,7 @@ is shown, then this specifies how much space is used to do so.
 @end itemize
 @end defopt
 
-@node Reflog
+@anchor{Reflog}
 @subsection Reflog
 
 Also see 
@@ -3751,7 +3522,7 @@ is shown, then this specifies how much space is used to do so.
 @end itemize
 @end defopt
 
-@node Cherries
+@anchor{Cherries}
 @subsection Cherries
 
 Cherries are commits that haven't been applied upstream (yet), and are
@@ -3931,14 +3702,7 @@ Show all diffs of a stash in a buffer.
 Two additional commands that show the diff for the file or blob that
 is being visited in the current buffer exists, see @ref{Commands for Buffers Visiting Files}.
 
-@menu
-* Refreshing Diffs::
-* Commands Available in Diffs::
-* Diff Options::
-* Revision Buffer::
-@end menu
-
-@node Refreshing Diffs
+@anchor{Refreshing Diffs}
 @subsection Refreshing Diffs
 
 The transient prefix command @code{magit-diff-refresh}, on @code{D}, can be used to
@@ -4056,7 +3820,7 @@ This command moves backward in current buffer's history.
 This command moves forward in current buffer's history.
 @end table
 
-@node Commands Available in Diffs
+@anchor{Commands Available in Diffs}
 @subsection Commands Available in Diffs
 
 Some commands are only available if point is inside a diff.
@@ -4127,7 +3891,7 @@ This command scrolls text upward.
 This command scrolls text downward.
 @end table
 
-@node Diff Options
+@anchor{Diff Options}
 @subsection Diff Options
 
 @defopt magit-diff-refine-hunk
@@ -4286,7 +4050,7 @@ the git-diff(1) manpage.
 @end iftex
 @end defopt
 
-@node Revision Buffer
+@anchor{Revision Buffer}
 @subsection Revision Buffer
 
 @defopt magit-revision-insert-related-refs
@@ -4803,11 +4567,7 @@ like you would do in other buffers.
 @end itemize
 @end defopt
 
-@menu
-* References Sections::
-@end menu
-
-@node References Sections
+@anchor{References Sections}
 @subsection References Sections
 
 The contents of references buffers is controlled using the hook
@@ -4935,12 +4695,7 @@ group.
 
 Also see @ref{Commands for Buffers Visiting Files}.
 
-@menu
-* General-Purpose Visit Commands::
-* Visiting Files and Blobs from a Diff::
-@end menu
-
-@node General-Purpose Visit Commands
+@anchor{General-Purpose Visit Commands}
 @subsection General-Purpose Visit Commands
 
 These commands can be used anywhere to open any blob.  Currently no
@@ -4965,7 +4720,7 @@ the respective blob in a buffer.  The buffer is displayed in another
 frame.
 @end deffn
 
-@node Visiting Files and Blobs from a Diff
+@anchor{Visiting Files and Blobs from a Diff}
 @subsection Visiting Files and Blobs from a Diff
 
 These commands can only be used when point is inside a diff.
@@ -5612,11 +5367,7 @@ and defaults to the commit at point.  If there is no commit at
 point, then it defaults to @code{HEAD}.
 @end table
 
-@menu
-* Staging from File-Visiting Buffers::
-@end menu
-
-@node Staging from File-Visiting Buffers
+@anchor{Staging from File-Visiting Buffers}
 @subsection Staging from File-Visiting Buffers
 
 Fine-grained un-/staging has to be done from the status or a diff
@@ -5717,12 +5468,7 @@ arranges for that editor to be the Emacsclient.  Once the user
 finishes the editing session, the Emacsclient exits and Git creates the
 commit using the file's content as message.
 
-@menu
-* Initiating a Commit::
-* Editing Commit Messages::
-@end menu
-
-@node Initiating a Commit
+@anchor{Initiating a Commit}
 @subsection Initiating a Commit
 
 Also see 
@@ -5881,7 +5627,7 @@ diff buffer would end up being displayed in a new frame.
 Also see @uref{https://github.com/magit/magit/issues/4132}.
 @end defopt
 
-@node Editing Commit Messages
+@anchor{Editing Commit Messages}
 @subsection Editing Commit Messages
 
 After initiating a commit as described in the previous section, two new
@@ -5953,15 +5699,8 @@ While amending, invoking the command again toggles between showing
 just the new changes or all the changes that will be committed.
 @end table
 
-@menu
-* Using the Revision Stack::
-* Commit Pseudo Headers::
-* Commit Mode and Hooks::
-* Commit Message Conventions::
-@end menu
-
-@node Using the Revision Stack
-@unnumberedsubsubsec Using the Revision Stack
+@anchor{Using the Revision Stack}
+@subsubheading Using the Revision Stack
 
 @table @asis
 @item @kbd{C-c C-w} (@code{magit-pop-revision-stack})
@@ -6023,8 +5762,8 @@ expansion of EOB-FORMAT is inserted at the end of the buffer (if the
 buffer ends with a comment, then it is inserted right before that).
 @end defopt
 
-@node Commit Pseudo Headers
-@unnumberedsubsubsec Commit Pseudo Headers
+@anchor{Commit Pseudo Headers}
+@subsubheading Commit Pseudo Headers
 
 Some projects use pseudo headers in commit messages.  Magit colorizes
 such headers and provides some commands to insert such headers.
@@ -6076,8 +5815,8 @@ fixed by the commit.
 Insert a header mentioning the person who suggested the change.
 @end table
 
-@node Commit Mode and Hooks
-@unnumberedsubsubsec Commit Mode and Hooks
+@anchor{Commit Mode and Hooks}
+@subsubheading Commit Mode and Hooks
 
 @code{git-commit-mode} is a minor mode that is only used to establish certain
 key bindings.  This makes it possible to use an arbitrary major mode
@@ -6154,8 +5893,8 @@ This hook is only run if @code{magit} is available.
 Also see @code{magit-post-commit-hook}.
 @end defopt
 
-@node Commit Message Conventions
-@unnumberedsubsubsec Commit Message Conventions
+@anchor{Commit Message Conventions}
+@subsubheading Commit Message Conventions
 
 Git-Commit highlights certain violations of commonly accepted commit
 message conventions.  Certain violations even cause Git-Commit to ask
@@ -6202,14 +5941,7 @@ identifying certain conventions; @code{non-empty-second-line} and
 @node Branching
 @section Branching
 
-@menu
-* The Two Remotes::
-* Branch Commands::
-* Branch Git Variables::
-* Auxiliary Branch Commands::
-@end menu
-
-@node The Two Remotes
+@anchor{The Two Remotes}
 @subsection The Two Remotes
 
 The upstream branch of some local branch is the branch into which the
@@ -6256,7 +5988,7 @@ from many transient prefix commands that deal with branches.  It is
 also possible to set the push-remote or upstream while pushing (see
 @ref{Pushing}).
 
-@node Branch Commands
+@anchor{Branch Commands}
 @subsection Branch Commands
 
 The transient prefix command @code{magit-branch} is used to create and
@@ -6588,7 +6320,7 @@ file:
 @end lisp
 @end deffn
 
-@node Branch Git Variables
+@anchor{Branch Git Variables}
 @subsection Branch Git Variables
 
 These variables can be set from the transient prefix command
@@ -6768,7 +6500,7 @@ This affects all commands that use @code{magit-read-upstream-branch} or
 the upstream and many which create new branches.
 @end defopt
 
-@node Auxiliary Branch Commands
+@anchor{Auxiliary Branch Commands}
 @subsection Auxiliary Branch Commands
 
 These commands are not available from the transient @code{magit-branch} by
@@ -7195,12 +6927,7 @@ This command aborts the current rebase operation, restoring the
 original branch.
 @end table
 
-@menu
-* Editing Rebase Sequences::
-* Information About In-Progress Rebase::
-@end menu
-
-@node Editing Rebase Sequences
+@anchor{Editing Rebase Sequences}
 @subsection Editing Rebase Sequences
 
 @table @asis
@@ -7364,7 +7091,7 @@ the editor when creating the merge, allowing the user to edit the
 message.
 @end table
 
-@node Information About In-Progress Rebase
+@anchor{Information About In-Progress Rebase}
 @subsection Information About In-Progress Rebase
 
 While a rebase sequence is in progress, the status buffer features a
@@ -7703,11 +7430,7 @@ Abort the current cherry-pick or revert sequence.  This discards all
 changes made since the sequence started.
 @end table
 
-@menu
-* Reverting::
-@end menu
-
-@node Reverting
+@anchor{Reverting}
 @subsection Reverting
 
 @table @asis
@@ -8052,12 +7775,7 @@ is shown, then this specifies how much space is used to do so.
 @node Remotes
 @section Remotes
 
-@menu
-* Remote Commands::
-* Remote Git Variables::
-@end menu
-
-@node Remote Commands
+@anchor{Remote Commands}
 @subsection Remote Commands
 
 The transient prefix command @code{magit-remote} is used to add remotes and
@@ -8182,7 +7900,7 @@ name of the added remote is equal to that string and the variable
 isn't already set.
 @end defopt
 
-@node Remote Git Variables
+@anchor{Remote Git Variables}
 @subsection Remote Git Variables
 
 These variables can be set from the transient prefix command
@@ -8808,12 +8526,7 @@ the <a href="http://git-scm.com/docs/git-submodule">git-submodule(1)</a> manpage
 the git-submodule(1) manpage.
 @end iftex
 
-@menu
-* Listing Submodules::
-* Submodule Transient::
-@end menu
-
-@node Listing Submodules
+@anchor{Listing Submodules}
 @subsection Listing Submodules
 
 The command @code{magit-list-submodules} displays a list of the current
@@ -8856,7 +8569,7 @@ which case you should use an appropriate HEADER, set WIDTH to 1,
 and set @code{:pad-right} to 9. @code{+} is substituted for numbers higher than 9.
 @end defopt
 
-@node Submodule Transient
+@anchor{Submodule Transient}
 @subsection Submodule Transient
 
 @table @asis
@@ -9343,12 +9056,7 @@ the @code{HEAD} is detached then @code{HEAD} is used in place of @code{<branchre
 Mode-line lighter for @code{magit-wip--mode}.
 @end defopt
 
-@menu
-* Wip Graph::
-* Legacy Wip Modes::
-@end menu
-
-@node Wip Graph
+@anchor{Wip Graph}
 @subsection Wip Graph
 
 @defopt magit-wip-merge-branch
@@ -9411,7 +9119,7 @@ commit does not change the fork-point of the working tree wip ref.  The
 fork-points are not adjusted until there actually is a change that
 should be committed to the respective wip ref.
 
-@node Legacy Wip Modes
+@anchor{Legacy Wip Modes}
 @subsection Legacy Wip Modes
 
 It is recommended that you use the mode @code{magit-wip-mode} (which see) and
@@ -9946,13 +9654,7 @@ For example:
 The next three sections list and discuss several variables that many
 users might want to customize, for safety and/or performance reasons.
 
-@menu
-* Safety::
-* Performance::
-* Global Bindings::
-@end menu
-
-@node Safety
+@anchor{Safety}
 @subsection Safety
 
 This section discusses various variables that you might want to
@@ -9984,7 +9686,7 @@ By default buffers visiting files are automatically reverted when the
 visited file changes on disk.  This isn't as risky as it might seem,
 but to make an informed decision you should see @ref{Risk of Reverting Automatically}.
 
-@node Performance
+@anchor{Performance}
 @subsection Performance
 
 After Magit has run @code{git} for side-effects, it also refreshes the
@@ -10044,11 +9746,6 @@ per-repository or per-repository-class basis only.  See
 determine the next and current tag in repository with exceptional
 numbers of tags.  It would therefore be a good idea to disable
 @code{magit-insert-tags-headers}, as explained at the mentioned node.
-
-@menu
-* Microsoft Windows Performance::
-* MacOS Performance::
-@end menu
 
 @anchor{Log Performance}
 @subsubheading Log Performance
@@ -10143,8 +9840,8 @@ but doing it this way has the advantage that you usually get to see
 the diff, which is useful because it increases the odds that you spot
 potential issues.
 
-@node Microsoft Windows Performance
-@unnumberedsubsubsec Microsoft Windows Performance
+@anchor{Microsoft Windows Performance}
+@subsubheading Microsoft Windows Performance
 
 In order to update the status buffer, @code{git} has to be run a few dozen
 times.  That is problematic on Microsoft Windows, because that
@@ -10171,8 +9868,8 @@ git config --global gc.auto 256
 You should also check whether an anti-virus program is affecting
 performance.
 
-@node MacOS Performance
-@unnumberedsubsubsec MacOS Performance
+@anchor{MacOS Performance}
+@subsubheading MacOS Performance
 
 Before Emacs 26.1 child processes were created using @code{fork} on macOS@.
 That needlessly copied GUI resources, which is expensive.  The result
@@ -10191,7 +9888,7 @@ executable you're running against the one at @code{/usr/bin/git}, and if
 you notice a notable difference try using the latter as
 @code{magit-git-executable}.
 
-@node Global Bindings
+@anchor{Global Bindings}
 @subsection Global Bindings
 
 @defopt magit-define-global-key-bindings
@@ -10306,12 +10003,7 @@ can be further divided into subgroups depending on whether they run
 Git synchronously or asynchronously, and depending on whether they
 trigger a refresh when the executable has finished.
 
-@menu
-* Getting a Value from Git::
-* Calling Git for Effect::
-@end menu
-
-@node Getting a Value from Git
+@anchor{Getting a Value from Git}
 @subsection Getting a Value from Git
 
 These functions run Git in order to get a value, an exit
@@ -10403,7 +10095,7 @@ therefore lead to an infinite recursion.  You probably won't ever
 need to use this function.
 @end defun
 
-@node Calling Git for Effect
+@anchor{Calling Git for Effect}
 @subsection Calling Git for Effect
 
 These functions are used to run git to produce some effect.  Most
@@ -10544,13 +10236,7 @@ git exits with a non-zero exit status.  For debugging purposes.
 @node Section Plumbing
 @section Section Plumbing
 
-@menu
-* Creating Sections::
-* Section Selection::
-* Matching Sections::
-@end menu
-
-@node Creating Sections
+@anchor{Creating Sections}
 @subsection Creating Sections
 
 @defmac magit-insert-section &rest args
@@ -10627,7 +10313,7 @@ Define an interactive function to go to section SYM@.  TITLE is the
 displayed title of the section.
 @end defun
 
-@node Section Selection
+@anchor{Section Selection}
 @subsection Section Selection
 
 @defun magit-current-section
@@ -10668,7 +10354,7 @@ Return the values that themselves would be returned by
 @code{magit-region-sections} (which see).
 @end defun
 
-@node Matching Sections
+@anchor{Matching Sections}
 @subsection Matching Sections
 
 @table @asis
@@ -10881,11 +10567,7 @@ of this variable and then calling this @code{magit-refresh-function}.
 
 Also see @ref{Completion and Confirmation}.
 
-@menu
-* Theming Faces::
-@end menu
-
-@node Theming Faces
+@anchor{Theming Faces}
 @subsection Theming Faces
 
 The default theme uses blue for local branches, green for remote
@@ -11042,16 +10724,7 @@ Please also see @ref{Debugging Tools}.
 @node FAQ - How to @dots{}?
 @appendixsec FAQ - How to @dots{}?
 
-@menu
-* How to pronounce Magit?::
-* How to show git's output?::
-* How to install the gitman info manual?::
-* How to show diffs for gpg-encrypted files?::
-* How does branching and pushing work?::
-* Should I disable VC@?::
-@end menu
-
-@node How to pronounce Magit?
+@anchor{How to pronounce Magit?}
 @appendixsubsec How to pronounce Magit?
 
 Either @code{mu[m's] git} or @code{magi@{c => t@}} is fine.
@@ -11070,7 +10743,7 @@ like it better.
 Also see @uref{https://magit.vc/assets/videos/magic.mp4}.
 Also see @uref{https://emacs.stackexchange.com/questions/13696}.
 
-@node How to show git's output?
+@anchor{How to show git's output?}
 @appendixsubsec How to show git's output?
 
 To show the output of recently run git commands, press @code{$} (or, if that
@@ -11084,7 +10757,7 @@ also inserting it into the process buffer would be too expensive.
 For debugging purposes, it's possible to do so anyway, using @code{M-x
 magit-toggle-git-debug}.
 
-@node How to install the gitman info manual?
+@anchor{How to install the gitman info manual?}
 @appendixsubsec How to install the gitman info manual?
 
 Git's manpages can be exported as an info manual called @code{gitman}.
@@ -11105,7 +10778,7 @@ one of the supported Emacs packages @code{man} or @code{woman}, e.g.:
 (setq magit-view-git-manual-method 'man)
 @end lisp
 
-@node How to show diffs for gpg-encrypted files?
+@anchor{How to show diffs for gpg-encrypted files?}
 @appendixsubsec How to show diffs for gpg-encrypted files?
 
 Git supports showing diffs for encrypted files, but has to be told to
@@ -11117,12 +10790,12 @@ git config --global diff.gpg.textconv "gpg --no-tty --decrypt"
 echo "*.gpg filter=gpg diff=gpg" > .gitattributes
 @end example
 
-@node How does branching and pushing work?
+@anchor{How does branching and pushing work?}
 @appendixsubsec How does branching and pushing work?
 
 Please see @ref{Branching} and @uref{https://emacsair.me/2016/01/18/magit-2.4}
 
-@node Should I disable VC@?
+@anchor{Should I disable VC@?}
 @appendixsubsec Should I disable VC@?
 
 If you don't use VC (the built-in version control interface) then
@@ -11139,28 +10812,12 @@ the value of @code{vc-handled-backends}.
 @node FAQ - Issues and Errors
 @appendixsec FAQ - Issues and Errors
 
-@menu
-* Magit is slow::
-* I changed several thousand files at once and now Magit is unusable::
-* I am having problems committing::
-* I am using MS Windows and cannot push with Magit::
-* I am using macOS and SOMETHING works in shell, but not in Magit: I am using macOS and SOMETHING works in shell but not in Magit. 
-* Expanding a file to show the diff causes it to disappear::
-* Point is wrong in the @code{COMMIT_EDITMSG} buffer::
-* The mode-line information isn't always up-to-date::
-* A branch and tag sharing the same name breaks SOMETHING::
-* My Git hooks work on the command-line but not inside Magit::
-* @code{git-commit-mode} isn't used when committing from the command-line::
-* Point ends up inside invisible text when jumping to a file-visiting buffer::
-* I am no longer able to save popup defaults::
-@end menu
-
-@node Magit is slow
+@anchor{Magit is slow}
 @appendixsubsec Magit is slow
 
 See @ref{Performance} and @ref{I changed several thousand files at once and now Magit is unusable}.
 
-@node I changed several thousand files at once and now Magit is unusable
+@anchor{I changed several thousand files at once and now Magit is unusable}
 @appendixsubsec I changed several thousand files at once and now Magit is unusable
 
 Magit is currently not expected to work well under such conditions.
@@ -11171,14 +10828,14 @@ small task but I hope to eventually find the time to make it happen.
 But for now we recommend you use the command line to complete this one
 commit.  Also see @ref{Performance}.
 
-@node I am having problems committing
+@anchor{I am having problems committing}
 @appendixsubsec I am having problems committing
 
 That likely means that Magit is having problems finding an appropriate
 @code{emacsclient} executable.  See @ref{Configuring With-Editor,,,with-editor,}
 and @ref{Debugging,,,with-editor,}.
 
-@node I am using MS Windows and cannot push with Magit
+@anchor{I am using MS Windows and cannot push with Magit}
 @appendixsubsec I am using MS Windows and cannot push with Magit
 
 It's almost certain that Magit is only incidental to this issue.  It
@@ -11188,7 +10845,7 @@ can push on the command line.
 Detailed setup instructions can be found at
 @uref{https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows}.
 
-@node I am using macOS and SOMETHING works in shell but not in Magit
+@anchor{I am using macOS and SOMETHING works in shell but not in Magit}
 @appendixsubsec I am using macOS and SOMETHING works in shell, but not in Magit
 
 This usually occurs because Emacs doesn't have the same environment
@@ -11200,14 +10857,14 @@ are using on the shell.
 If SOMETHING is "passphrase caching with gpg-agent for commit and/or
 tag signing", then you'll also need to synchronize @code{$GPG_AGENT_INFO}.
 
-@node Expanding a file to show the diff causes it to disappear
+@anchor{Expanding a file to show the diff causes it to disappear}
 @appendixsubsec Expanding a file to show the diff causes it to disappear
 
 This is probably caused by a customization of a @code{diff.*} Git variable.
 You probably set that variable for a reason, and should therefore only
 undo that setting in Magit by customizing @code{magit-git-global-arguments}.
 
-@node Point is wrong in the @code{COMMIT_EDITMSG} buffer
+@anchor{Point is wrong in the @code{COMMIT_EDITMSG} buffer}
 @appendixsubsec Point is wrong in the @code{COMMIT_EDITMSG} buffer
 
 Neither Magit nor @code{git-commit.el} fiddle with point in the buffer used
@@ -11230,7 +10887,7 @@ help:
       (pointback-mode -1))))
 @end lisp
 
-@node The mode-line information isn't always up-to-date
+@anchor{The mode-line information isn't always up-to-date}
 @appendixsubsec The mode-line information isn't always up-to-date
 
 Magit is not responsible for the version control information that is
@@ -11254,7 +10911,7 @@ then consider simply not displaying it in the mode-line:
               (delete '(vc-mode vc-mode) mode-line-format))
 @end lisp
 
-@node A branch and tag sharing the same name breaks SOMETHING
+@anchor{A branch and tag sharing the same name breaks SOMETHING}
 @appendixsubsec A branch and tag sharing the same name breaks SOMETHING
 
 Or more generally, ambiguous refnames break SOMETHING@.
@@ -11267,7 +10924,7 @@ non-ambiguous naming scheme.  However, if you do work with a
 repository that has ambiguous refnames, please report any issues you
 encounter, so that we can investigate whether there is a simple fix.
 
-@node My Git hooks work on the command-line but not inside Magit
+@anchor{My Git hooks work on the command-line but not inside Magit}
 @appendixsubsec My Git hooks work on the command-line but not inside Magit
 
 When Magit calls @code{git} it adds a few global arguments including
@@ -11278,7 +10935,7 @@ subprocesses with the @code{--literal-pathspecs} argument.  You can therefore
 override this setting in hook scripts using @code{unset
 GIT_LITERAL_PATHSPECS}.
 
-@node @code{git-commit-mode} isn't used when committing from the command-line
+@anchor{@code{git-commit-mode} isn't used when committing from the command-line}
 @appendixsubsec @code{git-commit-mode} isn't used when committing from the command-line
 
 The reason for this is that @code{git-commit.el} has not been loaded yet
@@ -11340,7 +10997,7 @@ Try to use @code{emacsclient} (without using @code{--alternate-editor}).  If tha
 succeeds, do nothing else.  Otherwise start @code{emacs &} (and @code{init.el} must
 call @code{server-start}) and try to use @code{emacsclient} again.
 
-@node Point ends up inside invisible text when jumping to a file-visiting buffer
+@anchor{Point ends up inside invisible text when jumping to a file-visiting buffer}
 @appendixsubsec Point ends up inside invisible text when jumping to a file-visiting buffer
 
 This can happen when you type @code{RET} on a hunk to visit the respective
@@ -11350,7 +11007,7 @@ always visible.  If that is too drastic for your taste, then you may
 instead use @code{magit-diff-visit-file-hook} to reveal the text, possibly
 using @code{reveal-post-command} or for Org buffers @code{org-reveal}.
 
-@node I am no longer able to save popup defaults
+@anchor{I am no longer able to save popup defaults}
 @appendixsubsec I am no longer able to save popup defaults
 
 Magit used to use Magit-Popup to implement the transient popup menus.
