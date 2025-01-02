@@ -7641,24 +7641,22 @@ or with a prefix argument @code{git stash apply --index}.
 
 When using Git v2.38.0 or later, behave more intelligently:
 
-First try @code{git stash apply --index}, which tries to preserve
-the index stored in the stash, if any.  This may fail because
-applying the stash could result in conflicts and those have to
-be stored in the index, making it impossible to also store the
-stash's index there.
+First try @code{git stash apply --index}, which tries to preserve the index
+stored in the stash, if any.  This may fail because applying the
+stash could result in conflicts and those have to be stored in the
+index, making it impossible to also store the stash's index there.
 
-If the above failed, then try @code{git stash apply}.  This fails
-(with or without @code{--index}) if there are any uncommitted
-changes to files that are also modified in the stash.
+First try @code{git stash apply --index}, which tries to preserve the
+index stored in the stash, if any.  This may fail because applying
+the stash could result in conflicts and those have to be stored in
+the index, making it impossible to also store the stash's index
+there.
 
-If both of the above failed, then apply using @code{git apply}.
-If there are no conflicting files, use @code{--3way}.  If there are
-conflicting files, then using @code{--3way} requires that those
-files are staged first, which may be undesirable, so prompt
-the user whether to use @code{--3way} or @code{--reject}.
-
-Customize @code{magit-no-confirm} if you want to always use @code{--3way},
-without being prompted.
+If @code{git stash} fails, then potentially fall back to using @code{git apply}.
+If the stash does not touch any unstaged files, then pass @code{--3way} to
+that command.  Otherwise ask the user whether to use that argument
+or @code{--reject}.  Customize @code{magit-no-confirm} if you want to fall back
+to using @code{--3way}, without being prompted.
 
 @item @kbd{z p} (@code{magit-stash-pop})
 @kindex z p
@@ -7672,24 +7670,16 @@ or with a prefix argument @code{git stash pop --index}.
 
 When using Git v2.38.0 or later, behave more intelligently:
 
-First try @code{git stash pop --index}, which tries to preserve
-the index stored in the stash, if any.  This may fail because
-applying the stash could result in conflicts and those have to
-be stored in the index, making it impossible to also store the
-stash's index there.
+First try @code{git stash pop --index}, which tries to preserve the index
+stored in the stash, if any.  This may fail because applying the
+stash could result in conflicts and those have to be stored in the
+index, making it impossible to also store the stash's index there.
 
-If the above failed, then try @code{git stash apply}.  This fails
-(with or without @code{--index}) if there are any uncommitted
-changes to files that are also modified in the stash.
-
-If both of the above failed, then apply using @code{git apply}.
-If there are no conflicting files, use @code{--3way}.  If there are
-conflicting files, then using @code{--3way} requires that those
-files are staged first, which may be undesirable, so prompt
-the user whether to use @code{--3way} or @code{--reject}.
-
-Customize @code{magit-no-confirm} if you want to always use @code{--3way},
-without being prompted.
+If @code{git stash} fails, then potentially fall back to using @code{git apply}.
+If the stash does not touch any unstaged files, then pass @code{--3way} to
+that command.  Otherwise ask the user whether to use that argument
+or @code{--reject}.  Customize @code{magit-no-confirm} if you want to fall back
+to using @code{--3way}, without being prompted.
 
 @item @kbd{z k} (@code{magit-stash-drop})
 @kindex z k
