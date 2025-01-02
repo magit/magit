@@ -317,29 +317,33 @@ the user whether to use \"--3way\" or \"--reject\"."
 (defun magit-stash--apply (action stash)
   (if (magit-git-version< "2.38.0")
       (magit-run-git "stash" action stash (and current-prefix-arg "--index"))
-    (or (magit--run-git-stash action "--index" stash)
-        ;; The stash's index could not be applied, so always keep the stash.
-        (magit--run-git-stash "apply" stash)
-        (let* ((range (format "%s^..%s" stash stash))
-               (stashed (magit-git-items "diff" "-z" "--name-only" range "--"))
-               (conflicts (cl-sort (cl-union (magit-unstaged-files t stashed)
-                                             (magit-untracked-files t stashed)
-                                             :test #'equal)
-                                   #'string<))
-               (arg (cond
-                     ((not conflicts) "--3way")
-                     ((magit-confirm-files
-                       'stash-apply-3way conflicts
-                       "Apply stash using `--3way', which requires first staging"
-                       "(else use `--reject')"
-                       t)
-                      (magit-stage-1 nil conflicts)
-                      "--3way")
-                     ("--reject"))))
-          (with-temp-buffer
-            (magit-git-insert "diff" range)
-            (magit-run-git-with-input "apply" arg "-"))))
+    (magit-stash--apply-1 action stash)
     (magit-refresh)))
+
+(defun magit-stash--apply-1 (action stash)
+  (or
+   (magit--run-git-stash action "--index" stash)
+   ;; The stash's index could not be applied, so always keep the stash.
+   (magit--run-git-stash "apply" stash)
+   (let* ((range (format "%s^..%s" stash stash))
+          (stashed (magit-git-items "diff" "-z" "--name-only" range "--"))
+          (conflicts (cl-sort (cl-union (magit-unstaged-files t stashed)
+                                        (magit-untracked-files t stashed)
+                                        :test #'equal)
+                              #'string<))
+          (arg (cond
+                ((not conflicts) "--3way")
+                ((magit-confirm-files
+                  'stash-apply-3way conflicts
+                  "Apply stash using `--3way', which requires first staging"
+                  "(else use `--reject')"
+                  t)
+                 (magit-stage-1 nil conflicts)
+                 "--3way")
+                ("--reject"))))
+     (with-temp-buffer
+       (magit-git-insert "diff" range)
+       (magit-run-git-with-input "apply" arg "-")))))
 
 (defun magit--run-git-stash (&rest args)
   (magit--with-temp-process-buffer
