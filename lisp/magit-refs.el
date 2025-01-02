@@ -677,7 +677,7 @@ line is inserted at all."
                          magit-refs-show-push-remote
                          (magit-rev-verify p:ref)
                          (not (equal p:ref u:ref))))
-             (branch-desc
+             (branch-pretty
               (if branch
                   (magit-refs--propertize-branch
                    branch ref (and headp 'magit-branch-current))
@@ -710,10 +710,10 @@ line is inserted at all."
                                      (match-string 1 p:track)
                                      (and magit-refs-pad-commit-counts " "))
                              'magit-dimmed))))
-        (list (1+ (length (concat branch-desc u:ahead p:ahead u:behind)))
+        (list (1+ (length (concat branch-pretty u:ahead p:ahead u:behind)))
               branch
               (magit-refs--format-focus-column branch headp)
-              branch-desc u:ahead p:ahead
+              branch-pretty u:ahead p:ahead
               u:behind
               (and upstream
                    (concat (if (equal u:track "[gone]")
