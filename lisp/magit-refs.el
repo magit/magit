@@ -100,6 +100,15 @@ in the heading preceding the list of its branches."
   :group 'magit-refs
   :type 'boolean)
 
+(defcustom magit-refs-show-branch-descriptions nil
+  "Whether to show the description, if any, of local branches.
+To distinguish branch descriptions from the commit summary of the tip,
+which is shown when there is no description or this option is disabled,
+descriptions use the bold face."
+  :package-version '(magit . "4.2.1")
+  :group 'magit-refs
+  :type 'boolean)
+
 (defcustom magit-refs-margin
   (list nil
         (nth 1 magit-log-margin)
@@ -725,7 +734,10 @@ line is inserted at all."
                            (magit--propertize-face
                             push 'magit-branch-remote)
                            " "))
-              (and msg (magit-log-propertize-keywords nil msg)))))))
+              (if-let ((magit-refs-show-branch-descriptions)
+                       (desc (magit-get "branch" branch "description")))
+                  (magit--propertize-face desc 'bold)
+                (and msg (magit-log-propertize-keywords nil msg))))))))
 
 (defun magit-refs--format-focus-column (ref &optional type)
   (let ((focus magit-buffer-upstream)
