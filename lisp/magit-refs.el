@@ -653,8 +653,9 @@ line is inserted at all."
                       def
                     (pcase-let ((`(,min . ,max) def))
                       (min max (apply #'max min (mapcar #'car lines)))))))
-    (mapcar (pcase-lambda (`(,_ ,branch ,focus ,branch-desc ,u:ahead ,p:ahead
-                                ,u:behind ,upstream ,p:behind ,push ,msg))
+    (mapcar (pcase-lambda (`( ,_ ,branch ,focus
+                   ,branch-desc ,u:ahead ,p:ahead
+                   ,u:behind ,upstream ,p:behind ,msg))
               (list branch focus branch-desc u:ahead p:ahead
                     (make-string (max 1 (- magit-refs-primary-column-width
                                            (length (concat branch-desc
@@ -662,8 +663,7 @@ line is inserted at all."
                                                            p:ahead
                                                            u:behind))))
                                  ?\s)
-                    u:behind upstream p:behind push
-                    msg))
+                    u:behind upstream p:behind msg))
             lines)))
 
 (defun magit-refs--format-local-branch (line)
@@ -713,7 +713,8 @@ line is inserted at all."
         (list (1+ (length (concat branch-desc u:ahead p:ahead u:behind)))
               branch
               (magit-refs--format-focus-column branch headp)
-              branch-desc u:ahead p:ahead u:behind
+              branch-desc u:ahead p:ahead
+              u:behind
               (and upstream
                    (concat (if (equal u:track "[gone]")
                                (magit--propertize-face upstream 'error)
