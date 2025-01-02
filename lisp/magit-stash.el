@@ -347,8 +347,9 @@ the user whether to use \"--3way\" or \"--reject\"."
                   (with-environment-variables (("LC_ALL" "en_US.utf8"))
                     (magit-process-git t "stash" args))))
           (buffer (current-buffer))
-          (failed (looking-at "\\`error: \
-Your local changes to the following files would be overwritten by merge")))
+          (failed (or (looking-at "\\`error: patch failed:")
+                      (looking-at "\\`error: \
+Your local changes to the following files would be overwritten by merge"))))
       (with-current-buffer (magit-process-buffer t)
         (magit-process-finish-section
          (magit-process-insert-section default-directory magit-git-executable
