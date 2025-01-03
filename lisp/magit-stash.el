@@ -352,9 +352,7 @@ want to fall back to using \"--3way\", without being prompted."
                   (with-environment-variables (("LC_ALL" "en_US.utf8"))
                     (magit-process-git t "stash" args))))
           (buffer (current-buffer))
-          (failed (or (looking-at "\\`error: patch failed:")
-                      (looking-at "\\`error: \
-Your local changes to the following files would be overwritten by merge"))))
+          (failed (looking-at "\\`error: ")))
       (with-current-buffer (magit-process-buffer t)
         (magit-process-finish-section
          (magit-process-insert-section default-directory magit-git-executable
