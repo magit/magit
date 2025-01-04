@@ -2602,7 +2602,9 @@ While bisecting, insert section logging bisect progress.
 @defun magit-insert-untracked-files
 Maybe insert a list or tree of untracked files.
 
-Do so depending on the value of @code{status.showUntrackedFiles}.
+The option @code{magit-status-show-untracked-files} (which see), in
+cooperation with the Git variable @code{status.showUntrackedFiles},
+control whether and how that is done.
 
 If the first element of @code{magit-buffer-diff-files} is a directory, then
 limit the list to files below that.  The value of that variable can

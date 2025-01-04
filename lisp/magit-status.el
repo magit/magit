@@ -142,6 +142,58 @@ The functions which respect this option are
   :group 'magit-status
   :type 'boolean)
 
+(defcustom magit-status-show-untracked-files nil
+  "Whether and how to list untracked files in the status buffer.
+
+This controls the behavior of function `magit-insert-untracked-files'.
+If that function is removed from `magit-status-sections-hook', then
+untracked files are not shown, regardless of what this option says.
+
+The behavior can be controled using this option and/or the Git variable
+`status.showUntrackedFiles'.  The following settings are used in order:
+
+1. The buffer-local value of this option.
+
+   This can be set in \".dir-locals-2.el\" like so:
+   ((magit-status-mode
+     (magit-status-show-untracked-files . \"no\")))
+
+2. The repository-local value of `status.showUntrackedFiles'.
+
+   This can be set using:
+   git config --local status.showUntrackedFiles normal
+
+3. The global value of this option.
+
+   This can be set using the Custom interface or `setq'.
+
+4. The global value of `status.showUntrackedFiles'.
+
+   This can be set using:
+   git config --global status.showUntrackedFiles all
+
+5. The default is \"normal\" and is used if all of the above places
+   are unspecified or, in the case of the Lisp values, nil.
+
+The valid non-nil values are:
+
+- \"no\" - Show no untracked files.
+
+- \"normal\" - Show top-level untracked files and directories containing
+  untracked files.  The directories can be expanded to reveal the
+  contained untracked files.
+
+- \"all\" - Immediately show all individual untracked files.  This is
+  potentially expensive and/or overwhelming, and should be avoided."
+  :package-version '(magit . "4.2.1")
+  :group 'magit-status
+  :type '(choice
+          (const :tag "Show no untracked files" "no")
+          (const :tag "Show directories containing untracked files" "normal")
+          (const :tag "Show individual untracked files" "all")
+          (const :tag "Use value of status.showUntrackedFiles" nil))
+  :safe (lambda (value) (member value '("no" "normal" "all" nil))))
+
 (defcustom magit-status-margin
   (list nil
         (nth 1 magit-log-margin)
@@ -708,12 +760,19 @@ remote in alphabetic order."
 (defun magit-insert-untracked-files ()
   "Maybe insert a list or tree of untracked files.
 
-Do so depending on the value of `status.showUntrackedFiles'.
+The option `magit-status-show-untracked-files' (which see), in
+cooperation with the Git variable `status.showUntrackedFiles', control
+whether and how that is done.
 
 If the first element of `magit-buffer-diff-files' is a directory, then
 limit the list to files below that.  The value of that variable can be
 set using \"D -- DIRECTORY RET g\"."
-  (let ((show (or (magit-get "status.showUntrackedFiles") "normal")))
+  (let ((show (or (and (local-variable-p 'magit-status-show-untracked-files)
+                       magit-status-show-untracked-files)
+                  (magit-get "--local" "status.showUntrackedFiles")
+                  (default-value 'magit-status-show-untracked-files)
+                  (magit-get "--global" "status.showUntrackedFiles")
+                  "normal")))
     (unless (equal show "no")
       (let* ((all (equal show "all"))
              (base (car magit-buffer-diff-files))

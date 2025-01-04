@@ -2221,7 +2221,9 @@ By default the following functions are also members of that hook:
 
   Maybe insert a list or tree of untracked files.
 
-  Do so depending on the value of ~status.showUntrackedFiles~.
+  The option ~magit-status-show-untracked-files~ (which see), in
+  cooperation with the Git variable ~status.showUntrackedFiles~,
+  control whether and how that is done.
 
   If the first element of ~magit-buffer-diff-files~ is a directory, then
   limit the list to files below that.  The value of that variable can
