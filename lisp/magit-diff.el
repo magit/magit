@@ -360,7 +360,8 @@ and `--compact-summary'.  See the git-diff(1) manpage."
   :type 'hook)
 
 (defcustom magit-revision-wash-message-hook
-  (list #'magit-highlight-bracket-keywords)
+  (list #'magit-highlight-squash-markers
+        #'magit-highlight-bracket-keywords)
   "Functions used to highlight parts of a commit message.
 
 These functions are called in order, in a buffer narrowed to the commit
@@ -370,7 +371,8 @@ beginning of the narrowed region of the buffer."
   :package-version '(magit . "4.2.1")
   :group 'magit-log
   :type 'hook
-  :options (list #'magit-highlight-bracket-keywords))
+  :options (list #'magit-highlight-squash-markers
+                 #'magit-highlight-bracket-keywords))
 
 (defcustom magit-revision-headers-format "\
 Author:     %aN <%aE>
@@ -2763,6 +2765,12 @@ or a ref which is not a branch, then it inserts nothing."
     (run-hook-wrapped 'magit-revision-wash-message-hook
                       (lambda (fn) (prog1 nil (save-excursion (funcall fn)))))
     (buffer-string)))
+
+(defun magit-highlight-squash-markers ()
+  "Highlight \"squash!\" and similar markers."
+  (when (looking-at "\\(?:squash\\|fixup\\)!")
+    (magit--add-face-text-property (match-beginning 0) (match-end 0)
+                                   'magit-keyword-squash)))
 
 (defun magit-highlight-bracket-keywords ()
   "Highlight text between brackets."
