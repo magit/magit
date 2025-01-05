@@ -1387,7 +1387,7 @@ Do not add this to a hook variable."
             (insert (magit-reflog-format-subject
                      (substring refsub 0
                                 (if (string-search ":" refsub) -2 -1))))))
-        (insert (funcall magit-log-format-message-function hash msg))
+        (insert (magit-log--wash-summary msg))
         (when (and refs magit-log-show-refname-after-summary)
           (insert ?\s)
           (insert (magit-format-ref-labels refs)))
@@ -1451,7 +1451,10 @@ Do not add this to a hook variable."
                 (insert graph ?\n))))))))
   t)
 
-(defun magit-log-propertize-keywords (_rev msg)
+(defun magit-log--wash-summary (summary)
+  (funcall magit-log-format-message-function summary))
+
+(defun magit-log-propertize-keywords (msg)
   (let ((boundary 0))
     (when (string-match "^\\(?:squash\\|fixup\\)! " msg boundary)
       (setq boundary (match-end 0))

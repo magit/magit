@@ -618,8 +618,7 @@ These sections can be expanded to show the respective commits."
                     (msg (match-string 2 line)))
                 (magit-insert-section (module-commit rev t)
                   (insert (propertize rev 'font-lock-face 'magit-hash) " "
-                          (funcall magit-log-format-message-function rev msg)
-                          "\n")))))))
+                          (magit-log--wash-summary msg) "\n")))))))
       (magit-cancel-section 'if-empty)
       (insert ?\n))))
 

@@ -589,13 +589,13 @@ instead.  The optional BRANCH argument is for internal use only."
               (insert (propertize commit 'font-lock-face 'magit-hash) ?\s))
             (insert (propertize branch 'font-lock-face 'magit-branch-local))
             (insert ?\s)
-            (insert (funcall magit-log-format-message-function branch summary))
+            (insert (magit-log--wash-summary summary))
             (insert ?\n))
         (magit-insert-section (commit commit)
           (insert (format "%-10s" "Head: "))
           (insert (propertize commit 'font-lock-face 'magit-hash))
           (insert ?\s)
-          (insert (funcall magit-log-format-message-function nil summary))
+          (insert (magit-log--wash-summary summary))
           (insert ?\n))))))
 
 (defun magit-insert-upstream-branch-header (&optional branch upstream keyword)
@@ -622,9 +622,9 @@ arguments are for internal use only."
                                                 'font-lock-face 'magit-hash)
                                     " "))
                        upstream " "
-                       (funcall magit-log-format-message-function upstream
-                                (or (magit-rev-format "%s" upstream)
-                                    "(no commit message)")))
+                       (magit-log--wash-summary
+                        (or (magit-rev-format "%s" upstream)
+                            "(no commit message)")))
              (cond
               ((magit--unnamed-upstream-p remote merge)
                (concat (propertize merge  'font-lock-face 'magit-branch-remote)
@@ -660,9 +660,8 @@ arguments are for internal use only."
                                             'font-lock-face 'magit-hash)
                                 " "))
                    target " "
-                   (funcall magit-log-format-message-function target
-                            (or (magit-rev-format "%s" target)
-                                "(no commit message)")))
+                   (magit-log--wash-summary (or (magit-rev-format "%s" target)
+                                                "(no commit message)")))
          (let ((remote (magit-get-push-remote branch)))
            (if (magit-remote-p remote)
                (concat target " "
