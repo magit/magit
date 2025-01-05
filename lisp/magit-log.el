@@ -55,6 +55,14 @@
 (require 'crm)
 (require 'which-func)
 
+(make-obsolete-variable 'magit-log-highlight-keywords
+                        'magit-log-wash-summary-hook
+                        "Magit 4.2.1")
+
+(make-obsolete-variable 'magit-log-format-message-function
+                        'magit-log-wash-summary-hook
+                        "Magit 4.2.1")
+
 ;;; Options
 ;;;; Log Mode
 
@@ -143,11 +151,23 @@ This is useful if you use really long branch names."
   :group 'magit-log
   :type 'boolean)
 
-(defcustom magit-log-highlight-keywords t
-  "Whether to highlight bracketed keywords in commit summaries."
-  :package-version '(magit . "2.12.0")
+(defcustom magit-log-wash-summary-hook
+  (list #'magit-highlight-squash-markers
+        #'magit-highlight-bracket-keywords)
+  "Functions used to highlight parts of each individual commit summary.
+
+These functions are called in order, in a buffer that containing the
+first line of the commit message.  They should set text properties as
+they see fit, usually just `font-lock-face'.  Before each function is
+called, point is at the beginning of the buffer.
+
+See also the related `magit-revision-wash-message-hook'.  You likely
+want to use the same functions for both hooks."
+  :package-version '(magit . "4.2.1")
   :group 'magit-log
-  :type 'boolean)
+  :type 'hook
+  :options (list #'magit-highlight-squash-markers
+                 #'magit-highlight-bracket-keywords))
 
 (defcustom magit-log-header-line-function #'magit-log-header-line-sentence
   "Function used to generate text shown in header line of log buffers."
@@ -1277,8 +1297,6 @@ Do not add this to a hook variable."
 
 (defvar magit-log-count nil)
 
-(defvar magit-log-format-message-function #'magit-log-propertize-keywords)
-
 (defun magit-log-wash-log (style args)
   (setq args (flatten-tree args))
   (when (if (derived-mode-p 'magit-log-mode)
@@ -1452,20 +1470,11 @@ Do not add this to a hook variable."
   t)
 
 (defun magit-log--wash-summary (summary)
-  (funcall magit-log-format-message-function summary))
-
-(defun magit-log-propertize-keywords (msg)
-  (let ((boundary 0))
-    (when (string-match "^\\(?:squash\\|fixup\\)! " msg boundary)
-      (setq boundary (match-end 0))
-      (magit--put-face (match-beginning 0) (1- boundary)
-                       'magit-keyword-squash msg))
-    (when magit-log-highlight-keywords
-      (while (string-match "\\[[^][]*]" msg boundary)
-        (setq boundary (match-end 0))
-        (magit--put-face (match-beginning 0) boundary
-                         'magit-keyword msg))))
-  msg)
+  (with-temp-buffer
+    (save-excursion (insert summary))
+    (run-hook-wrapped 'magit-log-wash-summary-hook
+                      (lambda (fn) (prog1 nil (save-excursion (funcall fn)))))
+    (buffer-string)))
 
 (defun magit-log-maybe-show-more-commits (section)
   "When point is at the end of a log buffer, insert more commits.

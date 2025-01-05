@@ -367,7 +367,10 @@ and `--compact-summary'.  See the git-diff(1) manpage."
 These functions are called in order, in a buffer narrowed to the commit
 message.  They should set text properties as they see fit, usually just
 `font-lock-face'.  Before each function is called, point is at the
-beginning of the narrowed region of the buffer."
+beginning of the narrowed region of the buffer.
+
+See also the related `magit-log-wash-summary-hook'.  You likely want to
+use the same functions for both hooks."
   :package-version '(magit . "4.2.1")
   :group 'magit-log
   :type 'hook
