@@ -91,7 +91,7 @@
   (cl-pushnew 'target eieio--known-slot-names))
 
 (define-obsolete-variable-alias 'magit-diff-section-base-map
-  'magit-diff-section-map "Magit-Section 4.0.0")
+  'magit-diff-section-map "Magit 4.0.0")
 
 ;;; Options
 ;;;; Diff Mode
