@@ -191,7 +191,7 @@ non-nil, then the password is read from the user instead."
   :package-version '(magit . "2.3.0")
   :group 'magit-process
   :type 'hook
-  :options '(magit-process-password-auth-source))
+  :options (list #'magit-process-password-auth-source))
 
 (defcustom magit-process-username-prompt-regexps
   '("^Username for '.*': ?$")

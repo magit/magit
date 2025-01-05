@@ -406,10 +406,10 @@ ignored) files."
     (magit-wip-commit-after-apply files " after stage")))
 
 (defvar magit-post-stage-hook-commands
-  '(magit-stage
-    magit-stage-buffer-file
-    magit-stage-file
-    magit-stage-modified))
+  (list #'magit-stage
+        #'magit-stage-buffer-file
+        #'magit-stage-file
+        #'magit-stage-modified))
 
 (defun magit-run-post-stage-hook ()
   (when (memq this-command magit-post-stage-hook-commands)
@@ -494,10 +494,10 @@ ignored) files."
   (magit-wip-commit-after-apply nil " after unstage"))
 
 (defvar magit-post-unstage-hook-commands
-  '(magit-unstage
-    magit-unstage-buffer-file
-    magit-unstage-file
-    magit-unstage-all))
+  (list #'magit-unstage
+        #'magit-unstage-buffer-file
+        #'magit-unstage-file
+        #'magit-unstage-all))
 
 (defun magit-run-post-unstage-hook ()
   (when (memq this-command magit-post-unstage-hook-commands)

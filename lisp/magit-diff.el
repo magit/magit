@@ -149,8 +149,8 @@ member of `magit-section-highlight-hook', which see."
   :type 'boolean)
 
 (defcustom magit-diff-highlight-hunk-region-functions
-  '(magit-diff-highlight-hunk-region-dim-outside
-    magit-diff-highlight-hunk-region-using-overlays)
+  (list #'magit-diff-highlight-hunk-region-dim-outside
+        #'magit-diff-highlight-hunk-region-using-overlays)
   "The functions used to highlight the hunk-internal region.
 
 `magit-diff-highlight-hunk-region-dim-outside' overlays the outside
@@ -176,10 +176,10 @@ calling the face function instead."
   :set-after '(magit-diff-show-lines-boundaries)
   :group 'magit-diff
   :type 'hook
-  :options '(magit-diff-highlight-hunk-region-dim-outside
-             magit-diff-highlight-hunk-region-using-underline
-             magit-diff-highlight-hunk-region-using-overlays
-             magit-diff-highlight-hunk-region-using-face))
+  :options (list #'magit-diff-highlight-hunk-region-dim-outside
+                 #'magit-diff-highlight-hunk-region-using-underline
+                 #'magit-diff-highlight-hunk-region-using-overlays
+                 #'magit-diff-highlight-hunk-region-using-face))
 
 (defcustom magit-diff-unmarked-lines-keep-foreground t
   "Whether `magit-diff-highlight-hunk-region-dim-outside' preserves foreground.
@@ -348,12 +348,12 @@ and `--compact-summary'.  See the git-diff(1) manpage."
              goto-address-mode))
 
 (defcustom magit-revision-sections-hook
-  '(magit-insert-revision-tag
-    magit-insert-revision-headers
-    magit-insert-revision-message
-    magit-insert-revision-notes
-    magit-insert-revision-diff
-    magit-insert-xref-buttons)
+  (list #'magit-insert-revision-tag
+        #'magit-insert-revision-headers
+        #'magit-insert-revision-message
+        #'magit-insert-revision-notes
+        #'magit-insert-revision-diff
+        #'magit-insert-xref-buttons)
   "Hook run to insert sections into a `magit-revision-mode' buffer."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision

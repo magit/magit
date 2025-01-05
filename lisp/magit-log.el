@@ -300,8 +300,8 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 ;;;; Cherry Mode
 
 (defcustom magit-cherry-sections-hook
-  '(magit-insert-cherry-headers
-    magit-insert-cherry-commits)
+  (list #'magit-insert-cherry-headers
+        #'magit-insert-cherry-commits)
   "Hook run to insert sections into the cherry buffer."
   :package-version '(magit . "2.1.0")
   :group 'magit-log

@@ -544,11 +544,11 @@ See `magit-commit-absorb' for an alternative implementation."
   :reader #'transient-read-number-N0)
 
 (defvar magit-post-commit-hook-commands
-  '(magit-commit-extend
-    magit-commit-fixup
-    magit-commit-augment
-    magit-commit-instant-fixup
-    magit-commit-instant-squash))
+  (list #'magit-commit-extend
+        #'magit-commit-fixup
+        #'magit-commit-augment
+        #'magit-commit-instant-fixup
+        #'magit-commit-instant-squash))
 
 (defun magit-run-post-commit-hook ()
   (when (and (not this-command)

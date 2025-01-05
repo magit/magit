@@ -41,12 +41,12 @@
   :type 'hook)
 
 (defcustom magit-status-headers-hook
-  '(magit-insert-error-header
-    magit-insert-diff-filter-header
-    magit-insert-head-branch-header
-    magit-insert-upstream-branch-header
-    magit-insert-push-branch-header
-    magit-insert-tags-header)
+  (list #'magit-insert-error-header
+        #'magit-insert-diff-filter-header
+        #'magit-insert-head-branch-header
+        #'magit-insert-upstream-branch-header
+        #'magit-insert-push-branch-header
+        #'magit-insert-tags-header)
   "Hook run to insert headers into the status buffer.
 
 This hook is run by `magit-insert-status-headers', which in turn
@@ -55,32 +55,32 @@ all."
   :package-version '(magit . "2.1.0")
   :group 'magit-status
   :type 'hook
-  :options '(magit-insert-error-header
-             magit-insert-diff-filter-header
-             magit-insert-repo-header
-             magit-insert-remote-header
-             magit-insert-head-branch-header
-             magit-insert-upstream-branch-header
-             magit-insert-push-branch-header
-             magit-insert-tags-header))
+  :options (list #'magit-insert-error-header
+                 #'magit-insert-diff-filter-header
+                 #'magit-insert-repo-header
+                 #'magit-insert-remote-header
+                 #'magit-insert-head-branch-header
+                 #'magit-insert-upstream-branch-header
+                 #'magit-insert-push-branch-header
+                 #'magit-insert-tags-header))
 
 (defcustom magit-status-sections-hook
-  '(magit-insert-status-headers
-    magit-insert-merge-log
-    magit-insert-rebase-sequence
-    magit-insert-am-sequence
-    magit-insert-sequencer-sequence
-    magit-insert-bisect-output
-    magit-insert-bisect-rest
-    magit-insert-bisect-log
-    magit-insert-untracked-files
-    magit-insert-unstaged-changes
-    magit-insert-staged-changes
-    magit-insert-stashes
-    magit-insert-unpushed-to-pushremote
-    magit-insert-unpushed-to-upstream-or-recent
-    magit-insert-unpulled-from-pushremote
-    magit-insert-unpulled-from-upstream)
+  (list #'magit-insert-status-headers
+        #'magit-insert-merge-log
+        #'magit-insert-rebase-sequence
+        #'magit-insert-am-sequence
+        #'magit-insert-sequencer-sequence
+        #'magit-insert-bisect-output
+        #'magit-insert-bisect-rest
+        #'magit-insert-bisect-log
+        #'magit-insert-untracked-files
+        #'magit-insert-unstaged-changes
+        #'magit-insert-staged-changes
+        #'magit-insert-stashes
+        #'magit-insert-unpushed-to-pushremote
+        #'magit-insert-unpushed-to-upstream-or-recent
+        #'magit-insert-unpulled-from-pushremote
+        #'magit-insert-unpulled-from-upstream)
   "Hook run to insert sections into a status buffer."
   :package-version '(magit . "2.12.0")
   :group 'magit-status

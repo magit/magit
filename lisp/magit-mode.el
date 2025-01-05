@@ -54,17 +54,17 @@
 ;;; Options
 
 (defcustom magit-mode-hook
-  '(magit-load-config-extensions)
+  (list #'magit-load-config-extensions)
   "Hook run when entering a mode derived from Magit mode."
   :package-version '(magit . "3.0.0")
   :group 'magit-modes
   :type 'hook
-  :options '(magit-load-config-extensions
-             bug-reference-mode))
+  :options (list #'magit-load-config-extensions
+                 #'bug-reference-mode))
 
 (defcustom magit-setup-buffer-hook
-  '(magit-maybe-save-repository-buffers
-    magit-set-buffer-margin)
+  (list #'magit-maybe-save-repository-buffers
+        'magit-set-buffer-margin) ; from magit-margin.el
   "Hook run by `magit-setup-buffer'.
 
 This is run right after displaying the buffer and right before
@@ -75,10 +75,11 @@ should be used instead of this one."
   :package-version '(magit . "2.3.0")
   :group 'magit-modes
   :type 'hook
-  :options '(magit-maybe-save-repository-buffers
-             magit-set-buffer-margin))
+  :options (list #'magit-maybe-save-repository-buffers
+                 'magit-set-buffer-margin))
 
-(defcustom magit-pre-refresh-hook '(magit-maybe-save-repository-buffers)
+(defcustom magit-pre-refresh-hook
+  (list #'magit-maybe-save-repository-buffers)
   "Hook run before refreshing in `magit-refresh'.
 
 This hook, or `magit-post-refresh-hook', should be used
@@ -90,9 +91,10 @@ inside your function."
   :package-version '(magit . "2.4.0")
   :group 'magit-refresh
   :type 'hook
-  :options '(magit-maybe-save-repository-buffers))
+  :options (list #'magit-maybe-save-repository-buffers))
 
 (defcustom magit-post-refresh-hook
+  ;; Do not function-quote to avoid circular dependencies.
   '(magit-auto-revert-buffers
     magit-run-post-commit-hook
     magit-run-post-stage-hook
@@ -129,21 +131,22 @@ which in turn uses the function specified here."
                 (function-item display-buffer)
                 (function :tag "Function")))
 
-(defcustom magit-pre-display-buffer-hook '(magit-save-window-configuration)
+(defcustom magit-pre-display-buffer-hook
+  (list #'magit-save-window-configuration)
   "Hook run by `magit-display-buffer' before displaying the buffer."
   :package-version '(magit . "2.3.0")
   :group 'magit-buffers
   :type 'hook
   :get #'magit-hook-custom-get
-  :options '(magit-save-window-configuration))
+  :options (list #'magit-save-window-configuration))
 
-(defcustom magit-post-display-buffer-hook '(magit-maybe-set-dedicated)
+(defcustom magit-post-display-buffer-hook (list #'magit-maybe-set-dedicated)
   "Hook run by `magit-display-buffer' after displaying the buffer."
   :package-version '(magit . "2.3.0")
   :group 'magit-buffers
   :type 'hook
   :get #'magit-hook-custom-get
-  :options '(magit-maybe-set-dedicated))
+  :options (list #'magit-maybe-set-dedicated))
 
 (defcustom magit-generate-buffer-name-function
   #'magit-generate-buffer-name-default-function
@@ -269,7 +272,8 @@ and Buffer Variables'."
           (const :tag "use args from buffer if it is current" current)
           (const :tag "never use args from buffer" never)))
 
-(defcustom magit-region-highlight-hook '(magit-diff-update-hunk-region)
+(defcustom magit-region-highlight-hook
+  '(magit-diff-update-hunk-region) ; from magit-diff.el
   "Functions used to highlight the region.
 
 Each function is run with the current section as only argument

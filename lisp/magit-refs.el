@@ -42,11 +42,11 @@
   :type 'hook)
 
 (defcustom magit-refs-sections-hook
-  '(magit-insert-error-header
-    magit-insert-branch-description
-    magit-insert-local-branches
-    magit-insert-remote-branches
-    magit-insert-tags)
+  (list #'magit-insert-error-header
+        #'magit-insert-branch-description
+        #'magit-insert-local-branches
+        #'magit-insert-remote-branches
+        #'magit-insert-tags)
   "Hook run to insert sections into a references buffer."
   :package-version '(magit . "2.1.0")
   :group 'magit-refs

@@ -39,10 +39,10 @@
 ;;;; Diff options
 
 (defcustom magit-stash-sections-hook
-  '(magit-insert-stash-notes
-    magit-insert-stash-worktree
-    magit-insert-stash-index
-    magit-insert-stash-untracked)
+  (list #'magit-insert-stash-notes
+        #'magit-insert-stash-worktree
+        #'magit-insert-stash-index
+        #'magit-insert-stash-untracked)
   "Hook run to insert sections into stash diff buffers."
   :package-version '(magit . "2.1.0")
   :group 'magit-stash

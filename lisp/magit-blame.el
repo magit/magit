@@ -157,15 +157,15 @@ and then turned on again when turning off the latter."
   :type '(choice (const :tag "No lighter" "") string))
 
 (defcustom magit-blame-goto-chunk-hook
-  '(magit-blame-maybe-update-revision-buffer
-    magit-blame-maybe-show-message)
+  (list #'magit-blame-maybe-update-revision-buffer
+        #'magit-blame-maybe-show-message)
   "Hook run after point entered another chunk."
   :package-version '(magit . "2.13.0")
   :group 'magit-blame
   :type 'hook
   :get #'magit-hook-custom-get
-  :options '(magit-blame-maybe-update-revision-buffer
-             magit-blame-maybe-show-message))
+  :options (list #'magit-blame-maybe-update-revision-buffer
+                 #'magit-blame-maybe-show-message))
 
 ;;; Faces
 

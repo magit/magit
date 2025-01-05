@@ -109,8 +109,8 @@ similar defect.")
 That function in turn is used by all section movement commands.")
 
 (defvar magit-section-highlight-hook
-  '(magit-section-highlight
-    magit-section-highlight-selection)
+  (list #'magit-section-highlight
+        #'magit-section-highlight-selection)
   "Functions used to highlight the current section.
 Each function is run with the current section as only argument
 until one of them returns non-nil.")
@@ -123,7 +123,7 @@ unhighlighted without requiring a specialized unhighlighter,
 diff-related sections being the only exception.")
 
 (defvar magit-section-set-visibility-hook
-  '(magit-section-cached-visibility)
+  (list #'magit-section-cached-visibility)
   "Hook used to set the initial visibility of a section.
 Stop at the first function that returns non-nil.  The returned
 value should be `show', `hide' or nil.  If no function returns
