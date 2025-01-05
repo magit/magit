@@ -623,9 +623,8 @@ arguments are for internal use only."
                                     " "))
                        upstream " "
                        (funcall magit-log-format-message-function upstream
-                                (funcall magit-log-format-message-function nil
-                                         (or (magit-rev-format "%s" upstream)
-                                             "(no commit message)"))))
+                                (or (magit-rev-format "%s" upstream)
+                                    "(no commit message)")))
              (cond
               ((magit--unnamed-upstream-p remote merge)
                (concat (propertize merge  'font-lock-face 'magit-branch-remote)
@@ -662,9 +661,8 @@ arguments are for internal use only."
                                 " "))
                    target " "
                    (funcall magit-log-format-message-function target
-                            (funcall magit-log-format-message-function nil
-                                     (or (magit-rev-format "%s" target)
-                                         "(no commit message)"))))
+                            (or (magit-rev-format "%s" target)
+                                "(no commit message)")))
          (let ((remote (magit-get-push-remote branch)))
            (if (magit-remote-p remote)
                (concat target " "
