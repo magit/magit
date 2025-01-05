@@ -93,6 +93,9 @@
 (define-obsolete-variable-alias 'magit-diff-section-base-map
   'magit-diff-section-map "Magit 4.0.0")
 
+(define-obsolete-variable-alias 'magit-wash-message-hook
+  'magit-revision-wash-message-hook "Magit 4.2.1")
+
 ;;; Options
 ;;;; Diff Mode
 
@@ -356,6 +359,17 @@ and `--compact-summary'.  See the git-diff(1) manpage."
   "Hook run to insert sections into a `magit-revision-mode' buffer."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision
+  :type 'hook)
+
+(defcustom magit-revision-wash-message-hook nil
+  "Functions used to highlight parts of a commit message.
+
+These functions are called in order, in a buffer narrowed to the commit
+message.  They should set text properties as they see fit, usually just
+`font-lock-face'.  Before each function is called, point is at the
+beginning of the narrowed region of the buffer."
+  :package-version '(magit . "4.2.1")
+  :group 'magit-log
   :type 'hook)
 
 (defcustom magit-revision-headers-format "\
@@ -2752,7 +2766,7 @@ or a ref which is not a branch, then it inserts nothing."
           (put-text-property (match-beginning 0)
                              (match-end 0)
                              'font-lock-face 'magit-keyword))))
-    (run-hook-wrapped 'magit-wash-message-hook
+    (run-hook-wrapped 'magit-revision-wash-message-hook
                       (lambda (fn) (prog1 nil (save-excursion (funcall fn)))))
     (buffer-string)))
 
