@@ -90,6 +90,9 @@
   (cl-pushnew 'action-type eieio--known-slot-names)
   (cl-pushnew 'target eieio--known-slot-names))
 
+(define-obsolete-variable-alias 'magit-diff-section-base-map
+  'magit-diff-section-map "Magit-Section 4.0.0")
+
 ;;; Options
 ;;;; Diff Mode
 
@@ -2049,9 +2052,6 @@ Staging and applying changes is documented in info node
 
 (cl-defmethod magit-menu-common-value ((_section magit-diff-section))
   (magit-diff-scope))
-
-(define-obsolete-variable-alias 'magit-diff-section-base-map
-  'magit-diff-section-map "Magit-Section 4.0.0")
 
 (defvar-keymap magit-diff-section-map
   :doc "Keymap for diff sections.

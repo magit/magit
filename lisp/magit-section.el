@@ -99,6 +99,9 @@ similar defect.")
 ;; For `magit-section-get-relative-position'
 (declare-function magit-hunk-section-p "magit-diff" (section) t)
 
+(define-obsolete-variable-alias 'magit-keep-region-overlay
+  'magit-section-keep-region-overlay "Magit-Section 4.0.0")
+
 ;;; Hooks
 
 (defvar magit-section-movement-hook nil
@@ -233,9 +236,6 @@ Otherwise the value has to have one of these two forms:
                         (choice :tag "Use face kludge"
                                 (const :tag "Yes (potentially slow)" t)
                                 (const :tag "No (kinda ugly)" nil)))))
-
-(define-obsolete-variable-alias 'magit-keep-region-overlay
-  'magit-section-keep-region-overlay "Magit-Section 4.0.0")
 
 (defcustom magit-section-keep-region-overlay nil
   "Whether to keep the region overlay when there is a valid selection.
