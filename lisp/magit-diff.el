@@ -96,6 +96,10 @@
 (define-obsolete-variable-alias 'magit-wash-message-hook
   'magit-revision-wash-message-hook "Magit 4.2.1")
 
+(make-obsolete-variable 'magit-diff-highlight-keywords
+                        'magit-revision-wash-message-hook
+                        "Magit 4.2.1")
+
 ;;; Options
 ;;;; Diff Mode
 
@@ -304,12 +308,6 @@ that many spaces.  Otherwise, highlight neither."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diff-highlight-keywords t
-  "Whether to highlight bracketed keywords in commit messages."
-  :package-version '(magit . "2.12.0")
-  :group 'magit-diff
-  :type 'boolean)
-
 (defcustom magit-diff-extra-stat-arguments nil
   "Additional arguments to be used alongside `--stat'.
 
@@ -361,7 +359,8 @@ and `--compact-summary'.  See the git-diff(1) manpage."
   :group 'magit-revision
   :type 'hook)
 
-(defcustom magit-revision-wash-message-hook nil
+(defcustom magit-revision-wash-message-hook
+  (list #'magit-highlight-bracket-keywords)
   "Functions used to highlight parts of a commit message.
 
 These functions are called in order, in a buffer narrowed to the commit
@@ -370,7 +369,8 @@ message.  They should set text properties as they see fit, usually just
 beginning of the narrowed region of the buffer."
   :package-version '(magit . "4.2.1")
   :group 'magit-log
-  :type 'hook)
+  :type 'hook
+  :options (list #'magit-highlight-bracket-keywords))
 
 (defcustom magit-revision-headers-format "\
 Author:     %aN <%aE>
@@ -2760,15 +2760,16 @@ or a ref which is not a branch, then it inserts nothing."
       (let ((fill-column (min magit-revision-fill-summary-line
                               (window-width (get-buffer-window nil t)))))
         (fill-region (point) (line-end-position))))
-    (when magit-diff-highlight-keywords
-      (save-excursion
-        (while (re-search-forward "\\[[^[]*\\]" nil t)
-          (put-text-property (match-beginning 0)
-                             (match-end 0)
-                             'font-lock-face 'magit-keyword))))
     (run-hook-wrapped 'magit-revision-wash-message-hook
                       (lambda (fn) (prog1 nil (save-excursion (funcall fn)))))
     (buffer-string)))
+
+(defun magit-highlight-bracket-keywords ()
+  "Highlight text between brackets."
+  (while (re-search-forward "\\[[^][]*]" nil t)
+    (put-text-property (match-beginning 0)
+                       (match-end 0)
+                       'font-lock-face 'magit-keyword)))
 
 (defun magit-revision--wash-message-hashes ()
   (when magit-revision-use-hash-sections
