@@ -2753,7 +2753,7 @@ or a ref which is not a branch, then it inserts nothing."
                              (match-end 0)
                              'font-lock-face 'magit-keyword))))
     (run-hook-wrapped 'magit-wash-message-hook
-                      (lambda (fn) (save-excursion (funcall fn))))
+                      (lambda (fn) (prog1 nil (save-excursion (funcall fn)))))
     (buffer-string)))
 
 (defun magit-revision--wash-message-hashes ()
