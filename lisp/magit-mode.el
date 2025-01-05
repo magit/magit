@@ -1179,10 +1179,6 @@ if you so desire."
                  (not (equal msg (current-message))))
         (message "%s" msg)))))
 
-(add-hook 'magit-pre-refresh-hook #'magit-maybe-save-repository-buffers)
-(add-hook 'magit-pre-call-git-hook #'magit-maybe-save-repository-buffers)
-(add-hook 'magit-pre-start-git-hook #'magit-maybe-save-repository-buffers)
-
 (defvar-local magit-inhibit-refresh-save nil)
 
 (defun magit-save-repository-buffers (&optional arg)

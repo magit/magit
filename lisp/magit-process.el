@@ -416,7 +416,7 @@ Process output goes into a new section in the buffer returned by
         (setq magit--refresh-cache nil))
       (magit-refresh))))
 
-(defvar magit-pre-call-git-hook nil)
+(defvar magit-pre-call-git-hook (list #'magit-maybe-save-repository-buffers))
 
 (defun magit-call-git (&rest args)
   "Call Git synchronously in a separate process.
@@ -579,7 +579,7 @@ See `magit-start-process' and `with-editor' for more information."
   (set-process-sentinel magit-this-process #'magit-sequencer-process-sentinel)
   magit-this-process)
 
-(defvar magit-pre-start-git-hook nil)
+(defvar magit-pre-start-git-hook (list #'magit-maybe-save-repository-buffers))
 
 (defun magit-start-git (input &rest args)
   "Start Git, prepare for refresh, and return the process object.
