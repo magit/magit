@@ -9,13 +9,13 @@ all: lisp
 
 ## Build order #######################################################
 
-git-commit.elc:
 magit-section.elc:
 magit-base.elc:            magit-section.elc
 magit-git.elc:             magit-base.elc
 magit-mode.elc:            magit-base.elc magit-git.elc
 magit-margin.elc:          magit-base.elc magit-mode.elc
 magit-process.elc:         magit-base.elc magit-git.elc magit-mode.elc
+git-commit.elc:            magit-git.elc magit-mode.elc magit-process.elc
 magit-transient.elc:       magit-git.elc magit-mode.elc magit-process.elc
 magit-autorevert.elc:      magit-git.elc magit-process.elc
 magit-core.elc:            magit-base.elc magit-git.elc magit-mode.elc \
