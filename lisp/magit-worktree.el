@@ -45,6 +45,8 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
 (transient-define-prefix magit-worktree ()
   "Act on a worktree."
   :man-page "git-worktree"
+  ["Arguments"
+   ("-F" "Force" ("-f" "--force"))]
   [["Create new"
     ("b" "worktree"              magit-worktree-checkout)
     ("c" "branch and worktree"   magit-worktree-branch)]
