@@ -1022,17 +1022,19 @@ If the file is not inside a Git repository, then return nil.
 
 If TRACKED is non-nil, return the path only if it matches a
 tracked file."
-  (unless file
-    (with-current-buffer (or (buffer-base-buffer)
-                             (current-buffer))
-      (setq file (or magit-buffer-file-name buffer-file-name
-                     (and (derived-mode-p 'dired-mode) default-directory)))))
-  (when (and file (or (not tracked)
-                      (magit-file-tracked-p (file-relative-name file))))
-    (and-let* ((dir (magit-toplevel
-                     (magit--safe-default-directory
-                      (directory-file-name (file-name-directory file))))))
-      (file-relative-name file dir))))
+  (and-let* ((file (with-current-buffer (or (buffer-base-buffer)
+                                            (current-buffer))
+                     (or file
+                         magit-buffer-file-name
+                         buffer-file-name
+                         (and (derived-mode-p 'dired-mode)
+                              default-directory))))
+             ((or (not tracked)
+                  (magit-file-tracked-p (file-relative-name file))))
+             (dir (magit-toplevel
+                   (magit--safe-default-directory
+                    (directory-file-name (file-name-directory file))))))
+    (file-relative-name file dir)))
 
 (defun magit-file-ignored-p (file)
   (magit-git-string-p "ls-files" "--others" "--ignored" "--exclude-standard"
