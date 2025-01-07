@@ -1499,6 +1499,22 @@ The additional output can be found in the *Messages* buffer."
                   (message "  %-50s %f" fn (benchmark-elapse (funcall fn))))))))
    ((run-hooks hook))))
 
+(defun magit-file-region-line-numbers ()
+  "Return the bounds of the region as line numbers.
+The returned value has the form (BEGINNING-LINE END-LINE).  If
+the region end at the beginning of a line, do not include that
+line.  Avoid including the line after the end of the file."
+  (and (or magit-buffer-file-name buffer-file-name)
+       (region-active-p)
+       (not (= (region-beginning) (region-end) (1+ (buffer-size))))
+       (let ((beg (region-beginning))
+             (end (min (region-end) (buffer-size))))
+         (list (line-number-at-pos beg t)
+               (line-number-at-pos (if (= (magit--bol-position end) end)
+                                       (max beg (1- end))
+                                     end)
+                                   t)))))
+
 ;;; _
 (provide 'magit-mode)
 ;;; magit-mode.el ends here

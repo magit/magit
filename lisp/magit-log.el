@@ -756,21 +756,7 @@ completion candidates."
 With a prefix argument or when `--follow' is an active log
 argument, then follow renames.  When the region is active,
 restrict the log to the lines that the region touches."
-  (interactive
-   (cons current-prefix-arg
-         (and (region-active-p)
-              (magit-file-relative-name)
-              (not (derived-mode-p 'dired-mode))
-              (save-restriction
-                (widen)
-                (list (line-number-at-pos (region-beginning))
-                      (line-number-at-pos
-                       (let ((end (region-end)))
-                         (if (char-after end)
-                             end
-                           ;; Ensure that we don't get the line number
-                           ;; of a trailing newline.
-                           (1- end)))))))))
+  (interactive (cons current-prefix-arg (magit-file-region-line-numbers)))
   (require 'magit)
   (if-let ((file (magit-file-relative-name)))
       (magit-log-setup-buffer
