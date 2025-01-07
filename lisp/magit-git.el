@@ -1022,13 +1022,11 @@ If the file is not inside a Git repository, then return nil.
 
 If TRACKED is non-nil, return the path only if it matches a
 tracked file."
-  (and-let* ((file (with-current-buffer (or (buffer-base-buffer)
-                                            (current-buffer))
-                     (or file
-                         magit-buffer-file-name
-                         buffer-file-name
-                         (and (derived-mode-p 'dired-mode)
-                              default-directory))))
+  (and-let* ((file (or file
+                       magit-buffer-file-name
+                       buffer-file-name
+                       (and (derived-mode-p 'dired-mode)
+                            default-directory)))
              ((or (not tracked)
                   (magit-file-tracked-p (file-relative-name file))))
              (dir (magit-toplevel
