@@ -930,19 +930,19 @@ If optional NUM is specified, only delete that subexpression."
 
 (defun magit-file-line (file)
   "Return the first line of FILE as a string."
-  (when (file-regular-p file)
-    (with-temp-buffer
-      (insert-file-contents file)
-      (buffer-substring-no-properties (point-min)
-                                      (line-end-position)))))
+  (and (file-regular-p file)
+       (with-temp-buffer
+         (insert-file-contents file)
+         (buffer-substring-no-properties (point-min)
+                                         (line-end-position)))))
 
 (defun magit-file-lines (file &optional keep-empty-lines)
   "Return a list of strings containing one element per line in FILE.
 Unless optional argument KEEP-EMPTY-LINES is t, trim all empty lines."
-  (when (file-regular-p file)
-    (with-temp-buffer
-      (insert-file-contents file)
-      (split-string (buffer-string) "\n" (not keep-empty-lines)))))
+  (and (file-regular-p file)
+       (with-temp-buffer
+         (insert-file-contents file)
+         (split-string (buffer-string) "\n" (not keep-empty-lines)))))
 
 (defun magit-set-header-line-format (string)
   "Set `header-line-format' in the current buffer based on STRING.
