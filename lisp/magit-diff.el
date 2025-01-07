@@ -3464,12 +3464,10 @@ are highlighted."
 ;;; Hunk Region
 
 (defun magit-diff-hunk-region-beginning ()
-  (save-excursion (goto-char (region-beginning))
-                  (line-beginning-position)))
+  (magit--bol-position (region-beginning)))
 
 (defun magit-diff-hunk-region-end ()
-  (save-excursion (goto-char (region-end))
-                  (line-end-position)))
+  (magit--eol-position (region-end)))
 
 (defun magit-diff-update-hunk-region (section)
   "Highlight the hunk-internal region if any."

@@ -375,10 +375,8 @@ non-nil, return the beginning and end of the current rebase line,
 if any."
   (cond
    ((use-region-p)
-    (let ((beg (save-excursion (goto-char (region-beginning))
-                               (line-beginning-position)))
-          (end (save-excursion (goto-char (region-end))
-                               (line-end-position))))
+    (let ((beg (magit--bol-position (region-beginning)))
+          (end (magit--eol-position (region-end))))
       (and (git-rebase-line-p beg)
            (git-rebase-line-p end)
            (list beg (1+ end)))))

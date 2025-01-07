@@ -1620,9 +1620,7 @@ is explicitly expanded."
         (setq map (symbol-value map)))
       (put-text-property
        start
-       (save-excursion
-         (goto-char start)
-         (line-end-position))
+       (magit--eol-position start)
        'keymap (if map
                    (make-composed-keymap
                     (list map magit-section-heading-map))
@@ -1913,9 +1911,7 @@ When `magit-section-preserve-visibility' is nil, do nothing."
   (when (and magit-section-visibility-indicator
              (magit-section-content-p section))
     (let* ((beg (oref section start))
-           (eoh (save-excursion
-                  (goto-char beg)
-                  (line-end-position))))
+           (eoh (magit--eol-position beg)))
       (cond
        ((symbolp (car-safe magit-section-visibility-indicator))
         (let ((ov (magit--overlay-at beg 'magit-vis-indicator 'fringe)))
@@ -1983,9 +1979,7 @@ When `magit-section-preserve-visibility' is nil, do nothing."
              (= (oref section content)
                 (oref section end)))
     (dolist (o (overlays-in (oref section start)
-                            (save-excursion
-                              (goto-char (oref section start))
-                              (1+ (line-end-position)))))
+                            (1+ (magit--eol-position (oref section start)))))
       (when (overlay-get o 'magit-vis-indicator)
         (delete-overlay o)))))
 
@@ -2286,6 +2280,26 @@ Configuration'."
 (defun magit--put-face (beg end face string)
   (put-text-property beg end 'face face string)
   (put-text-property beg end 'font-lock-face face string))
+
+(defun magit--bolp (pos)
+  "Return t if POS is at the beginning of a line.
+This is like moving to POS and then calling `bolp'."
+  (save-excursion (goto-char pos) (bolp)))
+
+(defun magit--eolp (pos)
+  "Return t if POS is at the end of a line.
+This is like moving to POS and then calling `eolp'."
+  (save-excursion (goto-char pos) (bolp)))
+
+(defun magit--bol-position (pos)
+  "Return the position at the beginning of the line containing POS.
+This is like moving to POS and then calling `pos-bol'."
+  (save-excursion (goto-char pos) (pos-bol)))
+
+(defun magit--eol-position (pos)
+  "Return the position at the end of the line containing POS.
+This is like moving to POS and then calling `pos-eol'."
+  (save-excursion (goto-char pos) (pos-eol)))
 
 ;;; Imenu Support
 
