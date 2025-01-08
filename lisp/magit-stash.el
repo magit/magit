@@ -615,6 +615,9 @@ If there is no stash buffer in the same frame, then do nothing."
   (magit-hack-dir-local-variables)
   (setq magit--imenu-group-types '(commit)))
 
+(put 'magit-stash-mode 'magit-diff-default-arguments
+     '("--no-ext-diff"))
+
 (defun magit-stash-setup-buffer (stash args files)
   (magit-setup-buffer #'magit-stash-mode nil
     (magit-buffer-revision stash)
