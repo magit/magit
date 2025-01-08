@@ -379,7 +379,7 @@ depending on the value of option `magit-commit-squash-confirm'."
     (user-error "Nothing staged (or unstaged)"))
    (magit-commit-ask-to-stage
     (when (eq magit-commit-ask-to-stage 'verbose)
-      (magit-diff-unstaged))
+      (apply #'magit-diff-unstaged (magit-diff-arguments)))
     (prog1 (when (or (eq magit-commit-ask-to-stage 'stage)
                      (y-or-n-p
                       "Nothing staged.  Commit all uncommitted changes? "))
