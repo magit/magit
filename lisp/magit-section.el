@@ -2257,11 +2257,24 @@ Configuration'."
             (throw 'missing nil))))
       (not pos))))
 
-(defun magit--add-face-text-property (beg end face &optional append object)
-  "Like `add-face-text-property' but for `font-lock-face'."
+(defun magit--add-face-text-property ( beg end face
+                                       &optional append object adopt-face)
+  "Like `add-face-text-property' but for `font-lock-face'.
+If optional ADOPT-FACE, the replace `face' with `font-lock-face'
+first.  This is a hack, which is likely to be remove again."
   (when (stringp object)
     (unless beg (setq beg 0))
     (unless end (setq end (length object))))
+  (when adopt-face
+    (let ((beg beg)
+          (end end))
+      (while (< beg end)
+        (let ((pos (next-single-property-change beg 'face object end))
+              (val (get-text-property beg 'face object)))
+          ;; We simply assume font-lock-face is not also set.
+          (put-text-property beg pos 'font-lock-face val object)
+          (remove-list-of-text-properties beg pos '(face) object)
+          (setq beg pos)))))
   (while (< beg end)
     (let* ((pos (next-single-property-change beg 'font-lock-face object end))
            (val (get-text-property beg 'font-lock-face object))

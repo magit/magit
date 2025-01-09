@@ -2716,7 +2716,8 @@ or a ref which is not a branch, then it inserts nothing."
           (save-excursion
             (magit--add-face-text-property (point)
                                            (progn (forward-line) (point))
-                                           'magit-diff-revision-summary)
+                                           'magit-diff-revision-summary
+                                           t nil t)
             (magit-insert-heading))
           (goto-char (point-max)))
       (insert "(no message)\n"))))
@@ -2745,7 +2746,8 @@ or a ref which is not a branch, then it inserts nothing."
                                         'font-lock-face 'magit-refname))))
           (magit--add-face-text-property (point)
                                          (progn (forward-line) (point))
-                                         'magit-diff-revision-summary)
+                                         'magit-diff-revision-summary
+                                         t nil t)
           (magit-insert-heading)
           (goto-char (point-max))
           (insert ?\n))))))
