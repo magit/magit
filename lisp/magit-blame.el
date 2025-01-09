@@ -748,7 +748,7 @@ modes is toggled, then this mode also gets toggled automatically.
                                                orig-rev)
                                          magit-blame-cache)))))
           (progn (set-text-properties 0 (length msg) nil msg)
-                 (message msg))
+                 (message "%S" msg))
         (message "Commit data not available yet.  Still blaming.")))))
 
 ;;; Commands
