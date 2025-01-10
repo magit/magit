@@ -1407,7 +1407,7 @@ Git."
 (defun magit-rev-fixup-target (rev)
   (let ((msg (magit-rev-format "%s" rev)))
     (save-match-data
-      (and (string-match "\\`\\(fixup\\|squash\\)! \\(.+\\)" msg)
+      (and (string-match "\\`\\(squash!\\|fixup!\\|amend!\\) \\(.+\\)" msg)
            (magit-rev-format
             "%h" (format "%s^{/^%s}" rev
                          (magit--ext-regexp-quote (match-string 2 msg))))))))

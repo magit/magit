@@ -2773,7 +2773,7 @@ or a ref which is not a branch, then it inserts nothing."
 
 (defun magit-highlight-squash-markers ()
   "Highlight \"squash!\" and similar markers."
-  (when (looking-at "\\(?:squash\\|fixup\\)!")
+  (when (looking-at "\\(?:squash!\\|fixup!\\|amend!\\)")
     (magit--add-face-text-property (match-beginning 0) (match-end 0)
                                    'magit-keyword-squash)))
 

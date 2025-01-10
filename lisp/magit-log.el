@@ -1703,7 +1703,7 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
   (if initial
       (magit-log-goto-commit-section initial)
     (while-let ((rev (magit-section-value-if 'commit))
-                ((string-match-p "\\`\\(fixup\\|squash\\)!"
+                ((string-match-p "\\`\\(squash!\\|fixup!\\|amend!\\)"
                                  (magit-rev-format "%s" rev)))
                 (section (magit-current-section))
                 (next (car (magit-section-siblings section 'next))))

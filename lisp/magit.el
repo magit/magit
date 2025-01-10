@@ -193,7 +193,7 @@ and/or `magit-branch-remote-head'."
 
 (defface magit-keyword-squash
   '((t :inherit font-lock-warning-face))
-  "Face for squash! and fixup! keywords in commit messages."
+  "Face for squash! and similar keywords in commit messages."
   :group 'magit-faces)
 
 (defface magit-signature-good
