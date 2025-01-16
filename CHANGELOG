@@ -1,4 +1,46 @@
 # -*- mode: org -*-
+* v4.2.1    UNRELEASED
+
+- Added new option ~magit-refs-show-branch-descriptions~.  42ed6c1966
+
+- When a stash cannot be applied using the trivial method, the user is
+  offered some fallback methods.  The presentation of those has been
+  improved.  #5253 a08b4dd513
+
+- [IN PROGRESS] Improve listing of untracked files.
+
+- Added new hook options ~magit-revision-wash-message-hook~ and
+  ~magit-log-wash-summary-hook~, and populate them with new and existing
+  highlighting functions, making easier to remove default highlighting
+  and to add custom highlighting.  This also increases consistency
+  between how commit summaries are shown in logs and when displaying
+  complete commit messages.  f54fce0ecc..b86fe009e2
+
+- ~amend!~ markers are now highlighted like ~fixup!~ and ~squash!~ markers.
+  6efe13e701
+
+Bug fixes:
+
+- When applying a stash, it was not always discovered when the trivial
+  method was unsuccessful, and so the user was not offered the use of
+  a fallback method.  #5253 929eb4dca5
+
+- ~git-commit.el~ did not require ~magit-process~, which was only a
+  problem when it is loaded without also loading the rest of Magit.
+  #5280.
+
+- The use of an external diff drivers was not prevented in some
+  places.  #5282
+
+- ~magit-blame-maybe-show-message~ did not protect against interpreting
+  % in commit messages as %-specs.  d0e795f423
+
+- Parts of commit message headers lost the intended background color.
+  46c3d8b0ad
+
+- The confirmation prompt of ~magit-worktree-delete~ failed to name the
+  affected worktree.  #5286
+
 * v4.2.0    2025-01-01
 
 - At least Git 2.25.0 is required now.  033a0c0cdc
