@@ -252,7 +252,7 @@ Otherwise the commit at point may be used without confirmation
 depending on the value of option `magit-commit-squash-confirm'."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
-  (magit-commit-squash-internal "--fixup" commit args))
+  (magit-commit-squash-internal "--fixup=" commit args))
 
 ;;;###autoload
 (defun magit-commit-squash (&optional commit args)
@@ -266,7 +266,7 @@ If you want to immediately add a message to the squash commit,
 then use `magit-commit-augment' instead of this command."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
-  (magit-commit-squash-internal "--squash" commit args))
+  (magit-commit-squash-internal "--squash=" commit args))
 
 ;;;###autoload
 (defun magit-commit-augment (&optional commit args)
@@ -277,21 +277,21 @@ Otherwise the commit at point may be used without confirmation
 depending on the value of option `magit-commit-squash-confirm'."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
-  (magit-commit-squash-internal "--squash" commit args nil t))
+  (magit-commit-squash-internal "--squash=" commit args nil t))
 
 ;;;###autoload
 (defun magit-commit-instant-fixup (&optional commit args)
   "Create a fixup commit targeting COMMIT and instantly rebase."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
-  (magit-commit-squash-internal "--fixup" commit args t))
+  (magit-commit-squash-internal "--fixup=" commit args t))
 
 ;;;###autoload
 (defun magit-commit-instant-squash (&optional commit args)
   "Create a squash commit targeting COMMIT and instantly rebase."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
-  (magit-commit-squash-internal "--squash" commit args t))
+  (magit-commit-squash-internal "--squash=" commit args t))
 
 (defun magit-commit-squash-internal
     (option commit &optional args rebase edit confirmed)
@@ -310,7 +310,7 @@ depending on the value of option `magit-commit-squash-confirm'."
                           current-prefix-arg
                           magit-commit-squash-confirm))))
         (let ((magit-commit-show-diff nil))
-          (push (concat option "=" commit) args)
+          (push (concat option commit) args)
           (unless edit
             (push "--no-edit" args))
           (if rebase
