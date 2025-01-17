@@ -137,7 +137,7 @@ Also see https://github.com/magit/magit/issues/4132."
     ("e" "Extend"         magit-commit-extend)
     ("w" "Reword"         magit-commit-reword)
     ("a" "Amend"          magit-commit-amend)
-    ("n" "Reshelve"       magit-commit-reshelve :level 6)]
+    ("n" "Reshelve"       magit-commit-reshelve :level 0)]
    ["Edit"
     ("f" "Fixup"          magit-commit-fixup)
     ("s" "Squash"         magit-commit-squash)
