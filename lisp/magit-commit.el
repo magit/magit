@@ -277,24 +277,24 @@ Otherwise the commit at point may be used without confirmation
 depending on the value of option `magit-commit-squash-confirm'."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
-  (magit-commit-squash-internal "--squash=" commit args nil t))
+  (magit-commit-squash-internal "--squash=" commit args 'edit))
 
 ;;;###autoload
 (defun magit-commit-instant-fixup (&optional commit args)
   "Create a fixup commit targeting COMMIT and instantly rebase."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
-  (magit-commit-squash-internal "--fixup=" commit args t))
+  (magit-commit-squash-internal "--fixup=" commit args nil 'rebase))
 
 ;;;###autoload
 (defun magit-commit-instant-squash (&optional commit args)
   "Create a squash commit targeting COMMIT and instantly rebase."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
-  (magit-commit-squash-internal "--squash=" commit args t))
+  (magit-commit-squash-internal "--squash=" commit args nil 'rebase))
 
 (defun magit-commit-squash-internal
-    (option commit &optional args rebase edit confirmed)
+    (option commit &optional args edit rebase confirmed)
   (when-let ((args (magit-commit-assert args (not edit))))
     (when (and commit rebase (not (magit-rev-ancestor-p commit "HEAD")))
       (magit-read-char-case
@@ -326,7 +326,7 @@ depending on the value of option `magit-commit-squash-confirm'."
         (magit-log-select
           (lambda (commit)
             (when (and (magit-commit-squash-internal option commit args
-                                                     rebase edit t)
+                                                     edit rebase t)
                        rebase)
               (magit-commit-amend-assert commit)
               (magit-rebase-interactive-1 commit
