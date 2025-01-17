@@ -4670,9 +4670,26 @@ Also see [[man:git-commit]]
 
   Create a squash commit and instantly rebase.
 
-- Key: c A (magit-commit-augment) ::
+- Key: c A (magit-commit-alter) ::
+
+  Create a squash commit, finalizing the message up front.
+
+  With a prefix argument the target COMMIT has to be confirmed.
+  Otherwise the commit at point may be used without confirmation
+  depending on the value of option ~magit-commit-squash-confirm~.
+
+- Key: c n (magit-commit-augment) ::
 
   Create a squash commit, editing the squash message.
+
+  With a prefix argument the target commit has to be confirmed.
+  Otherwise the commit at point may be used without confirmation
+  depending on the value of option ~magit-commit-squash-confirm~.
+
+- Key: c A (magit-commit-revise) ::
+
+  Reword the message of commit other than the last, without editing
+  its tree.
 
   With a prefix argument the target commit has to be confirmed.
   Otherwise the commit at point may be used without confirmation

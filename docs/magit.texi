@@ -5551,10 +5551,29 @@ depending on the value of option @code{magit-commit-squash-confirm}.
 @findex magit-commit-instant-squash
 Create a squash commit and instantly rebase.
 
-@item @kbd{c A} (@code{magit-commit-augment})
+@item @kbd{c A} (@code{magit-commit-alter})
 @kindex c A
+@findex magit-commit-alter
+Create a squash commit, finalizing the message up front.
+
+With a prefix argument the target COMMIT has to be confirmed.
+Otherwise the commit at point may be used without confirmation
+depending on the value of option @code{magit-commit-squash-confirm}.
+
+@item @kbd{c n} (@code{magit-commit-augment})
+@kindex c n
 @findex magit-commit-augment
 Create a squash commit, editing the squash message.
+
+With a prefix argument the target commit has to be confirmed.
+Otherwise the commit at point may be used without confirmation
+depending on the value of option @code{magit-commit-squash-confirm}.
+
+@item @kbd{c A} (@code{magit-commit-revise})
+@kindex c A
+@findex magit-commit-revise
+Reword the message of commit other than the last, without editing
+its tree.
 
 With a prefix argument the target commit has to be confirmed.
 Otherwise the commit at point may be used without confirmation

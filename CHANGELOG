@@ -17,7 +17,9 @@
   complete commit messages.  f54fce0ecc..b86fe009e2
 
 - ~amend!~ markers are now highlighted like ~fixup!~ and ~squash!~ markers.
-  6efe13e701
+  #5261
+
+- Added new commands ~magit-commit-alter~ and ~magit-commit-revise~.  #5261
 
 Bug fixes:
 

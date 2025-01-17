@@ -135,13 +135,17 @@ Also see https://github.com/magit/magit/issues/4132."
     ("c" "Commit"         magit-commit-create)]
    ["Edit HEAD"
     ("e" "Extend"         magit-commit-extend)
-    ("w" "Reword"         magit-commit-reword)
+    ""
     ("a" "Amend"          magit-commit-amend)
-    ("n" "Reshelve"       magit-commit-reshelve :level 0)]
+    ""
+    ("w" "Reword"         magit-commit-reword)
+    ("d" "Reshelve"       magit-commit-reshelve :level 0)]
    ["Edit"
     ("f" "Fixup"          magit-commit-fixup)
     ("s" "Squash"         magit-commit-squash)
-    ("A" "Augment"        magit-commit-augment)]
+    ("A" "Alter"          magit-commit-alter)
+    ("n" "Augment"        magit-commit-augment)
+    ("W" "Revise"         magit-commit-revise)]
    ["Edit and rebase"
     ("F" "Instant fixup"  magit-commit-instant-fixup)
     ("S" "Instant squash" magit-commit-instant-squash)]
@@ -269,6 +273,17 @@ then use `magit-commit-augment' instead of this command."
   (magit-commit-squash-internal "--squash=" commit args))
 
 ;;;###autoload
+(defun magit-commit-alter (&optional commit args)
+  "Create a squash commit, finalizing the message up front.
+
+With a prefix argument the target COMMIT has to be confirmed.
+Otherwise the commit at point may be used without confirmation
+depending on the value of option `magit-commit-squash-confirm'."
+  (interactive (list (magit-commit-at-point)
+                     (magit-commit-arguments)))
+  (magit-commit-squash-internal "--fixup=amend:" commit args nil 'edit))
+
+;;;###autoload
 (defun magit-commit-augment (&optional commit args)
   "Create a squash commit, editing the squash message.
 
@@ -277,25 +292,36 @@ Otherwise the commit at point may be used without confirmation
 depending on the value of option `magit-commit-squash-confirm'."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
-  (magit-commit-squash-internal "--squash=" commit args 'edit))
+  (magit-commit-squash-internal "--squash=" commit args nil 'edit))
+
+;;;###autoload
+(defun magit-commit-revise (&optional commit args)
+  "Reword the message of commit other than the last, without editing its tree.
+
+With a prefix argument the target COMMIT has to be confirmed.
+Otherwise the commit at point may be used without confirmation
+depending on the value of option `magit-commit-squash-confirm'."
+  (interactive (list (magit-commit-at-point)
+                     (magit-commit-arguments)))
+  (magit-commit-squash-internal "--fixup=reword:" commit args 'nopatch 'edit))
 
 ;;;###autoload
 (defun magit-commit-instant-fixup (&optional commit args)
   "Create a fixup commit targeting COMMIT and instantly rebase."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
-  (magit-commit-squash-internal "--fixup=" commit args nil 'rebase))
+  (magit-commit-squash-internal "--fixup=" commit args nil nil 'rebase))
 
 ;;;###autoload
 (defun magit-commit-instant-squash (&optional commit args)
   "Create a squash commit targeting COMMIT and instantly rebase."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
-  (magit-commit-squash-internal "--squash=" commit args nil 'rebase))
+  (magit-commit-squash-internal "--squash=" commit args nil nil 'rebase))
 
 (defun magit-commit-squash-internal
-    (option commit &optional args edit rebase confirmed)
-  (when-let ((args (magit-commit-assert args (not edit))))
+    (option commit &optional args nopatch edit rebase confirmed)
+  (when-let ((args (magit-commit-assert args nopatch (not edit))))
     (when (and commit rebase (not (magit-rev-ancestor-p commit "HEAD")))
       (magit-read-char-case
           (format "%s isn't an ancestor of HEAD.  " commit) nil
@@ -326,7 +352,7 @@ depending on the value of option `magit-commit-squash-confirm'."
         (magit-log-select
           (lambda (commit)
             (when (and (magit-commit-squash-internal option commit args
-                                                     edit rebase t)
+                                                     nopatch edit rebase t)
                        rebase)
               (magit-commit-amend-assert commit)
               (magit-rebase-interactive-1 commit
@@ -350,8 +376,9 @@ depending on the value of option `magit-commit-squash-confirm'."
         (concat m1 "%d public branches" m2)
         nil branches))))
 
-(defun magit-commit-assert (args &optional strict)
+(defun magit-commit-assert (args &optional nopatch strict)
   (cond
+   (nopatch args)
    ((or (magit-anything-staged-p)
         (and (magit-anything-unstaged-p)
              ;; ^ Everything of nothing is still nothing.
