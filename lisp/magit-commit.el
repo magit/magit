@@ -492,6 +492,8 @@ See `magit-commit-autofixup' for an alternative implementation."
             (magit-commit-absorb 'run commit args)))
         nil nil nil nil commit))))
 
+(transient-augment-suffix magit-commit-absorb :transient 'transient--do-exit)
+
 ;;;###autoload (autoload 'magit-commit-autofixup "magit-commit" nil t)
 (transient-define-prefix magit-commit-autofixup (phase commit args)
   "Spread staged or unstaged changes across recent commits.
@@ -531,6 +533,8 @@ See `magit-commit-absorb' for an alternative implementation."
           (with-no-warnings ; about non-interactive use
             (magit-commit-autofixup 'run commit args)))
         nil nil nil nil commit))))
+
+(transient-augment-suffix magit-commit-autofixup :transient 'transient--do-exit)
 
 (transient-define-argument magit-autofixup:--context ()
   :description "Diff context lines"
