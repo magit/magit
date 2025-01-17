@@ -21,6 +21,8 @@
 
 - Added new commands ~magit-commit-alter~ and ~magit-commit-revise~.  #5261
 
+- Improved commit menu, documentation and implementation details.  #5261
+
 Bug fixes:
 
 - When applying a stash, it was not always discovered when the trivial

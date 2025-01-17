@@ -4626,82 +4626,192 @@ Also see [[man:git-commit]]
 
 **** Editing the last commit
 
+These commands modify the last (a.k.a., "HEAD") commit.  The commit is
+modified (a.k.a., replaced) immediately.  Similar commands exist for
+modifying other (non-HEAD) commits.  Those commands are described in
+the following two sections.  For each command in this section, we
+mention the respective non-HEAD commands, to make the relation
+explicit.
+
+The command descriptions below mention the specific arguments they use
+when calling ~git commit~.  The arguments specified in the menu are
+appended to those arguments.
+
 - Key: c e (magit-commit-extend) ::
 
-  Amend the last commit, without editing the message.  With a prefix
-  argument keep the committer date, otherwise change it.  The option
-  ~magit-commit-extend-override-date~ can be used to inverse the meaning
-  of the prefix argument.
+  This command amends the staged changes to the last commit, without
+  editing its commit message.
 
-  Non-interactively respect the optional OVERRIDE-DATE argument and
-  ignore the option.
+  This command calls ~git commit --amend --no-edit~.
+
+  With a prefix argument the committer date is not updated; without an
+  argument it is updated.
+
+  The option ~magit-commit-extend-override-date~ can be used to inverse
+  the meaning of the prefix argument.  Non-interactively, the optional
+  OVERRIDE-DATE argument controls this behavior, and the option is of
+  no relevance.
 
 - Key: c a (magit-commit-amend) ::
 
-  Amend the last commit.
+  This command amends the staged changes to the last commit, and pops
+  up a buffer to let the user edit its commit message.
+
+  This command calls ~git commit --amend --edit~.
 
 - Key: c w (magit-commit-reword) ::
 
-  Reword the last commit, ignoring staged changes.  With a prefix
-  argument keep the committer date, otherwise change it.  The option
-  ~magit-commit-reword-override-date~ can be used to inverse the meaning
-  of the prefix argument.
+  This command pops up a buffer to let the user edit the message of
+  the latest commit.  The commit tree remains unchanged and staged
+  changes remain staged.
 
-  Non-interactively respect the optional OVERRIDE-DATE argument and
-  ignore the option.
+  This command calls ~git commit --amend --only --edit~.
+
+  With a prefix argument the committer date is not updated; without an
+  argument it is updated.
+
+  The option ~magit-commit-reword-override-date~ can be used to inverse
+  the meaning of the prefix argument.  Non-interactively, the optional
+  OVERRIDE-DATE argument controls this behavior, and the option is of
+  no relevance.
 
 **** Editing any reachable commit
 
+These commands create a new commit, which targets an existing commit,
+from the staged changes and/or using a new commit message.  Any commit
+that is reachable from HEAD, including HEAD itself, can be the target.
+
+The new commit is intended to be eventually squashed into the targeted
+commit, but this is *not* done immediately.  The squashing is done at a
+later time, when you explicitly call ~magit-rebase-autosquash~, or use
+~--autosquash~ with another rebase command.
+
+Some of these commands require that you immediately write a new commit
+message, or that you immediately edit an existing message.
+
+The new commits are called "squash" and "fixup" commits.  The
+difference is that when a "squash" commit is squashed into its
+targeted commit, the user gets a change to modify the message to be
+used for the final commit; while for "fixup" commits the existing
+message of the targeted commit is used as-is and the message of the
+"fixup" commit is discarded.
+
+If point is on a reachable commit, then all of these commands target
+that commit, without requiring confirmation.  If point is on some
+reachable commit, but you want to target another commit, use a prefix
+argument, to select a commit in a log buffer dedicated to that task.
+The meaning of the prefix argument can be inverted by customizing
+~magit-commit-squash-confirm~.
+
+The command descriptions below mention the specific arguments they use
+when calling ~git commit~.  The arguments specified in the menu are
+appended to those arguments.
+
+The next two commands also exist in "instant" variants, which are
+described in the next section.  Those variants behave the same as the
+variants described here, except that they immediately initiate an
+~--autosquash~ rebase.
+
 - Key: c f (magit-commit-fixup) ::
 
-  Create a fixup commit.
+  This command creates a new fixup commit from the staged changes,
+  targeting the reachable commit at point, if any.  Otherwise the
+  user is prompted for a commit.
 
-  With a prefix argument the target commit has to be confirmed.
-  Otherwise the commit at point may be used without confirmation
-  depending on the value of option ~magit-commit-squash-confirm~.
+  Use this variant if you want to correct some minor defect in the
+  targeted commit, which does not require changes to the existing
+  message of the targeted commit.
+
+  This command calls ~git commit --fixup=COMMIT --no-edit~.
 
 - Key: c s (magit-commit-squash) ::
 
-  Create a squash commit, without editing the squash message.
+  This command creates a new squash commit from the staged changes,
+  targeting the reachable commit at point, if any.  Otherwise the
+  user is prompted for a commit.
 
-  With a prefix argument the target commit has to be confirmed.
-  Otherwise the commit at point may be used without confirmation
-  depending on the value of option ~magit-commit-squash-confirm~.
+  Use this variant if you want a chance to make changes to the final
+  commit message, but not until the two commits are being squashed
+  into the final combined commit.
+
+  This command calls ~git commit --squash=COMMIT --no-edit~.
 
 - Key: c A (magit-commit-alter) ::
 
-  Create a squash commit, finalizing the message up front.
+  This command creates a new fixup commit from the staged changes,
+  targeting the reachable commit at point, if any.  Otherwise the
+  user is prompted for a commit.
 
-  With a prefix argument the target COMMIT has to be confirmed.
-  Otherwise the commit at point may be used without confirmation
-  depending on the value of option ~magit-commit-squash-confirm~.
+  Use this variant if you want to write the final commit message now,
+  but (as for all variants in this section) do not want to immediately
+  squash the fixup and targeted commits into a final combined commit.
+
+  This command calls ~git commit --fixup=amend:COMMIT --edit~.
 
 - Key: c n (magit-commit-augment) ::
 
-  Create a squash commit, editing the squash message.
+  This command creates a new squash commit from the staged changes,
+  targeting the reachable commit at point, if any.  Otherwise the
+  user is prompted for a commit.
 
-  With a prefix argument the target commit has to be confirmed.
-  Otherwise the commit at point may be used without confirmation
-  depending on the value of option ~magit-commit-squash-confirm~.
+  Use this variant if you want to describe the new changes now, but
+  want to delay writing the final message, which describes the changes
+  in the combined commit, until you actually combine the squash and
+  target commits into the final commit.  You can think of the new
+  message, which you write here, as a "note", to be integrated once
+  once you write the final commit message.
+
+  This command calls ~git commit --squash=COMMIT --edit~.
 
 - Key: c A (magit-commit-revise) ::
 
-  Reword the message of commit other than the last, without editing
-  its tree.
+  This command pops up a buffer containing the commit message of the
+  reachable commit at point, if any.  Otherwise the user is prompted
+  for a commit to target.
 
-  With a prefix argument the target commit has to be confirmed.
-  Otherwise the commit at point may be used without confirmation
-  depending on the value of option ~magit-commit-squash-confirm~.
+  Use this variant if you want to correct the message of the targeted
+  commit, but want to delay performing the ~--autosquash~ rebase, which
+  actually changes that commit.
 
-**** Editing any reachable commit and rebase immediately
+  This command calls ~git commit --fixup=reword:COMMIT --edit~.
+
+**** Editing any reachable commit and rebasing immediately
+
+These commands create a new commit, which targets an existing commit,
+from the staged changes.  Any commit that is reachable from HEAD,
+including HEAD itself, can be the target.
+
+The new commit is immediately squashed into its target commit, using
+an ~--autosquash~ rebase.
+
+The command descriptions below mention the specific arguments they use
+when calling ~git commit~.  The arguments specified in the menu are
+appended to those arguments when calling ~git commit~.
 
 - Key: c F (magit-commit-instant-fixup) ::
 
-  Create a fixup commit and instantly rebase.
+  This command creates a fixup commit, targeting the reachable commit
+  at point, if any.  Otherwise the user is prompted for a commit. Then
+  it instantly performs a rebase, to squash the new commit into the
+  targeted commit.
+
+  The original commit message of the targeted commit is left untouched.
+
+  This command calls ~git commit --fixup=COMMIT --no-edit~
+  and then ~git rebase --autosquash MERGE-BASE~.
 
 - Key: c S (magit-commit-instant-squash) ::
 
-  Create a squash commit and instantly rebase.
+  This command creates a squash commit, targeting the reachable commit
+  at point, if any.  Otherwise the user is prompted for a commit. Then
+  it instantly performs a rebase, to squash the new commit into the
+  targeted commit.
+
+  During the rebase phase the user is asked to author the final commit
+  message, based on the original message of the targeted commit.
+
+  This command calls ~git commit --squash=COMMIT --no-edit~
+  and then ~git rebase --autosquash MERGE-BASE~.
 
 **** Options for commit commands
 
