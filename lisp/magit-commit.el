@@ -337,8 +337,7 @@ depending on the value of option `magit-commit-squash-confirm'."
                           magit-commit-squash-confirm))))
         (let ((magit-commit-show-diff nil))
           (push (concat option commit) args)
-          (unless edit
-            (push "--no-edit" args))
+          (push (if edit "--edit" "--no-edit") args)
           (if rebase
               (magit-with-editor
                 (magit-call-git
