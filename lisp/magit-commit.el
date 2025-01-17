@@ -127,7 +127,7 @@ Also see https://github.com/magit/magit/issues/4132."
    ("-n" "Disable hooks"                          ("-n" "--no-verify"))
    ("-R" "Claim authorship and reset author date" "--reset-author")
    (magit:--author :description "Override the author")
-   (7 "-D" "Override the author date" "--date=" transient-read-date)
+   (7 magit-commit:--date)
    ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
    (5 magit:--gpg-sign)
    (magit-commit:--reuse-message)]
@@ -154,6 +154,13 @@ Also see https://github.com/magit/magit/issues/4132."
 
 (defun magit-commit-arguments nil
   (transient-args 'magit-commit))
+
+(transient-define-argument magit-commit:--date ()
+  :description "Override the author date"
+  :class 'transient-option
+  :shortarg "-D"
+  :argument "--date="
+  :reader #'transient-read-date)
 
 (transient-define-argument magit-commit:--reuse-message ()
   :description "Reuse commit message"
