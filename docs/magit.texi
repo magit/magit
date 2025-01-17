@@ -5710,33 +5710,21 @@ This command calls @code{git commit --squash=COMMIT --no-edit}
 and then @code{git rebase --autosquash MERGE-BASE}.
 @end table
 
-@anchor{Options for commit commands}
-@subsubheading Options for commit commands
+@anchor{Options used by commit commands}
+@subsubheading Options used by commit commands
 
-@defopt magit-commit-ask-to-stage
-Whether to ask to stage all unstaged changes when committing and nothing is
-staged.
-@end defopt
+@itemize
+@item
+@anchor{Used by all or most commit commands}Used by all or most commit commands
+
 
 @defopt magit-commit-show-diff
 Whether the relevant diff is automatically shown when committing.
 @end defopt
 
-@defopt magit-commit-extend-override-date
-Whether using @code{magit-commit-extend} changes the committer date.
-@end defopt
-
-@defopt magit-commit-reword-override-date
-Whether using @code{magit-commit-reword} changes the committer date.
-@end defopt
-
-@defopt magit-commit-squash-confirm
-Whether the commit targeted by squash and fixup has to be confirmed.
-When non-nil then the commit at point (if any) is used as default
-choice.  Otherwise it has to be confirmed.  This option only affects
-@code{magit-commit-squash} and @code{magit-commit-fixup}.  The "instant" variants
-always require confirmation because making an error while using
-those is harder to recover from.
+@defopt magit-commit-ask-to-stage
+Whether to ask to stage all unstaged changes when committing and
+nothing is staged.
 @end defopt
 
 @defopt magit-post-commit-hook
@@ -5776,6 +5764,32 @@ diff buffer would end up being displayed in a new frame.
 
 Also see @uref{https://github.com/magit/magit/issues/4132}.
 @end defopt
+
+@item
+@anchor{Used by all squash and fixup commands}Used by all squash and fixup commands
+
+
+@defopt magit-commit-squash-confirm
+Whether the commit targeted by squash and fixup has to be confirmed.
+When non-nil then the commit at point (if any) is used as default
+choice.  Otherwise it has to be confirmed.  This option only affects
+@code{magit-commit-squash} and @code{magit-commit-fixup}.  The "instant" variants
+always require confirmation because making an error while using
+those is harder to recover from.
+@end defopt
+
+@item
+@anchor{Used by specific commit commands}Used by specific commit commands
+
+
+@defopt magit-commit-extend-override-date
+Whether using @code{magit-commit-extend} changes the committer date.
+@end defopt
+
+@defopt magit-commit-reword-override-date
+Whether using @code{magit-commit-reword} changes the committer date.
+@end defopt
+@end itemize
 
 @anchor{Editing Commit Messages}
 @subsection Editing Commit Messages

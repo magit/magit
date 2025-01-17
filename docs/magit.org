@@ -4813,33 +4813,17 @@ appended to those arguments when calling ~git commit~.
   This command calls ~git commit --squash=COMMIT --no-edit~
   and then ~git rebase --autosquash MERGE-BASE~.
 
-**** Options for commit commands
-
-- User Option: magit-commit-ask-to-stage ::
-
-  Whether to ask to stage all unstaged changes when committing and nothing is
-  staged.
+**** Options used by commit commands
+***** Used by all or most commit commands
 
 - User Option: magit-commit-show-diff ::
 
   Whether the relevant diff is automatically shown when committing.
 
-- User Option: magit-commit-extend-override-date ::
+- User Option: magit-commit-ask-to-stage ::
 
-  Whether using ~magit-commit-extend~ changes the committer date.
-
-- User Option: magit-commit-reword-override-date ::
-
-  Whether using ~magit-commit-reword~ changes the committer date.
-
-- User Option: magit-commit-squash-confirm ::
-
-  Whether the commit targeted by squash and fixup has to be confirmed.
-  When non-nil then the commit at point (if any) is used as default
-  choice.  Otherwise it has to be confirmed.  This option only affects
-  ~magit-commit-squash~ and ~magit-commit-fixup~.  The "instant" variants
-  always require confirmation because making an error while using
-  those is harder to recover from.
+  Whether to ask to stage all unstaged changes when committing and
+  nothing is staged.
 
 - User Option: magit-post-commit-hook ::
 
@@ -4878,6 +4862,27 @@ appended to those arguments when calling ~git commit~.
   diff buffer would end up being displayed in a new frame.
 
   Also see https://github.com/magit/magit/issues/4132.
+
+***** Used by all squash and fixup commands
+
+- User Option: magit-commit-squash-confirm ::
+
+  Whether the commit targeted by squash and fixup has to be confirmed.
+  When non-nil then the commit at point (if any) is used as default
+  choice.  Otherwise it has to be confirmed.  This option only affects
+  ~magit-commit-squash~ and ~magit-commit-fixup~.  The "instant" variants
+  always require confirmation because making an error while using
+  those is harder to recover from.
+
+***** Used by specific commit commands
+
+- User Option: magit-commit-extend-override-date ::
+
+  Whether using ~magit-commit-extend~ changes the committer date.
+
+- User Option: magit-commit-reword-override-date ::
+
+  Whether using ~magit-commit-reword~ changes the committer date.
 
 *** Editing Commit Messages
 
