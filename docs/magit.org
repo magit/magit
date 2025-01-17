@@ -4601,12 +4601,14 @@ appropriate (i.e., when ~git apply~ is used internally).
 
 ** Committing
 
-When the user initiates a commit, Magit calls ~git commit~ without any
-arguments, so Git has to get it from the user.  It creates the file
-~.git/COMMIT_EDITMSG~ and then opens that file in an editor.  Magit
-arranges for that editor to be the Emacsclient.  Once the user
-finishes the editing session, the Emacsclient exits and Git creates the
-commit using the file's content as message.
+When the user initiates a commit, Magit calls ~git commit~ without the
+~--message~ argument, so Git has to get the message from the user.  To
+do so, it creates a file such as ~.git/COMMIT_EDITMSG~ and then opens
+that file in the editor specified by ~$EDITOR~ (or ~$GIT_EDITOR~).
+
+Magit arranges for that editor to be the Emacsclient.  Once the user
+finishes the editing session, the Emacsclient exits and Git creates
+the commit, using the file's content as the commit message.
 
 *** Initiating a Commit
 

@@ -5460,12 +5460,14 @@ appropriate (i.e., when @code{git apply} is used internally).
 @node Committing
 @section Committing
 
-When the user initiates a commit, Magit calls @code{git commit} without any
-arguments, so Git has to get it from the user.  It creates the file
-@code{.git/COMMIT_EDITMSG} and then opens that file in an editor.  Magit
-arranges for that editor to be the Emacsclient.  Once the user
-finishes the editing session, the Emacsclient exits and Git creates the
-commit using the file's content as message.
+When the user initiates a commit, Magit calls @code{git commit} without the
+@code{--message} argument, so Git has to get the message from the user.  To
+do so, it creates a file such as @code{.git/COMMIT_EDITMSG} and then opens
+that file in the editor specified by @code{$EDITOR} (or @code{$GIT_EDITOR}).
+
+Magit arranges for that editor to be the Emacsclient.  Once the user
+finishes the editing session, the Emacsclient exits and Git creates
+the commit, using the file's content as the commit message.
 
 @anchor{Initiating a Commit}
 @subsection Initiating a Commit
