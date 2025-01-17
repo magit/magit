@@ -127,9 +127,9 @@ Also see https://github.com/magit/magit/issues/4132."
    ("-n" "Disable hooks"                          ("-n" "--no-verify"))
    ("-R" "Claim authorship and reset author date" "--reset-author")
    (magit:--author :description "Override the author")
-   (7 magit-commit:--date)
+   (magit-commit:--date :level 7)
    ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
-   (5 magit:--gpg-sign)
+   (magit:--gpg-sign :level 5)
    (magit-commit:--reuse-message)]
   [["Create"
     ("c" "Commit"         magit-commit-create)]
@@ -137,13 +137,13 @@ Also see https://github.com/magit/magit/issues/4132."
     ("e" "Extend"         magit-commit-extend)
     ("w" "Reword"         magit-commit-reword)
     ("a" "Amend"          magit-commit-amend)
-    (6 "n" "Reshelve"     magit-commit-reshelve)]
+    ("n" "Reshelve"       magit-commit-reshelve :level 6)]
    ["Edit"
     ("f" "Fixup"          magit-commit-fixup)
     ("s" "Squash"         magit-commit-squash)
     ("A" "Augment"        magit-commit-augment)
-    (6 "x" "Absorb changes" magit-commit-autofixup)
-    (6 "X" "Absorb modules" magit-commit-absorb-modules)]
+    ("x" "Absorb changes" magit-commit-autofixup :level 6)
+    ("X" "Absorb modules" magit-commit-absorb-modules :level 6)]
    [""
     ("F" "Instant fixup"  magit-commit-instant-fixup)
     ("S" "Instant squash" magit-commit-instant-squash)]]
