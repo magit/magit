@@ -5490,17 +5490,22 @@ the git-commit(1) manpage.
 This transient prefix command binds the following suffix commands
 along with the appropriate infix arguments and displays them in a
 temporary buffer until a suffix is invoked.
+@end table
 
+@anchor{Creating a new commit}
+@subsubheading Creating a new commit
+
+@table @asis
 @item @kbd{c c} (@code{magit-commit-create})
 @kindex c c
 @findex magit-commit-create
 Create a new commit.
+@end table
 
-@item @kbd{c a} (@code{magit-commit-amend})
-@kindex c a
-@findex magit-commit-amend
-Amend the last commit.
+@anchor{Editing the last commit}
+@subsubheading Editing the last commit
 
+@table @asis
 @item @kbd{c e} (@code{magit-commit-extend})
 @kindex c e
 @findex magit-commit-extend
@@ -5512,6 +5517,11 @@ of the prefix argument.
 Non-interactively respect the optional OVERRIDE-DATE argument and
 ignore the option.
 
+@item @kbd{c a} (@code{magit-commit-amend})
+@kindex c a
+@findex magit-commit-amend
+Amend the last commit.
+
 @item @kbd{c w} (@code{magit-commit-reword})
 @kindex c w
 @findex magit-commit-reword
@@ -5522,7 +5532,12 @@ of the prefix argument.
 
 Non-interactively respect the optional OVERRIDE-DATE argument and
 ignore the option.
+@end table
 
+@anchor{Editing any reachable commit}
+@subsubheading Editing any reachable commit
+
+@table @asis
 @item @kbd{c f} (@code{magit-commit-fixup})
 @kindex c f
 @findex magit-commit-fixup
@@ -5532,11 +5547,6 @@ With a prefix argument the target commit has to be confirmed.
 Otherwise the commit at point may be used without confirmation
 depending on the value of option @code{magit-commit-squash-confirm}.
 
-@item @kbd{c F} (@code{magit-commit-instant-fixup})
-@kindex c F
-@findex magit-commit-instant-fixup
-Create a fixup commit and instantly rebase.
-
 @item @kbd{c s} (@code{magit-commit-squash})
 @kindex c s
 @findex magit-commit-squash
@@ -5545,11 +5555,6 @@ Create a squash commit, without editing the squash message.
 With a prefix argument the target commit has to be confirmed.
 Otherwise the commit at point may be used without confirmation
 depending on the value of option @code{magit-commit-squash-confirm}.
-
-@item @kbd{c S} (@code{magit-commit-instant-squash})
-@kindex c S
-@findex magit-commit-instant-squash
-Create a squash commit and instantly rebase.
 
 @item @kbd{c A} (@code{magit-commit-alter})
 @kindex c A
@@ -5579,6 +5584,24 @@ With a prefix argument the target commit has to be confirmed.
 Otherwise the commit at point may be used without confirmation
 depending on the value of option @code{magit-commit-squash-confirm}.
 @end table
+
+@anchor{Editing any reachable commit and rebase immediately}
+@subsubheading Editing any reachable commit and rebase immediately
+
+@table @asis
+@item @kbd{c F} (@code{magit-commit-instant-fixup})
+@kindex c F
+@findex magit-commit-instant-fixup
+Create a fixup commit and instantly rebase.
+
+@item @kbd{c S} (@code{magit-commit-instant-squash})
+@kindex c S
+@findex magit-commit-instant-squash
+Create a squash commit and instantly rebase.
+@end table
+
+@anchor{Options for commit commands}
+@subsubheading Options for commit commands
 
 @defopt magit-commit-ask-to-stage
 Whether to ask to stage all unstaged changes when committing and nothing is

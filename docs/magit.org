@@ -4618,13 +4618,13 @@ Also see [[man:git-commit]]
   along with the appropriate infix arguments and displays them in a
   temporary buffer until a suffix is invoked.
 
+**** Creating a new commit
+
 - Key: c c (magit-commit-create) ::
 
   Create a new commit.
 
-- Key: c a (magit-commit-amend) ::
-
-  Amend the last commit.
+**** Editing the last commit
 
 - Key: c e (magit-commit-extend) ::
 
@@ -4636,6 +4636,10 @@ Also see [[man:git-commit]]
   Non-interactively respect the optional OVERRIDE-DATE argument and
   ignore the option.
 
+- Key: c a (magit-commit-amend) ::
+
+  Amend the last commit.
+
 - Key: c w (magit-commit-reword) ::
 
   Reword the last commit, ignoring staged changes.  With a prefix
@@ -4646,6 +4650,8 @@ Also see [[man:git-commit]]
   Non-interactively respect the optional OVERRIDE-DATE argument and
   ignore the option.
 
+**** Editing any reachable commit
+
 - Key: c f (magit-commit-fixup) ::
 
   Create a fixup commit.
@@ -4654,10 +4660,6 @@ Also see [[man:git-commit]]
   Otherwise the commit at point may be used without confirmation
   depending on the value of option ~magit-commit-squash-confirm~.
 
-- Key: c F (magit-commit-instant-fixup) ::
-
-  Create a fixup commit and instantly rebase.
-
 - Key: c s (magit-commit-squash) ::
 
   Create a squash commit, without editing the squash message.
@@ -4665,10 +4667,6 @@ Also see [[man:git-commit]]
   With a prefix argument the target commit has to be confirmed.
   Otherwise the commit at point may be used without confirmation
   depending on the value of option ~magit-commit-squash-confirm~.
-
-- Key: c S (magit-commit-instant-squash) ::
-
-  Create a squash commit and instantly rebase.
 
 - Key: c A (magit-commit-alter) ::
 
@@ -4694,6 +4692,18 @@ Also see [[man:git-commit]]
   With a prefix argument the target commit has to be confirmed.
   Otherwise the commit at point may be used without confirmation
   depending on the value of option ~magit-commit-squash-confirm~.
+
+**** Editing any reachable commit and rebase immediately
+
+- Key: c F (magit-commit-instant-fixup) ::
+
+  Create a fixup commit and instantly rebase.
+
+- Key: c S (magit-commit-instant-squash) ::
+
+  Create a squash commit and instantly rebase.
+
+**** Options for commit commands
 
 - User Option: magit-commit-ask-to-stage ::
 

@@ -183,6 +183,7 @@ Also see https://github.com/magit/magit/issues/4132."
                                   "ORIG_HEAD"))))
 
 ;;; Commands
+;;;; Create
 
 ;;;###autoload
 (defun magit-commit-create (&optional args)
@@ -196,13 +197,7 @@ Also see https://github.com/magit/magit/issues/4132."
     (let ((default-directory (magit-toplevel)))
       (magit-run-git-with-editor "commit" args))))
 
-;;;###autoload
-(defun magit-commit-amend (&optional args)
-  "Amend the last commit.
-\n(git commit --amend ARGS)"
-  (interactive (list (magit-commit-arguments)))
-  (magit-commit-amend-assert)
-  (magit-run-git-with-editor "commit" "--amend" args))
+;;;; Edit HEAD
 
 ;;;###autoload
 (defun magit-commit-extend (&optional args override-date)
@@ -223,6 +218,14 @@ to inverse the meaning of the prefix argument.
       (with-environment-variables
           (("GIT_COMMITTER_DATE" (magit-rev-format "%cD")))
         (magit-run-git-with-editor "commit" "--amend" "--no-edit" args)))))
+
+;;;###autoload
+(defun magit-commit-amend (&optional args)
+  "Amend the last commit.
+\n(git commit --amend ARGS)"
+  (interactive (list (magit-commit-arguments)))
+  (magit-commit-amend-assert)
+  (magit-run-git-with-editor "commit" "--amend" args))
 
 ;;;###autoload
 (defun magit-commit-reword (&optional args override-date)
@@ -246,6 +249,8 @@ and ignore the option.
     (with-environment-variables
         (("GIT_COMMITTER_DATE" (magit-rev-format "%cD")))
       (magit-run-git-with-editor "commit" "--amend" "--only" args))))
+
+;;;; Edit
 
 ;;;###autoload
 (defun magit-commit-fixup (&optional commit args)
@@ -305,6 +310,8 @@ depending on the value of option `magit-commit-squash-confirm'."
                      (magit-commit-arguments)))
   (magit-commit-squash-internal "--fixup=reword:" commit args 'nopatch 'edit))
 
+;;;; Edit and Rebase
+
 ;;;###autoload
 (defun magit-commit-instant-fixup (&optional commit args)
   "Create a fixup commit targeting COMMIT and instantly rebase."
@@ -318,6 +325,8 @@ depending on the value of option `magit-commit-squash-confirm'."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
   (magit-commit-squash-internal "--squash=" commit args nil nil 'rebase))
+
+;;;; Internal
 
 (defun magit-commit-squash-internal
     (option commit &optional args nopatch edit rebase confirmed)
@@ -421,6 +430,8 @@ depending on the value of option `magit-commit-squash-confirm'."
    (t
     (user-error "Nothing staged"))))
 
+;;;; Reshelve
+
 (defvar magit--reshelve-history nil)
 
 ;;;###autoload
@@ -454,6 +465,8 @@ is updated:
     (magit-run-git "commit" "--amend" "--no-edit"
                    (and update-author (concat "--date=" date))
                    args)))
+
+;;;; Spread
 
 ;;;###autoload
 (defun magit-commit-absorb-modules (phase commit)
@@ -576,6 +589,8 @@ See `magit-commit-absorb' for an alternative implementation."
   :shortarg "-s"
   :argument "--strict="
   :reader #'transient-read-number-N0)
+
+;;;; Hooks
 
 (defvar magit-post-commit-hook-commands
   (list #'magit-commit-extend
