@@ -141,12 +141,13 @@ Also see https://github.com/magit/magit/issues/4132."
    ["Edit"
     ("f" "Fixup"          magit-commit-fixup)
     ("s" "Squash"         magit-commit-squash)
-    ("A" "Augment"        magit-commit-augment)
-    ("x" "Absorb changes" magit-commit-autofixup :level 6)
-    ("X" "Absorb modules" magit-commit-absorb-modules :level 6)]
-   [""
+    ("A" "Augment"        magit-commit-augment)]
+   ["Edit and rebase"
     ("F" "Instant fixup"  magit-commit-instant-fixup)
-    ("S" "Instant squash" magit-commit-instant-squash)]]
+    ("S" "Instant squash" magit-commit-instant-squash)]
+   ["Spread across commits"
+    ("x" "Absorb changes" magit-commit-autofixup :level 6)
+    ("X" "Absorb modules" magit-commit-absorb-modules :level 6)]]
   (interactive)
   (if-let ((buffer (magit-commit-message-buffer)))
       (switch-to-buffer buffer)
