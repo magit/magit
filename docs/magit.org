@@ -4620,8 +4620,7 @@ Also see [[man:git-commit]]
 
 - Key: c c (magit-commit-create) ::
 
-  Create a new commit on ~HEAD~.  With a prefix argument amend to the
-  commit at ~HEAD~ instead.
+  Create a new commit.
 
 - Key: c a (magit-commit-amend) ::
 

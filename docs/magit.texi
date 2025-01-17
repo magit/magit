@@ -5494,8 +5494,7 @@ temporary buffer until a suffix is invoked.
 @item @kbd{c c} (@code{magit-commit-create})
 @kindex c c
 @findex magit-commit-create
-Create a new commit on @code{HEAD}.  With a prefix argument amend to the
-commit at @code{HEAD} instead.
+Create a new commit.
 
 @item @kbd{c a} (@code{magit-commit-amend})
 @kindex c a

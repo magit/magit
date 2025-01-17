@@ -174,12 +174,8 @@ Also see https://github.com/magit/magit/issues/4132."
 
 ;;;###autoload
 (defun magit-commit-create (&optional args)
-  "Create a new commit on `HEAD'.
-With a prefix argument, amend to the commit at `HEAD' instead.
-\n(git commit [--amend] ARGS)"
-  (interactive (if current-prefix-arg
-                   (list (cons "--amend" (magit-commit-arguments)))
-                 (list (magit-commit-arguments))))
+  "Create a new commit."
+  (interactive (list (magit-commit-arguments)))
   (cond ((member "--all" args)
          (setq this-command 'magit-commit--all))
         ((member "--allow-empty" args)
