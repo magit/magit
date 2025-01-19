@@ -4765,7 +4765,7 @@ variants described here, except that they immediately initiate an
 
   This command calls ~git commit --squash=COMMIT --edit~.
 
-- Key: c A (magit-commit-revise) ::
+- Key: c W (magit-commit-revise) ::
 
   This command pops up a buffer containing the commit message of the
   reachable commit at point, if any.  Otherwise the user is prompted
