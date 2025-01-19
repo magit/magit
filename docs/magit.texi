@@ -5655,8 +5655,8 @@ once you write the final commit message.
 
 This command calls @code{git commit --squash=COMMIT --edit}.
 
-@item @kbd{c A} (@code{magit-commit-revise})
-@kindex c A
+@item @kbd{c W} (@code{magit-commit-revise})
+@kindex c W
 @findex magit-commit-revise
 This command pops up a buffer containing the commit message of the
 reachable commit at point, if any.  Otherwise the user is prompted
