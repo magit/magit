@@ -415,7 +415,7 @@ Like `magit-commit-squash' but also run a `--autofixup' rebase."
           (format "Type %%p on a commit to %s into it,"
                   (substring option 2))
           nil nil nil commit))
-      (when magit-commit-show-diff
+      (when (and magit-commit-show-diff (not nopatch))
         (let ((magit-display-buffer-noselect t))
           (apply #'magit-diff-staged nil (magit-diff-arguments)))))))
 
