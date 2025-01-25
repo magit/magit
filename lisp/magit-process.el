@@ -160,9 +160,11 @@ itself from the hook, to avoid further futile attempts."
   ;; See also history in test `magit-process:password-prompt-regexps'.
   '(;; * CLI-prompt for passphrase for key:
     "^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
+    ;; * Password for something other than a host:
+    "^\\(\\(Please e\\|E\\)nter \\(the \\)?p\\|P\\)assword: ?$"
     ;; * Password for [user@]host (which we put in match group 99):
-    "^\\(Enter \\)?[Pp]assword\\( for \
-[\"']?\\(https?://\\)?\\(?99:[^\"']+\\)[\"']?\\)?: ?$"
+    "^\\(Enter \\)?[Pp]assword for \
+[\"']?\\(https?://\\)?\\(?99:[^\"']+\\)[\"']?: ?$"
     "^(\\(?1:[^) ]+\\)) Password for \\(?99:\\1\\): ?$" ;#4992
     "^\\(?99:[^']+\\)\\('s\\)? password: ?$"
     ;; * Token for git-credential-manager-core (#4318):
