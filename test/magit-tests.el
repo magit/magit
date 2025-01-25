@@ -1,6 +1,6 @@
 ;;; magit-tests.el --- Tests for Magit  -*- lexical-binding:t; coding:utf-8 -*-
 
-;; Copyright (C) 2008-2024 The Magit Project Contributors
+;; Copyright (C) 2008-2025 The Magit Project Contributors
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -274,7 +274,7 @@
 
 (ert-deftest magit-process:password-prompt ()
   (let ((magit-process-find-password-functions
-         (list (lambda (host) (when (string= host "www.host.com") "mypasswd")))))
+         (list (lambda (host) (and (string= host "www.host.com") "mypasswd")))))
     (cl-letf (((symbol-function 'process-send-string)
                (lambda (_process string) string)))
       (should (string-equal (magit-process-password-prompt
