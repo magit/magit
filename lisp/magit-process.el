@@ -990,7 +990,7 @@ from the user."
 
 (defun magit-process-match-prompt (prompts string)
   "Match STRING against PROMPTS and set match data.
-Return the matched string suffixed with \": \", if needed."
+Return the matched string, appending \": \" if needed."
   (when (--any-p (string-match it string) prompts)
     (let ((prompt (match-string 0 string)))
       (cond ((string-suffix-p ": " prompt) prompt)
