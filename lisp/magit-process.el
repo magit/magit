@@ -159,16 +159,16 @@ itself from the hook, to avoid further futile attempts."
 (defcustom magit-process-password-prompt-regexps
   ;; See also history in test `magit-process:password-prompt-regexps'.
   '(;; * CLI-prompt for passphrase for key:
-    "^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
+    "^\\(\\(Please e\\|E\\)nter \\(the \\)?p\\|P\\)assphrase"
     ;; * Password for something other than a host:
     "^\\(\\(Please e\\|E\\)nter \\(the \\)?p\\|P\\)assword: ?$"
     ;; * Password for [user@]host (which we put in match group 99):
-    "^\\(Enter \\)?[Pp]assword for \
+    "^\\(\\(Please e\\|E\\)nter \\(the \\)?p\\|P\\)assword for \
 [\"']?\\(https?://\\)?\\(?99:[^\"']+\\)[\"']?: ?$"
     "^(\\(?1:[^) ]+\\)) Password for \\(?99:\\1\\): ?$" ;#4992
     "^\\(?99:[^']+\\)\\('s\\)? password: ?$"
     ;; * Token for git-credential-manager-core (#4318):
-    "^Token: $"
+    "^Token: ?$"
     ;; * Secret for card:
     "^Yubikey for .*: ?$"
     "^Enter PIN for .*: ?$"
