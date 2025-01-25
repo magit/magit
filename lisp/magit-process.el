@@ -157,6 +157,7 @@ itself from the hook, to avoid further futile attempts."
   :type 'regexp)
 
 (defcustom magit-process-password-prompt-regexps
+  ;; See also history in test `magit-process:password-prompt-regexps'.
   '("^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
     ;; Match-group 99 is used to identify the "user@host" part.
     "^\\(Enter \\|([^) ]+) \\)?\

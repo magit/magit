@@ -252,6 +252,8 @@
     (should (equal (magit-list-remote-branch-names "origin" t)
                    (list "master")))))
 
+;;; Prompts
+
 (ert-deftest magit-process:match-prompt-nil-when-no-match ()
   (should (null (magit-process-match-prompt '("^foo: ?$") "bar: "))))
 
@@ -271,6 +273,48 @@
          (prompt (magit-process-match-prompt prompts "foo 'bar':")))
     (should (equal prompt "foo 'bar': "))
     (should (equal (match-string 99 "foo 'bar':") "bar"))))
+
+(ert-deftest magit-process:password-prompt-regexps ()
+  (cl-flet ((m (prompt)
+              (and (magit-process-match-prompt
+                    magit-process-password-prompt-regexps prompt)
+                   (or (match-string 99 prompt) t))))
+    ;; History of `magit-process-password-prompt-regexps':
+    ;; a36a801cc2 Initial noisy version.
+    ;; 2a3bbc3c53 First cleanup.
+    ;;   "^\\(Enter \\)?[Pp]assphrase\\( for key '.*'\\)?: ?$"
+    ;;   "^\\(Enter \\)?[Pp]assword\\( for '.*'\\)?: ?$"
+    ;;   "^.*'s password: ?$"
+    ;;   "^Yubikey for .*: ?$")
+    (should (eq (m "Passphrase: ") t))
+    (should (eq (m "Enter passphrase: ") t))
+    (should (eq (m "Enter passphrase for key '/home/me/.ssh/id_rsa': ") t))
+    (should (eq (m "Password: ") t))
+    (should (equal (m "Password for 'https://example.com': ") "example.com"))
+    (should (eq (m "Yubikey for foobar: ") t))
+    ;; 272f2069a3 Support for "RSA " in passphrase prompt.
+    ;;   $ strings $(which ssh) | grep -i passphrase
+    ;;   Nowadays this only gives:
+    ;;   Enter passphrase for key '%.100s':
+    ;;   So this is only necessary for historic versions.
+    (should (eq (m "Enter passphrase for RSA key '/home/me/.ssh/id_rsa': ") t))
+    ;; #2736 Support pcsc-lite (version 1.8.14 on NixOS).
+    (should (eq (m "Enter PIN for 'PIV_II (PIV Card Holder pin)':") t))
+    ;; #3651 Don't include "https://" in host match.
+    (should (equal (m "Password for 'https://me@magit.vc':") "me@magit.vc"))
+    ;; #4025 Don't require quotes around host match.
+    (should (equal (m "Password for ahihi@foo:") "ahihi@foo"))
+    ;; #4076 Support GnuPG for PGP and SSH keys.
+    (should (eq (m "│ Please enter the passphrase to unlock the OpenPGP secret key:  │") t))
+    (should (eq (m "│ Please enter the passphrase for the ssh key: │") t))
+    ;; #4318 Support git-credential-manager-core.
+    (should (eq (m "Token: ") t))
+    ;; #4992 Support openssh (version 9.1p1).
+    (should (equal (m "(user@host) Password for user@host: ") "user@host"))
+    ;; #5257 Support another prompt (by what?).
+    (should (equal (m "volumio@192.168.0.211's password: ") "volumio@192.168.0.211"))
+    ;; #5288 Major rewrite, adding this test and history.
+    ))
 
 (ert-deftest magit-process:password-prompt ()
   (let ((magit-process-find-password-functions
