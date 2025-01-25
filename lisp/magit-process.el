@@ -165,13 +165,12 @@ itself from the hook, to avoid further futile attempts."
     "Please enter the passphrase for the ssh key"
     "Please enter the passphrase to unlock the OpenPGP secret key"
     "^\\(?99:[^']+\\)\\('s\\)? password: ?$"
-    "^.+ password: ?$"
     "^Token: $" ; For git-credential-manager-core (#4318).
     "^Yubikey for .*: ?$"
     "^Enter PIN for .*: ?$")
   "List of regexps matching password prompts of Git and its subprocesses.
 Also see `magit-process-find-password-functions'."
-  :package-version '(magit . "3.0.0")
+  :package-version '(magit . "4.2.1")
   :group 'magit-process
   :type '(repeat (regexp)))
 
