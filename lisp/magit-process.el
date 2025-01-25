@@ -158,16 +158,20 @@ itself from the hook, to avoid further futile attempts."
 
 (defcustom magit-process-password-prompt-regexps
   ;; See also history in test `magit-process:password-prompt-regexps'.
-  '("^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
-    ;; Match-group 99 is used to identify the "user@host" part.
+  '(;; * CLI-prompt for passphrase for key:
+    "^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
+    ;; * Password for [user@]host (which we put in match group 99):
     "^\\(Enter \\|([^) ]+) \\)?\
 [Pp]assword\\( for '?\\(https?://\\)?\\(?99:[^']+\\)'?\\)?: ?$"
-    "Please enter the passphrase for the ssh key"
-    "Please enter the passphrase to unlock the OpenPGP secret key"
     "^\\(?99:[^']+\\)\\('s\\)? password: ?$"
-    "^Token: $" ; For git-credential-manager-core (#4318).
+    ;; * Token for git-credential-manager-core (#4318):
+    "^Token: $"
+    ;; * Secret for card:
     "^Yubikey for .*: ?$"
-    "^Enter PIN for .*: ?$")
+    "^Enter PIN for .*: ?$"
+    ;; * Unanchored TUI-prompt for passphrase for key:
+    "Please enter the passphrase for the ssh key"
+    "Please enter the passphrase to unlock the OpenPGP secret key")
   "List of regexps matching password prompts of Git and its subprocesses.
 Also see `magit-process-find-password-functions'."
   :package-version '(magit . "4.2.1")
