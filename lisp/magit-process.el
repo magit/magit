@@ -161,8 +161,8 @@ itself from the hook, to avoid further futile attempts."
   '(;; * CLI-prompt for passphrase for key:
     "^\\(Enter \\)?[Pp]assphrase\\( for \\(RSA \\)?key '.*'\\)?: ?$"
     ;; * Password for [user@]host (which we put in match group 99):
-    "^\\(Enter \\|([^) ]+) \\)?\
-[Pp]assword\\( for '?\\(https?://\\)?\\(?99:[^']+\\)'?\\)?: ?$"
+    "^\\(Enter \\|([^) ]+) \\)?[Pp]assword\\( for \
+'?\\(https?://\\)?\\(?99:[^']+\\)'?\\)?: ?$"
     "^\\(?99:[^']+\\)\\('s\\)? password: ?$"
     ;; * Token for git-credential-manager-core (#4318):
     "^Token: $"
