@@ -1381,7 +1381,7 @@ a section by washing Git's output and Git didn't actually output
 anything this time around.
 
 \(fn [NAME] (CLASS &optional VALUE HIDE) &rest BODY)"
-  (declare (indent 1)
+  (declare (indent defun)
            (debug ([&optional symbolp]
                    (&or [("eval" form) &optional form form &rest form]
                         [symbolp &optional form form &rest form])
