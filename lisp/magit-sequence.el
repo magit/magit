@@ -544,7 +544,8 @@ This discards all changes made since the sequence started."
    ("-i" "Interactive"              ("-i" "--interactive"))
    ("-h" "Disable hooks"            "--no-verify")
    (7 magit-rebase:--exec)
-   (5 magit:--gpg-sign)]
+   (5 magit:--gpg-sign)
+   (5 "-s" "Add Signed-off-by line"                 ("-s" "--signoff"))]
   [:if-not magit-rebase-in-progress-p
    :description (lambda ()
                   (format (propertize "Rebase %s onto" 'face 'transient-heading)
