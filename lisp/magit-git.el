@@ -1082,7 +1082,7 @@ tracked file."
   (magit-git-items "diff-files" "-z" "--name-only" "--diff-filter=U"))
 
 (defun magit-ignored-files ()
-  (magit-git-items "ls-files" "-z" "--others" "--ignored"
+  (magit-git-items "ls-files" "-z" "--full-name" "--others" "--ignored"
                    "--exclude-standard" "--directory"))
 
 (defun magit-stashed-files (stash)
