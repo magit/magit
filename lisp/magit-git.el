@@ -1045,16 +1045,16 @@ tracked file."
 (defun magit-list-files (&rest args)
   (apply #'magit-git-items "ls-files" "-z" "--full-name" args))
 
-(defun magit-tracked-files ()
-  (magit-list-files "--cached"))
+(defun magit-tracked-files (&rest args)
+  (magit-list-files "--cached" args))
 
-(defun magit-untracked-files (&optional all files)
-  (magit-list-files "--other"
+(defun magit-untracked-files (&optional all files &rest args)
+  (magit-list-files "--other" args
                     (and (not all) "--exclude-standard")
                     "--" files))
 
 (defun magit-ignored-files (&rest args)
-  (magit-list-files "--others" "--ignored" "--exclude-standard"))
+  (magit-list-files "--others" "--ignored" "--exclude-standard" args))
 
 (defun magit-modified-files (&optional nomodules files)
   (magit-git-items "diff-index" "-z" "--name-only"
@@ -1087,15 +1087,15 @@ tracked file."
 (defun magit-stashed-files (stash)
   (magit-git-items "stash" "show" "-z" "--name-only" stash))
 
-(defun magit-skip-worktree-files ()
+(defun magit-skip-worktree-files (&rest args)
   (--keep (and (= (aref it 0) ?S)
                (substring it 2))
-          (magit-list-files "-t")))
+          (magit-list-files "-t" args)))
 
-(defun magit-assume-unchanged-files ()
+(defun magit-assume-unchanged-files (&rest args)
   (--keep (and (memq (aref it 0) '(?h ?s ?m ?r ?c ?k))
                (substring it 2))
-          (magit-list-files "-v")))
+          (magit-list-files "-v" args)))
 
 (defun magit-revision-files (rev)
   (magit-with-toplevel
