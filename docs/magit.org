@@ -2179,11 +2179,15 @@ hooks and how to customize them.
 
 - User Option: magit-status-sections-hook ::
 
-  Hook run to insert sections into a status buffer.
+  This hook is run to insert sections into a status buffer.
 
-The first function on that hook by default is
-~magit-insert-status-headers~; it is described in the next section.
-By default the following functions are also members of that hook:
+  The functions described in this section, and the functions
+  ~magit-insert-status-headers~ and ~magit-insert-untracked-files~,
+  which are described in subsequent sections, are members of this
+  hook.
+
+  Some additional functions that can be added to this hook, but are by
+  default added to another hooks, are listed in [[*References Buffer]].
 
 - Function: magit-insert-merge-log ::
 
@@ -2216,18 +2220,6 @@ By default the following functions are also members of that hook:
 - Function: magit-insert-bisect-log ::
 
   While bisecting, insert section logging bisect progress.
-
-- Function: magit-insert-untracked-files ::
-
-  Maybe insert a list or tree of untracked files.
-
-  The option ~magit-status-show-untracked-files~ (which see), in
-  cooperation with the Git variable ~status.showUntrackedFiles~,
-  control whether and how that is done.
-
-  If the first element of ~magit-buffer-diff-files~ is a directory, then
-  limit the list to files below that.  The value of that variable can
-  be set using ~D -- DIRECTORY RET g~.
 
 - Function: magit-insert-unstaged-changes ::
 
@@ -2264,7 +2256,28 @@ By default the following functions are also members of that hook:
   Insert section showing commits that haven't been pushed to the
   push-remote yet.
 
-The following functions can also be added to the above hook:
+*** Status File List Sections
+
+Its possible to limit the diffs in the current buffer to a certain
+directory using ~D = f <DIRECTORY> RET g~.  If you do that, then that
+that also affects these functions.  The diff filter can be used to
+limit to multiple files.  In that case these functions only respect
+the first of the files and only if it is a directory.
+
+- Function: magit-insert-untracked-files ::
+
+  Maybe insert a list or tree of untracked files.
+
+  The option ~magit-status-show-untracked-files~ (which see), in
+  cooperation with the Git variable ~status.showUntrackedFiles~,
+  control whether and how that is done.
+
+  If the first element of ~magit-buffer-diff-files~ is a directory, then
+  limit the list to files below that.  The value of that variable can
+  be set using ~D -- DIRECTORY RET g~.
+
+While the above function is a member of ~magit-status-section-hook~,
+the following functions by default are not.
 
 - Function: magit-insert-tracked-files ::
 
@@ -2273,27 +2286,16 @@ The following functions can also be added to the above hook:
 - Function: magit-insert-ignored-files ::
 
   Insert a tree of ignored files.
-  Its possible to limit the logs in the current buffer to a certain
-  directory using ~D = f <DIRECTORY> RET g~.  If you do that, then that
-  that also affects this command.
-
-  The log filter can be used to limit to multiple files.  In that case
-  this function only respects the first of the files and only if it is
-  a directory.
 
 - Function: magit-insert-skip-worktree-files ::
 
   Insert a tree of skip-worktree files.
-  If the first element of ~magit-buffer-diff-files~ is a
-  directory, then limit the list to files below that.  The value
-  of that variable can be set using ~D -- DIRECTORY RET g~.
 
 - Function: magit-insert-assumed-unchanged-files ::
 
   Insert a tree of files that are assumed to be unchanged.
-  If the first element of ~magit-buffer-diff-files~ is a
-  directory, then limit the list to files below that.  The value
-  of that variable can be set using ~D -- DIRECTORY RET g~.
+
+*** Status Log Sections
 
 - Function: magit-insert-unpulled-or-recent-commits ::
 
@@ -2329,9 +2331,6 @@ The following functions can also be added to the above hook:
   which has not been applied to upstream yet (i.e., a commit with
   a patch-id not shared with any upstream commit) with "+" and
   all others with "-".
-
-See [[*References Buffer]] for some more section inserters, which could be
-used here.
 
 *** Status Header Sections
 

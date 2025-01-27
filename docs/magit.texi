@@ -2560,12 +2560,16 @@ The contents of status buffers is controlled using the hook
 hooks and how to customize them.
 
 @defopt magit-status-sections-hook
-Hook run to insert sections into a status buffer.
-@end defopt
+This hook is run to insert sections into a status buffer.
 
-The first function on that hook by default is
-@code{magit-insert-status-headers}; it is described in the next section.
-By default the following functions are also members of that hook:
+The functions described in this section, and the functions
+@code{magit-insert-status-headers} and @code{magit-insert-untracked-files},
+which are described in subsequent sections, are members of this
+hook.
+
+Some additional functions that can be added to this hook, but are by
+default added to another hooks, are listed in @ref{References Buffer}.
+@end defopt
 
 @defun magit-insert-merge-log
 Insert section for the on-going merge.  Display the heads that are
@@ -2597,18 +2601,6 @@ While bisecting, insert section visualizing the bisect state.
 
 @defun magit-insert-bisect-log
 While bisecting, insert section logging bisect progress.
-@end defun
-
-@defun magit-insert-untracked-files
-Maybe insert a list or tree of untracked files.
-
-The option @code{magit-status-show-untracked-files} (which see), in
-cooperation with the Git variable @code{status.showUntrackedFiles},
-control whether and how that is done.
-
-If the first element of @code{magit-buffer-diff-files} is a directory, then
-limit the list to files below that.  The value of that variable can
-be set using @code{D -- DIRECTORY RET g}.
 @end defun
 
 @defun magit-insert-unstaged-changes
@@ -2646,7 +2638,29 @@ Insert section showing commits that haven't been pushed to the
 push-remote yet.
 @end defun
 
-The following functions can also be added to the above hook:
+@anchor{Status File List Sections}
+@subsection Status File List Sections
+
+Its possible to limit the diffs in the current buffer to a certain
+directory using @code{D = f <DIRECTORY> RET g}.  If you do that, then that
+that also affects these functions.  The diff filter can be used to
+limit to multiple files.  In that case these functions only respect
+the first of the files and only if it is a directory.
+
+@defun magit-insert-untracked-files
+Maybe insert a list or tree of untracked files.
+
+The option @code{magit-status-show-untracked-files} (which see), in
+cooperation with the Git variable @code{status.showUntrackedFiles},
+control whether and how that is done.
+
+If the first element of @code{magit-buffer-diff-files} is a directory, then
+limit the list to files below that.  The value of that variable can
+be set using @code{D -- DIRECTORY RET g}.
+@end defun
+
+While the above function is a member of @code{magit-status-section-hook},
+the following functions by default are not.
 
 @defun magit-insert-tracked-files
 Insert a tree of tracked files.
@@ -2654,28 +2668,18 @@ Insert a tree of tracked files.
 
 @defun magit-insert-ignored-files
 Insert a tree of ignored files.
-Its possible to limit the logs in the current buffer to a certain
-directory using @code{D = f <DIRECTORY> RET g}.  If you do that, then that
-that also affects this command.
-
-The log filter can be used to limit to multiple files.  In that case
-this function only respects the first of the files and only if it is
-a directory.
 @end defun
 
 @defun magit-insert-skip-worktree-files
 Insert a tree of skip-worktree files.
-If the first element of @code{magit-buffer-diff-files} is a
-directory, then limit the list to files below that.  The value
-of that variable can be set using @code{D -- DIRECTORY RET g}.
 @end defun
 
 @defun magit-insert-assumed-unchanged-files
 Insert a tree of files that are assumed to be unchanged.
-If the first element of @code{magit-buffer-diff-files} is a
-directory, then limit the list to files below that.  The value
-of that variable can be set using @code{D -- DIRECTORY RET g}.
 @end defun
+
+@anchor{Status Log Sections}
+@subsection Status Log Sections
 
 @defun magit-insert-unpulled-or-recent-commits
 Insert section showing unpulled or recent commits.
@@ -2711,9 +2715,6 @@ which has not been applied to upstream yet (i.e., a commit with
 a patch-id not shared with any upstream commit) with "+" and
 all others with "-".
 @end defun
-
-See @ref{References Buffer} for some more section inserters, which could be
-used here.
 
 @anchor{Status Header Sections}
 @subsection Status Header Sections
