@@ -775,7 +775,7 @@ set using \"D -- DIRECTORY RET g\"."
              (base (car magit-buffer-diff-files))
              (base (and base (file-directory-p base) base)))
         (magit-insert-files 'untracked
-                            (lambda () (magit-untracked-files nil base all))
+                            (lambda () (magit-untracked-files nil base))
                             all)))))
 
 (defun magit-insert-tracked-files ()
