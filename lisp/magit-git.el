@@ -1053,6 +1053,9 @@ tracked file."
                     (and (not all) "--exclude-standard")
                     "--" files))
 
+(defun magit-ignored-files ()
+  (magit-list-files "--others" "--ignored" "--exclude-standard" "--directory"))
+
 (defun magit-modified-files (&optional nomodules files)
   (magit-git-items "diff-index" "-z" "--name-only"
                    ;; Work around a bug in Git v2.46.0. See #5212 and #5221.
@@ -1080,10 +1083,6 @@ tracked file."
 
 (defun magit-unmerged-files ()
   (magit-git-items "diff-files" "-z" "--name-only" "--diff-filter=U"))
-
-(defun magit-ignored-files ()
-  (magit-git-items "ls-files" "-z" "--full-name" "--others" "--ignored"
-                   "--exclude-standard" "--directory"))
 
 (defun magit-stashed-files (stash)
   (magit-git-items "stash" "show" "-z" "--name-only" stash))
