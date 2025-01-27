@@ -1053,8 +1053,8 @@ tracked file."
                     (and (not all) "--exclude-standard")
                     "--" files))
 
-(defun magit-ignored-files ()
-  (magit-list-files "--others" "--ignored" "--exclude-standard" "--directory"))
+(defun magit-ignored-files (&rest args)
+  (magit-list-files "--others" "--ignored" "--exclude-standard"))
 
 (defun magit-modified-files (&optional nomodules files)
   (magit-git-items "diff-index" "-z" "--name-only"

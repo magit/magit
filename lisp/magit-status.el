@@ -792,7 +792,7 @@ value of that variable can be set using \"D -- DIRECTORY RET g\"."
 If the first element of `magit-buffer-diff-files' is a
 directory, then limit the list to files below that.  The value
 of that variable can be set using \"D -- DIRECTORY RET g\"."
-  (magit-insert-files 'ignored #'magit-ignored-files))
+  (magit-insert-files 'ignored (lambda () (magit-ignored-files "--directory"))))
 
 (defun magit-insert-skip-worktree-files ()
   "Insert a tree of skip-worktree files.
