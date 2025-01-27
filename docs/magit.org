@@ -2258,42 +2258,65 @@ hooks and how to customize them.
 
 *** Status File List Sections
 
-Its possible to limit the diffs in the current buffer to a certain
-directory using ~D = f <DIRECTORY> RET g~.  If you do that, then that
-that also affects these functions.  The diff filter can be used to
-limit to multiple files.  In that case these functions only respect
-the first of the files and only if it is a directory.
+These functions honor the buffer's file filter, which can be set using
+~D - -~.
 
 - Function: magit-insert-untracked-files ::
 
-  Maybe insert a list or tree of untracked files.
+  This function may insert a list of untracked files.  Whether it
+  actually does so, depends on the option described next.
 
-  The option ~magit-status-show-untracked-files~ (which see), in
-  cooperation with the Git variable ~status.showUntrackedFiles~,
-  control whether and how that is done.
+- User Option: magit-status-show-untracked-files ::
 
-  If the first element of ~magit-buffer-diff-files~ is a directory, then
-  limit the list to files below that.  The value of that variable can
-  be set using ~D -- DIRECTORY RET g~.
+  This option controls whether the above function inserts a list of
+  untracked files in the status buffer.
 
-While the above function is a member of ~magit-status-section-hook~,
-the following functions by default are not.
+  To disable listing untracked files in a specific repository only,
+  add the following to ~.dir-locals.el~:
+
+  #+begin_src emacs-lisp
+    ((magit-status-mode
+     (magit-status-show-untracked-files . \"no\")))
+  #+end_src
+
+  Alternatively (and mostly for historic reasons), it is possible to
+  use ~git config~ to disable listing files for a specific repository,
+  using:
+
+  #+begin_src shell-script
+    git config set --local status.showUntrackedFiles no
+  #+end_src
+
+  This does *not* override the (if any) local value of this Lisp variable.
+  It also is not possible to use the Git variable to enable listing files
+  (in case the global value of this variable is nil).
+
+- User Option: magit-status-file-list-limit ::
+
+  This option controls many files are listed at most in each section
+  that lists files in the status buffer.  For performance reasons, it
+  is recommended that you do not increase this limit.
+
+While the above function is a member of ~magit-status-section-hook~ by
+default, the following functions have to be explicitly added by the
+user.  Because that negatively affects performance, it is recommended
+that you don't do that.
 
 - Function: magit-insert-tracked-files ::
 
-  Insert a tree of tracked files.
+  Insert a list of tracked files.
 
 - Function: magit-insert-ignored-files ::
 
-  Insert a tree of ignored files.
+  Insert a list of ignored files.
 
 - Function: magit-insert-skip-worktree-files ::
 
-  Insert a tree of skip-worktree files.
+  Insert a list of skip-worktree files.
 
 - Function: magit-insert-assumed-unchanged-files ::
 
-  Insert a tree of files that are assumed to be unchanged.
+  Insert a list of files that are assumed to be unchanged.
 
 *** Status Log Sections
 

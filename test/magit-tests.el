@@ -426,6 +426,7 @@ Enter passphrase for key '/home/user/.ssh/id_rsa': "
 
 (defun magit-test-get-section (list file)
   (magit-status-setup-buffer default-directory)
+  (magit-section-show-level-4-all)
   (--first (equal (oref it value) file)
            (oref (magit-get-section `(,list (status)))
                  children)))

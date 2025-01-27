@@ -7,8 +7,6 @@
   offered some fallback methods.  The presentation of those has been
   improved.  #5253 a08b4dd513
 
-- [IN PROGRESS] Improve listing of untracked files.
-
 - Added new hook options ~magit-revision-wash-message-hook~ and
   ~magit-log-wash-summary-hook~, and populate them with new and existing
   highlighting functions, making easier to remove default highlighting
@@ -22,6 +20,9 @@
 - Added new commands ~magit-commit-alter~ and ~magit-commit-revise~.  #5261
 
 - Improved commit menu, documentation and implementation details.  #5261
+
+- Speed up listing untracked files in the status buffer, simplify how
+  the list is configured, and give up on optionally using a tree.
 
 Bug fixes:
 
