@@ -608,7 +608,9 @@ prompt is confusing."
              (user-error "Abort"))))
      (list branches force)))
   (let ((refs (mapcar #'magit-ref-fullname branches)))
-    (when-let ((ambiguous (--remove it refs)))
+    ;; If a member of refs is nil, that means that
+    ;; the respective branch name is ambiguous.
+    (when-let ((ambiguous (seq-filter #'null refs)))
       (user-error
        "%s ambiguous.  Please cleanup using git directly."
        (let ((len (length ambiguous)))
