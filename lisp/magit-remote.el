@@ -199,7 +199,7 @@ the now stale refspecs.  Other stale branches are not removed."
                  variable))
             (?r "[r]emove remote"
                 (magit-call-git "remote" "rm" remote))
-            (?a "or [a]abort"
+            (?a "[a]abort"
                 (user-error "Abort")))
         (if (if (length= stale 1)
                 (pcase-let ((`(,refspec . ,refs) (car stale)))
