@@ -143,7 +143,7 @@ Unstaged and untracked changes are not stashed.  The stashed
 changes are applied in reverse to both the index and the
 worktree.  This command can fail when the worktree is not clean.
 Applying the resulting stash has the inverse effect."
-  (interactive (list (magit-stash-read-message)))
+  (interactive (list (funcall magit-stash-read-message-function)))
   (magit-stash-save message t nil nil t 'worktree))
 
 ;;;###autoload
