@@ -2228,13 +2228,12 @@ If `first-parent' is set, traverse only first parents."
   (magit-rev-parse (magit-abbrev-arg "short") rev))
 
 (defun magit-commit-children (commit &optional args)
-  (mapcar #'car
-          (--filter (member commit (cdr it))
-                    (--map (split-string it " ")
-                           (magit-git-lines
-                            "log" "--format=%H %P"
-                            (or args (list "--branches" "--tags" "--remotes"))
-                            "--not" commit)))))
+  (seq-keep (lambda (line)
+              (pcase-let ((`(,child . ,parents) (split-string line " ")))
+                (and (member commit parents) child)))
+            (magit-git-lines "log" "--format=%H %P"
+                             (or args (list "--branches" "--tags" "--remotes"))
+                             "--not" commit)))
 
 (defun magit-commit-parents (commit)
   (and-let* ((str (magit-git-string "rev-list" "-1" "--parents" commit)))
