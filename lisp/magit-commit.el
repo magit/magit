@@ -128,8 +128,8 @@ Also see https://github.com/magit/magit/issues/4132."
    ("-R" "Claim authorship and reset author date" "--reset-author")
    (magit:--author :description "Override the author")
    (magit-commit:--date :level 7)
-   ("-s" "Add Signed-off-by line"                 ("-s" "--signoff"))
    (magit:--gpg-sign :level 5)
+   (magit:--signoff :level 6)
    (magit-commit:--reuse-message)]
   [["Create"
     ("c" "Commit"         magit-commit-create)]

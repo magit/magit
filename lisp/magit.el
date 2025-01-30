@@ -501,6 +501,12 @@ is run in the top-level directory of the current working tree."
 
 ;;; Shared Infix Arguments
 
+(transient-define-argument magit:--signoff ()
+  :description "Add Signed-off-by lines"
+  :class 'transient-switch
+  :shortarg "-s"
+  :argument "--signoff")
+
 (transient-define-argument magit:--gpg-sign ()
   :description "Sign using gpg"
   :class 'transient-option

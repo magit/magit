@@ -144,8 +144,8 @@ This discards all changes made since the sequence started."
    ("-F" "Attempt fast-forward"               "--ff")
    ("-x" "Reference cherry in commit message" "-x")
    ("-e" "Edit commit messages"               ("-e" "--edit"))
-   ("-s" "Add Signed-off-by lines"            ("-s" "--signoff"))
-   (5 magit:--gpg-sign)]
+   (5 magit:--gpg-sign)
+   (6 magit:--signoff)]
   [:if-not magit-sequencer-in-progress-p
    ["Apply here"
     ("A" "Pick"    magit-cherry-copy)
@@ -378,8 +378,8 @@ the process manually."
    ("-e" "Edit commit message"       ("-e" "--edit"))
    ("-E" "Don't edit commit message" "--no-edit")
    ("=s" magit-merge:--strategy)
-   ("-s" "Add Signed-off-by lines"   ("-s" "--signoff"))
-   (5 magit:--gpg-sign)]
+   (5 magit:--gpg-sign)
+   (6 magit:--signoff)]
   ["Actions"
    :if-not magit-sequencer-in-progress-p
    ("V" "Revert commit(s)" magit-revert-and-commit)
@@ -440,7 +440,8 @@ without prompting."
    ("-d" "Use author date as committer date" "--committer-date-is-author-date")
    ("-t" "Use current time as author date"   "--ignore-date")
    ("-s" "Add Signed-off-by lines"           ("-s" "--signoff"))
-   (5 magit:--gpg-sign)]
+   (5 magit:--gpg-sign)
+   (6 magit:--signoff)]
   ["Apply"
    :if-not magit-am-in-progress-p
    ("m" "maildir"     magit-am-apply-maildir)
@@ -544,7 +545,8 @@ This discards all changes made since the sequence started."
    ("-i" "Interactive"              ("-i" "--interactive"))
    ("-h" "Disable hooks"            "--no-verify")
    (7 magit-rebase:--exec)
-   (5 magit:--gpg-sign)]
+   (5 magit:--gpg-sign)
+   (6 magit:--signoff)]
   [:if-not magit-rebase-in-progress-p
    :description (lambda ()
                   (format (propertize "Rebase %s onto" 'face 'transient-heading)
