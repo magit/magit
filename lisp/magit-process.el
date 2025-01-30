@@ -159,7 +159,7 @@ itself from the hook, to avoid further futile attempts."
 (defcustom magit-process-password-prompt-regexps
   ;; See also history in test `magit-process:password-prompt-regexps'.
   '(;; * CLI-prompt for passphrase for key:
-    "^\\(\\(Please e\\|E\\)nter \\(the \\)?p\\|P\\)assphrase"
+    "^\\(\\(Please e\\|E\\)nter \\(the \\)?p\\|P\\)assphrase.*: ?$"
     ;; * Password for something other than a host:
     "^\\(\\(Please e\\|E\\)nter \\(the \\)?p\\|P\\)assword: ?$"
     ;; * Password for [user@]host (which we put in match group 99):
