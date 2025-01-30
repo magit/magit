@@ -2128,10 +2128,14 @@ keymap is the parent of their keymaps."
   "b"   #'magit-smerge-keep-base
   "l"   #'magit-smerge-keep-lower)
 
-(defvar-keymap magit-hunk-section-map
-  :doc "Keymap for `hunk' sections."
-  :parent magit-diff-section-base-map
-  (key-description smerge-command-prefix) magit-hunk-section-smerge-map)
+(defvar magit-hunk-section-map
+  (let ((map (make-sparse-keymap))
+        (key (key-description smerge-command-prefix)))
+    (when (key-valid-p key)
+      (keymap-set map key magit-hunk-section-smerge-map))
+    (set-keymap-parent map magit-diff-section-base-map)
+    map)
+  "Keymap for `hunk' sections.")
 
 (defconst magit-diff-conflict-headline-re
   (concat "^" (regexp-opt
