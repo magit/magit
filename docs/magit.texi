@@ -2653,25 +2653,42 @@ actually does so, depends on the option described next.
 This option controls whether the above function inserts a list of
 untracked files in the status buffer.
 
+@itemize
+@item
+If @code{nil}, do not list any untracked files.
+@item
+If @code{t}, list untracked files, but if a directory does not contain any
+untracked files, then only list that directory, not the contained
+untracked files.
+@item
+If @code{all}, then list each individual untracked files.  This is can be
+very slow and is discouraged.
+@end itemize
+
+The corresponding values for the Git variable are "no", "normal"
+and "all".
+
 To disable listing untracked files in a specific repository only,
 add the following to @code{.dir-locals.el}:
 
 @lisp
 ((magit-status-mode
- (magit-status-show-untracked-files . \"no\")))
+ (magit-status-show-untracked-files . "no")))
 @end lisp
 
 Alternatively (and mostly for historic reasons), it is possible to
-use @code{git config} to disable listing files for a specific repository,
-using:
+use @code{git config} to set the repository-local value:
 
 @example
 git config set --local status.showUntrackedFiles no
 @end example
 
-This does @strong{not} override the (if any) local value of this Lisp variable.
-It also is not possible to use the Git variable to enable listing files
-(in case the global value of this variable is nil).
+This does @strong{not} override the (if any) local value of this Lisp variable,
+but it does override its global value.
+
+See the last section in the git-status(1) manpage, to speed up the part
+of the work Git is responsible for.  Turning that list into sections is
+also not free, so Magit only lists @code{magit-status-file-list-limit} files.
 @end defopt
 
 @defopt magit-status-file-list-limit

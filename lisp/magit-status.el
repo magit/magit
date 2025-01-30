@@ -145,6 +145,16 @@ The functions which respect this option are
 (defcustom magit-status-show-untracked-files t
   "Whether to list untracked files in the status buffer.
 
+- If nil, do not list any untracked files.
+- If t, list untracked files, but if a directory does not contain any
+  untracked files, then only list that directory, not the contained
+  untracked files.
+- If all, then list each individual untracked files.  This is can be
+  very slow and is discouraged.
+
+The corresponding values for the Git variable are \"no\", \"normal\"
+and \"all\".
+
 To disable listing untracked files in a specific repository only, add
 the following to \".dir-locals.el\":
 
@@ -152,13 +162,16 @@ the following to \".dir-locals.el\":
    (magit-status-show-untracked-files . \"no\")))
 
 Alternatively (and mostly for historic reasons), it is possible to use
-`git-config' to disable listing files for a specific repository, using:
+`git-config' to set the repository-local value:
 
   git config set --local status.showUntrackedFiles no
 
-This does *not* override the (if any) local value of this Lisp variable.
-It also is not possible to use the Git variable to enable listing files
-\(in case the global value of this variable is nil)."
+This does *not* override the (if any) local value of this Lisp variable,
+but it does override its global value.
+
+See the last section in the git-status(1) manpage, to speed up the part
+of the work Git is responsible for.  Turning that list into sections is
+also not free, so Magit only lists `magit-status-file-list-limit' files."
   :package-version '(magit . "4.2.1")
   :group 'magit-status
   :type 'boolean
@@ -737,24 +750,28 @@ remote in alphabetic order."
 
 List files if `magit-status-show-untracked-files' is non-nil, but also
 take the local value of Git variable `status.showUntrackedFiles' into
-account.  If the Lisp variable has no local value and the local value
-of the Git variable is \"no\" or \"false\", then do not insert files.  In
-all other cases only the Lisp variable matters.
-
-Honor the buffer's file filter, which can be set using \"D - -\"."
-  (when-let
+account.  The local value of the Lisp variable takes precedence over
+the local value of the Git variable.  The global value of the Git is
+always ignored."
+  (when-let*
       ((value (or (and (local-variable-p 'magit-status-show-untracked-files)
                        magit-status-show-untracked-files)
-                  (and (not (member
-                             (magit-get "--local" "status.showUntrackedFiles")
-                             '("no" "false")))
-                       magit-status-show-untracked-files))))
-    (if (eq value t)
-        (magit-insert-files 'untracked
-                            (lambda (args) (magit-untracked-files nil (cdr args))))
-      (display-warning 'magit-insert-untracked-files
-                       (format "Value should be a lisp boolean, not %S." value)
-                       :error))))
+                  (pcase (magit-get "--local" "status.showUntrackedFiles")
+                    ((or "no" "false") 'no)
+                    ("all" 'all)
+                    (_ t))
+                  magit-status-show-untracked-files))
+       ((not (eq value 'no))))
+    (magit-insert-files
+     'untracked
+     (lambda (files)
+       (mapcan (lambda (line)
+                 (and (eq (aref line 0) ??)
+                      (list (substring line 3))))
+               (apply #'magit-git-items "status" "-z" "--porcelain"
+                      (format "--untracked-files=%s"
+                              (if (eq value 'all) "all" "normal"))
+                      "--" files))))))
 
 (defun magit-insert-tracked-files ()
   "Insert a list of tracked files.
