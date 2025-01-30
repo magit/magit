@@ -502,7 +502,7 @@ is run in the top-level directory of the current working tree."
 ;;; Shared Infix Arguments
 
 (transient-define-argument magit:--signoff ()
-  :description "Add Signed-off-by lines"
+  :description "Add Signed-off-by trailer"
   :class 'transient-switch
   :shortarg "-s"
   :argument "--signoff")
