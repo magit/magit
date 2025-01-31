@@ -750,16 +750,16 @@ remote in alphabetic order."
 
 List files if `magit-status-show-untracked-files' is non-nil, but also
 take the local value of Git variable `status.showUntrackedFiles' into
-account.  The local value of the Lisp variable takes precedence over
-the local value of the Git variable.  The global value of the Git is
-always ignored."
+account.  The local value of the Lisp variable takes precedence over the
+local value of the Git variable.  The global value of the Git variable
+is always ignored."
   (when-let*
       ((value (or (and (local-variable-p 'magit-status-show-untracked-files)
                        magit-status-show-untracked-files)
                   (pcase (magit-get "--local" "status.showUntrackedFiles")
-                    ((or "no" "false") 'no)
-                    ("all" 'all)
-                    (_ t))
+                    ((or "no" "off" "false" "0") 'no)
+                    ((or "yes" "on" "true" "1") t)
+                    ("all" 'all))
                   magit-status-show-untracked-files))
        ((not (eq value 'no))))
     (magit-insert-files
