@@ -514,7 +514,8 @@ is run in the top-level directory of the current working tree."
   :shortarg "-S"
   :argument "--gpg-sign="
   :allow-empty t
-  :reader #'magit-read-gpg-signing-key)
+  :reader #'magit-read-gpg-signing-key
+  :level 5)
 
 (defvar magit-gpg-secret-key-hist nil)
 

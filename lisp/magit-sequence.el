@@ -144,7 +144,7 @@ This discards all changes made since the sequence started."
    ("-F" "Attempt fast-forward"               "--ff")
    ("-x" "Reference cherry in commit message" "-x")
    ("-e" "Edit commit messages"               ("-e" "--edit"))
-   (5 magit:--gpg-sign)
+   (magit:--gpg-sign)
    (magit:--signoff)]
   [:if-not magit-sequencer-in-progress-p
    ["Apply here"
@@ -378,7 +378,7 @@ the process manually."
    ("-e" "Edit commit message"       ("-e" "--edit"))
    ("-E" "Don't edit commit message" "--no-edit")
    ("=s" magit-merge:--strategy)
-   (5 magit:--gpg-sign)
+   (magit:--gpg-sign)
    (magit:--signoff)]
   ["Actions"
    :if-not magit-sequencer-in-progress-p
@@ -440,7 +440,7 @@ without prompting."
    ("-d" "Use author date as committer date" "--committer-date-is-author-date")
    ("-t" "Use current time as author date"   "--ignore-date")
    ("-s" "Add Signed-off-by lines"           ("-s" "--signoff"))
-   (5 magit:--gpg-sign)
+   (magit:--gpg-sign)
    (magit:--signoff)]
   ["Apply"
    :if-not magit-am-in-progress-p
@@ -545,7 +545,7 @@ This discards all changes made since the sequence started."
    ("-i" "Interactive"              ("-i" "--interactive"))
    ("-h" "Disable hooks"            "--no-verify")
    (7 magit-rebase:--exec)
-   (5 magit:--gpg-sign)
+   (magit:--gpg-sign)
    (magit:--signoff)]
   [:if-not magit-rebase-in-progress-p
    :description (lambda ()
