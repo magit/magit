@@ -129,7 +129,7 @@ Also see https://github.com/magit/magit/issues/4132."
    (magit:--author :description "Override the author")
    (magit-commit:--date :level 7)
    (magit:--gpg-sign :level 5)
-   (magit:--signoff :level 6)
+   (magit:--signoff)
    (magit-commit:--reuse-message)]
   [["Create"
     ("c" "Commit"         magit-commit-create)]

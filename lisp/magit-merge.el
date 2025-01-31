@@ -48,7 +48,7 @@
    (5 "-w" "Ignore whitespace when comparing lines" "-Xignore-all-space")
    (5 magit-diff:--diff-algorithm :argument "-Xdiff-algorithm=")
    (5 magit:--gpg-sign)
-   (6 magit:--signoff)]
+   (magit:--signoff)]
   ["Actions"
    :if-not magit-merge-in-progress-p
    [("m" "Merge"                  magit-merge-plain)
