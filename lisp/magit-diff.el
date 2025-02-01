@@ -94,11 +94,11 @@
   'magit-diff-section-map "Magit 4.0.0")
 
 (define-obsolete-variable-alias 'magit-wash-message-hook
-  'magit-revision-wash-message-hook "Magit 4.2.1")
+  'magit-revision-wash-message-hook "Magit 4.3.0")
 
 (make-obsolete-variable 'magit-diff-highlight-keywords
                         'magit-revision-wash-message-hook
-                        "Magit 4.2.1")
+                        "Magit 4.3.0")
 
 ;;; Options
 ;;;; Diff Mode
@@ -371,7 +371,7 @@ beginning of the narrowed region of the buffer.
 
 See also the related `magit-log-wash-summary-hook'.  You likely want to
 use the same functions for both hooks."
-  :package-version '(magit . "4.2.1")
+  :package-version '(magit . "4.3.0")
   :group 'magit-log
   :type 'hook
   :options (list #'magit-highlight-squash-markers

@@ -57,11 +57,11 @@
 
 (make-obsolete-variable 'magit-log-highlight-keywords
                         'magit-log-wash-summary-hook
-                        "Magit 4.2.1")
+                        "Magit 4.3.0")
 
 (make-obsolete-variable 'magit-log-format-message-function
                         'magit-log-wash-summary-hook
-                        "Magit 4.2.1")
+                        "Magit 4.3.0")
 
 ;;; Options
 ;;;; Log Mode
@@ -163,7 +163,7 @@ called, point is at the beginning of the buffer.
 
 See also the related `magit-revision-wash-message-hook'.  You likely
 want to use the same functions for both hooks."
-  :package-version '(magit . "4.2.1")
+  :package-version '(magit . "4.3.0")
   :group 'magit-log
   :type 'hook
   :options (list #'magit-highlight-squash-markers

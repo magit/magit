@@ -105,7 +105,7 @@ in the heading preceding the list of its branches."
 To distinguish branch descriptions from the commit summary of the tip,
 which is shown when there is no description or this option is disabled,
 descriptions use the bold face."
-  :package-version '(magit . "4.2.1")
+  :package-version '(magit . "4.3.0")
   :group 'magit-refs
   :type 'boolean)
 

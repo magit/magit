@@ -177,7 +177,7 @@ itself from the hook, to avoid further futile attempts."
     "Please enter the passphrase to unlock the OpenPGP secret key")
   "List of regexps matching password prompts of Git and its subprocesses.
 Also see `magit-process-find-password-functions'."
-  :package-version '(magit . "4.2.1")
+  :package-version '(magit . "4.3.0")
   :group 'magit-process
   :type '(repeat (regexp)))
 

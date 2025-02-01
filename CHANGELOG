@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v4.2.1    UNRELEASED
+* v4.3.0    UNRELEASED
 
 - Added new option ~magit-refs-show-branch-descriptions~.  42ed6c1966
 
