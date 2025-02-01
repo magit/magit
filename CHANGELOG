@@ -8,21 +8,46 @@
   improved.  #5253 a08b4dd513
 
 - Added new hook options ~magit-revision-wash-message-hook~ and
-  ~magit-log-wash-summary-hook~, and populate them with new and existing
-  highlighting functions, making easier to remove default highlighting
-  and to add custom highlighting.  This also increases consistency
-  between how commit summaries are shown in logs and when displaying
-  complete commit messages.  f54fce0ecc..b86fe009e2
+  ~magit-log-wash-summary-hook~, and populate them with new and
+  existing highlighting functions, making it easier to remove default
+  highlighting and to add custom highlighting.  This also increases
+  consistency between how commit summaries are shown in logs and when
+  displaying complete commit messages.  f54fce0ecc..b86fe009e2
 
 - ~amend!~ markers are now highlighted like ~fixup!~ and ~squash!~ markers.
   #5261
 
-- Added new commands ~magit-commit-alter~ and ~magit-commit-revise~.  #5261
+- ~magit-commit-create~ no longer amends to HEAD when called with a
+  prefix argument.  The ~magit-commit~ menu offers four amend commands.
+  That should be good enough.  5e60aa72e5
 
-- Improved commit menu, documentation and implementation details.  #5261
+- ~magit-commit~ no longer features the obscure ~magit-commit-reshelve~ by
+  default, but it can quickly be reinstated, using the level mechanism.
+  20eb323b47
+
+- Added new commands ~magit-commit-alter~ and ~magit-commit-revise~,
+  completing the already extensive set of "fixup" commands.  #5261
+
+- Improved commit menu, documentation and implementation details.
+  #5261
+
+- The branch at point is detected in more contexts now, i.e., when
+  there is not actually a branch at point, but one can unambigiously
+  be derived from the thing at point.  4876f1921e
+
+- Reworked ~magit-process-password-prompt-regexps~ to be more permissive
+  and better structured.  Hopefully that means we have to extend it
+  less frequently going forward, when users run into new prompts.
+  #5288
 
 - Speed up listing untracked files in the status buffer, simplify how
   the list is configured, and give up on optionally using a tree.
+  #5284
+
+- Argument ~--signoff~ is now available in all menus that create commits.
+  However, it is no longer shown in any menu by default.  See the end
+  of [[https://magit.vc/manual/transient/Enabling-and-Disabling-Suffixes.html][Enabling and Disabling Suffixes]] to learn how to enable it in all
+  menus at once in a single action.  #5297
 
 Bug fixes:
 
@@ -45,6 +70,17 @@ Bug fixes:
 
 - The confirmation prompt of ~magit-worktree-delete~ failed to name the
   affected worktree.  #5286
+
+- The wrong suffix color was used for ~magit-commit-absorb~ and
+  ~magit-commit-autofixup~.  bfadd41079
+
+- ~magit-stash-index~ did not use ~magit-stash-read-message-function~.
+  #5295
+
+- Fixed an error that occured when creating ~magit-hunk-section-map~
+  and the user has disabled ~smerge-command-prefix~.  The same bug
+  exists in Emacs since 29.1, so this will only help users stuck
+  on Emacs 28.  #5300
 
 * v4.2.0    2025-01-01
 
