@@ -153,6 +153,7 @@ All Contributors
 - Frédéric Giquel
 - Fritz Grabo
 - Fritz Stelzer
+- gemmaro
 - Geoff Shannon
 - George Kadianakis
 - Géza Herman
@@ -171,6 +172,7 @@ All Contributors
 - Ian Eure
 - Ian Milligan
 - Ilya Grigoriev
+- Iñaki Arenaza
 - Ingmar Sittl
 - Ingo Lohmar
 - Ioan-Adrian Ratiu
