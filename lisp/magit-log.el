@@ -1933,8 +1933,8 @@ Show the last `magit-log-section-commit-count' commits."
       (magit--insert-log nil
         (and (member "--graph" magit-buffer-log-args) range)
         (cons (format "-n%d" magit-log-section-commit-count)
-              (--remove (string-prefix-p "-n" it)
-                        magit-buffer-log-args))))))
+              (seq-remove (##string-prefix-p "-n" %)
+                          magit-buffer-log-args))))))
 
 (magit-define-section-jumper magit-jump-to-unpushed-to-pushremote
   "Unpushed to <push-remote>" unpushed "@{push}.."

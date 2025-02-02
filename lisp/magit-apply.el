@@ -695,8 +695,8 @@ of a side, then keep that side without prompting."
       (let ((binaries (magit-binary-files "--cached")))
         (when binaries
           (setq sections
-                (--remove (member (oref it value) binaries)
-                          sections)))
+                (seq-remove (##member (oref % value) binaries)
+                            sections)))
         (cond ((length= sections 1)
                (magit-discard-apply (car sections) 'magit-apply-diff))
               (sections

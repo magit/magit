@@ -343,7 +343,7 @@ the process manually."
      (let ((merges (seq-filter #'magit-merge-commit-p commits)))
        (cond
         ((not merges)
-         (--remove (string-prefix-p "--mainline=" it) args))
+         (seq-remove (##string-prefix-p "--mainline=" %) args))
         ((cl-set-difference commits merges :test #'equal)
          (user-error "Cannot %s merge and non-merge commits at once"
                      command))
