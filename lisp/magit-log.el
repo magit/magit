@@ -376,7 +376,7 @@ commits before and half after."
     (when-let (((not (eq transient-current-command 'magit-dispatch)))
                (file (magit-file-relative-name)))
       (setq files (list file)))
-    (oset obj value (if files `(("--" ,@files) ,args) args))))
+    (oset obj value (if files `(("--" ,@files) ,@args) args))))
 
 (cl-defmethod transient-init-value ((obj magit-log-refresh-prefix))
   (oset obj value (if magit-buffer-log-files
