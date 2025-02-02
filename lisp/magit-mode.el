@@ -983,14 +983,14 @@ current buffer is the last remaining Magit buffer that was
 ever displayed in the selected window, then delete that
 window."
   (if (or (one-window-p)
-          (--first (let ((buffer (car it)))
-                     (and (not (eq buffer (current-buffer)))
-                          (buffer-live-p buffer)
-                          (or (not (window-parameter nil 'magit-dedicated))
-                              (with-current-buffer buffer
-                                (derived-mode-p 'magit-mode
-                                                'magit-process-mode)))))
-                   (window-prev-buffers)))
+          (seq-find (pcase-lambda (`(,buffer))
+                      (and (not (eq buffer (current-buffer)))
+                           (buffer-live-p buffer)
+                           (or (not (window-parameter nil 'magit-dedicated))
+                               (with-current-buffer buffer
+                                 (derived-mode-p 'magit-mode
+                                                 'magit-process-mode)))))
+                    (window-prev-buffers)))
       (quit-window kill-buffer)
     (let ((window (selected-window)))
       (quit-window kill-buffer)

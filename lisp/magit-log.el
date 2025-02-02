@@ -883,7 +883,7 @@ limit.  Otherwise set it to 256."
 
 (defun magit-log-set-commit-limit (fn)
   (let* ((val magit-buffer-log-args)
-         (arg (--first (string-match "^-n\\([0-9]+\\)?$" it) val))
+         (arg (seq-find (##string-match "^-n\\([0-9]+\\)?$" %) val))
          (num (and arg (string-to-number (match-string 1 arg))))
          (num (if num (funcall fn num 2) 256)))
     (setq val (remove arg val))
@@ -894,8 +894,8 @@ limit.  Otherwise set it to 256."
   (magit-refresh))
 
 (defun magit-log-get-commit-limit (&optional args)
-  (and-let* ((str (--first (string-match "^-n\\([0-9]+\\)?$" it)
-                           (or args magit-buffer-log-args))))
+  (and-let* ((str (seq-find (##string-match "^-n\\([0-9]+\\)?$" %)
+                            (or args magit-buffer-log-args))))
     (string-to-number (match-string 1 str))))
 
 ;;;; Mode Commands
@@ -925,9 +925,8 @@ is displayed in the current frame."
     (let* ((section (magit-current-section))
            (parent-rev (format "%s^%s" (oref section value) (or n 1))))
       (if-let ((parent-hash (magit-rev-parse "--short" parent-rev)))
-          (if-let ((parent (--first (equal (oref it value)
-                                           parent-hash)
-                                    (magit-section-siblings section 'next))))
+          (if-let ((parent (seq-find (##equal (oref % value) parent-hash)
+                                     (magit-section-siblings section 'next))))
               (magit-section-goto parent)
             (user-error
              (substitute-command-keys
@@ -1191,8 +1190,8 @@ Do not add this to a hook variable."
                     (concat "\n" magit-log-revision-headers-format "\n"))
                 ""))
       (progn
-        (when-let ((order (--first (string-match "^\\+\\+order=\\(.+\\)$" it)
-                                   args)))
+        (when-let ((order (seq-find (##string-match "^\\+\\+order=\\(.+\\)$" %)
+                                    args)))
           (setq args (cons (format "--%s-order" (match-string 1 order))
                            (remove order args))))
         (when (member "--decorate" args)
@@ -1518,10 +1517,10 @@ If there is no blob buffer in the same frame, then do nothing."
 
 (defun magit--maybe-update-blob-buffer ()
   (when-let* ((commit (magit-section-value-if 'commit))
-              (buffer (--first (with-current-buffer it
-                                 (eq revert-buffer-function
-                                     'magit-revert-rev-file-buffer))
-                               (mapcar #'window-buffer (window-list)))))
+              (buffer (seq-find (##with-current-buffer %
+                                  (eq revert-buffer-function
+                                      'magit-revert-rev-file-buffer))
+                                (mapcar #'window-buffer (window-list)))))
     (if magit--update-blob-buffer
         (setq magit--update-blob-buffer (list commit buffer))
       (setq magit--update-blob-buffer (list commit buffer))
@@ -1540,8 +1539,8 @@ If there is no blob buffer in the same frame, then do nothing."
 
 (defun magit-log-goto-commit-section (rev)
   (let ((abbrev (magit-rev-format "%h" rev)))
-    (when-let ((section (--first (equal (oref it value) abbrev)
-                                 (oref magit-root-section children))))
+    (when-let ((section (seq-find (##equal (oref % value) abbrev)
+                                  (oref magit-root-section children))))
       (goto-char (oref section start)))))
 
 (defun magit-log-goto-same-commit ()

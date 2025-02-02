@@ -1158,7 +1158,7 @@ See <https://github.com/raxod502/straight.el/issues/520>."
 Like `message', except that if the users configured option
 `magit-no-message' to prevent the message corresponding to
 FORMAT-STRING to be displayed, then don't."
-  (unless (--first (string-prefix-p it format-string) magit-no-message)
+  (unless (seq-find (##string-prefix-p % format-string) magit-no-message)
     (apply #'message format-string args)))
 
 (defun magit-msg (format-string &rest args)

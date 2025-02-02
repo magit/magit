@@ -283,9 +283,9 @@ Also see option `magit-blame-styles'."
 (defun magit-blame--overlay-at (&optional pos key)
   (unless pos
     (setq pos (point)))
-  (--first (overlay-get it (or key 'magit-blame-chunk))
-           (nconc (overlays-at pos)
-                  (overlays-in pos pos))))
+  (seq-find (##overlay-get % (or key 'magit-blame-chunk))
+            (nconc (overlays-at pos)
+                   (overlays-in pos pos))))
 
 ;;; Keymaps
 

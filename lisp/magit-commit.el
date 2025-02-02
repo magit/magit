@@ -743,10 +743,10 @@ See `magit-commit-absorb' for an alternative implementation."
 (defun magit-commit-message-buffer ()
   (let* ((find-file-visit-truename t) ; git uses truename of COMMIT_EDITMSG
          (topdir (magit-toplevel)))
-    (--first (equal topdir (with-current-buffer it
-                             (and git-commit-mode (magit-toplevel))))
-             (append (buffer-list (selected-frame))
-                     (buffer-list)))))
+    (seq-find (##equal topdir (with-current-buffer %
+                                (and git-commit-mode (magit-toplevel))))
+              (append (buffer-list (selected-frame))
+                      (buffer-list)))))
 
 (defvar magit-commit-add-log-insert-function #'magit-commit-add-log-insert
   "Used by `magit-commit-add-log' to insert a single entry.")

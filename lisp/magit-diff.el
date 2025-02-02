@@ -1526,7 +1526,7 @@ instead."
                   (string-to-number context)
                 3))
          (val magit-buffer-diff-args)
-         (arg (--first (string-match "^-U\\([0-9]+\\)?$" it) val))
+         (arg (seq-find (##string-match "^-U\\([0-9]+\\)?$" %) val))
          (num (if-let ((str (and arg (match-string 1 arg))))
                   (string-to-number str)
                 def))
@@ -1538,8 +1538,8 @@ instead."
   (magit-refresh))
 
 (defun magit-diff-context-p ()
-  (if-let ((arg (--first (string-match "^-U\\([0-9]+\\)$" it)
-                         magit-buffer-diff-args)))
+  (if-let ((arg (seq-find (##string-match "^-U\\([0-9]+\\)$" %)
+                          magit-buffer-diff-args)))
       (not (equal arg "-U0"))
     t))
 
@@ -3418,10 +3418,10 @@ are highlighted."
                magit-diff-highlight-indentation
              (setq-local
               magit-diff-highlight-indentation
-              (cdr (--first (string-match-p (car it) default-directory)
-                            (nreverse
-                             (default-value
-                              'magit-diff-highlight-indentation))))))))
+              (cdr (seq-find (##string-match-p (car %) default-directory)
+                             (nreverse
+                              (default-value
+                               'magit-diff-highlight-indentation))))))))
       (when (and magit-diff-highlight-trailing
                  (looking-at (concat prefix ".*?\\([ \t]+\\)?$")))
         (let ((ov (make-overlay (match-beginning 1) (match-end 1) nil t)))

@@ -335,10 +335,10 @@ optional NODISPLAY is non-nil also display it."
           (while (not (equal topdir prev))
             (setq prev topdir)
             (setq topdir (file-name-directory (directory-file-name topdir)))))))
-    (let ((buffer (or (--first (with-current-buffer it
-                                 (and (eq major-mode 'magit-process-mode)
-                                      (equal default-directory topdir)))
-                               (buffer-list))
+    (let ((buffer (or (seq-find (##with-current-buffer %
+                                  (and (eq major-mode 'magit-process-mode)
+                                       (equal default-directory topdir)))
+                                (buffer-list))
                       (magit-generate-new-buffer 'magit-process-mode
                                                  nil topdir))))
       (with-current-buffer buffer
@@ -1030,12 +1030,13 @@ as argument."
               (memq magit-credential-cache-daemon-process
                     (list-system-processes)))
     (setq magit-credential-cache-daemon-process
-          (or (--first (let* ((attr (process-attributes it))
-                              (comm (cdr (assq 'comm attr)))
-                              (user (cdr (assq 'user attr))))
-                         (and (string= comm "git-credential-cache--daemon")
-                              (string= user user-login-name)))
-                       (list-system-processes))
+          (or (seq-find (lambda (process)
+                          (let* ((attr (process-attributes process))
+                                 (comm (cdr (assq 'comm attr)))
+                                 (user (cdr (assq 'user attr))))
+                            (and (string= comm "git-credential-cache--daemon")
+                                 (string= user user-login-name))))
+                        (list-system-processes))
               (condition-case nil
                   (start-process "git-credential-cache--daemon"
                                  " *git-credential-cache--daemon*"

@@ -347,7 +347,7 @@ the process manually."
         ((cl-set-difference commits merges :test #'equal)
          (user-error "Cannot %s merge and non-merge commits at once"
                      command))
-        ((--first (string-prefix-p "--mainline=" it) args)
+        ((seq-find (##string-prefix-p "--mainline=" %) args)
          args)
         (t
          (cons (format "--mainline=%s"
@@ -1056,10 +1056,10 @@ status buffer (i.e., the reverse of how they will be applied)."
     (setq done (magit-git-lines "log" "--format=%H" (concat onto "..HEAD")))
     (when (and stop (not (member (magit-rev-parse stop) done)))
       (let ((id (magit-patch-id stop)))
-        (if-let ((matched (--first (equal (magit-patch-id it) id) done)))
+        (if-let ((matched (seq-find (##equal (magit-patch-id %) id) done)))
             (setq stop matched)
           (cond
-           ((--first (magit-rev-equal it stop) done)
+           ((seq-find (##magit-rev-equal % stop) done)
             ;; The commit's testament has been executed.
             (magit-sequence-insert-commit "void" stop 'magit-sequence-drop))
            ;; The faith of the commit is still undecided...
@@ -1085,7 +1085,7 @@ status buffer (i.e., the reverse of how they will be applied)."
                 (t "work")))
              stop 'magit-sequence-part))
            ;; The commit is definitely gone...
-           ((--first (magit-rev-equal it stop) done)
+           ((seq-find (##magit-rev-equal % stop) done)
             ;; ...but all of its changes are still in effect.
             (magit-sequence-insert-commit "poof" stop 'magit-sequence-drop))
            (t

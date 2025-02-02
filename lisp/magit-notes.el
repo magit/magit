@@ -192,8 +192,8 @@ Also see `magit-notes-merge'."
 
 (defun magit-notes-read-args (prompt)
   (list (magit-read-branch-or-commit prompt (magit-stash-at-point))
-        (and-let* ((str (--first (string-match "^--ref=\\(.+\\)" it)
-                                 (transient-args 'magit-notes))))
+        (and-let* ((str (seq-find (##string-match "^--ref=\\(.+\\)" %)
+                                  (transient-args 'magit-notes))))
           (match-string 1 str))))
 
 ;;; _

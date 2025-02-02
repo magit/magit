@@ -107,8 +107,8 @@
   :reader #'magit-transient-read-revision)
 
 (defun magit-subtree-prefix (transient prompt)
-  (if-let ((arg (--first (string-prefix-p "--prefix=" it)
-                         (transient-args transient))))
+  (if-let ((arg (seq-find (##string-prefix-p "--prefix=" %)
+                          (transient-args transient))))
       (substring arg 9)
     (magit-subtree-read-prefix prompt)))
 

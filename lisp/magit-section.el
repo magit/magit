@@ -1266,7 +1266,7 @@ of course you want to be that precise."
   (cl-assert condition)
   (and section
        (if (listp condition)
-           (--first (magit-section-match-1 it section) condition)
+           (seq-find (##magit-section-match-1 % section) condition)
          (magit-section-match-2 (if (symbolp condition)
                                     (list condition)
                                   (cl-coerce condition 'list))
