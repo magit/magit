@@ -1143,9 +1143,9 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                " in reverse")
           (and files (concat " touching "
                              (string-join files " ")))
-          (--some (and (string-prefix-p "-L" it)
-                       (concat " " it))
-                  args)))
+          (seq-some (##and (string-prefix-p "-L" %)
+                           (concat " " %))
+                    args)))
 
 (defun magit-insert-log (revs &optional args files)
   (declare (obsolete magit--insert-log "Magit 4.0.0"))

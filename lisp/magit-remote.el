@@ -179,7 +179,7 @@ the now stale refspecs.  Other stale branches are not removed."
               (ours   (match-string 3 refspec)))
           (unless (if (string-match "\\*" theirs)
                       (let ((re (replace-match ".*" t t theirs)))
-                        (--some (string-match-p re it) remote-refs))
+                        (seq-some (##string-match-p re %) remote-refs))
                     (member theirs remote-refs))
             (push (cons refspec
                         (if (string-match "\\*" ours)

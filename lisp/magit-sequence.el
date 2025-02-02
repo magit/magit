@@ -690,7 +690,7 @@ START has to be selected from a list of recent commits."
   (when (and commit (not noassert))
     (setq commit (magit-rebase-interactive-assert
                   commit delay-edit-confirm
-                  (--some (string-prefix-p "--rebase-merges" it) args))))
+                  (seq-some (##string-prefix-p "--rebase-merges" %) args))))
   (if (and commit (not confirm))
       (let ((process-environment process-environment))
         (when editor

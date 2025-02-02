@@ -482,12 +482,13 @@ Type \\[magit-commit] to create a commit.
 (defun magit-status-goto-initial-section ()
   "Jump to the section specified by `magit-status-initial-section'."
   (when-let ((section
-              (--some (if (integerp it)
-                          (nth (1- it)
-                               (magit-section-siblings (magit-current-section)
-                                                       'next))
-                        (magit-get-section it))
-                      magit-status-initial-section)))
+              (seq-some (lambda (initial)
+                          (if (integerp initial)
+                              (nth (1- initial)
+                                   (magit-section-siblings
+                                    (magit-current-section) 'next))
+                            (magit-get-section initial)))
+                        magit-status-initial-section)))
     (goto-char (oref section start))
     (when-let ((vis (cdr (assq 'magit-status-initial-section
                                magit-section-initial-visibility-alist))))
