@@ -22,6 +22,7 @@
 ;;     (emacs "27.1")
 ;;     (compat "30.0.1.0")
 ;;     (dash "2.19.1")
+;;     (llama "0.6.0")
 ;;     (magit-section "4.2.0")
 ;;     (seq "2.24")
 ;;     (transient "0.8.2")

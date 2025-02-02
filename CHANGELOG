@@ -82,6 +82,8 @@ Bug fixes:
   exists in Emacs since 29.1, so this will only help users stuck
   on Emacs 28.  #5300
 
+- Began using the ~##~ macro from the ~llama~ package.
+
 * v4.2.0    2025-01-01
 
 - At least Git 2.25.0 is required now.  033a0c0cdc

@@ -152,6 +152,13 @@ ifeq "$(DASH_DIR)" ""
   DASH_DIR = $(TOP)../dash
 endif
 
+LLAMA_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/llama-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(LLAMA_DIR)" ""
+  LLAMA_DIR = $(TOP)../llama
+endif
+
 SEQ_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/seq-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
@@ -192,6 +199,7 @@ LOAD_PATH = -L $(TOP)lisp
 ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(COMPAT_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(DASH_DIR))
+  LOAD_PATH += -L $(shell cygpath --mixed $(LLAMA_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(SEQ_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(TRANSIENT_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(WITH_EDITOR_DIR))
@@ -201,6 +209,7 @@ ifdef CYGPATH
 else
   LOAD_PATH += -L $(COMPAT_DIR)
   LOAD_PATH += -L $(DASH_DIR)
+  LOAD_PATH += -L $(LLAMA_DIR)
   LOAD_PATH += -L $(SEQ_DIR)
   LOAD_PATH += -L $(TRANSIENT_DIR)
   LOAD_PATH += -L $(WITH_EDITOR_DIR)
@@ -221,6 +230,7 @@ endif
 
 DEPS  = compat
 DEPS += dash
+DEPS += llama
 DEPS += seq
 DEPS += transient/lisp
 DEPS += vterm

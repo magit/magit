@@ -39,6 +39,7 @@
 (require 'compat)
 (require 'dash)
 (require 'eieio)
+(require 'llama)
 (require 'subr-x)
 
 ;; For older Emacs releases we depend on an updated `seq' release from

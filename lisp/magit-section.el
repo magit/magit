@@ -13,6 +13,7 @@
 ;;     (emacs "27.1")
 ;;     (compat "30.0.1.0")
 ;;     (dash "2.19.1")
+;;     (llama "0.6.0")
 ;;     (seq "2.24"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
@@ -46,6 +47,7 @@
 (require 'compat)
 (require 'dash)
 (require 'eieio)
+(require 'llama)
 (require 'subr-x)
 
 ;; For older Emacs releases we depend on an updated `seq' release from GNU
