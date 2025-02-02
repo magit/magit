@@ -84,6 +84,10 @@ Bug fixes:
   exists in Emacs since 29.1, so this will only help users stuck
   on Emacs 28.  #5300
 
+- When the value of a diff or log menu was being initialized from the
+  arguments in the current buffer and the diff/log was already limited
+  to a set of files, then all other arguments were discarded.  #5304
+
 * v4.2.0    2025-01-01
 
 - At least Git 2.25.0 is required now.  033a0c0cdc

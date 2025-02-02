@@ -817,12 +817,12 @@ and `:slant'."
     (when-let (((not (eq transient-current-command 'magit-dispatch)))
                (file (magit-file-relative-name)))
       (setq files (list file)))
-    (oset obj value (if files `(("--" ,@files) ,args) args))))
+    (oset obj value (if files `(("--" ,@files) ,@args) args))))
 
 (cl-defmethod transient-init-value ((obj magit-diff-refresh-prefix))
   (oset obj value (if magit-buffer-diff-files
                       `(("--" ,@magit-buffer-diff-files)
-                        ,magit-buffer-diff-args)
+                        ,@magit-buffer-diff-args)
                     magit-buffer-diff-args)))
 
 (cl-defmethod transient-set-value ((obj magit-diff-prefix))
