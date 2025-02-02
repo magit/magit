@@ -1073,9 +1073,8 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     (unless (length= files 1)
       (setq args (remove "--follow" args)))
     (when (and (car magit-log-remove-graph-args)
-               (--any-p (string-match-p
-                         (concat "^" (regexp-opt magit-log-remove-graph-args)) it)
-                        args))
+               (let ((re (concat "^" (regexp-opt magit-log-remove-graph-args))))
+                 (seq-some (##string-match-p re %) args)))
       (setq args (remove "--graph" args)))
     (setq args (magit-log--maybe-drop-color-graph args limit))
     (when-let* ((limit limit)
@@ -1087,8 +1086,8 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
                             (not (member revs '("--all" "--branches")))
                             (not (seq-some
                                   (lambda (arg)
-                                    (--any-p (string-prefix-p it arg)
-                                             magit-log-disable-graph-hack-args))
+                                    (seq-some (##string-prefix-p % arg)
+                                              magit-log-disable-graph-hack-args))
                                   args))
                             (magit-git-string "rev-list" "--count"
                                               "--first-parent" args revs))))

@@ -998,7 +998,7 @@ from the user."
 (defun magit-process-match-prompt (prompts string)
   "Match STRING against PROMPTS and set match data.
 Return the matched string, appending \": \" if needed."
-  (when (--any-p (string-match it string) prompts)
+  (when (seq-some (##string-match % string) prompts)
     (let ((prompt (match-string 0 string)))
       (cond ((string-suffix-p ": " prompt) prompt)
             ((string-suffix-p ":"  prompt) (concat prompt " "))
@@ -1264,8 +1264,8 @@ Limited by `magit-process-error-tooltip-max-lines'."
           (delete-char -1)
           (oset section content nil))
       (when (and (= exit-code 0)
-                 (not (--any-p (eq (window-buffer it) buffer)
-                               (window-list))))
+                 (not (seq-some (##eq (window-buffer %) buffer)
+                                (window-list))))
         (magit-section-hide section)))))
 
 (defun magit-process-display-buffer (process)
