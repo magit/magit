@@ -510,10 +510,10 @@ instead."
   (cond ((file-readable-p (expand-file-name ".git" directory))
          (list (file-name-as-directory directory)))
         ((and (> depth 0) (file-accessible-directory-p directory))
-         (--mapcat (and (file-directory-p it)
-                        (magit-list-repos-1 it (1- depth)))
-                   (directory-files directory t
-                                    directory-files-no-dot-files-regexp t)))))
+         (mapcan (##and (file-directory-p %)
+                        (magit-list-repos-1 % (1- depth)))
+                 (directory-files directory t
+                                  directory-files-no-dot-files-regexp t)))))
 
 (defun magit-list-repos-uniquify (alist)
   (let (result (dict (make-hash-table :test #'equal)))

@@ -1952,13 +1952,14 @@ commit or stash at point, then prompt for a commit."
   (interactive)
   (when-let ((sections
               (cond ((derived-mode-p 'magit-status-mode)
-                     (--mapcat
-                      (when it
-                        (when (oref it hidden)
-                          (magit-section-show it))
-                        (oref it children))
-                      (list (magit-get-section '((staged)   (status)))
-                            (magit-get-section '((unstaged) (status))))))
+                     (mapcan (lambda (section)
+                               (and section
+                                    (progn
+                                      (when (oref section hidden)
+                                        (magit-section-show section))
+                                      (oref section children))))
+                             (list (magit-get-section '((staged)   (status)))
+                                   (magit-get-section '((unstaged) (status))))))
                     ((derived-mode-p 'magit-diff-mode)
                      (seq-filter #'magit-file-section-p
                                  (oref magit-root-section children))))))
@@ -1966,7 +1967,7 @@ commit or stash at point, then prompt for a commit."
         (dolist (s sections)
           (magit-section-show s)
           (magit-section-hide-children s))
-      (let ((children (--mapcat (oref it children) sections)))
+      (let ((children (mapcan (##oref % children) sections)))
         (cond ((and (--any-p (oref it hidden)   children)
                     (--any-p (oref it children) children))
                (mapc #'magit-section-show-headings sections))

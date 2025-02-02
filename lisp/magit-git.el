@@ -1075,11 +1075,11 @@ tracked file."
                    (magit-headish) "--" files))
 
 (defun magit-binary-files (&rest args)
-  (--mapcat (and (string-match "^-\t-\t\\(.+\\)" it)
-                 (list (match-string 1 it)))
-            (apply #'magit-git-items
-                   "diff" "-z" "--numstat" "--ignore-submodules"
-                   args)))
+  (mapcan (##and (string-match "^-\t-\t\\(.+\\)" %)
+                 (list (match-string 1 %)))
+          (apply #'magit-git-items
+                 "diff" "-z" "--numstat" "--ignore-submodules"
+                 args)))
 
 (defun magit-unmerged-files ()
   (magit-git-items "diff-files" "-z" "--name-only" "--diff-filter=U"))
@@ -1995,9 +1995,9 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
 (defun magit-list-remote-branch-names (&optional remote relative)
   (if (and remote relative)
       (let ((regexp (format "^refs/remotes/%s/\\(.+\\)" remote)))
-        (--mapcat (when (string-match regexp it)
-                    (list (match-string 1 it)))
-                  (magit-list-remote-branches remote)))
+        (mapcan (##when (string-match regexp %)
+                  (list (match-string 1 %)))
+                (magit-list-remote-branches remote)))
     (magit-list-refnames (concat "refs/remotes/" remote))))
 
 (defun magit-format-refs (format &rest args)
@@ -2056,9 +2056,9 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
 
 (defun magit-list-module-paths ()
   (magit-with-toplevel
-    (--mapcat (and (string-match "^160000 [0-9a-z]\\{40,\\} 0\t\\(.+\\)$" it)
-                   (list (match-string 1 it)))
-              (magit-git-items "ls-files" "-z" "--stage"))))
+    (mapcan (##and (string-match "^160000 [0-9a-z]\\{40,\\} 0\t\\(.+\\)$" %)
+                   (list (match-string 1 %)))
+            (magit-git-items "ls-files" "-z" "--stage"))))
 
 (defun magit-list-module-names ()
   (mapcar #'magit-get-submodule-name (magit-list-module-paths)))
@@ -2421,7 +2421,7 @@ and this option only controls what face is used.")
 
 (defun magit-commit-tree (message &optional tree &rest parents)
   (magit-git-string "commit-tree" "--no-gpg-sign" "-m" message
-                    (--mapcat (list "-p" it) (delq nil parents))
+                    (mapcan (##list "-p" %) (delq nil parents))
                     (or tree
                         (magit-git-string "write-tree")
                         (error "Cannot write tree"))))
