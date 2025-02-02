@@ -2421,10 +2421,10 @@ and the buffer-local values of the variables referenced in its
           (bookmark-prop-set bookmark var (symbol-value var)))
         (bookmark-prop-set
          bookmark 'magit-hidden-sections
-         (--keep (and (oref it hidden)
-                      (cons (oref it type)
-                            (magit-bookmark--get-child-value it)))
-                 (oref magit-root-section children)))
+         (seq-keep (##and (oref % hidden)
+                          (cons (oref % type)
+                                (magit-bookmark--get-child-value %)))
+                   (oref magit-root-section children)))
         bookmark)
     (user-error "Bookmarking is not implemented for %s buffers" major-mode)))
 

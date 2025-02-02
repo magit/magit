@@ -1088,14 +1088,14 @@ tracked file."
   (magit-git-items "stash" "show" "-z" "--name-only" stash))
 
 (defun magit-skip-worktree-files (&rest args)
-  (--keep (and (= (aref it 0) ?S)
-               (substring it 2))
-          (magit-list-files "-t" args)))
+  (seq-keep (##and (= (aref % 0) ?S)
+                   (substring % 2))
+            (magit-list-files "-t" args)))
 
 (defun magit-assume-unchanged-files (&rest args)
-  (--keep (and (memq (aref it 0) '(?h ?s ?m ?r ?c ?k))
-               (substring it 2))
-          (magit-list-files "-v" args)))
+  (seq-keep (##and (memq (aref % 0) '(?h ?s ?m ?r ?c ?k))
+                   (substring % 2))
+            (magit-list-files "-v" args)))
 
 (defun magit-revision-files (rev)
   (magit-with-toplevel
@@ -1966,11 +1966,11 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
 (defun magit-list-branches-pointing-at (commit)
   (let ((re (format "\\`%s refs/\\(heads\\|remotes\\)/\\(.*\\)\\'"
                     (magit-rev-verify commit))))
-    (--keep (and (string-match re it)
-                 (let ((name (match-string 2 it)))
-                   (and (not (string-suffix-p "HEAD" name))
-                        name)))
-            (magit-git-lines "show-ref"))))
+    (seq-keep (##and (string-match re %)
+                     (let ((name (match-string 2 %)))
+                       (and (not (string-suffix-p "HEAD" name))
+                            name)))
+              (magit-git-lines "show-ref"))))
 
 (defun magit-list-refnames (&optional namespaces include-special)
   (nconc (magit-list-refs namespaces "%(refname:short)")
@@ -2027,19 +2027,19 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
   (mapcar (##substring % 6) (magit-list-refnames "refs/notes")))
 
 (defun magit-remote-list-tags (remote)
-  (--keep (and (not (string-suffix-p "^{}" it))
-               (substring it 51))
-          (magit-git-lines "ls-remote" "--tags" remote)))
+  (seq-keep (##and (not (string-suffix-p "^{}" %))
+                   (substring % 51))
+            (magit-git-lines "ls-remote" "--tags" remote)))
 
 (defun magit-remote-list-branches (remote)
-  (--keep (and (not (string-suffix-p "^{}" it))
-               (substring it 52))
-          (magit-git-lines "ls-remote" "--heads" remote)))
+  (seq-keep (##and (not (string-suffix-p "^{}" %))
+                   (substring % 52))
+            (magit-git-lines "ls-remote" "--heads" remote)))
 
 (defun magit-remote-list-refs (remote)
-  (--keep (and (not (string-suffix-p "^{}" it))
-               (substring it 41))
-          (magit-git-lines "ls-remote" remote)))
+  (seq-keep (##and (not (string-suffix-p "^{}" %))
+                   (substring % 41))
+            (magit-git-lines "ls-remote" remote)))
 
 (defun magit-remote-head (remote)
   (and-let* ((line (cl-find-if
@@ -2050,9 +2050,9 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
     (match-string 1 line)))
 
 (defun magit-list-modified-modules ()
-  (--keep (and (string-match "\\`\\+\\([^ ]+\\) \\(.+\\) (.+)\\'" it)
-               (match-string 2 it))
-          (magit-git-lines "submodule" "status")))
+  (seq-keep (##and (string-match "\\`\\+\\([^ ]+\\) \\(.+\\) (.+)\\'" %)
+                   (match-string 2 %))
+            (magit-git-lines "submodule" "status")))
 
 (defun magit-list-module-paths ()
   (magit-with-toplevel
