@@ -644,7 +644,7 @@ prompt is confusing."
            "push"
            (and (or force magit-branch-delete-never-verify) "--no-verify")
            remote
-           (--map (concat ":" (substring it offset)) branches))
+           (mapcar (##concat ":" (substring % offset)) branches))
           ;; If that is not the case, then this deletes the tracking branches.
           (set-process-sentinel
            magit-this-process
@@ -731,8 +731,8 @@ prompt is confusing."
 (defun magit-delete-remote-branch-sentinel (remote refs process event)
   (when (memq (process-status process) '(exit signal))
     (if (= (process-exit-status process) 1)
-        (if-let ((on-remote (--map (concat "refs/remotes/" remote "/" it)
-                                   (magit-remote-list-branches remote)))
+        (if-let ((on-remote (mapcar (##concat "refs/remotes/" remote "/" %)
+                                    (magit-remote-list-branches remote)))
                  (rest (--filter (and (not (member it on-remote))
                                       (magit-ref-exists-p it))
                                  refs)))
@@ -831,8 +831,8 @@ and also rename the respective reflog file."
   (interactive
    (list (magit-completing-read
           "Unshelve branch"
-          (--map (substring it 8)
-                 (magit-list-refnames "refs/shelved"))
+          (mapcar (##substring % 8)
+                  (magit-list-refnames "refs/shelved"))
           nil t)))
   (let ((old (concat "refs/shelved/" branch))
         (new (concat "refs/heads/"   branch)))

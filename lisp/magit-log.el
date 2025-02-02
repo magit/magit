@@ -1633,9 +1633,9 @@ The shortstat style is experimental and rather slow."
             (if (eq style 'age-abbreviated)
                 1  ; single character
               (+ 1 ; gap after digits
-                 (apply #'max (--map (max (length (nth 1 it))
-                                          (length (nth 2 it)))
-                                     magit--age-spec)))))))))
+                 (apply #'max (mapcar (##max (length (nth 1 %))
+                                             (length (nth 2 %)))
+                                      magit--age-spec)))))))))
 
 ;;; Select Mode
 

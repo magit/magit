@@ -1152,21 +1152,23 @@ or if no rename is detected."
 
 (defcustom magit-cygwin-mount-points
   (and (eq system-type 'windows-nt)
-       (cl-sort (--map (if (string-match "^\\(.*\\) on \\(.*\\) type" it)
-                           (cons (file-name-as-directory (match-string 2 it))
-                                 (file-name-as-directory (match-string 1 it)))
-                         (lwarn '(magit) :error
-                                "Failed to parse Cygwin mount: %S" it))
-                       ;; If --exec-path is not a native Windows path,
-                       ;; then we probably have a cygwin git.
-                       (let ((process-environment
-                              (append magit-git-environment
-                                      process-environment)))
-                         (and (not (string-match-p
-                                    "\\`[a-zA-Z]:"
-                                    (car (process-lines
-                                          magit-git-executable "--exec-path"))))
-                              (ignore-errors (process-lines "mount")))))
+       (cl-sort (mapcar
+                 (lambda (mount)
+                   (if (string-match "^\\(.*\\) on \\(.*\\) type" mount)
+                       (cons (file-name-as-directory (match-string 2 mount))
+                             (file-name-as-directory (match-string 1 mount)))
+                     (lwarn '(magit) :error
+                            "Failed to parse Cygwin mount: %S" mount)))
+                 ;; If --exec-path is not a native Windows path,
+                 ;; then we probably have a cygwin git.
+                 (let ((process-environment
+                        (append magit-git-environment
+                                process-environment)))
+                   (and (not (string-match-p
+                              "\\`[a-zA-Z]:"
+                              (car (process-lines
+                                    magit-git-executable "--exec-path"))))
+                        (ignore-errors (process-lines "mount")))))
                 #'> :key (pcase-lambda (`(,cyg . ,_win)) (length cyg))))
   "Alist of (CYGWIN . WIN32) directory names.
 Sorted from longest to shortest CYGWIN name."
@@ -1923,10 +1925,10 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
                 (and (not symrefp) value)))
             (magit-git-lines "for-each-ref"
                              (concat "--format=%(symref)" format)
-                             (--map (concat "--sort=" it)
-                                    (pcase (or sortby magit-list-refs-sortby)
-                                      ((and val (pred stringp)) (list val))
-                                      ((and val (pred listp)) val)))
+                             (mapcar (##concat "--sort=" %)
+                                     (pcase (or sortby magit-list-refs-sortby)
+                                       ((and val (pred stringp)) (list val))
+                                       ((and val (pred listp)) val)))
                              (or namespaces magit-list-refs-namespaces))))
 
 (defun magit-list-branches ()
@@ -1940,8 +1942,8 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
 
 (defun magit-list-related-branches (relation &optional commit &rest args)
   (--remove (string-match-p "\\(\\`(HEAD\\|HEAD -> \\)" it)
-            (--map (substring it 2)
-                   (magit-git-lines "branch" args relation commit))))
+            (mapcar (##substring % 2)
+                    (magit-git-lines "branch" args relation commit))))
 
 (defun magit-list-containing-branches (&optional commit &rest args)
   (magit-list-related-branches "--contains" commit args))
@@ -2003,7 +2005,7 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
                 "for-each-ref" (concat "--format=" format)
                 (or args (list "refs/heads" "refs/remotes" "refs/tags")))))
     (if (string-search "\f" format)
-        (--map (split-string it "\f") lines)
+        (mapcar (##split-string % "\f") lines)
       lines)))
 
 (defun magit-list-remotes ()
@@ -2022,7 +2024,7 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
                    (magit-get-all "notes.displayRef")))
 
 (defun magit-list-notes-refnames ()
-  (--map (substring it 6) (magit-list-refnames "refs/notes")))
+  (mapcar (##substring % 6) (magit-list-refnames "refs/notes")))
 
 (defun magit-remote-list-tags (remote)
   (--keep (and (not (string-suffix-p "^{}" it))
@@ -2622,8 +2624,8 @@ and this option only controls what face is used.")
                  (cl-union (and local-branch
                                 (if remote
                                     (list local-branch)
-                                  (--map (concat it "/" local-branch)
-                                         (magit-list-remotes))))
+                                  (mapcar (##concat % "/" local-branch)
+                                          (magit-list-remotes))))
                            (magit-list-remote-branch-names remote t)
                            :test #'equal)
                  nil require-match nil 'magit-revision-history default)))

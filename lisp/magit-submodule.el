@@ -258,10 +258,10 @@ it is nil, then PATH also becomes the name."
     (push (if prefer-short path name) minibuffer-history)
     (magit-read-string-ns
      "Submodule name" nil (cons 'minibuffer-history 2)
-     (or (--keep (pcase-let ((`(,var ,val) (split-string it "=")))
-                   (and (equal val path)
-                        (cadr (split-string var "\\."))))
-                 (magit-git-lines "config" "--list" "-f" ".gitmodules"))
+     (or (seq-keep (##pcase-let ((`(,var ,val) (split-string % "=")))
+                     (and (equal val path)
+                          (cadr (split-string var "\\."))))
+                   (magit-git-lines "config" "--list" "-f" ".gitmodules"))
          (if prefer-short name path)))))
 
 ;;;###autoload (autoload 'magit-submodule-register "magit-submodule" nil t)
@@ -416,9 +416,9 @@ to recover from making a mistake here, but don't count on it."
     (when modules
       (let ((alist
              (and trash-gitdirs
-                  (--map (split-string it "\0")
-                         (magit-git-lines "submodule" "foreach" "-q"
-                                          "printf \"$sm_path\\0$name\n\"")))))
+                  (mapcar (##split-string % "\0")
+                          (magit-git-lines "submodule" "foreach" "-q"
+                                           "printf \"$sm_path\\0$name\n\"")))))
         (magit-git "submodule" "absorbgitdirs" "--" modules)
         (magit-git "submodule" "deinit" args "--" modules)
         (magit-git "rm" args "--" modules)

@@ -781,7 +781,7 @@ This is similar to `read-string', but
                             (string-join (butlast parts) ", ")
                             ", or "  (car (last parts)) " "))
                   ',(mapcar #'car clauses))
-            ,@(--map `(,(car it) ,@(cddr it)) clauses))
+            ,@(mapcar (##`(,(car %) ,@(cddr %))) clauses))
      (message "")))
 
 (defun magit-y-or-n-p (prompt &optional action)

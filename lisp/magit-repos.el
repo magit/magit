@@ -327,9 +327,9 @@ If it contains \"%s\" then the directory is substituted for that."
                                          ""))
                                    magit-repolist-columns)))))
                 (magit-list-repos-uniquify
-                 (--map (cons (file-name-nondirectory (directory-file-name it))
-                              it)
-                        (magit-list-repos)))))
+                 (mapcar (##cons (file-name-nondirectory (directory-file-name %))
+                                 %)
+                         (magit-list-repos)))))
   (message "Listing repositories...")
   (tabulated-list-init-header)
   (tabulated-list-print t)
@@ -524,22 +524,24 @@ instead."
        (if (length= value 1)
            (push (cons key (car value)) result)
          (setq result
-               (append result
-                       (magit-list-repos-uniquify
-                        (--map (cons (concat
-                                      key "\\"
-                                      (file-name-nondirectory
-                                       (directory-file-name
-                                        (substring it 0 (- (1+ (length key)))))))
-                                     it)
-                               value))))))
+               (append
+                result
+                (magit-list-repos-uniquify
+                 (mapcar (lambda (v)
+                           (cons (concat
+                                  key "\\"
+                                  (file-name-nondirectory
+                                   (directory-file-name
+                                    (substring v 0 (- (1+ (length key)))))))
+                                 v))
+                         value))))))
      dict)
     result))
 
 (defun magit-repos-alist ()
   (magit-list-repos-uniquify
-   (--map (cons (file-name-nondirectory (directory-file-name it)) it)
-          (magit-list-repos))))
+   (mapcar (##cons (file-name-nondirectory (directory-file-name %)) %)
+           (magit-list-repos))))
 
 ;;; _
 (provide 'magit-repos)

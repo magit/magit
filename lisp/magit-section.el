@@ -1952,8 +1952,8 @@ When `magit-section-preserve-visibility' is nil, do nothing."
                              (setq magit--ellipses-sections
                                    (or (magit-region-sections)
                                        (list (magit-current-section))))))
-           (beg (--map (oref it start) sections))
-           (end (--map (oref it end)   sections)))
+           (beg (mapcar (##oref % start) sections))
+           (end (mapcar (##oref % end)   sections)))
       (when (region-active-p)
         ;; This ensures that the region face is removed from ellipses
         ;; when the region becomes inactive, but fails to ensure that
@@ -1971,8 +1971,8 @@ When `magit-section-preserve-visibility' is nil, do nothing."
            (propertize
             (car magit-section-visibility-indicator) 'font-lock-face
             (let ((pos (overlay-start ov)))
-              (delq nil (nconc (--map (overlay-get it 'font-lock-face)
-                                      (overlays-at pos))
+              (delq nil (nconc (mapcar (##overlay-get % 'font-lock-face)
+                                       (overlays-at pos))
                                (list (get-char-property
                                       pos 'font-lock-face))))))))))))
 
@@ -2049,8 +2049,8 @@ excluding SECTION itself."
 
 Return the values that themselves would be returned by
 `magit-region-sections' (which see)."
-  (--map (oref it value)
-         (magit-region-sections condition multiple)))
+  (mapcar (##oref % value)
+          (magit-region-sections condition multiple)))
 
 (defun magit-region-sections (&optional condition multiple)
   "Return a list of the selected sections.

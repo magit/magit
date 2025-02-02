@@ -475,9 +475,9 @@ without prompting."
                                   nil default))))
                      (magit-am-arguments)))
   (magit-run-git-sequencer "am" args "--"
-                           (--map (magit-convert-filename-for-git
-                                   (expand-file-name it))
-                                  files)))
+                           (mapcar (##magit-convert-filename-for-git
+                                    (expand-file-name %))
+                                   files)))
 
 ;;;###autoload
 (defun magit-am-apply-maildir (&optional maildir args)
@@ -1032,9 +1032,9 @@ status buffer (i.e., the reverse of how they will be applied)."
 (defun magit-rebase-insert-apply-sequence (onto)
   (let* ((dir (magit-gitdir))
          (rewritten
-          (--map (car (split-string it))
-                 (magit-file-lines
-                  (expand-file-name "rebase-apply/rewritten" dir))))
+          (mapcar (##car (split-string %))
+                  (magit-file-lines
+                   (expand-file-name "rebase-apply/rewritten" dir))))
          (stop (magit-file-line
                 (expand-file-name "rebase-apply/original-commit" dir))))
     (dolist (patch (nreverse (cdr (magit-rebase-patches))))

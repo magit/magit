@@ -114,7 +114,7 @@ defaulting to the tag at point.
   (when tags
     (magit-call-git "tag" "-d" tags))
   (when remote-tags
-    (magit-run-git-async "push" remote (--map (concat ":" it) remote-tags))))
+    (magit-run-git-async "push" remote (mapcar (##concat ":" %) remote-tags))))
 
 (defvar magit-tag-version-regexp-alist
   '(("^[-._+ ]?snapshot\\.?$" . -4)

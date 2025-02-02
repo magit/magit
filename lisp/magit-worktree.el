@@ -178,7 +178,7 @@ If there is only one worktree, then insert nothing."
                             (bare "(bare)"))
                            config)))
                  worktrees))
-               (align (1+ (apply #'max (--map (string-width (car it)) cols)))))
+               (align (1+ (apply #'max (mapcar (##string-width (car %)) cols)))))
           (pcase-dolist (`(,head . ,config) cols)
             (magit--insert-worktree
              config
