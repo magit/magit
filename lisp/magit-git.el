@@ -1949,8 +1949,8 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
   (magit-list-related-branches "--contains" commit args))
 
 (defun magit-list-publishing-branches (&optional commit)
-  (--filter (magit-rev-ancestor-p (or commit "HEAD") it)
-            magit-published-branches))
+  (seq-filter (##magit-rev-ancestor-p (or commit "HEAD") %)
+              magit-published-branches))
 
 (defun magit-list-merged-branches (&optional commit &rest args)
   (magit-list-related-branches "--merged" commit args))
@@ -1959,9 +1959,9 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
   (magit-list-related-branches "--no-merged" commit args))
 
 (defun magit-list-unmerged-to-upstream-branches ()
-  (--filter (and-let* ((upstream (magit-get-upstream-branch it)))
-              (member it (magit-list-unmerged-branches upstream)))
-            (magit-list-local-branch-names)))
+  (seq-filter (##and-let* ((upstream (magit-get-upstream-branch %)))
+                (member % (magit-list-unmerged-branches upstream)))
+              (magit-list-local-branch-names)))
 
 (defun magit-list-branches-pointing-at (commit)
   (let ((re (format "\\`%s refs/\\(heads\\|remotes\\)/\\(.*\\)\\'"

@@ -477,7 +477,7 @@ ignored) files."
 
 (defun magit-unstage-intent (files)
   (if-let ((staged (magit-staged-files))
-           (intent (--filter (member it staged) files)))
+           (intent (seq-filter (##member % staged) files)))
       (magit-unstage-1 intent)
     (user-error "Already unstaged")))
 

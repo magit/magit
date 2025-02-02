@@ -355,10 +355,10 @@ when using `magit-branch-and-checkout'."
   (interactive
    (let* ((current (magit-get-current-branch))
           (local   (magit-list-local-branch-names))
-          (remote  (--filter (and (string-match "[^/]+/" it)
-                                  (not (member (substring it (match-end 0))
-                                               (cons "HEAD" local))))
-                             (magit-list-remote-branch-names)))
+          (remote  (seq-filter (##and (string-match "[^/]+/" %)
+                                      (not (member (substring % (match-end 0))
+                                                   (cons "HEAD" local))))
+                               (magit-list-remote-branch-names)))
           (choices (nconc (delete current local) remote))
           (atpoint (magit-branch-at-point))
           (choice  (magit-completing-read
@@ -733,9 +733,9 @@ prompt is confusing."
     (if (= (process-exit-status process) 1)
         (if-let ((on-remote (mapcar (##concat "refs/remotes/" remote "/" %)
                                     (magit-remote-list-branches remote)))
-                 (rest (--filter (and (not (member it on-remote))
-                                      (magit-ref-exists-p it))
-                                 refs)))
+                 (rest (seq-filter (##and (not (member % on-remote))
+                                          (magit-ref-exists-p %))
+                                   refs)))
             (progn
               (process-put process 'inhibit-refresh t)
               (magit-process-sentinel process event)

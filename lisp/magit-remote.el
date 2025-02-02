@@ -184,7 +184,8 @@ the now stale refspecs.  Other stale branches are not removed."
             (push (cons refspec
                         (if (string-match "\\*" ours)
                             (let ((re (replace-match ".*" t t ours)))
-                              (--filter (string-match-p re it) tracking-refs))
+                              (seq-filter (##string-match-p re %)
+                                          tracking-refs))
                           (list (car (member ours tracking-refs)))))
                   stale)))))
     (if (not stale)

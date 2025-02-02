@@ -834,10 +834,10 @@ into thinking a buffer belongs to a repo that it doesn't.")
 
 (defun magit-mode-get-buffers ()
   (let ((topdir (magit-toplevel)))
-    (--filter (with-current-buffer it
-                (and (derived-mode-p 'magit-mode)
-                     (equal magit--default-directory topdir)))
-              (buffer-list))))
+    (seq-filter (##with-current-buffer %
+                  (and (derived-mode-p 'magit-mode)
+                       (equal magit--default-directory topdir)))
+                (buffer-list))))
 
 (defvar-local magit-buffer-locked-p nil)
 (put 'magit-buffer-locked-p 'permanent-local t)

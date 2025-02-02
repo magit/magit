@@ -179,8 +179,8 @@ and also setting this variable to t will lead to tears."
    ("f" "Fetch modules" magit-fetch-modules)])
 
 (defun magit-submodule-arguments (&rest filters)
-  (--filter (and (member it filters) it)
-            (transient-args 'magit-submodule)))
+  (seq-filter (##and (member % filters) %)
+              (transient-args 'magit-submodule)))
 
 (defclass magit--git-submodule-suffix (transient-suffix)
   ())
