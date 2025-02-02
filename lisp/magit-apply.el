@@ -703,7 +703,7 @@ of a side, then keep that side without prompting."
                (magit-discard-apply-n sections #'magit-apply-diffs)))
         (when binaries
           (let ((modified (magit-unstaged-files t)))
-            (setq binaries (--separate (member it modified) binaries)))
+            (setq binaries (-separate (##member % modified) binaries)))
           (when (cadr binaries)
             (magit-call-git "reset" "--" (cadr binaries)))
           (when (car binaries)
@@ -757,8 +757,8 @@ so causes the change to be applied to the index as well."
                                  magit-buffer-range)
                                 (t
                                  "--cached")))))
-                 (--separate (member (oref it value) bs)
-                             sections))))
+                 (-separate (##member (oref % value) bs)
+                            sections))))
     (magit-confirm-files 'reverse (mapcar (##oref % value) sections))
     (cond ((length= sections 1)
            (magit-reverse-apply (car sections) #'magit-apply-diff args))
