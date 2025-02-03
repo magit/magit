@@ -150,7 +150,7 @@ tags."
   :group 'magit-margin
   :type 'boolean)
 
-(defcustom magit-refs-primary-column-width (cons 16 32)
+(defcustom magit-refs-primary-column-width '(16 . 32)
   "Width of the focus column in `magit-refs-mode' buffers.
 
 The primary column is the column that contains the name of the
