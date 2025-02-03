@@ -5619,7 +5619,7 @@ message, or that you immediately edit an existing message.
 
 The new commits are called "squash" and "fixup" commits.  The
 difference is that when a "squash" commit is squashed into its
-targeted commit, the user gets a change to modify the message to be
+targeted commit, the user gets a chance to modify the message to be
 used for the final commit; while for "fixup" commits the existing
 message of the targeted commit is used as-is and the message of the
 "fixup" commit is discarded.
