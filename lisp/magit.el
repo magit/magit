@@ -20,12 +20,12 @@
 ;; Package-Version: 4.2.0
 ;; Package-Requires: (
 ;;     (emacs "27.1")
-;;     (compat "30.0.1.0")
+;;     (compat "30.0.2.0")
 ;;     (dash "2.19.1")
 ;;     (llama "0.6.0")
 ;;     (magit-section "4.2.0")
 ;;     (seq "2.24")
-;;     (transient "0.8.2")
+;;     (transient "0.8.4")
 ;;     (with-editor "3.4.3"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
