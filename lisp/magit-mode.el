@@ -123,12 +123,12 @@ All Magit buffers (buffers whose major-modes derive from
 which in turn uses the function specified here."
   :package-version '(magit . "2.3.0")
   :group 'magit-buffers
-  :type '(radio (function-item magit-display-buffer-traditional)
-                (function-item magit-display-buffer-same-window-except-diff-v1)
-                (function-item magit-display-buffer-fullframe-status-v1)
-                (function-item magit-display-buffer-fullframe-status-topleft-v1)
-                (function-item magit-display-buffer-fullcolumn-most-v1)
-                (function-item display-buffer)
+  :type `(radio (function-item ,#'magit-display-buffer-traditional)
+                (function-item ,#'magit-display-buffer-same-window-except-diff-v1)
+                (function-item ,#'magit-display-buffer-fullframe-status-v1)
+                (function-item ,#'magit-display-buffer-fullframe-status-topleft-v1)
+                (function-item ,#'magit-display-buffer-fullcolumn-most-v1)
+                (function-item ,#'display-buffer)
                 (function :tag "Function")))
 
 (defcustom magit-pre-display-buffer-hook
@@ -153,7 +153,7 @@ which in turn uses the function specified here."
   "The function used to generate the name for a Magit buffer."
   :package-version '(magit . "2.3.0")
   :group 'magit-buffers
-  :type '(radio (function-item magit-generate-buffer-name-default-function)
+  :type `(radio (function-item ,#'magit-generate-buffer-name-default-function)
                 (function :tag "Function")))
 
 (defcustom magit-buffer-name-format "%x%M%v: %t%x"
@@ -202,9 +202,9 @@ support additional %-sequences."
   "The function used to bury or kill the current Magit buffer."
   :package-version '(magit . "3.2.0")
   :group 'magit-buffers
-  :type '(radio (function-item quit-window)
-                (function-item magit-mode-quit-window)
-                (function-item magit-restore-window-configuration)
+  :type `(radio (function-item ,#'quit-window)
+                (function-item ,#'magit-mode-quit-window)
+                (function-item ,#'magit-restore-window-configuration)
                 (function :tag "Function")))
 
 (defcustom magit-prefix-use-buffer-arguments 'selected
@@ -1329,6 +1329,7 @@ Later, when the buffer is buried, it may be restored by
   'help-echo (purecopy "mouse-2, RET: go back to next history entry"))
 
 (defvar magit-xref-modes
+  ;; Do not function-quote to avoid circular dependencies.
   '(magit-log-mode
     magit-reflog-mode
     magit-diff-mode

@@ -115,8 +115,8 @@
   :type 'hook)
 
 (defcustom magit-diff-sections-hook
-  '(magit-insert-diff
-    magit-insert-xref-buttons)
+  (list #'magit-insert-diff
+        #'magit-insert-xref-buttons)
   "Hook run to insert sections into a `magit-diff-mode' buffer."
   :package-version '(magit . "2.3.0")
   :group 'magit-diff
@@ -317,7 +317,7 @@ here: `--stat-width', `--stat-name-width', `--stat-graph-width'
 and `--compact-summary'.  See the git-diff(1) manpage."
   :package-version '(magit . "3.0.0")
   :group 'magit-diff
-  :type '(radio (function-item magit-diff-use-window-width-as-stat-width)
+  :type `(radio (function-item ,#'magit-diff-use-window-width-as-stat-width)
                 function
                 (list string)
                 (const :tag "None" nil)))
@@ -339,8 +339,8 @@ and `--compact-summary'.  See the git-diff(1) manpage."
   :group 'magit-modes)
 
 (defcustom magit-revision-mode-hook
-  '(bug-reference-mode
-    goto-address-mode)
+  (list #'bug-reference-mode
+        #'goto-address-mode)
   "Hook run after entering Magit-Revision mode."
   :group 'magit-revision
   :type 'hook

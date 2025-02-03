@@ -194,12 +194,12 @@ The major mode configured here is turned on by the minor mode
 Also note that `git-commit-mode' (which see) is not a major-mode.")
 
 (defcustom git-commit-setup-hook
-  '(git-commit-ensure-comment-gap
-    git-commit-save-message
-    git-commit-setup-changelog-support
-    git-commit-turn-on-auto-fill
-    git-commit-propertize-diff
-    bug-reference-mode)
+  (list #'git-commit-ensure-comment-gap
+        #'git-commit-save-message
+        #'git-commit-setup-changelog-support
+        #'git-commit-turn-on-auto-fill
+        #'git-commit-propertize-diff
+        #'bug-reference-mode)
   "Hook run at the end of `git-commit-setup'."
   :group 'git-commit
   :type 'hook
@@ -245,7 +245,7 @@ commit, then the hook is not run at all."
   :type 'number)
 
 (defcustom git-commit-finish-query-functions
-  '(git-commit-check-style-conventions)
+  (list #'git-commit-check-style-conventions)
   "List of functions called to query before performing commit.
 
 The commit message buffer is current while the functions are

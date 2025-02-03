@@ -53,37 +53,37 @@ is inserted.  If it is nil, then all sections listed in
   :group 'magit-status
   :type 'boolean)
 
-(defcustom magit-submodule-list-mode-hook '(hl-line-mode)
+(defcustom magit-submodule-list-mode-hook (list #'hl-line-mode)
   "Hook run after entering Magit-Submodule-List mode."
   :package-version '(magit . "2.9.0")
   :group 'magit-repolist
   :type 'hook
   :get 'magit-hook-custom-get
-  :options '(hl-line-mode))
+  :options (list #'hl-line-mode))
 
 (defcustom magit-submodule-list-columns
-  '(("Path"     25 magit-modulelist-column-path
+  `(("Path"     25 ,#'magit-modulelist-column-path
      ())
-    ("Version"  25 magit-repolist-column-version
+    ("Version"  25 ,#'magit-repolist-column-version
      ((:sort magit-repolist-version<)))
-    ("Branch"   20 magit-repolist-column-branch
+    ("Branch"   20 ,#'magit-repolist-column-branch
      ())
-    ("B<P" 3 magit-repolist-column-unpulled-from-pushremote
+    ("B<P" 3 ,#'magit-repolist-column-unpulled-from-pushremote
      ((:right-align t)
       (:sort <)))
-    ("B<U" 3 magit-repolist-column-unpulled-from-upstream
+    ("B<U" 3 ,#'magit-repolist-column-unpulled-from-upstream
      ((:right-align t)
       (:sort <)))
-    ("B>P" 3 magit-repolist-column-unpushed-to-pushremote
+    ("B>P" 3 ,#'magit-repolist-column-unpushed-to-pushremote
      ((:right-align t)
       (:sort <)))
-    ("B>U" 3 magit-repolist-column-unpushed-to-upstream
+    ("B>U" 3 ,#'magit-repolist-column-unpushed-to-upstream
      ((:right-align t)
       (:sort <)))
-    ("S"   3 magit-repolist-column-stashes
+    ("S"   3 ,#'magit-repolist-column-stashes
      ((:right-align t)
       (:sort <)))
-    ("B"   3 magit-repolist-column-branches
+    ("B"   3 ,#'magit-repolist-column-branches
      ((:right-align t)
       (:sort <))))
   "List of columns displayed by `magit-list-submodules'.

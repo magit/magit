@@ -81,13 +81,14 @@ option to use `ivy-completing-read' or
 `ivy-completing-read', note that the items may always be shown in
 alphabetical order, depending on your version of Ivy."
   :group 'magit-essentials
-  :type '(radio (function-item magit-builtin-completing-read)
-                (function-item magit-ido-completing-read)
+  :type `(radio (function-item ,#'magit-builtin-completing-read)
+                (function-item ,#'magit-ido-completing-read)
                 (function-item ivy-completing-read)
                 (function-item helm--completing-read-default)
                 (function :tag "Other function")))
 
 (defcustom magit-dwim-selection
+  ;; Do not function-quote to avoid circular dependencies.
   '((magit-stash-apply        nil t)
     (magit-ediff-resolve-all  nil t)
     (magit-ediff-resolve-rest nil t)

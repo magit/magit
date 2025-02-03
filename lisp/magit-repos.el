@@ -56,28 +56,28 @@ This option controls which repositories are being listed by
   :link '(info-link "(magit)Repository List")
   :group 'magit-modes)
 
-(defcustom magit-repolist-mode-hook '(hl-line-mode)
+(defcustom magit-repolist-mode-hook (list #'hl-line-mode)
   "Hook run after entering Magit-Repolist mode."
   :package-version '(magit . "2.9.0")
   :group 'magit-repolist
   :type 'hook
   :get #'magit-hook-custom-get
-  :options '(hl-line-mode))
+  :options (list #'hl-line-mode))
 
 (defcustom magit-repolist-columns
-  '(("Name"    25 magit-repolist-column-ident
+  `(("Name"    25 ,#'magit-repolist-column-ident
      ())
-    ("Version" 25 magit-repolist-column-version
+    ("Version" 25 ,#'magit-repolist-column-version
      ((:sort magit-repolist-version<)))
-    ("B<U"      3 magit-repolist-column-unpulled-from-upstream
+    ("B<U"      3 ,#'magit-repolist-column-unpulled-from-upstream
      (;; (:help-echo "Upstream changes not in branch")
       (:right-align t)
       (:sort <)))
-    ("B>U"      3 magit-repolist-column-unpushed-to-upstream
+    ("B>U"      3 ,#'magit-repolist-column-unpushed-to-upstream
      (;; (:help-echo "Local changes not in upstream")
       (:right-align t)
       (:sort <)))
-    ("Path"    99 magit-repolist-column-path
+    ("Path"    99 ,#'magit-repolist-column-path
      ()))
   "List of columns displayed by `magit-list-repositories'.
 
@@ -118,9 +118,9 @@ than 9."
                                        (sexp   :tag "Value"))))))
 
 (defcustom magit-repolist-column-flag-alist
-  '((magit-untracked-files . "N")
-    (magit-unstaged-files . "U")
-    (magit-staged-files . "S"))
+  `((,#'magit-untracked-files . "N")
+    (,#'magit-unstaged-files . "U")
+    (,#'magit-staged-files . "S"))
   "Association list of predicates and flags for `magit-repolist-column-flag'.
 
 Each element is of the form (FUNCTION . FLAG).  Each FUNCTION is

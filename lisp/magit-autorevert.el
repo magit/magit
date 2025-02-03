@@ -58,9 +58,9 @@ is enabled."
   :group 'auto-revert
   :group 'magit-auto-revert
   :group 'magit-related
-  :type '(radio (const :tag "No filter" nil)
-                (function-item magit-auto-revert-buffer-p)
-                (function-item magit-auto-revert-repository-buffer-p)
+  :type `(radio (const :tag "No filter" nil)
+                (function-item ,#'magit-auto-revert-buffer-p)
+                (function-item ,#'magit-auto-revert-repository-buffer-p)
                 function))
 
 (defcustom magit-auto-revert-tracked-only t
