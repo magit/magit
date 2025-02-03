@@ -883,15 +883,15 @@ See info node `(magit)Debugging Tools' for more information."
                      '(;; Like `LOAD_PATH' in `default.mk'.
                        "compat"
                        "dash"
+                       "llama"
+                       "seq"
                        "transient"
                        "with-editor"
                        ;; Obviously `magit' itself is needed too.
                        "magit"
-                       ;; While these are part of the Magit repository,
-                       ;; they are distributed as separate packages.
-                       "magit-section"
-                       "git-commit"
-                       ))))
+                       ;; While this is part of the Magit repository,
+                       ;; it is distributed as a separate package.
+                       "magit-section"))))
                 ;; Avoid Emacs bug#16406 by using full path.
                 "-l" ,(file-name-sans-extension (locate-library "magit")))
               " ")))

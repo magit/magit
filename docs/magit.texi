@@ -305,7 +305,8 @@ Now see @ref{Post-Installation Tasks}.
 @node Installing from the Git Repository
 @section Installing from the Git Repository
 
-Magit depends on the @code{compat}, @code{dash}, @code{transient} and @code{with-editor} libraries
+Magit depends on the @code{compat}, @code{dash}, @code{llama}, @code{seq} (the built-in version is
+enough when using Emacs >= 29.1), @code{transient} and @code{with-editor} libraries
 which are available from Melpa and Melpa-Stable.  Install them using
 @code{M-x package-install RET <package> RET}.  Of course you may also install
 them manually from their repository.
@@ -323,17 +324,20 @@ Then compile the libraries and generate the info manuals:
 $ make
 @end example
 
-If you haven't installed @code{compat}, @code{dash}, @code{transient} and @code{with-editor} from
-Melpa or at @code{/path/to/magit/../<package>}, then you have to tell @code{make}
-where to find them.  To do so create the file @code{/path/to/magit/config.mk}
+If you haven't installed @code{compat}, @code{dash}, @code{llama}, @code{seq} (for Emacs < 29.1),
+@code{transient} and @code{with-editor} from Melpa, or at
+@code{/path/to/magit/../<package>}, then you have to tell @code{make} where to
+find them.  To do so create the file @code{/path/to/magit/config.mk}
 with the following content before running @code{make}:
 
 @example
 LOAD_PATH  = -L ~/.emacs.d/site-lisp/magit/lisp
+LOAD_PATH += -L ~/.emacs.d/site-lisp/compat
 LOAD_PATH += -L ~/.emacs.d/site-lisp/dash
+LOAD_PATH += -L ~/.emacs.d/site-lisp/llama
+LOAD_PATH += -L ~/.emacs.d/site-lisp/seq
 LOAD_PATH += -L ~/.emacs.d/site-lisp/transient/lisp
 LOAD_PATH += -L ~/.emacs.d/site-lisp/with-editor/lisp
-LOAD_PATH += -L ~/.emacs.d/site-lisp/compat
 @end example
 
 Finally add this to your init file:
@@ -351,7 +355,10 @@ Of course if you installed the dependencies manually as well, then
 you have to tell Emacs about them too, by prefixing the above with:
 
 @lisp
+(add-to-list 'load-path "~/.emacs.d/site-lisp/compat")
 (add-to-list 'load-path "~/.emacs.d/site-lisp/dash")
+(add-to-list 'load-path "~/.emacs.d/site-lisp/llama")
+(add-to-list 'load-path "~/.emacs.d/site-lisp/seq")
 (add-to-list 'load-path "~/.emacs.d/site-lisp/transient/lisp")
 (add-to-list 'load-path "~/.emacs.d/site-lisp/with-editor")
 @end lisp

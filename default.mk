@@ -191,10 +191,10 @@ endif
 
 LOAD_PATH = -L $(TOP)lisp
 
-# When making changes here, then don't forget to adjust "Makefile",
-# ".github/workflows/test.yml", ".github/ISSUE_TEMPLATE/bug_report.md",
-# `magit-emacs-Q-command' and the "Installing from the Git Repository"
-# info node accordingly.  Also don't forget to "rgrep \b<pkg>\b".
+# When making changes here, then don't forget to adjust "default.mk"
+# ".github/ISSUE_TEMPLATE/bug_report.md", `magit-emacs-Q-command' and
+# the "Installing from the Git Repository" info node accordingly.
+# Also don't forget to "rgrep \b<pkg>\b".
 
 ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(COMPAT_DIR))
@@ -233,7 +233,6 @@ DEPS += dash
 DEPS += llama
 DEPS += seq
 DEPS += transient/lisp
-DEPS += vterm
 DEPS += with-editor/lisp
 
 ## Publish ###########################################################
