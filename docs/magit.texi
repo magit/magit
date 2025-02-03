@@ -344,8 +344,7 @@ Finally add this to your init file:
 
 (with-eval-after-load 'info
   (info-initialize)
-  (add-to-list 'Info-directory-list
-               "~/.emacs.d/site-lisp/magit/Documentation/"))
+  (add-to-list 'Info-directory-list "~/.emacs.d/site-lisp/magit/docs/"))
 @end lisp
 
 Of course if you installed the dependencies manually as well, then
