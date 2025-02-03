@@ -12,7 +12,6 @@
 ;; Package-Requires: (
 ;;     (emacs "27.1")
 ;;     (compat "30.0.2.0")
-;;     (dash "2.19.1")
 ;;     (llama "0.6.0")
 ;;     (seq "2.24"))
 
@@ -45,7 +44,6 @@
 
 (require 'cl-lib)
 (require 'compat)
-(require 'dash)
 (require 'eieio)
 (require 'llama)
 (require 'subr-x)
@@ -1057,7 +1055,7 @@ global map, this involves advising `tab-bar--define-keys'."
 
 (defun magit-section-hidden-body (section &optional pred)
   (if-let ((children (oref section children)))
-      (funcall (or pred #'-any-p) #'magit-section-hidden-body children)
+      (funcall (or pred #'seq-some) #'magit-section-hidden-body children)
     (and (oref section content)
          (oref section hidden))))
 

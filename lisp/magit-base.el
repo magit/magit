@@ -37,7 +37,6 @@
 
 (require 'cl-lib)
 (require 'compat)
-(require 'dash)
 (require 'eieio)
 (require 'llama)
 (require 'subr-x)
@@ -882,7 +881,6 @@ See info node `(magit)Debugging Tools' for more information."
                          (error "Cannot find mandatory dependency %s" lib)))
                      '(;; Like `LOAD_PATH' in `default.mk'.
                        "compat"
-                       "dash"
                        "llama"
                        "seq"
                        "transient"
@@ -1019,6 +1017,16 @@ one trailing newline is added."
         (concat (string-trim str)
                 (and (eq trim ?\n) "\n"))
       str)))
+
+(defun magit--separate (pred list)
+  "Separate elements of LIST that do and don't satisfy PRED.
+Return a list of two lists; the first containing the elements that
+do satisfy PRED and the second containing the elements that don't."
+  (let (y n)
+    (dolist (elt list)
+      (push elt (if (funcall pred elt) y n)))
+    (list (nreverse y)
+          (nreverse n))))
 
 (defun magit--version> (v1 v2)
   "Return t if version V1 is higher (younger) than V2.
