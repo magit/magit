@@ -6604,11 +6604,6 @@ Also see [[man:git-stash]]
 
   When using Git v2.38.0 or later, behave more intelligently:
 
-  First try ~git stash apply --index~, which tries to preserve the index
-  stored in the stash, if any.  This may fail because applying the
-  stash could result in conflicts and those have to be stored in the
-  index, making it impossible to also store the stash's index there.
-
   First try ~git stash apply --index~, which tries to preserve the
   index stored in the stash, if any.  This may fail because applying
   the stash could result in conflicts and those have to be stored in
