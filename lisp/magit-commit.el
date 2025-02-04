@@ -430,7 +430,7 @@ Like `magit-commit-squash' but also run a `--autofixup' rebase."
 
 (defun magit-commit-assert (args &optional nopatch strict)
   (cond
-   (nopatch args)
+   (nopatch (or args (list "--")))
    ((or (magit-anything-staged-p)
         (and (magit-anything-unstaged-p)
              ;; ^ Everything of nothing is still nothing.
