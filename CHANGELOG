@@ -49,7 +49,9 @@
   of [[https://magit.vc/manual/transient/Enabling-and-Disabling-Suffixes.html][Enabling and Disabling Suffixes]] to learn how to enable it in all
   menus at once in a single action.  #5297
 
-- Began using the ~##~ macro from the ~llama~ package.
+- Began using the ~##~ macro from the ~llama~ package.  0a64982100
+
+- Stopped depending on the ~dash~ package.  e40e8f1994
 
 Bug fixes:
 
