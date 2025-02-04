@@ -32,8 +32,9 @@
 
 ;;; Code:
 
-(defconst magit--minimal-git "2.25.0")
+;; Also update EMACS_VERSION in "default.mk".
 (defconst magit--minimal-emacs "27.1")
+(defconst magit--minimal-git "2.25.0")
 
 (require 'cl-lib)
 (require 'compat)

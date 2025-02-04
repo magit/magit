@@ -114,7 +114,7 @@ VERSION ?= $(shell \
   git describe --tags --abbrev=0 --always | cut -c2-)
 REVDESC := $(shell test -e $(TOP).git && git describe --tags)
 
-EMACS_VERSION = 26.1
+EMACS_VERSION = 27.1
 
 EMACSOLD := $(shell $(BATCH) --eval \
   "(and (version< emacs-version \"$(EMACS_VERSION)\") (princ \"true\"))")
