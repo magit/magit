@@ -1093,7 +1093,7 @@ and `:slant'."
   :if 'magit-diff-argument-predicate)
 
 (defun magit-diff-argument-predicate ()
-  (or (eq transient--prefix 'magit-diff)
+  (or (eq (oref transient--prefix command) 'magit-diff)
       (derived-mode-p 'magit-diff-mode)))
 
 ;;;; Setup Commands
