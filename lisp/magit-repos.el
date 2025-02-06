@@ -242,17 +242,16 @@ If it contains \"%s\" then the directory is substituted for that."
   (let ((base default-directory)
         (len (length repos))
         (i 0))
-    (mapc (lambda (repo)
-            (let ((default-directory
-                   (file-name-as-directory (expand-file-name repo base))))
-              (if msg
-                  (let ((msg (concat (format "(%s/%s) " (cl-incf i) len)
-                                     (format msg default-directory))))
-                    (message msg)
-                    (funcall fn)
-                    (message (concat msg "done")))
-                (funcall fn))))
-          repos)))
+    (dolist (repo repos)
+      (let ((default-directory
+             (file-name-as-directory (expand-file-name repo base))))
+        (if msg
+            (let ((msg (concat (format "(%s/%s) " (cl-incf i) len)
+                               (format msg default-directory))))
+              (message msg)
+              (funcall fn)
+              (message (concat msg "done")))
+          (funcall fn))))))
 
 ;;;; Mode
 
