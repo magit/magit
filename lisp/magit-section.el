@@ -2105,7 +2105,7 @@ If optional SECTION is non-nil, only map over that section and
 its descendants, otherwise map over all sections in the current
 buffer, ending with `magit-root-section'."
   (let ((section (or section magit-root-section)))
-    (mapc (lambda (child) (magit-map-sections function child))
+    (mapc (##magit-map-sections function %)
           (oref section children))
     (funcall function section)))
 
