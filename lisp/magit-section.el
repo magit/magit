@@ -672,7 +672,7 @@ See `magit-menu-format-desc'."
     ,def
     ;; Without this, the keys for point would be shown instead
     ;; of the relevant ones from where the click occurred.
-    :keys ,(apply-partially #'magit--menu-position-keys def)
+    :keys ,(##magit--menu-position-keys def)
     ,@props))
 
 (defun magit--menu-position-keys (def)

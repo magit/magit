@@ -2232,7 +2232,7 @@ keymap is the parent of their keymaps."
     (magit-diff-wash-diffstat))
   (when (re-search-forward magit-diff-headline-re limit t)
     (goto-char (line-beginning-position))
-    (magit-wash-sequence (apply-partially #'magit-diff-wash-diff args))
+    (magit-wash-sequence (##magit-diff-wash-diff args))
     (insert ?\n)))
 
 (defun magit-jump-to-diffstat-or-diff ()
