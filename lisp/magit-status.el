@@ -812,7 +812,8 @@ Honor the buffer's file filter, which can be set using \"D - -\"."
             (cl-decf limit)
             (let ((file (pop files)))
               (magit-insert-section (file file)
-                (insert (propertize file 'font-lock-face 'magit-filename))
+                (insert (funcall magit-format-file-function
+                                 'list file 'magit-filename))
                 (insert ?\n))))
           (when files
             (magit-insert-section (info)

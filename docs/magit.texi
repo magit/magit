@@ -4094,6 +4094,14 @@ the git-diff(1) manpage.
 @end iftex
 @end defopt
 
+@defopt magit-format-file-function
+This function is used to format lines representing a file.  It is
+used for file headings in diffs, in diffstats and for lists of files
+(such as the untracked files).  Depending on the caller, it receives
+either three or five arguments; the signature has to be @code{(kind file
+  face &optional status orig)}.  KIND is one of @code{diff}, @code{stat} and @code{list}.
+@end defopt
+
 @anchor{Revision Buffer}
 @subsection Revision Buffer
 

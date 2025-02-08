@@ -1,6 +1,10 @@
 # -*- mode: org -*-
 * v4.3.1    UNRELEASED
 
+- Added new option ~magit-format-file-function,~ and two functions to
+  optionally prefix file names with icons, with the help of either
+  ~all-the-icons~ or ~nerd-icons~.  #5308
+  
 Bugfixes:
 
 - ~magit-commit-revise~ failed if no arguments were used.  #5306
