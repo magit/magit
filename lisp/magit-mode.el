@@ -419,6 +419,7 @@ recommended value."
   "!" 'magit-run
   ">" 'magit-sparse-checkout
   "C-c C-c" 'magit-dispatch
+  "C-c C-r" 'magit-next-reference
   "C-c C-e" 'magit-edit-thing
   "C-c C-o" 'magit-browse-thing
   "C-c C-w" 'magit-copy-thing

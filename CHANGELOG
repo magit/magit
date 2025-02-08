@@ -4,6 +4,10 @@
 - Added new option ~magit-format-file-function,~ and two functions to
   optionally prefix file names with icons, with the help of either
   ~all-the-icons~ or ~nerd-icons~.  #5308
+
+- Added new commands ~magit-previous-reference~ and ~magit-next-reference~,
+  with entry point ~C-c C-r~.  Enable ~repeat-mode~ to keep navigating with
+  ~p~ and ~n~.  #5310
   
 Bugfixes:
 

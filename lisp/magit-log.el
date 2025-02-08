@@ -1008,6 +1008,59 @@ of the current repository first; creating it if necessary."
          (transient-args 'magit-shortlog)))
   (magit-git-shortlog rev-or-range args))
 
+;;;; Movement Commands
+
+(defvar magit-reference-movement-faces
+  '(magit-tag
+    magit-branch-remote
+    magit-branch-remote-head
+    magit-branch-local
+    magit-branch-current
+    magit-branch-upstream
+    magit-branch-warning
+    magit-head
+    magit-refname
+    magit-refname-stash
+    magit-refname-wip
+    magit-refname-pullreq))
+
+(defvar-keymap magit-reference-navigation-repeat-map
+  :repeat t
+  "p" #'magit-previous-reference
+  "n" #'magit-next-reference
+  "r" #'magit-next-reference)
+
+(defun magit-previous-reference ()
+  "Move to the previous Git reference appearing in the current buffer.
+
+Move to the previous location that uses a face appearing in
+`magit-reference-movement-faces'.  If `repeat-mode' is enabled,
+this command and its counterpart can be repeated using \
+\\<magit-reference-navigation-repeat-map>\
+\\[magit-previous-reference] and \\[magit-next-reference]."
+  (interactive)
+  (magit-next-reference t))
+
+(defun magit-next-reference (&optional previous)
+  "Move to the next Git reference appearing in the current buffer.
+
+Move to the previous location that uses a face appearing in
+`magit-reference-movement-faces'.  If `repeat-mode' is enabled,
+this command and its counterpart can be repeated using \
+\\<magit-reference-navigation-repeat-map>\
+\\[magit-previous-reference] and \\[magit-next-reference]."
+  (interactive)
+  (catch 'found
+    (let ((pos (point)))
+      (while (and (not (eobp))
+                  (setq pos (if previous
+                                (previous-single-property-change pos 'face)
+                              (next-single-property-change pos 'face))))
+	(when (cl-intersection (ensure-list (get-text-property pos 'face))
+                               magit-reference-movement-faces)
+	  (throw 'found (goto-char pos))))
+      (message "No more references"))))
+
 ;;; Log Mode
 
 (defvar magit-log-disable-graph-hack-args
