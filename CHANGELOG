@@ -5,6 +5,9 @@ Bugfixes:
 
 - ~magit-commit-revise~ failed if no arguments were used.  #5306
 
+- Some arguments were missing from diff menus when invoked from
+  the status buffer.  #5309
+
 * v4.3.0    2025-02-04
 
 - Added new option ~magit-refs-show-branch-descriptions~.  42ed6c1966
