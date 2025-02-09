@@ -504,6 +504,7 @@ is run in the top-level directory of the current working tree."
 (transient-define-argument magit:--signoff ()
   :description "Add Signed-off-by trailer"
   :class 'transient-switch
+  :key "+s"
   :shortarg "-s"
   :argument "--signoff"
   :level 6)

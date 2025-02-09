@@ -16,6 +16,9 @@ Bugfixes:
 - Some arguments were missing from diff menus when invoked from
   the status buffer.  #5309
 
+- In some menus the bindings for ~--signoff~ conflicted with those for
+  other arguments.  #5312
+
 * v4.3.0    2025-02-04
 
 - Added new option ~magit-refs-show-branch-descriptions~.  42ed6c1966
