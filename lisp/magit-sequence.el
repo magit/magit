@@ -439,7 +439,6 @@ without prompting."
    ("-b" "Limit removal of email cruft"      "--keep-non-patch")
    ("-d" "Use author date as committer date" "--committer-date-is-author-date")
    ("-t" "Use current time as author date"   "--ignore-date")
-   ("-s" "Add Signed-off-by lines"           ("-s" "--signoff"))
    (magit:--gpg-sign)
    (magit:--signoff)]
   ["Apply"
