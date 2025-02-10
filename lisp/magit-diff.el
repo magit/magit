@@ -2508,25 +2508,33 @@ keymap is the parent of their keymaps."
   (cl-flet ((icon (if (or (eq kind 'module) (string-suffix-p "/" file))
                       'all-the-icons-icon-for-dir
                     'all-the-icons-icon-for-file)))
-    (propertize (concat (and status (format "%-11s" status))
-                        (if orig
-                            (format "%s %s -> %s %s"
-                                    (icon orig) orig
-                                    (icon file) file)
-                          (format "%s %s" (icon file) file)))
-                'font-lock-face face)))
+    (cl-letf (((symbol-function 'all-the-icons-icons-dir-is-submodule)
+               (if (eq kind 'module)
+                   (lambda (_) t)
+                 (symbol-function 'all-the-icons-icons-dir-is-submodule))))
+      (propertize (concat (and status (format "%-11s" status))
+                          (if orig
+                              (format "%s %s -> %s %s"
+                                      (icon orig) orig
+                                      (icon file) file)
+                            (format "%s %s" (icon file) file)))
+                  'font-lock-face face))))
 
 (defun magit-format-file-nerd-icons (kind file face &optional status orig)
   (cl-flet ((icon (if (or (eq kind 'module) (string-suffix-p "/" file))
                       'nerd-icons-icon-for-dir
                     'nerd-icons-icon-for-file)))
-    (propertize (concat (and status (format "%-11s" status))
-                        (if orig
-                            (format "%s %s -> %s %s"
-                                    (icon orig) orig
-                                    (icon file) file)
-                          (format "%s %s" (icon file) file)))
-                'font-lock-face face)))
+    (cl-letf (((symbol-function 'nerd-icons-dir-is-submodule)
+               (if (eq kind 'module)
+                   (lambda (_) t)
+                 (symbol-function 'nerd-icons-icons-dir-is-submodule))))
+      (propertize (concat (and status (format "%-11s" status))
+                          (if orig
+                              (format "%s %s -> %s %s"
+                                      (icon orig) orig
+                                      (icon file) file)
+                            (format "%s %s" (icon file) file)))
+                  'font-lock-face face))))
 
 (defun magit-diff-wash-submodule ()
   ;; See `show_submodule_summary' in submodule.c and "this" commit.
