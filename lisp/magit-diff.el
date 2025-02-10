@@ -2330,8 +2330,7 @@ keymap is the parent of their keymaps."
                 (when (> le ld)
                   (setq sep (concat (make-string (- le ld) ?\s) sep))))
               (magit-insert-section (file (pop files))
-                (insert (funcall magit-format-file-function
-                                 'stat file 'magit-filename))
+                (insert (magit-format-file 'stat file 'magit-filename))
                 (insert sep cnt " ")
                 (when add
                   (insert (propertize add 'font-lock-face
@@ -2483,9 +2482,8 @@ keymap is the parent of their keymaps."
         :source (and (not (equal orig file)) orig)
         :header header
         :binary binary)
-    (insert (funcall magit-format-file-function
-                     'diff file 'magit-diff-file-heading status
-                     (and (not (equal orig file)) orig)))
+    (insert (magit-format-file 'diff file 'magit-diff-file-heading status
+                               (and (not (equal orig file)) orig)))
     (cond ((and binary long-status)
            (insert (format " (%s, binary)" long-status)))
           ((or binary long-status)
@@ -2500,6 +2498,9 @@ keymap is the parent of their keymaps."
         (insert rename)
         (magit-insert-heading)))
     (magit-wash-sequence #'magit-diff-wash-hunk)))
+
+(defun magit-format-file (kind file face &optional status orig)
+  (funcall magit-format-file-function kind file face status orig))
 
 (defun magit-format-file-default (_kind file face &optional status orig)
   (propertize (concat (and status (format "%-11s" status))
@@ -2549,8 +2550,8 @@ keymap is the parent of their keymaps."
                                                   "..." range t t 1)))
           (magit-insert-section (module module t)
             (magit-insert-heading
-              (funcall magit-format-file-function
-                       'module module 'magit-diff-file-heading "modified")
+              (magit-format-file 'module module 'magit-diff-file-heading
+                                 "modified")
               " ("
               (cond (rewind "rewind")
                     ((string-search "..." range) "non-ff")
@@ -2575,14 +2576,14 @@ keymap is the parent of their keymaps."
           (magit-delete-line)
           (magit-insert-section (module module)
             (magit-insert-heading
-              (funcall magit-format-file-function
-                       'module module 'magit-diff-file-heading "submodule")
+              (magit-format-file 'module module 'magit-diff-file-heading
+                                 "submodule")
               " (" msg ")"))))
        (t
         (magit-insert-section (module module)
           (magit-insert-heading
-            (funcall magit-format-file-function
-                     'module module 'magit-diff-file-heading "modified")
+            (magit-format-file 'module module 'magit-diff-file-heading
+                               "modified")
             " ("
             (and modified "modified")
             (and modified untracked " and ")
