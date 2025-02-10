@@ -85,9 +85,6 @@
 (declare-function magit-smerge-keep-base "magit-apply" ())
 (declare-function magit-smerge-keep-lower "magit-apply" ())
 
-(declare-function all-the-icons-icon-for-file "ext:all-the-icons")
-(declare-function nerd-icons-icon-for-file "ext:nerd-icons")
-
 (eval-when-compile
   (cl-pushnew 'orig-rev eieio--known-slot-names)
   (cl-pushnew 'action-type eieio--known-slot-names)
@@ -2507,25 +2504,29 @@ keymap is the parent of their keymaps."
                       (if orig (format "%s -> %s" orig file) file))
               'font-lock-face face))
 
-(defun magit-format-file-all-the-icons (_kind file face &optional status orig)
-  (propertize
-   (concat (and status (format "%-11s" status))
-           (if orig
-               (format "%s %s -> %s %s"
-                       (all-the-icons-icon-for-file orig) orig
-                       (all-the-icons-icon-for-file file) file)
-             (format "%s %s" (all-the-icons-icon-for-file file) file)))
-   'font-lock-face face))
+(defun magit-format-file-all-the-icons (kind file face &optional status orig)
+  (cl-flet ((icon (if (or (eq kind 'module) (string-suffix-p "/" file))
+                      'all-the-icons-icon-for-dir
+                    'all-the-icons-icon-for-file)))
+    (propertize (concat (and status (format "%-11s" status))
+                        (if orig
+                            (format "%s %s -> %s %s"
+                                    (icon orig) orig
+                                    (icon file) file)
+                          (format "%s %s" (icon file) file)))
+                'font-lock-face face)))
 
-(defun magit-format-file-nerd-icons (_kind file face &optional status orig)
-  (propertize
-   (concat (and status (format "%-11s" status))
-           (if orig
-               (format "%s %s -> %s %s"
-                       (nerd-icons-icon-for-file orig) orig
-                       (nerd-icons-icon-for-file file) file)
-             (format "%s %s" (nerd-icons-icon-for-file file) file)))
-   'font-lock-face face))
+(defun magit-format-file-nerd-icons (kind file face &optional status orig)
+  (cl-flet ((icon (if (or (eq kind 'module) (string-suffix-p "/" file))
+                      'nerd-icons-icon-for-dir
+                    'nerd-icons-icon-for-file)))
+    (propertize (concat (and status (format "%-11s" status))
+                        (if orig
+                            (format "%s %s -> %s %s"
+                                    (icon orig) orig
+                                    (icon file) file)
+                          (format "%s %s" (icon file) file)))
+                'font-lock-face face)))
 
 (defun magit-diff-wash-submodule ()
   ;; See `show_submodule_summary' in submodule.c and "this" commit.
