@@ -331,8 +331,8 @@ and `--compact-summary'.  See the git-diff(1) manpage."
 This function is used for file headings in diffs, in diffstats and for
 lists of files (such as the untracked files).  Depending on the caller,
 it receives either three or five arguments; the signature has to be
-(kind file face &optional status orig).  KIND is one of `diff', `stat'
-and `list'."
+\(kind file face &optional status orig).  KIND is one of `diff',
+`module', `stat' and `list'."
   :package-version '(magit . "4.3.1")
   :group 'magit-diff
   :type `(choice (function-item ,#'magit-format-file-default)
@@ -2549,8 +2549,8 @@ keymap is the parent of their keymaps."
                                                   "..." range t t 1)))
           (magit-insert-section (module module t)
             (magit-insert-heading
-              (propertize (concat "modified   " module)
-                          'font-lock-face 'magit-diff-file-heading)
+              (funcall magit-format-file-function
+                       'module module 'magit-diff-file-heading "modified")
               " ("
               (cond (rewind "rewind")
                     ((string-search "..." range) "non-ff")
@@ -2575,14 +2575,14 @@ keymap is the parent of their keymaps."
           (magit-delete-line)
           (magit-insert-section (module module)
             (magit-insert-heading
-              (propertize (concat "submodule  " module)
-                          'font-lock-face 'magit-diff-file-heading)
+              (funcall magit-format-file-function
+                       'module module 'magit-diff-file-heading "submodule")
               " (" msg ")"))))
        (t
         (magit-insert-section (module module)
           (magit-insert-heading
-            (propertize (concat "modified   " module)
-                        'font-lock-face 'magit-diff-file-heading)
+            (funcall magit-format-file-function
+                     'module module 'magit-diff-file-heading "modified")
             " ("
             (and modified "modified")
             (and modified untracked " and ")
