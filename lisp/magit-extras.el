@@ -64,7 +64,7 @@ alternative commands."
   ["Actions"
    (" m" "Invoke mergetool" magit-git-mergetool)]
   (interactive
-   (if (and (not (eq transient-current-prefix 'magit-git-mergetool))
+   (if (and (not (eq transient-current-command 'magit-git-mergetool))
             current-prefix-arg)
        (list nil nil t)
      (list (magit-read-unmerged-file "Resolve")
