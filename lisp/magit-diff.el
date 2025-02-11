@@ -2508,10 +2508,10 @@ keymap is the parent of their keymaps."
   (cl-flet ((icon (if (or (eq kind 'module) (string-suffix-p "/" file))
                       'all-the-icons-icon-for-dir
                     'all-the-icons-icon-for-file)))
-    (cl-letf (((symbol-function 'all-the-icons-icons-dir-is-submodule)
+    (cl-letf (((symbol-function 'all-the-icons-dir-is-submodule)
                (if (eq kind 'module)
                    (lambda (_) t)
-                 (symbol-function 'all-the-icons-icons-dir-is-submodule))))
+                 (symbol-function 'all-the-icons-dir-is-submodule))))
       (propertize (concat (and status (format "%-11s" status))
                           (if orig
                               (format "%s %s -> %s %s"
@@ -2527,7 +2527,7 @@ keymap is the parent of their keymaps."
     (cl-letf (((symbol-function 'nerd-icons-dir-is-submodule)
                (if (eq kind 'module)
                    (lambda (_) t)
-                 (symbol-function 'nerd-icons-icons-dir-is-submodule))))
+                 (symbol-function 'nerd-icons-dir-is-submodule))))
       (propertize (concat (and status (format "%-11s" status))
                           (if orig
                               (format "%s %s -> %s %s"
