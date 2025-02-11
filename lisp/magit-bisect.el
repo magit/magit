@@ -299,9 +299,9 @@ bisect run'."
             (narrow-to-region beg (point))
             (goto-char (point-min))
             (magit-insert-section (bisect-item heading t)
-              (insert (propertize heading 'font-lock-face
-                                  'magit-section-secondary-heading))
-              (magit-insert-heading)
+              (magit-insert-heading
+                (propertize heading 'font-lock-face
+                            'magit-section-secondary-heading))
               (magit-wash-sequence
                (apply-partially #'magit-log-wash-rev 'bisect-log
                                 (magit-abbrev-length)))

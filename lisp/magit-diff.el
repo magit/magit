@@ -2300,8 +2300,8 @@ keymap is the parent of their keymaps."
       (magit-delete-match)
       (goto-char beg)
       (magit-insert-section (diffstat)
-        (insert (propertize heading 'font-lock-face 'magit-diff-file-heading))
-        (magit-insert-heading)
+        (magit-insert-heading
+          (propertize heading 'font-lock-face 'magit-diff-file-heading))
         (let (files)
           (while (looking-at "^[-0-9]+\t[-0-9]+\t\\(.+\\)$")
             (push (magit-decode-git-path
@@ -2479,21 +2479,19 @@ keymap is the parent of their keymaps."
         :source (and (not (equal orig file)) orig)
         :header header
         :binary binary)
-    (insert (magit-format-file 'diff file 'magit-diff-file-heading status
-                               (and (not (equal orig file)) orig)))
-    (cond ((and binary long-status)
-           (insert (format " (%s, binary)" long-status)))
-          ((or binary long-status)
-           (insert (format " (%s)" (if binary "binary" long-status)))))
-    (magit-insert-heading)
+    (magit-insert-heading
+      (magit-format-file 'diff file 'magit-diff-file-heading status
+                         (and (not (equal orig file)) orig))
+      (cond ((and binary long-status)
+             (format " (%s, binary)" long-status))
+            ((or binary long-status)
+             (format " (%s)" (if binary "binary" long-status)))))
     (when modes
       (magit-insert-section (hunk '(chmod))
-        (insert modes)
-        (magit-insert-heading)))
+        (magit-insert-heading (propertize modes 'face 'default))))
     (when rename
       (magit-insert-section (hunk '(rename))
-        (insert rename)
-        (magit-insert-heading)))
+        (magit-insert-heading (propertize rename 'face 'default))))
     (magit-wash-sequence #'magit-diff-wash-hunk)))
 
 (defun magit-format-file (kind file face &optional status orig)
@@ -2623,9 +2621,9 @@ keymap is the parent of their keymaps."
             :from-range (if combined (butlast ranges) (car ranges))
             :to-range (car (last ranges))
             :about about)
-        (insert (propertize (concat heading "\n")
-                            'font-lock-face 'magit-diff-hunk-heading))
-        (magit-insert-heading)
+        (magit-insert-heading
+          (propertize (concat heading "\n")
+                      'font-lock-face 'magit-diff-hunk-heading))
         (while (not (or (eobp) (looking-at "^[^-+\s\\]")))
           (forward-line))))
     t))
@@ -2727,9 +2725,9 @@ or a ref which is not a branch, then it inserts nothing."
                              (match-string 1)
                              (match-string 2))))
         (magit-delete-line)
-        (insert (propertize heading 'font-lock-face
-                            'magit-section-secondary-heading)))
-      (magit-insert-heading)
+        (magit-insert-heading
+          (propertize heading 'font-lock-face
+                      'magit-section-secondary-heading)))
       (forward-line)
       (magit-insert-section
           ( message nil nil
@@ -2879,13 +2877,13 @@ or a ref which is not a branch, then it inserts nothing."
 (defun magit-insert-revision-headers ()
   "Insert headers about the commit into a revision buffer."
   (magit-insert-section (headers)
-    (when-let ((string (magit-rev-format "%D" magit-buffer-revision
-                                         "--decorate=full")))
-      (insert (magit-format-ref-labels string) ?\s))
-    (insert (propertize
-             (magit-rev-parse (magit--rev-dereference magit-buffer-revision))
-             'font-lock-face 'magit-hash))
-    (magit-insert-heading)
+    (magit-insert-heading
+      (and-let* ((string (magit-rev-format "%D" magit-buffer-revision
+                                           "--decorate=full")))
+        (magit-format-ref-labels string) ?\s)
+      (propertize
+       (magit-rev-parse (magit--rev-dereference magit-buffer-revision))
+       'font-lock-face 'magit-hash))
     (let ((beg (point)))
       (magit-rev-insert-format magit-revision-headers-format
                                magit-buffer-revision)
