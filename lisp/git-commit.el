@@ -1048,10 +1048,10 @@ Added to `font-lock-extend-region-functions'."
 (defconst git-commit-font-lock-keywords-1
   '(;; Trailers
     (eval . `(,(git-commit--trailer-regexp)
-              (1 'git-commit-trailer-token)
-              (2 'git-commit-trailer-value)
-              (3 'git-commit-trailer-token)
-              (4 'git-commit-trailer-value)))
+              (1 'git-commit-trailer-token nil t)
+              (2 'git-commit-trailer-value nil t)
+              (3 'git-commit-trailer-token nil t)
+              (4 'git-commit-trailer-value nil t)))
     ;; Summary
     (eval . `(,(git-commit-summary-regexp)
               (1 'git-commit-summary)))
