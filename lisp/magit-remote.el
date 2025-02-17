@@ -83,8 +83,8 @@ has to be used to view and change remote related variables."
    [("C" "Configure..."         magit-remote-configure)
     ("p" "Prune stale branches" magit-remote-prune)
     ("P" "Prune stale refspecs" magit-remote-prune-refspecs)
-    ("b" magit-update-default-branch)
-    (7 "z" "Unshallow remote"   magit-remote-unshallow)]]
+    (7 "z" "Unshallow remote"   magit-remote-unshallow)]
+   [("d u" magit-update-default-branch)]]
   (interactive (list (magit-get-current-remote)))
   (transient-setup 'magit-remote nil nil :scope remote))
 
