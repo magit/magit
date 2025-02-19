@@ -1999,7 +1999,7 @@ commit or stash at point, then prompt for a commit."
         (dolist (s sections)
           (magit-section-show s)
           (magit-section-hide-children s))
-      (let ((children (mapcan (##oref % children) sections)))
+      (let ((children (mapcan (##copy-sequence (oref % children)) sections)))
         (cond ((and (seq-some (##oref % hidden)   children)
                     (seq-some (##oref % children) children))
                (mapc #'magit-section-show-headings sections))
