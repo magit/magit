@@ -1056,9 +1056,9 @@ this command and its counterpart can be repeated using \
                   (setq pos (if previous
                                 (previous-single-property-change pos 'face)
                               (next-single-property-change pos 'face))))
-	(when (cl-intersection (ensure-list (get-text-property pos 'face))
+        (when (cl-intersection (ensure-list (get-text-property pos 'face))
                                magit-reference-movement-faces)
-	  (throw 'found (goto-char pos))))
+          (throw 'found (goto-char pos))))
       (message "No more references"))))
 
 ;;; Log Mode
