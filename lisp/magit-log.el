@@ -1044,7 +1044,7 @@ this command and its counterpart can be repeated using \
 (defun magit-next-reference (&optional previous)
   "Move to the next Git reference appearing in the current buffer.
 
-Move to the previous location that uses a face appearing in
+Move to the next location that uses a face appearing in
 `magit-reference-movement-faces'.  If `repeat-mode' is enabled,
 this command and its counterpart can be repeated using \
 \\<magit-reference-navigation-repeat-map>\
