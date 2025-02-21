@@ -20,6 +20,13 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements support for "git subtree".
+;; The entry point is the `magit-subtree' menu command.
+
+;; See (info "(magit)Subtree").
+
 ;;; Code:
 
 (require 'magit)

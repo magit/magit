@@ -20,6 +20,13 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements support for "git bundle".
+;; The entry point is the `magit-bundle' menu command.
+
+;; See (man "git-bundle").
+
 ;;; Code:
 
 (require 'magit)

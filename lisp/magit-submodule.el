@@ -20,6 +20,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements support for "git submodule".
+
+;; See (info "(magit)Submodules").
+
 ;;; Code:
 
 (require 'magit)

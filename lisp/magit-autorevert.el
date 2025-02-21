@@ -20,6 +20,13 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with Magit.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements support for automatically reverting buffers
+;; when visited files in the repository change.
+
+;; See (info "(magit)Automatic Reverting of File-Visiting Buffers").
+
 ;;; Code:
 
 (require 'magit-process)
