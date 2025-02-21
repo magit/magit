@@ -811,7 +811,7 @@ START has to be selected from a list of recent commits."
               (edit   "edit")
               (remove "noop\n# pick")
               (reword "reword")
-              (t      (error "unknown action: %s" action)))
+              (t      (error "Unknown action: %s" action)))
             commit)))
 
 ;;;###autoload
@@ -1019,7 +1019,7 @@ status buffer (i.e., the reverse of how they will be applied)."
                  (propertize "merge" 'font-lock-face 'magit-sequence-pick)
                  "\s"
                  (magit-format-rev-summary hash) "\n"))
-           (error "failed to parse merge message hash"))))))
+           (error "Failed to parse merge message hash"))))))
   (let ((dir (magit-gitdir)))
     (magit-sequence-insert-sequence
      (magit-file-line (expand-file-name "rebase-merge/stopped-sha" dir))

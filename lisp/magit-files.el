@@ -210,7 +210,7 @@ is done using `magit-find-index-noselect'."
   (let ((file (magit-file-relative-name)))
     (unless (equal magit-buffer-refname "{index}")
       (user-error "%s isn't visiting the index" file))
-    (if (y-or-n-p (format "Update index with contents of %s" (buffer-name)))
+    (if (y-or-n-p (format "Update index with contents of %s?" (buffer-name)))
         (let ((index (make-temp-name
                       (expand-file-name "magit-update-index-" (magit-gitdir))))
               (buffer (current-buffer)))

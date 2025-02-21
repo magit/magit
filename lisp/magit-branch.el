@@ -612,7 +612,7 @@ prompt is confusing."
     ;; the respective branch name is ambiguous.
     (when-let ((ambiguous (seq-filter #'null refs)))
       (user-error
-       "%s ambiguous.  Please cleanup using git directly."
+       "%s ambiguous; please cleanup using git directly"
        (let ((len (length ambiguous)))
          (cond
           ((= len 1)
@@ -796,7 +796,7 @@ the remote."
               (remote (magit-get-push-remote new)))
           (when (and old-target
                      (not new-target)
-                     (magit-y-or-n-p (format "Also rename %S to %S on \"%s\""
+                     (magit-y-or-n-p (format "Also rename %S to %S on \"%s\"?"
                                              old new remote)))
             ;; Rename on (i.e., within) the remote, but only if the
             ;; destination ref doesn't exist yet.  If that ref already

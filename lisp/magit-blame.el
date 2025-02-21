@@ -815,7 +815,7 @@ not turn on `read-only-mode'."
       (if-let ((chunk (magit-current-blame-chunk)))
           (unless (oref chunk prev-rev)
             (user-error "Chunk has no further history"))
-        (user-error "Commit data not available yet.  Still blaming."))
+        (user-error "Still blaming, commit data not available yet"))
     (unless (magit-file-relative-name nil (not magit-buffer-file-name))
       (if buffer-file-name
           (user-error "Buffer isn't visiting a tracked file")

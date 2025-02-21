@@ -923,7 +923,7 @@ respective documentation.
 
 After manually editing ~/.authinfo.gpg you must reset
 the cache using
-  M-x auth-source-forget-all-cached RET
+  \\`M-x' `auth-source-forget-all-cached' \\`RET'
 
 The above will save you from having to repeatedly type
 your token or password, but you might still repeatedly

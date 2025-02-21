@@ -281,8 +281,8 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
                        newname)
                newname "master")))
       (cond
-       ((y-or-n-p (format "Default branch changed from `%s' to `%s' on %s.%s"
-                          oldname newname remote "  Do the same locally? "))
+       ((y-or-n-p (format "Default branch changed from `%s' to `%s' on %s.%s?"
+                          oldname newname remote "  Do the same locally"))
         (magit--set-default-branch newname oldname)
         (magit-refresh))
        ((user-error "Abort")))))))
