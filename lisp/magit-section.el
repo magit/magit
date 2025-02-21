@@ -552,24 +552,27 @@ The return value has the form ((TYPE . VALUE)...)."
 This is used to correlate different incarnations of the same
 section, see `magit-section-ident' and `magit-get-section'.
 
-Sections whose values that are not constant and/or unique should
-implement a method that return a value that can be used for this
-purpose.")
+Sections whose values are not constant and/or unique should
+implement a method that return a value that can be used for
+thispurpose.")
 
 (cl-defmethod magit-section-ident-value ((section magit-section))
   "Return the value unless it is an object.
 
-Different object incarnations representing the same value tend to not be
-equal, so call this generic function on the object itself to determine a
-constant value."
+Different object incarnations representing the same value tend to
+not be equal, so call this generic function on the object itself
+to determine a constant value."
   (let ((value (oref section value)))
     (if (eieio-object-p value)
         (magit-section-ident-value value)
       value)))
 
 (cl-defmethod magit-section-ident-value ((object eieio-default-superclass))
-  "Simply return the object itself.  That likely isn't
-good enough, so you need to implement your own method."
+  "For values that are objects, simply return the object itself.
+Two objects that represent the same entity are not `equal'.  So if
+the values of the objects of a certain section class are themselves
+objects, then a method has to be defined for objects of one of the
+involved classes."
   object)
 
 (defun magit-get-section (ident &optional root)

@@ -1884,11 +1884,11 @@ keymap is the parent of their keymaps."
   "<1>" (magit-menu-item "Visit diff" #'magit-diff-dwim))
 
 (cl-defmethod magit-section-ident-value ((section magit-unpulled-section))
-  "\"..@{push}\" cannot be used as the value because that is
-ambiguous if `push.default' does not allow a 1:1 mapping, and
-many commands would fail because of that.  But here that does
-not matter and we need an unique value so we use that string
-in the pushremote case."
+  "Return \"..@{push}\".
+\"..@{push}\" cannot be used as the value because that is ambiguous
+if `push.default' does not allow a 1:1 mapping, and many commands
+would fail because of that.  But here that does not matter and we
+need an unique value, so we use that string in the pushremote case."
   (let ((value (oref section value)))
     (if (equal value "..@{upstream}") value "..@{push}")))
 
@@ -1925,11 +1925,11 @@ in the pushremote case."
       (magit-log-insert-child-count))))
 
 (cl-defmethod magit-section-ident-value ((section magit-unpushed-section))
-  "\"..@{push}\" cannot be used as the value because that is
-ambiguous if `push.default' does not allow a 1:1 mapping, and
-many commands would fail because of that.  But here that does
-not matter and we need an unique value so we use that string
-in the pushremote case."
+  "Return \"..@{push}\".
+\"..@{push}\" cannot be used as the value because that is ambiguous
+if `push.default' does not allow a 1:1 mapping, and many commands
+would fail because of that.  But here that does not matter and we
+need an unique value, so we use that string in the pushremote case."
   (let ((value (oref section value)))
     (if (equal value "@{upstream}..") value "@{push}..")))
 
