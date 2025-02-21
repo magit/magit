@@ -825,7 +825,7 @@ and also rename the respective reflog file."
 
 ;;;###autoload
 (defun magit-branch-unshelve (branch)
-  "Unshelve a BRANCH
+  "Unshelve a BRANCH.
 Rename \"refs/shelved/BRANCH\" to \"refs/heads/BRANCH\",
 and also rename the respective reflog file."
   (interactive

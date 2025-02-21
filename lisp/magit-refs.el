@@ -247,7 +247,7 @@ the outcome.
   and lists of cherry commits relative to the reference at point
   instead of relative to the current buffer or `HEAD'.
 
-  Instead of adding this symbol, consider pressing \"C-u y o RET\".
+  Instead of adding this symbol, consider pressing \\`C-u y o RET'.
 
 `create-branch'
 

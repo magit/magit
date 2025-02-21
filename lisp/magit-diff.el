@@ -410,7 +410,7 @@ subject to option `magit-revision-insert-related-refs'."
   :type 'string)
 
 (defcustom magit-revision-insert-related-refs t
-  "Whether to show related branches in revision buffers
+  "Whether to show related branches in revision buffers.
 
 `nil'   Don't show any related branches.
 `t'     Show related local branches.

@@ -494,7 +494,7 @@ to the kill ring."
               'bug-reference-push-button))
 
 (easy-menu-define magit-mode-menu magit-mode-map
-  "Magit menu"
+  "Magit menu."
   ;; Similar to `magit-dispatch' but exclude:
   ;; - commands that are available from context menus:
   ;;   apply, reverse, discard, stage, unstage,

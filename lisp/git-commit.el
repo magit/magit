@@ -434,7 +434,7 @@ the redundant bindings, then set this to nil, before loading
 
 (require 'easymenu)
 (easy-menu-define git-commit-mode-menu git-commit-mode-map
-  "Git Commit Mode Menu"
+  "Git Commit Mode Menu."
   '("Commit"
     ["Previous" git-commit-prev-message t]
     ["Next" git-commit-next-message t]

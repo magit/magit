@@ -1463,7 +1463,7 @@ If REFNAME is ambiguous, return nil."
 Return an unambiguous refname, either REFNAME or that prefixed
 with PREFIX, nil otherwise.  If REFNAME has an offset suffix
 such as \"~1\", then that is preserved.  If optional PREFIX is
-nil, then use \"heads/\".  "
+nil, then use \"heads/\"."
   (if (magit-ref-ambiguous-p refname)
       (let ((refname (concat (or prefix "heads/") refname)))
         (and (not (magit-ref-ambiguous-p refname)) refname))
@@ -1873,7 +1873,7 @@ the name of a remote and REF is the ref local to the remote."
 
 If optional REV is nil, then default to `HEAD'.
 If optional WITH-DISTANCE is non-nil then return (TAG COMMITS),
-if it is `dirty' return (TAG COMMIT DIRTY). COMMITS is the number
+if it is `dirty' return (TAG COMMIT DIRTY).  COMMITS is the number
 of commits in `HEAD' but not in TAG and DIRTY is t if there are
 uncommitted changes, nil otherwise."
   (and-let* ((str (magit-git-str "describe" "--long" "--tags"

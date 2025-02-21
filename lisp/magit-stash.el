@@ -412,7 +412,7 @@ Then apply STASH, dropping it if it applies cleanly."
 
 ;;;###autoload
 (defun magit-stash-format-patch (stash)
-  "Create a patch from STASH"
+  "Create a patch from STASH."
   (interactive (list (magit-read-stash "Create patch from stash")))
   (with-temp-file (magit-rev-format "0001-%f.patch" stash)
     (magit-git-insert "stash" "show" "-p" stash))

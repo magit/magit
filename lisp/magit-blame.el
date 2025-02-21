@@ -107,7 +107,7 @@ the background color.
 
 Blame information is displayed using overlays.  Such extensive
 use of overlays is known to slow down even basic operations, such
-as moving the cursor. To reduce the number of overlays the margin
+as moving the cursor.  To reduce the number of overlays the margin
 style had to be removed from the default value of this option.
 
 Note that the margin overlays are created even if another style
@@ -883,7 +883,8 @@ then also kill the buffer."
     (user-error "No more chunks")))
 
 (defun magit-blame-next-chunk-same-commit (&optional previous)
-  "Move to the next chunk from the same commit.\n\n(fn)"
+  "Move to the next chunk from the same commit.
+\n(fn)"
   (interactive)
   (if-let ((rev (oref (magit-current-blame-chunk) orig-rev)))
       (let ((pos (point)) ov)
