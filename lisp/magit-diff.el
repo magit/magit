@@ -412,8 +412,8 @@ subject to option `magit-revision-insert-related-refs'."
 (defcustom magit-revision-insert-related-refs t
   "Whether to show related branches in revision buffers.
 
-`nil'   Don't show any related branches.
-`t'     Show related local branches.
+nil     Don't show any related branches.
+t       Show related local branches.
 `all'   Show related local and remote branches.
 `mixed' Show all containing branches and local merged branches.
 
@@ -433,10 +433,10 @@ This is an alist, with recognised keys being the symbols
 `parents', `merged', `contained', `follows', and `precedes';
 and the supported values for each key being:
 
-`nil'   Hide these related branches.
-`t'     Show these related branches.
+nil     Hide these related branches.
+t       Show these related branches.
 
-Keys which are not present in the alist have an implicit value `t'
+Keys which are not present in the alist have an implicit value t
 \(so the default alist value of nil means all related branch types
 will be shown.)
 

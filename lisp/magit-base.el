@@ -329,7 +329,7 @@ Various:
 Global settings:
 
   Instead of adding all of the above symbols to the value of this
-  option you can also set it to the atom `t', which has the same
+  option you can also set it to the atom t, which has the same
   effect as adding all of the above symbols.  Doing that most
   certainly is a bad idea, especially because other symbols might
   be added in the future.  So even if you don't want to be asked
