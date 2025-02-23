@@ -52,7 +52,7 @@ Bugfixes:
   #5261
 
 - The branch at point is detected in more contexts now, i.e., when
-  there is not actually a branch at point, but one can unambigiously
+  there is not actually a branch at point, but one can unambiguously
   be derived from the thing at point.  4876f1921e
 
 - Reworked ~magit-process-password-prompt-regexps~ to be more permissive
@@ -101,7 +101,7 @@ Bug fixes:
 - ~magit-stash-index~ did not use ~magit-stash-read-message-function~.
   #5295
 
-- Fixed an error that occured when creating ~magit-hunk-section-map~
+- Fixed an error that occurred when creating ~magit-hunk-section-map~
   and the user has disabled ~smerge-command-prefix~.  The same bug
   exists in Emacs since 29.1, so this will only help users stuck
   on Emacs 28.  #5300

@@ -36,7 +36,7 @@ Changes since v1.0.0
 
  * Added mode `magit-rebase-mode'.
 
- * Added buttons to commit buffer to cylce to commits which were
+ * Added buttons to commit buffer to cycle to commits which were
    previously shown.  The commands are `magit-show-commit-backward'
    and `magit-show-commit-forward.
 
