@@ -127,7 +127,7 @@ Fixes since v2.10.3
   already being held.  This happened because VC asynchronously checks
   for files with conflict, which involved using a git command that
   grabs the lock.  Magit now redefines that VC command to use a git
-  command that does not grab the lock.  #2708, debbug#21559
+  command that does not grab the lock.  #2708, debbugs#21559
 
 * Adding an untracked subdirectory as a submodule failed if a remote
   was not configured for the subdirectory repository.  #3047
