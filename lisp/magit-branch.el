@@ -38,8 +38,8 @@
 (defcustom magit-branch-read-upstream-first t
   "Whether to read upstream before name of new branch when creating a branch.
 
-nil        Read the branch name first.
-t          Read the upstream first.
+`nil'      Read the branch name first.
+`t'        Read the upstream first.
 `fallback' Read the upstream first, but if it turns out that the chosen
            value is not a valid upstream (because it cannot be resolved
            as an existing revision), then treat it as the name of the
@@ -177,7 +177,7 @@ When t, then rename the branch named OLD on the remote specified
   remote and unless NEW already exists on the remote.
 
 When `forge-only' and the `forge' package is available, then
-  behave like t if the remote points to a repository on a forge
+  behave like `t' if the remote points to a repository on a forge
   (currently Github or Gitlab), otherwise like `local-only'."
   :package-version '(magit . "2.90.0")
   :group 'magit-commands

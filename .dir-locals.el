@@ -1,5 +1,6 @@
 ((emacs-lisp-mode
-  (indent-tabs-mode . nil))
+  (indent-tabs-mode . nil)
+  (checkdoc-allow-quoting-nil-and-t . t))
  (git-commit-mode
   (git-commit-major-mode . git-commit-elisp-text-mode))
  (makefile-gmake-mode
