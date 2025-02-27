@@ -109,9 +109,9 @@ See option `magit-section-initial-visibility-alist' for how to
 control the initial visibility of the jumped to section."
   :package-version '(magit . "2.90.0")
   :group 'magit-status
-  :type '(choice (const :tag "as usual" nil)
-                 (repeat (choice (number :tag "nth top-level section")
-                                 (sexp   :tag "section identity")))))
+  :type '(choice (const :tag "As usual" nil)
+                 (repeat (choice (number :tag "Nth top-level section")
+                                 (sexp   :tag "Section identity")))))
 
 (defcustom magit-status-goto-file-position nil
   "Whether to go to position corresponding to file position.
@@ -237,10 +237,10 @@ Valid values are:
   :group 'magit-buffers
   :group 'magit-commands
   :type '(choice
-          (const :tag "always use args from buffer" always)
-          (const :tag "use args from buffer if displayed in frame" selected)
-          (const :tag "use args from buffer if it is current" current)
-          (const :tag "never use args from buffer" never)))
+          (const :tag "Always use args from buffer" always)
+          (const :tag "Use args from buffer if displayed in frame" selected)
+          (const :tag "Use args from buffer if it is current" current)
+          (const :tag "Never use args from buffer" never)))
 
 ;;; Commands
 

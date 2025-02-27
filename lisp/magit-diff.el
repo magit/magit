@@ -272,9 +272,9 @@ whitespace errors are highlighted."
   :package-version '(magit . "3.0.0")
   :group 'magit-diff
   :safe (lambda (val) (memq val '(t both all)))
-  :type '(choice (const :tag "in added lines" t)
-                 (const :tag "in added and removed lines" both)
-                 (const :tag "in added, removed and context lines" all)))
+  :type '(choice (const :tag "In added lines" t)
+                 (const :tag "In added and removed lines" both)
+                 (const :tag "In added, removed and context lines" all)))
 
 (defcustom magit-diff-highlight-trailing t
   "Whether to highlight whitespace at the end of a line in diffs.
@@ -421,10 +421,10 @@ See user option `magit-revision-insert-related-refs-display-alist'
 to hide specific sets of related branches."
   :package-version '(magit . "2.1.0")
   :group 'magit-revision
-  :type '(choice (const :tag "don't" nil)
-                 (const :tag "local only" t)
-                 (const :tag "all related" all)
-                 (const :tag "all containing, local merged" mixed)))
+  :type '(choice (const :tag "Do not" nil)
+                 (const :tag "Local only" t)
+                 (const :tag "All related" all)
+                 (const :tag "All containing, local merged" mixed)))
 
 (defcustom magit-revision-insert-related-refs-display-alist nil
   "How `magit-insert-revision-headers' displays related branch types.

@@ -40,10 +40,10 @@ the name of the added remote is equal to that string and the
 variable isn't already set."
   :package-version '(magit . "2.4.0")
   :group 'magit-commands
-  :type '(choice (const  :tag "ask if unset" ask-if-unset)
-                 (const  :tag "always ask" ask)
-                 (string :tag "set if named")
-                 (const  :tag "don't set")))
+  :type '(choice (const  :tag "Ask if unset" ask-if-unset)
+                 (const  :tag "Always ask" ask)
+                 (string :tag "Set if named")
+                 (const  :tag "Don't set")))
 
 (defcustom magit-remote-direct-configure t
   "Whether the command `magit-remote' shows Git variables.

@@ -49,8 +49,8 @@
 If nil, use pipes: this is usually more efficient, and works on Cygwin.
 If t, use ptys: this enables Magit to prompt for passphrases when needed."
   :group 'magit-process
-  :type '(choice (const :tag "pipe" nil)
-                 (const :tag "pty" t)))
+  :type '(choice (const :tag "Pipe" nil)
+                 (const :tag "Pty" t)))
 
 (defcustom magit-need-cygwin-noglob
   (and (eq system-type 'windows-nt)
@@ -257,7 +257,7 @@ process section in the process buffer, and insert the returned
 string in the heading of its section."
   :package-version '(magit . "4.0.0")
   :group 'magit-process
-  :type '(choice (const :tag "none" nil) string))
+  :type '(choice (const :tag "None" nil) string))
 
 (defvar tramp-pipe-stty-settings)
 (defvar magit-tramp-pipe-stty-settings ""

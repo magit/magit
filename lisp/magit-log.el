@@ -262,10 +262,10 @@ The message can be shown in the `echo-area' or the `header-line', or in
 be nil, in which case no usage information is shown."
   :package-version '(magit . "2.1.0")
   :group 'magit-log
-  :type '(choice (const :tag "in echo-area" echo-area)
-                 (const :tag "in header-line" header-line)
-                 (const :tag "in both places" both)
-                 (const :tag "nowhere")))
+  :type '(choice (const :tag "In echo-area" echo-area)
+                 (const :tag "In header-line" header-line)
+                 (const :tag "In both places" both)
+                 (const :tag "Nowhere")))
 
 (defcustom magit-log-select-margin
   (list (nth 0 magit-log-margin)

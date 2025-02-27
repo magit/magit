@@ -129,11 +129,11 @@ The value has the form ((COMMAND nil|PROMPT DEFAULT)...).
   :group 'magit-commands
   :type '(repeat
           (list (symbol :tag "Command") ; It might not be fboundp yet.
-                (choice (const  :tag "for all prompts" nil)
-                        (regexp :tag "for prompts matching regexp"))
-                (choice (const  :tag "offer other choices" nil)
-                        (const  :tag "require confirmation" ask)
-                        (const  :tag "use default without confirmation" t)))))
+                (choice (const  :tag "For all prompts" nil)
+                        (regexp :tag "For prompts matching regexp"))
+                (choice (const  :tag "Offer other choices" nil)
+                        (const  :tag "Require confirmation" ask)
+                        (const  :tag "Use default without confirmation" t)))))
 
 (defconst magit--confirm-actions
   '((const discard)
@@ -467,9 +467,9 @@ and delay of your graphical environment or operating system."
 `woman' View the respective man-page using the `woman' package."
   :package-version '(magit . "2.9.0")
   :group 'magit-miscellaneous
-  :type '(choice (const :tag "view info manual" info)
-                 (const :tag "view manpage using `man'" man)
-                 (const :tag "view manpage using `woman'" woman)))
+  :type '(choice (const :tag "View info manual" info)
+                 (const :tag "View manpage using `man'" man)
+                 (const :tag "View manpage using `woman'" woman)))
 
 ;;; Section Classes
 

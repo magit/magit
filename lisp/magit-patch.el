@@ -40,12 +40,12 @@ a constant list of arguments, depending on this option and
 the prefix argument."
   :package-version '(magit . "2.12.0")
   :group 'magit-diff
-  :type '(choice (const :tag "use buffer arguments" buffer)
-                 (cons :tag "use buffer arguments except"
+  :type '(choice (const :tag "Use buffer arguments" buffer)
+                 (cons :tag "Use buffer arguments except"
                        (const :format "" exclude)
                        (repeat :format "%v%i\n"
                                (string :tag "Argument")))
-                 (repeat :tag "use constant arguments"
+                 (repeat :tag "Use constant arguments"
                          (string :tag "Argument"))))
 
 ;;; Commands
