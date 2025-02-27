@@ -193,8 +193,8 @@ keep their distinct foreground colors."
 (defcustom magit-diff-refine-hunk nil
   "Whether to show word-granularity differences within diff hunks.
 
-nil    Never show fine differences.
-t      Show fine differences for the current diff hunk only.
+`nil'  Never show fine differences.
+`t'    Show fine differences for the current diff hunk only.
 `all'  Show fine differences for all displayed diff hunks."
   :group 'magit-diff
   :safe (lambda (val) (memq val '(nil t all)))
@@ -217,13 +217,13 @@ t      Show fine differences for the current diff hunk only.
 
 Determining the correct width can be expensive if it requires
 opening large and/or many files, so the widths are cached in
-the variable `magit-diff--tab-width-cache'.  Set that to nil
+the variable `magit-diff--tab-width-cache'.  Set that to `nil'
 to invalidate the cache.
 
-nil       Never adjust tab width.  Use `tab-width's value from
+`nil'     Never adjust tab width.  Use `tab-width's value from
           the Magit buffer itself instead.
 
-t         If the corresponding file-visiting buffer exits, then
+`t'       If the corresponding file-visiting buffer exits, then
           use `tab-width's value from that buffer.  Doing this is
           cheap, so this value is used even if a corresponding
           cache entry exists.
@@ -243,8 +243,8 @@ NUMBER    Like `always', but don't visit files larger than NUMBER
 (defcustom magit-diff-paint-whitespace t
   "Specify where to highlight whitespace errors.
 
-nil            Never highlight whitespace errors.
-t              Highlight whitespace errors everywhere.
+`nil'          Never highlight whitespace errors.
+`t'            Highlight whitespace errors everywhere.
 `uncommitted'  Only highlight whitespace errors in diffs
                showing uncommitted changes.
 
@@ -266,7 +266,7 @@ whitespace errors are highlighted."
 (defcustom magit-diff-paint-whitespace-lines t
   "Specify in what kind of lines to highlight whitespace errors.
 
-t         Highlight only in added lines.
+`t'       Highlight only in added lines.
 `both'    Highlight in added and removed lines.
 `all'     Highlight in added, removed and context lines."
   :package-version '(magit . "3.0.0")
@@ -437,7 +437,7 @@ and the supported values for each key being:
 `t'     Show these related branches.
 
 Keys which are not present in the alist have an implicit value `t'
-\(so the default alist value of nil means all related branch types
+\(so the default alist value of `nil' means all related branch types
 will be shown.)
 
 The types to be shown are additionally subject to user option
@@ -465,7 +465,7 @@ performance and reliability:
   long and which contain at least one number as well as at least
   one letter.
 
-If nil, then no hashes are turned into sections, but you can
+If `nil', then no hashes are turned into sections, but you can
 still visit the commit at point using \"RET\"."
   :package-version '(magit . "2.12.0")
   :group 'magit-revision
@@ -478,9 +478,9 @@ still visit the commit at point using \"RET\"."
 (defcustom magit-revision-show-gravatars nil
   "Whether to show gravatar images in revision buffers.
 
-If nil, then don't insert any gravatar images.  If t, then insert
-both images.  If `author' or `committer', then insert only the
-respective image.
+If `nil', then don't insert any gravatar images.  If `t', then
+insert both images.  If `author' or `committer', then insert
+only the respective image.
 
 If you have customized the option `magit-revision-header-format'
 and want to insert the images then you might also have to specify
@@ -489,7 +489,7 @@ two regular expressions.  The car specifies where to insert the
 author's image.  The top half of the image is inserted right
 after the matched text, the bottom half on the next line in the
 same column.  The cdr specifies where to insert the committer's
-image, accordingly.  Either the car or the cdr may be nil."
+image, accordingly.  Either the car or the cdr may be `nil'."
   :package-version '(magit . "2.3.0")
   :group 'magit-revision
   :type '(choice
