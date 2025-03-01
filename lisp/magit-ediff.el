@@ -181,8 +181,8 @@ is put in FILE."
     (setq get  (nreverse get))
     (setq make (nreverse make))
     (setq kill (nreverse kill))
-    (let ((mconf (cl-gensym "conf"))
-          (mfile (cl-gensym "file")))
+    (let ((mconf (gensym "conf"))
+          (mfile (gensym "file")))
       `(magit-with-toplevel
          (let ((,mconf (current-window-configuration))
                (,mfile ,file)

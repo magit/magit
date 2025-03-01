@@ -908,7 +908,7 @@ data, starting with 1 and incrementing by 1 for each symbol.  If
 the last match was against a string, then that has to be provided
 as STRING."
   (declare (indent 2) (debug (listp form body)))
-  (let ((s (cl-gensym "string"))
+  (let ((s (gensym "string"))
         (i 0))
     `(let ((,s ,string))
        (let ,(save-match-data

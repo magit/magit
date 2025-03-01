@@ -252,8 +252,8 @@ See info node `(magit)Debugging Tools' for more information."
 
 (defmacro magit--with-refresh-cache (key &rest body)
   (declare (indent 1) (debug (form body)))
-  (let ((k (cl-gensym))
-        (hit (cl-gensym)))
+  (let ((k (gensym))
+        (hit (gensym)))
     `(if magit--refresh-cache
          (let ((,k ,key))
            (if-let ((,hit (assoc ,k (cdr magit--refresh-cache))))
@@ -299,7 +299,7 @@ propagated by `with-temp-buffer', so we explicitly ensure that
 happens, so that processes will be invoked consistently.  BODY is
 as for that macro."
   (declare (indent 0) (debug (body)))
-  (let ((p (cl-gensym)))
+  (let ((p (gensym)))
     `(let ((,p process-environment))
        (with-temp-buffer
          (setq-local process-environment ,p)
@@ -2402,7 +2402,7 @@ and this option only controls what face is used.")
 
 (defmacro magit-with-temp-index (tree arg &rest body)
   (declare (indent 2) (debug (form form body)))
-  (let ((file (cl-gensym "file")))
+  (let ((file (gensym "file")))
     `(let ((magit--refresh-cache nil)
            (,file (magit-convert-filename-for-git
                    (make-temp-name

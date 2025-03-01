@@ -1392,7 +1392,7 @@ anything this time around.
   (pcase-let* ((bind (and (symbolp (car args))
                           (pop args)))
                (`((,class ,value ,hide . ,args) . ,body) args)
-               (obj (cl-gensym "section")))
+               (obj (gensym "section")))
     `(let* ((,obj (magit-insert-section--create
                    ,(if (eq (car-safe class) 'eval) (cadr class) `',class)
                    ,value ,hide ,@args))
@@ -1574,9 +1574,9 @@ If the section is expanded when it is created, then this is
 like `progn'.  Otherwise BODY isn't evaluated until the section
 is explicitly expanded."
   (declare (indent 0))
-  (let ((f (cl-gensym))
-        (s (cl-gensym))
-        (l (cl-gensym)))
+  (let ((f (gensym))
+        (s (gensym))
+        (l (gensym)))
     `(let ((,f (lambda () ,@body)))
        (if (oref magit-insert-section--current hidden)
            (oset magit-insert-section--current washer
