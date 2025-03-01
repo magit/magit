@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v4.3.1    UNRELEASED
+* v4.3.1    2025-03-02
 
 - Added new option ~magit-format-file-function,~ and two functions to
   optionally prefix file names with icons, with the help of either
