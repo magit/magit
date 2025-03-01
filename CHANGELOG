@@ -19,6 +19,19 @@ Bugfixes:
 - In some menus the bindings for ~--signoff~ conflicted with those for
   other arguments.  #5312
 
+- Fixed unlikely issue in ~magit-git-mergetool~.  66e3ddffe4
+
+- Unknown Git trailers resulted in a display error while writing
+  commit messages.  8c27c910ca
+
+- When the word at point matched the name of a branch, that was
+  unconditionally treated as the commit-at-point.  This should only be
+  done when that word is shown using an appropriate face.  2b3f2cb9ad
+
+- Fixed bug in ~magit-section-cycle-diffs~.  #5319
+
+- ~magit-stage-untracked~ was a bit fragile.  #5325
+
 * v4.3.0    2025-02-04
 
 - Added new option ~magit-refs-show-branch-descriptions~.  42ed6c1966
