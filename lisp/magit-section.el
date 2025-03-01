@@ -12,7 +12,7 @@
 ;; Package-Requires: (
 ;;     (emacs "27.1")
 ;;     (compat "30.0.2.0")
-;;     (llama "0.6.0")
+;;     (llama "0.6.1")
 ;;     (seq "2.24"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
