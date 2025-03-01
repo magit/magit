@@ -396,8 +396,7 @@ no effect.  This also has no effect for Emacs >= 28, where
 
 (defvar-keymap magit-section-heading-map
   :doc "Keymap used in the heading line of all expandable sections.
-This keymap is used in addition to the section-specific keymap,
-if any."
+This keymap is used in addition to the section-specific keymap, if any."
   "<double-down-mouse-1>" #'ignore
   "<double-mouse-1>" #'magit-mouse-toggle-section
   "<double-mouse-2>" #'magit-mouse-toggle-section)
