@@ -103,6 +103,7 @@ All Contributors
 - Clément Pit-Claudel
 - Cornelius Mika
 - Craig Andera
+- Curt Brune
 - Daanturo
 - Dale Hagglund
 - Damien Cassou
