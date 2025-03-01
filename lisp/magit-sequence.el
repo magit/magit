@@ -560,8 +560,8 @@ This discards all changes made since the sequence started."
     ("s" "a subset"           magit-rebase-subset)]
    [("m" "to modify a commit" magit-rebase-edit-commit)
     ("w" "to reword a commit" magit-rebase-reword-commit)
-    ("k" "to remove a commit" magit-rebase-remove-commit)
-    ("f" "to autosquash"      magit-rebase-autosquash)
+    ("k" "to remove a commit" magit-rebase-remove-commit)]
+   [("f" "to autosquash"      magit-rebase-autosquash)
     (6 "t" "to change dates"  magit-reshelve-since)]]
   ["Actions"
    :if magit-rebase-in-progress-p
