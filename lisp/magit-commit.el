@@ -148,7 +148,10 @@ Also see https://github.com/magit/magit/issues/4132."
     ("W" "Revise"         magit-commit-revise)]
    ["Edit and rebase"
     ("F" "Instant fixup"  magit-commit-instant-fixup)
-    ("S" "Instant squash" magit-commit-instant-squash)]
+    ("S" "Instant squash" magit-commit-instant-squash)
+    ""
+    ""
+    ("R" "Reword past"    magit-rebase-reword-commit :level 0)]
    ["Spread across commits"
     ("x" "Modified files"  magit-commit-autofixup :level 6)
     ("X" "Updated modules" magit-commit-absorb-modules :level 6)]]
