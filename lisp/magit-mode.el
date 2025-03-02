@@ -1142,12 +1142,13 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
 (defvar magit-after-save-refresh-buffers nil)
 
 (defun magit-after-save-refresh-buffers ()
-  (dolist (buffer magit-after-save-refresh-buffers)
-    (when (buffer-live-p buffer)
-      (with-current-buffer buffer
-        (magit-refresh-buffer))))
-  (setq magit-after-save-refresh-buffers nil)
-  (remove-hook 'post-command-hook #'magit-after-save-refresh-buffers))
+  (unless magit-inhibit-refresh
+    (dolist (buffer magit-after-save-refresh-buffers)
+      (when (buffer-live-p buffer)
+        (with-current-buffer buffer
+          (magit-refresh-buffer))))
+    (setq magit-after-save-refresh-buffers nil)
+    (remove-hook 'post-command-hook #'magit-after-save-refresh-buffers)))
 
 (defun magit-after-save-refresh-status ()
   "Refresh the status buffer of the current repository.

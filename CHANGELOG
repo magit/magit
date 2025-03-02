@@ -1,4 +1,11 @@
 # -*- mode: org -*-
+* v4.3.2    UNRELEASED
+
+Bugfixes:
+
+- ~magit-after-save-refresh-buffers~ did not respect
+  ~magit-inhibit-refresh~.
+
 * v4.3.1    2025-03-02
 
 - Added new option ~magit-format-file-function,~ and two functions to
