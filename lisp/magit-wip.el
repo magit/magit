@@ -40,39 +40,10 @@
   :group 'magit-modes
   :group 'magit-essentials)
 
-(defgroup magit-wip-legacy nil
-  "It is better to not use these modes individually."
-  :link '(info-link "(magit)Legacy Wip Modes")
-  :group 'magit-wip)
-
 (defcustom magit-wip-mode-lighter " Wip"
   "Lighter for Magit-Wip mode."
   :package-version '(magit . "2.90.0")
   :group 'magit-wip
-  :type 'string)
-
-(defcustom magit-wip-after-save-local-mode-lighter ""
-  "Lighter for Magit-Wip-After-Save-Local mode."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-wip-legacy
-  :type 'string)
-
-(defcustom magit-wip-after-apply-mode-lighter ""
-  "Lighter for Magit-Wip-After-Apply mode."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-wip-legacy
-  :type 'string)
-
-(defcustom magit-wip-before-change-mode-lighter ""
-  "Lighter for Magit-Wip-Before-Change mode."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-wip-legacy
-  :type 'string)
-
-(defcustom magit-wip-initial-backup-mode-lighter ""
-  "Lighter for Magit-Wip-Initial Backup mode."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-wip-legacy
   :type 'string)
 
 (defcustom magit-wip-merge-branch nil
@@ -138,7 +109,6 @@ the current branch.
 This mode should be enabled globally by turning on the globalized
 variant `magit-wip-after-save-mode'."
   :package-version '(magit . "2.1.0")
-  :lighter magit-wip-after-save-local-mode-lighter
   (if magit-wip-after-save-local-mode
       (if (and buffer-file-name (magit-inside-worktree-p t))
           (add-hook 'after-save-hook #'magit-wip-commit-buffer-file t t)
@@ -205,7 +175,6 @@ in the worktree and the other contains snapshots of the entries
 in the index."
   :package-version '(magit . "2.1.0")
   :group 'magit-wip
-  :lighter magit-wip-after-apply-mode-lighter
   :global t)
 
 (defun magit-wip-commit-after-apply (&optional files msg)
@@ -227,7 +196,6 @@ Only changes to files which could potentially be affected by the
 command which is about to be called are committed."
   :package-version '(magit . "2.1.0")
   :group 'magit-wip
-  :lighter magit-wip-before-change-mode-lighter
   :global t)
 
 (defun magit-wip-commit-before-change (&optional files msg)
@@ -239,7 +207,6 @@ command which is about to be called are committed."
   "Before saving a buffer for the first time, commit to a wip ref."
   :package-version '(magit . "2.90.0")
   :group 'magit-wip
-  :lighter magit-wip-initial-backup-mode-lighter
   :global t
   (if magit-wip-initial-backup-mode
       (add-hook  'before-save-hook #'magit-wip-commit-initial-backup)
