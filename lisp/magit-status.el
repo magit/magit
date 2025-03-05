@@ -568,8 +568,8 @@ the status buffer causes this section to disappear again."
   "Insert a header line about the current branch.
 If `HEAD' is detached, then insert information about that commit
 instead.  The optional BRANCH argument is for internal use only."
-  (let ((branch (or branch (magit-get-current-branch)))
-        (output (magit-rev-format "%h %s" (or branch "HEAD"))))
+  (let* ((branch (or branch (magit-get-current-branch)))
+         (output (magit-rev-format "%h %s" (or branch "HEAD"))))
     (string-match "^\\([^ ]+\\) \\(.*\\)" output)
     (magit-bind-match-strings (commit summary) output
       (when (equal summary "")
