@@ -1447,47 +1447,33 @@ anything this time around.
 
 (defun magit-insert-section--finish (obj)
   (run-hooks 'magit-insert-section-hook)
-  (let ((beg (oref obj start))
-        (end (oset obj end
-                   (if magit-section-inhibit-markers
-                       (point)
-                     (point-marker))))
-        (props `( magit-section ,obj
-                  ,@(and-let* ((map (symbol-value (oref obj keymap))))
-                      (list 'keymap map)))))
-    (unless magit-section-inhibit-markers
-      (set-marker-insertion-type beg t))
-    (cond ((eq obj magit-root-section))
-          ((oref obj children)
-           (magit-insert-child-count obj)
-           (magit-section-maybe-add-heading-map obj)
-           (save-excursion
-             (goto-char beg)
-             (while (< (point) end)
-               (let ((next (or (next-single-property-change
-                                (point) 'magit-section)
-                               end)))
-                 (unless (magit-section-at)
-                   (add-text-properties (point) next props))
-                 (goto-char next)))))
-          ((add-text-properties beg end props)))
-    (cond ((eq obj magit-root-section)
-           (when (eq magit-section-inhibit-markers 'delay)
-             (setq magit-section-inhibit-markers nil)
-             (magit-map-sections
-              (lambda (section)
-                (oset section start (copy-marker (oref section start) t))
-                (oset section end   (copy-marker (oref section end)   t)))))
-           (let ((magit-section-cache-visibility nil))
-             (magit-section-show obj)))
-          (magit-section-insert-in-reverse
-           (push obj (oref (oref obj parent) children)))
-          ((let ((parent (oref obj parent)))
-             (oset parent children
-                   (nconc (oref parent children)
-                          (list obj))))))
-    (when magit-section-insert-in-reverse
-      (oset obj children (nreverse (oref obj children))))))
+  (if magit-section-inhibit-markers
+      (oset obj end (point))
+    (oset obj end (point-marker))
+    (set-marker-insertion-type (oref obj start) t))
+  (cond
+   ((eq obj magit-root-section)
+    (when (eq magit-section-inhibit-markers 'delay)
+      (setq magit-section-inhibit-markers nil)
+      (magit-map-sections
+       (lambda (section)
+         (oset section start (copy-marker (oref section start) t))
+         (oset section end   (copy-marker (oref section end)   t)))))
+    (let ((magit-section-cache-visibility nil))
+      (magit-section-show obj)))
+   (t
+    (when (oref obj children)
+      (magit-insert-child-count obj)
+      (magit-section-maybe-add-heading-map obj))
+    (magit-section--set-section-properties obj)
+    (if magit-section-insert-in-reverse
+        (push obj (oref (oref obj parent) children))
+      (let ((parent (oref obj parent)))
+        (oset parent children
+              (nconc (oref parent children)
+                     (list obj)))))))
+  (when magit-section-insert-in-reverse
+    (oset obj children (nreverse (oref obj children)))))
 
 (defun magit-cancel-section (&optional if-empty)
   "Cancel inserting the section that is currently being inserted.
@@ -1587,6 +1573,7 @@ is explicitly expanded."
                        (funcall ,f)
                        (dolist (s ,l)
                          (set-marker-insertion-type (oref s end) nil))
+                       (magit-section--set-section-properties ,s)
                        (magit-section-maybe-remove-heading-map ,s)
                        (magit-section-maybe-remove-visibility-indicator ,s)))))
          (funcall ,f)))))
@@ -1613,6 +1600,22 @@ is explicitly expanded."
                   (oset sub-header parent 1st-header))
                 (magit-section-maybe-add-heading-map 1st-header)))))
       (remove-hook 'magit-insert-section-hook fn t))))
+
+(defun magit-section--set-section-properties (section)
+  (pcase-let* (((eieio start end children keymap) section)
+               (props `( magit-section ,section
+                         ,@(and-let* ((map (symbol-value keymap)))
+                             (list 'keymap map)))))
+    (if children
+        (save-excursion
+          (goto-char start)
+          (while (< (point) end)
+            (let ((next (or (next-single-property-change (point) 'magit-section)
+                            end)))
+              (unless (magit-section-at)
+                (add-text-properties (point) next props))
+              (goto-char next))))
+      (add-text-properties start end props))))
 
 (defun magit-section-maybe-add-heading-map (section)
   (when (magit-section-content-p section)
