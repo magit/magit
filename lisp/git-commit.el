@@ -178,6 +178,7 @@ The major mode configured here is turned on by the minor mode
                  (function-item markdown-mode)
                  (function-item org-mode)
                  (function-item fundamental-mode)
+                 (function-item log-edit-mode)
                  (function-item git-commit-elisp-text-mode)
                  (function :tag "Another mode")
                  (const :tag "No major mode")))
@@ -187,6 +188,7 @@ The major mode configured here is turned on by the minor mode
 ;;;###autoload                   markdown-mode
 ;;;###autoload                   org-mode
 ;;;###autoload                   fundamental-mode
+;;;###autoload                   log-edit-mode
 ;;;###autoload                   git-commit-elisp-text-mode))))
 
 (defvaralias 'git-commit-mode-hook 'git-commit-setup-hook
