@@ -1462,10 +1462,10 @@ anything this time around.
     (let ((magit-section-cache-visibility nil))
       (magit-section-show obj)))
    (t
-    (when (oref obj children)
-      (magit-insert-child-count obj)
-      (magit-section-maybe-add-heading-map obj))
     (magit-section--set-section-properties obj)
+    (when (oref obj children)
+      (magit-section-maybe-add-heading-map obj)
+      (magit-insert-child-count obj))
     (if magit-section-insert-in-reverse
         (push obj (oref (oref obj parent) children))
       (let ((parent (oref obj parent)))
