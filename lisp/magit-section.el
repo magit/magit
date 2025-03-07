@@ -1463,8 +1463,8 @@ anything this time around.
       (magit-section-show obj)))
    (t
     (magit-section--set-section-properties obj)
+    (magit-section-maybe-add-heading-map obj)
     (when (oref obj children)
-      (magit-section-maybe-add-heading-map obj)
       (magit-insert-child-count obj))
     (if magit-section-insert-in-reverse
         (push obj (oref (oref obj parent) children))
