@@ -660,7 +660,7 @@ the input isn't tacked to the comment."
 (defun git-commit-turn-on-auto-fill ()
   "Unconditionally turn on Auto Fill mode.
 Ensure auto filling happens everywhere, except in the summary line."
-  (turn-on-auto-fill)
+  (auto-fill-mode 1)
   (setq-local comment-auto-fill-only-comments nil)
   (when git-commit-need-summary-line
     (setq-local auto-fill-function #'git-commit-auto-fill-except-summary)))
@@ -685,7 +685,7 @@ Also check text that is already in the buffer, while avoiding to check
 most text that Git will strip from the final message, such as the last
 comment and anything below the cut line (\"--- >8 ---\")."
   (require 'flyspell)
-  (turn-on-flyspell)
+  (flyspell-mode 1)
   (setq flyspell-generic-check-word-predicate
         #'git-commit-flyspell-verify)
   (let ((end nil)
