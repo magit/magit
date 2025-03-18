@@ -604,21 +604,21 @@ acts similarly to `completing-read', except for the following:
         def)
     (unless def
       (setq def fallback))
+    (when (and def
+               (not (functionp collection))
+               (not (member def collection)))
+      (setq collection (cons def collection)))
     (let ((command this-command)
-          (reply (funcall
-                  magit-completing-read-function
-                  (magit--format-prompt prompt def)
-                  (if (and (not (functionp collection))
-                           def
-                           (not (member def collection)))
-                      (cons def collection)
-                    collection)
-                  predicate
-                  require-match initial-input hist def)))
+          (reply (funcall magit-completing-read-function
+                          (magit--format-prompt prompt def)
+                          collection predicate
+                          require-match initial-input hist def)))
       (setq this-command command)
       ;; Note: Avoid `string=' to support `helm-comp-read-use-marked'.
       (if (equal reply "")
-          (if require-match
+          (if (and require-match
+                   (not (and (listp collection)
+                             (member "" collection))))
               (user-error "Nothing selected")
             nil)
         reply))))
