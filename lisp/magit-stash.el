@@ -430,7 +430,8 @@ Then apply STASH, dropping it if it applies cleanly."
                            (magit-stash-create message index worktree untracked))
         (if (eq keep 'worktree)
             (with-temp-buffer
-              (magit-git-insert "diff" "--cached" "--no-ext-diff")
+              (magit-git-insert
+               "diff" "--cached" "--no-ext-diff" "--default-prefix")
               (magit-run-git-with-input
                "apply" "--reverse" "--cached" "--ignore-space-change" "-")
               (magit-run-git-with-input
