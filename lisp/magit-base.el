@@ -642,9 +642,13 @@ acts similarly to `completing-read', except for the following:
   (unless (or (bound-and-true-p helm-mode)
               (bound-and-true-p ivy-mode))
     (setq choices (magit--completion-table choices)))
-  (let ((ivy-sort-functions-alist nil)
-        (vertico-sort-function nil))
-    (completing-read prompt choices
+  (let ((ivy-sort-functions-alist nil))
+    (completing-read prompt
+                     (lambda (str pred action)
+                       (if (eq action 'metadata)
+                           '(metadata (display-sort-function . identity)
+                                      (cycle-sort-function . identity))
+                         (complete-with-action action choices str pred)))
                      predicate require-match
                      initial-input hist def)))
 
