@@ -150,6 +150,7 @@ option."
     "-c" "log.showSignature=false"
     "-c" "color.ui=false"
     "-c" "color.diff=false"
+    "-c" "diff.noPrefix=false"
     ,@(and (eq system-type 'windows-nt)
            (list "-c" "i18n.logOutputEncoding=UTF-8")))
   "Global Git arguments.
@@ -165,7 +166,7 @@ anything that is part of the default value, unless you really
 know what you are doing.  And think very hard before adding
 something; it will be used every time Magit runs Git for any
 purpose."
-  :package-version '(magit . "2.9.0")
+  :package-version '(magit . "4.3.2")
   :group 'magit-commands
   :group 'magit-process
   :type '(repeat string))
