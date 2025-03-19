@@ -889,17 +889,7 @@ If a frame, then only consider buffers on that frame."
       (setq magit--default-directory default-directory)
       (setq magit-buffer-locked-p (and value t))
       (magit-restore-section-visibility-cache mode))
-    (when magit-uniquify-buffer-names
-      (cl-pushnew mode uniquify-list-buffers-directory-modes)
-      (with-current-buffer buffer
-        (setq list-buffers-directory (abbreviate-file-name default-directory)))
-      (let ((uniquify-buffer-name-style
-             (if (memq uniquify-buffer-name-style '(nil forward))
-                 'post-forward-angle-brackets
-               uniquify-buffer-name-style)))
-        (uniquify-rationalize-file-buffer-names
-         name (file-name-directory (directory-file-name default-directory))
-         buffer)))
+    (magit--maybe-uniquify-buffer-names buffer name mode)
     buffer))
 
 (defun magit-generate-buffer-name-default-function (mode &optional value)
@@ -921,6 +911,19 @@ account."
        (?V . ,(if v (concat " " v) ""))
        (?t . ,n)
        (?x . ,(if magit-uniquify-buffer-names "" "*"))))))
+
+(defun magit--maybe-uniquify-buffer-names (buffer name mode)
+  (when magit-uniquify-buffer-names
+    (cl-pushnew mode uniquify-list-buffers-directory-modes)
+    (with-current-buffer buffer
+      (setq list-buffers-directory (abbreviate-file-name default-directory)))
+    (let ((uniquify-buffer-name-style
+           (if (memq uniquify-buffer-name-style '(nil forward))
+               'post-forward-angle-brackets
+             uniquify-buffer-name-style)))
+      (uniquify-rationalize-file-buffer-names
+       name (file-name-directory (directory-file-name default-directory))
+       buffer))))
 
 ;;; Buffer Lock
 
@@ -947,16 +950,25 @@ latter is displayed in its place."
             (switch-to-buffer unlocked nil t)
             (kill-buffer locked))
         (setq magit-buffer-locked-p nil)
-        (rename-buffer (funcall magit-generate-buffer-name-function
-                                major-mode)))
+        (let ((name (funcall magit-generate-buffer-name-function major-mode))
+              (buffer (current-buffer))
+              (mode major-mode))
+          (rename-buffer (generate-new-buffer-name name))
+          (with-temp-buffer
+            (magit--maybe-uniquify-buffer-names buffer name mode))))
     (if-let ((value (magit-buffer-value)))
         (if-let ((locked (magit-get-mode-buffer major-mode value)))
             (let ((unlocked (current-buffer)))
               (switch-to-buffer locked nil t)
               (kill-buffer unlocked))
           (setq magit-buffer-locked-p t)
-          (rename-buffer (funcall magit-generate-buffer-name-function
-                                  major-mode value)))
+          (let ((name (funcall magit-generate-buffer-name-function
+                               major-mode value))
+                (buffer (current-buffer))
+                (mode major-mode))
+            (rename-buffer (generate-new-buffer-name name))
+            (with-temp-buffer
+              (magit--maybe-uniquify-buffer-names buffer name mode))))
       (user-error "Buffer has no value it could be locked to"))))
 
 ;;; Bury Buffer
