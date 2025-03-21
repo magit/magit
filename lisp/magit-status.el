@@ -174,8 +174,10 @@ of the work Git is responsible for.  Turning that list into sections is
 also not free, so Magit only lists `magit-status-file-list-limit' files."
   :package-version '(magit . "4.3.0")
   :group 'magit-status
-  :type 'boolean
-  :safe 'booleanp)
+  :type '(choice (const :tag "Do not list untracked files" nil)
+                 (const :tag "List mixture of files and directories" t)
+                 (const :tag "List individual files (slow)" all))
+  :safe (##memq % '(nil t all)))
 
 (defcustom magit-status-file-list-limit 100
   "How many files to list in file list sections in the status buffer.
