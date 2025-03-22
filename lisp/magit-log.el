@@ -494,29 +494,29 @@ commits before and half after."
   :class 'magit-log-prefix
   [magit-log-infix-arguments]
   [["Log"
-    ("l"                       magit-log-current)
-    ("o" "other"               magit-log-other)
-    ("h" "HEAD"                magit-log-head :level 0)
-    ("u" "related"             magit-log-related)]
+    ("l"                     magit-log-current)
+    ("o" "other"             magit-log-other)
+    ("h" "HEAD"              magit-log-head :level 0)
+    ("u" "related"           magit-log-related)]
    [""
-    ("L" "local branches"      magit-log-branches)
-    ("b" "all branches"        magit-log-all-branches)
-    ("a" "all references"      magit-log-all)
-    (7 "B" "matching branches" magit-log-matching-branches)
-    (7 "T" "matching tags"     magit-log-matching-tags)
-    (7 "m" "merged"            magit-log-merged)]
+    ("L" "local branches"    magit-log-branches)
+    ("b" "all branches"      magit-log-all-branches)
+    ("a" "all references"    magit-log-all)
+    ("B" "matching branches" magit-log-matching-branches :level 7)
+    ("T" "matching tags"     magit-log-matching-tags     :level 7)
+    ("m" "merged"            magit-log-merged            :level 7)]
    ["Reflog"
-    ("r" "current"             magit-reflog-current)
-    ("O" "other"               magit-reflog-other)
-    ("H" "HEAD"                magit-reflog-head)]
+    ("r" "current"           magit-reflog-current)
+    ("O" "other"             magit-reflog-other)
+    ("H" "HEAD"              magit-reflog-head)]
    [:if (lambda ()
           (and (fboundp 'magit--any-wip-mode-enabled-p)
                (magit--any-wip-mode-enabled-p)))
     :description "Wiplog"
-    ("i" "index"          magit-wip-log-index)
-    ("w" "worktree"       magit-wip-log-worktree)]
+    ("i" "index"             magit-wip-log-index)
+    ("w" "worktree"          magit-wip-log-worktree)]
    ["Other"
-    (5 "s" "shortlog"    magit-shortlog)]])
+    ("s" "shortlog"          magit-shortlog)]])
 
 ;;;###autoload (autoload 'magit-log-refresh "magit-log" nil t)
 (transient-define-prefix magit-log-refresh ()
