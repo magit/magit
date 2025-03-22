@@ -494,10 +494,10 @@ commits before and half after."
   :class 'magit-log-prefix
   [magit-log-infix-arguments]
   [["Log"
-    ("l" "current"             magit-log-current)
-    ("h" "HEAD"                magit-log-head)
-    ("u" "related"             magit-log-related)
-    ("o" "other"               magit-log-other)]
+    ("l"                       magit-log-current)
+    ("o" "other"               magit-log-other)
+    ("h" "HEAD"                magit-log-head :level 0)
+    ("u" "related"             magit-log-related)]
    [""
     ("L" "local branches"      magit-log-branches)
     ("b" "all branches"        magit-log-all-branches)
@@ -507,8 +507,8 @@ commits before and half after."
     (7 "m" "merged"            magit-log-merged)]
    ["Reflog"
     ("r" "current"             magit-reflog-current)
-    ("H" "HEAD"                magit-reflog-head)
-    ("O" "other"               magit-reflog-other)]
+    ("O" "other"               magit-reflog-other)
+    ("H" "HEAD"                magit-reflog-head)]
    [:if (lambda ()
           (and (fboundp 'magit--any-wip-mode-enabled-p)
                (magit--any-wip-mode-enabled-p)))
@@ -653,13 +653,12 @@ commits before and half after."
   (magit-read-string (format "Type a pattern to pass to %s" option)))
 
 ;;;###autoload
-(defun magit-log-current (revs &optional args files)
-  "Show log for the current branch.
-When `HEAD' is detached or with a prefix argument show log for
-one or more revs read from the minibuffer."
-  (interactive (cons (magit-log-read-revs t)
-                     (magit-log-arguments)))
-  (magit-log-setup-buffer revs args files))
+(transient-define-suffix magit-log-current (&optional args files)
+  "Show log for the current branch, or `HEAD' if no branch is checked out."
+  :description (##if (magit-get-current-branch) "current" "HEAD")
+  (interactive (magit-log-arguments))
+  (magit-log-setup-buffer (list (or (magit-get-current-branch) "HEAD"))
+                          args files))
 
 ;;;###autoload
 (defun magit-log-head (&optional args files)
