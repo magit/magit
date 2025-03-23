@@ -229,10 +229,11 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
       (magit-wip-commit-before-change files (concat " before " command)))
     (with-temp-buffer
       (insert patch)
-      (magit-run-git-with-input
-       "apply" args "-p0"
-       (and ignore-context "-C0")
-       "--ignore-space-change" "-"))
+      (let ((magit-inhibit-refresh t))
+        (magit-run-git-with-input
+         "apply" args "-p0"
+         (and ignore-context "-C0")
+         "--ignore-space-change" "-")))
     (unless magit-inhibit-refresh
       (when magit-wip-after-apply-mode
         (magit-wip-commit-after-apply files (concat " after " command)))
