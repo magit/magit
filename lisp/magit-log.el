@@ -651,7 +651,7 @@ commits before and half after."
   "Read a string from the user to pass as parameter to OPTION."
   (magit-read-string (format "Type a pattern to pass to %s" option)))
 
-;;;###autoload
+;;;###autoload (autoload 'magit-log-current "magit-log" nil t)
 (transient-define-suffix magit-log-current (&optional args files)
   "Show log for the current branch, or `HEAD' if no branch is checked out."
   :description (##if (magit-get-current-branch) "current" "HEAD")
