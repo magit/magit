@@ -174,9 +174,9 @@ want to use the same functions for both hooks."
   "Function used to generate text shown in header line of log buffers."
   :package-version '(magit . "2.12.0")
   :group 'magit-log
-  :type `(choice (function-item ,#'magit-log-header-line-arguments)
-                 (function-item ,#'magit-log-header-line-sentence)
-                 function))
+  :type `(radio (function-item ,#'magit-log-header-line-arguments)
+                (function-item ,#'magit-log-header-line-sentence)
+                function))
 
 (defcustom magit-log-trace-definition-function #'magit-which-function
   "Function used to determine the function at point.
@@ -185,10 +185,10 @@ You should prefer `magit-which-function' over `which-function'
 because the latter may make use of Imenu's outdated cache."
   :package-version '(magit . "3.0.0")
   :group 'magit-log
-  :type `(choice (function-item ,#'magit-which-function)
-                 (function-item ,#'which-function)
-                 (function-item ,#'add-log-current-defun)
-                 function))
+  :type `(radio (function-item ,#'magit-which-function)
+                (function-item ,#'which-function)
+                (function-item ,#'add-log-current-defun)
+                function))
 
 (defcustom magit-log-color-graph-limit 256
   "Number of commits over which log graphs are not colored.
