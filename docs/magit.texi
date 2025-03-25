@@ -6819,9 +6819,9 @@ stuck on some obsolete version of the commits that are being merged.
 Finally, if @code{magit-branch-pull-request} was used to create the merged
 branch, then the respective remote branch is also removed.
 
-@item @kbd{m i} (@code{magit-merge-into})
-@kindex m i
-@findex magit-merge-into
+@item @kbd{m d} (@code{magit-merge-dissolve})
+@kindex m d
+@findex magit-merge-dissolve
 This command merges the current branch into another local branch and
 then removes the former.  The latter becomes the new current branch.
 

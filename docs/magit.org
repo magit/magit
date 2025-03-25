@@ -5768,7 +5768,7 @@ following suffix commands.
   Finally, if ~magit-branch-pull-request~ was used to create the merged
   branch, then the respective remote branch is also removed.
 
-- Key: m i (magit-merge-into) ::
+- Key: m d (magit-merge-dissolve) ::
 
   This command merges the current branch into another local branch and
   then removes the former.  The latter becomes the new current branch.
