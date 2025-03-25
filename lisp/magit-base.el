@@ -1047,7 +1047,7 @@ This function should be named `version>=' and be part of Emacs."
 ;;; Kludges for Emacs Bugs
 
 (defun magit-which-function ()
-  "Return current function name based on point.
+  "Return current function name based on point, without caching.
 
 This is a simple wrapper around `which-function', that resets
 Imenu's potentially outdated and therefore unreliable cache by
