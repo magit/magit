@@ -332,10 +332,10 @@ it receives either three or five arguments; the signature has to be
 `module', `stat' and `list'."
   :package-version '(magit . "4.3.1")
   :group 'magit-diff
-  :type `(choice (function-item ,#'magit-format-file-default)
-                 (function-item ,#'magit-format-file-all-the-icons)
-                 (function-item ,#'magit-format-file-nerd-icons)
-                 function))
+  :type `(radio (function-item ,#'magit-format-file-default)
+                (function-item ,#'magit-format-file-all-the-icons)
+                (function-item ,#'magit-format-file-nerd-icons)
+                function))
 
 ;;;; File Diff
 
@@ -2498,11 +2498,15 @@ keymap is the parent of their keymaps."
   (funcall magit-format-file-function kind file face status orig))
 
 (defun magit-format-file-default (_kind file face &optional status orig)
+  "Show only the Git status and the filename."
   (propertize (concat (and status (format "%-11s" status))
                       (if orig (format "%s -> %s" orig file) file))
               'font-lock-face face))
 
 (defun magit-format-file-all-the-icons (kind file face &optional status orig)
+  "Show the status, filename and icon (using the `all-the-icons' package).
+You have to explicitly install the `all-the-icons' package, else this
+function errors."
   (cl-flet ((icon (if (or (eq kind 'module) (string-suffix-p "/" file))
                       'all-the-icons-icon-for-dir
                     'all-the-icons-icon-for-file)))
@@ -2519,6 +2523,9 @@ keymap is the parent of their keymaps."
                   'font-lock-face face))))
 
 (defun magit-format-file-nerd-icons (kind file face &optional status orig)
+  "Show the status, filename and icon (using the `nerd-icons' package).
+You have to explicitly install the `nerd-icons' package, else this
+function errors."
   (cl-flet ((icon (if (or (eq kind 'module) (string-suffix-p "/" file))
                       'nerd-icons-icon-for-dir
                     'nerd-icons-icon-for-file)))
