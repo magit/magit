@@ -1,10 +1,38 @@
 # -*- mode: org -*-
 * v4.3.2    UNRELEASED
 
+- Removed legacy options ~magit-wip-*-mode-lighter~.  225ea6fd00
+
+- ~magit-log-current~ now falls back to displaying log for ~HEAD~ if no
+  branch is checked out, and the now redundant ~magit-log-head~ is no
+  longer displayed in the ~magit-log~ menu by default.  c8b1e12bd5
+
+- Renamed ~magit-merge-into~ to ~magit-merge-dissolve~ and changed the
+  key binding in the ~magit-merge~ menu from ~i~ to ~d~.  The descripton
+  in that menu already was "dissolve".  Do this to make it more
+  obvious that this command deletes the source branch after it has
+  been merged into the target branch.  #4386
+
+- Added new option ~magit-process-apply-ansi-colors~ (but discourage
+  its use).  #5348
+
 Bugfixes:
 
 - ~magit-after-save-refresh-buffers~ did not respect
-  ~magit-inhibit-refresh~.
+  ~magit-inhibit-refresh~.  c0a8e694b9
+
+- When washing of a section was delayed and it ends in an empty line,
+  that line was not always made part of the section.  f6f25e6566
+
+- In some cases section specific key bindings were not made available
+  as intended.  6ce1ece580, 3f79700f1b
+
+- In some cases ~magit-toggle-buffer-lock~ has to uniquify buffer names
+  but failed to do so.  #5330
+
+- After applying a hunk, the buffer was refreshed twice.  #5343
+
+Also contains code cleanups and other fixes.
 
 * v4.3.1    2025-03-02
 
