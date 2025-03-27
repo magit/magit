@@ -41,6 +41,9 @@
 (defvar messages-buffer-name)
 (defvar y-or-n-p-map)
 
+(define-obsolete-variable-alias 'magit-process-finish-apply-ansi-colors
+  'magit-process-apply-ansi-colors "Magit-Section 4.3.2")
+
 ;;; Options
 
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
@@ -249,6 +252,24 @@ implement such functions."
   :package-version '(magit . "2.12.0")
   :group 'magit-process
   :type 'boolean)
+
+(defcustom magit-process-apply-ansi-colors nil
+  "Whether and when to apply color escapes in the process buffer.
+
+Magit instructs Git to not colorize its output, but third-party Git
+hooks may do so anyway.  We recommend you figure out how to prevent
+such hooks from colorizing their output instead of customizing this
+option.
+
+If `nil' (the default), do not apply color escape sequences.  If `t',
+apply them once the subprocess has finished.  If `filter', apply them
+as input arrives (which is more expensive and potentially fragile).
+This is a footgun; starter-kits should leave this option untouched."
+  :package-version '(magit . "4.3.2")
+  :group 'magit-process
+  :type '(choice (const :tag "Do not apply" nil)
+                 (const :tag "Apply when subprocess has finished" t)
+                 (const :tag "Apply using process filter" filter)))
 
 (defcustom magit-process-timestamp-format nil
   "Format of timestamp for each process in the process buffer.
@@ -843,6 +864,8 @@ Magit status buffer."
         (setq string (substring string (1+ ret-pos)))
         (delete-region (line-beginning-position) (point)))
       (setq string (magit-process-remove-bogus-errors string))
+      (when (eq magit-process-apply-ansi-colors 'filter)
+        (setq string (ansi-color-apply string)))
       (insert (propertize string 'magit-section
                           (process-get proc 'section)))
       (set-marker (process-mark proc) (point))
@@ -1195,8 +1218,6 @@ Limited by `magit-process-error-tooltip-max-lines'."
 
 (defvar-local magit-this-error nil)
 
-(defvar magit-process-finish-apply-ansi-colors nil)
-
 (defun magit-process-finish (arg &optional process-buf command-buf
                                  default-dir section)
   (unless (integerp arg)
@@ -1256,7 +1277,7 @@ Limited by `magit-process-error-tooltip-max-lines'."
                                               'magit-process-ok
                                             'magit-process-ng)))
       (set-marker-insertion-type marker t))
-    (when magit-process-finish-apply-ansi-colors
+    (when (eq magit-process-apply-ansi-colors t)
       (ansi-color-apply-on-region (oref section content)
                                   (oref section end)))
     (if (= (oref section end)
