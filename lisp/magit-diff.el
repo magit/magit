@@ -2050,6 +2050,9 @@ Staging and applying changes is documented in info node
 (put 'magit-diff-mode 'magit-diff-default-arguments
      '("--stat" "--no-ext-diff"))
 
+(when (fboundp 'derived-mode-add-parents)
+  (derived-mode-add-parents 'magit-diff-mode '(diff-mode)))
+
 (defun magit-diff-setup-buffer ( range typearg args files
                                  &optional type locked)
   (require 'magit)
