@@ -378,14 +378,14 @@ ignored) files."
                      "--" plain)
       (when magit-auto-revert-mode
         (mapc #'magit-turn-on-auto-revert-mode-if-desired plain)))
-    (dolist (repo repos)
-      (save-excursion
-        (goto-char (oref (magit-get-section
-                          `((file . ,repo) (untracked) (status)))
-                         start))
-        (when (and (fboundp 'borg-assimilate)
-                   (fboundp 'borg--maybe-absorb-gitdir)
-                   (fboundp 'borg--sort-submodule-sections))
+    (when (and (fboundp 'borg-assimilate)
+               (fboundp 'borg--maybe-absorb-gitdir)
+               (fboundp 'borg--sort-submodule-sections))
+      (dolist (repo repos)
+        (save-excursion
+          (goto-char (oref (magit-get-section
+                            `((file . ,repo) (untracked) (status)))
+                           start))
           (let* ((topdir (magit-toplevel))
                  (url (let ((default-directory
                              (file-name-as-directory (expand-file-name repo))))
