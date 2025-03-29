@@ -274,8 +274,7 @@ return nil, possibly causing whitespace changes to be applied."
                                    "--ignore-all-space"
                                    "--ignore-blank-lines")))
                    magit-buffer-diff-args)
-       (not (cl-find-if (lambda (section)
-                          (oref section binary))
+       (not (cl-find-if (##oref % binary)
                         (ensure-list selection)))))
 
 ;;;; Stage
@@ -624,9 +623,7 @@ of a side, then keep that side without prompting."
                      (magit-read-char-case
                          (format "For these %d files\n%s\ncheckout:\n"
                                  (length files)
-                                 (mapconcat (lambda (file)
-                                              (concat "  " file))
-                                            files "\n"))
+                                 (mapconcat (##concat "  " %) files "\n"))
                          t
                        (?o "[o]ur stage"   "--ours")
                        (?t "[t]heir stage" "--theirs")

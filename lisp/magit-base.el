@@ -808,12 +808,12 @@ ACTION is a member of option `magit-slow-confirm'."
   (when (and prompt (listp prompt))
     (setq prompt
           (apply #'format (car prompt)
-                 (mapcar (lambda (a) (if (stringp a) (string-replace "%" "%%" a) a))
+                 (mapcar (##if (stringp %) (string-replace "%" "%%" %) %)
                          (cdr prompt)))))
   (when (and prompt-n (listp prompt-n))
     (setq prompt-n
           (apply #'format (car prompt-n)
-                 (mapcar (lambda (a) (if (stringp a) (string-replace "%" "%%" a) a))
+                 (mapcar (##if (stringp %) (string-replace "%" "%%" %) %)
                          (cdr prompt-n)))))
   (setq prompt-n (format (concat (or prompt-n prompt) "? ") (length items)))
   (setq prompt   (format (concat (or prompt (magit-confirm-make-prompt action))
@@ -878,7 +878,7 @@ See info node `(magit)Debugging Tools' for more information."
               `(,(concat invocation-directory invocation-name)
                 "-Q" "--eval" "(setq debug-on-error t)"
                 ,@(mapcan
-                   (lambda (dir) (list "-L" dir))
+                   (##list "-L" %)
                    (delete-dups
                     (mapcan
                      (lambda (lib)

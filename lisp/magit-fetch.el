@@ -99,8 +99,8 @@ Otherwise if a remote named \"origin\" exists, then use that.
 If no remote can be determined, then this command is not available
 from the `magit-fetch' transient prefix and invoking it directly
 results in an error."
-  :if          (lambda () (magit-get-current-remote t))
-  :description (lambda () (magit-get-current-remote t))
+  :if          (##magit-get-current-remote t)
+  :description (##magit-get-current-remote t)
   (interactive (list (magit-get-current-remote t)
                      (magit-fetch-arguments)))
   (unless remote

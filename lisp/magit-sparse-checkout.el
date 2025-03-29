@@ -113,7 +113,7 @@ directories, call `magit-sparse-checkout-set' instead."
            (let ((re (concat
                       "\\`"
                       (regexp-opt (magit-sparse-checkout-directories)))))
-             (lambda (d) (string-match-p re d)))
+             (##string-match-p re %))
            (magit-revision-directories "HEAD")))))
   (magit-sparse-checkout--auto-enable)
   (magit-run-git-async "sparse-checkout" "add" directories))

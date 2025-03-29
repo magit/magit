@@ -1145,8 +1145,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
       (setq revs (if (< (string-to-number count) limit)
                      revs
                    (format "%s~%s..%s" revs limit revs))))
-    (let ((delay (cl-find-if (lambda (arg)
-                               (member arg '("++header" "--patch" "--stat")))
+    (let ((delay (cl-find-if (##member % '("++header" "--patch" "--stat"))
                              args)))
       (setq magit-section-inhibit-markers (if delay 'delay t))
       (setq magit-section-insert-in-reverse (not delay)))
@@ -1179,10 +1178,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 
 (defun magit-log-header-line-arguments (revs args files)
   "Return string describing some of the used arguments."
-  (mapconcat (lambda (arg)
-               (if (string-search " " arg)
-                   (prin1 arg)
-                 arg))
+  (mapconcat (##if (string-search " " %) (prin1 %) %)
              `("git" "log" ,@args ,@revs "--" ,@files)
              " "))
 

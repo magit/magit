@@ -498,7 +498,7 @@ insert the run command and stderr into the process buffer."
 (defun magit--locate-error-message ()
   (goto-char (point-max))
   (and (run-hook-wrapped 'magit-process-error-message-regexps
-                         (lambda (re) (re-search-backward re nil t)))
+                         (##re-search-backward % nil t))
        (match-string-no-properties 1)))
 
 (defun magit-git-string (&rest args)
@@ -1182,7 +1182,7 @@ Sorted from longest to shortest CYGWIN name."
     (setq filename (expand-file-name filename)))
   (if-let ((cyg:win (and (not (file-remote-p default-directory)) ; see #4976
                          (cl-assoc filename magit-cygwin-mount-points
-                                   :test (lambda (f cyg) (string-prefix-p cyg f))))))
+                                   :test (##string-prefix-p %2 %1)))))
       (concat (cdr cyg:win)
               (substring filename (length (car cyg:win))))
     filename))
@@ -1196,7 +1196,7 @@ Sorted from longest to shortest CYGWIN name."
 3. Deal with an `windows-nt' Emacs vs. Cygwin Git incompatibility."
   (if (file-name-absolute-p filename)
       (if-let ((cyg:win (cl-rassoc filename magit-cygwin-mount-points
-                                   :test (lambda (f win) (string-prefix-p win f)))))
+                                   :test (##string-prefix-p %2 %1))))
           (concat (car cyg:win)
                   (substring filename (length (cdr cyg:win))))
         (let ((expanded (expand-file-name filename)))
@@ -1286,8 +1286,7 @@ are considered."
   (not (magit-module-worktree-p module)))
 
 (defun magit-ignore-submodules-p (&optional return-argument)
-  (or (cl-find-if (lambda (arg)
-                    (string-prefix-p "--ignore-submodules" arg))
+  (or (cl-find-if (##string-prefix-p "--ignore-submodules" %)
                   magit-buffer-diff-args)
       (and-let* ((value (magit-get "diff.ignoreSubmodules")))
         (if return-argument
@@ -1630,7 +1629,7 @@ The amount of time spent searching is limited by
 (defun magit--set-default-branch (newname oldname)
   (let ((remote (or (magit-primary-remote)
                     (user-error "Cannot determine primary remote")))
-        (branches (mapcar (lambda (line) (split-string line "\t"))
+        (branches (mapcar (##split-string % "\t")
                           (magit-git-lines
                            "for-each-ref" "refs/heads"
                            "--format=%(refname:short)\t%(upstream:short)"))))
@@ -1808,8 +1807,7 @@ exists, then remotes in `magit-primary-remote-names' are tried in
 order and the first remote from that list that actually exists in
 the current repository is considered its primary remote."
   (let ((remotes (magit-list-remotes)))
-    (seq-find (lambda (name)
-                (member name remotes))
+    (seq-find (##member % remotes)
               (delete-dups
                (delq nil
                      (cons (magit-get "magit.primaryRemote")
@@ -1983,8 +1981,7 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
 
 (defun magit-list-special-refnames ()
   (let ((gitdir (magit-gitdir)))
-    (cl-remove-if-not (lambda (name)
-                        (file-exists-p (expand-file-name name gitdir)))
+    (cl-remove-if-not (##file-exists-p (expand-file-name % gitdir))
                       magit-special-refnames)))
 
 (defun magit-list-branch-names ()
@@ -2183,8 +2180,7 @@ exists, then the branch names in `magit-main-branch-names' are
 tried in order.  The first branch from that list that actually
 exists in the current repository is considered its main branch."
   (let ((branches (magit-list-local-branch-names)))
-    (seq-find (lambda (name)
-                (member name branches))
+    (seq-find (##member % branches)
               (delete-dups
                (delq nil
                      (cons (magit-get "init.defaultBranch")

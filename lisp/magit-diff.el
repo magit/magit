@@ -197,7 +197,7 @@ keep their distinct foreground colors."
 `t'    Show fine differences for the current diff hunk only.
 `all'  Show fine differences for all displayed diff hunks."
   :group 'magit-diff
-  :safe (lambda (val) (memq val '(nil t all)))
+  :safe (##memq % '(nil t all))
   :type '(choice (const :tag "Never" nil)
                  (const :tag "Current" t)
                  (const :tag "All" all)))
@@ -258,7 +258,7 @@ The options `magit-diff-highlight-trailing' and
 `magit-diff-highlight-indentation' control what kind of
 whitespace errors are highlighted."
   :group 'magit-diff
-  :safe (lambda (val) (memq val '(t nil uncommitted status)))
+  :safe (##memq % '(t nil uncommitted status))
   :type '(choice (const :tag "In all diffs" t)
                  (const :tag "Only in uncommitted changes" uncommitted)
                  (const :tag "Never" nil)))
@@ -271,7 +271,7 @@ whitespace errors are highlighted."
 `all'     Highlight in added, removed and context lines."
   :package-version '(magit . "3.0.0")
   :group 'magit-diff
-  :safe (lambda (val) (memq val '(t both all)))
+  :safe (##memq % '(t both all))
   :type '(choice (const :tag "In added lines" t)
                  (const :tag "In added and removed lines" both)
                  (const :tag "In added, removed and context lines" all)))
@@ -1522,12 +1522,12 @@ instead."
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT lines."
   (interactive "p")
-  (magit-diff-set-context (lambda (cur) (max 0 (- (or cur 0) count)))))
+  (magit-diff-set-context (##max 0 (- (or % 0) count))))
 
 (defun magit-diff-more-context (&optional count)
   "Increase the context for diff hunks by COUNT lines."
   (interactive "p")
-  (magit-diff-set-context (lambda (cur) (+ (or cur 0) count))))
+  (magit-diff-set-context (##+ (or % 0) count)))
 
 (defun magit-diff-default-context ()
   "Reset context for diff hunks to the default height."
@@ -2232,7 +2232,7 @@ keymap is the parent of their keymaps."
     (unless (equal cmd "merge-tree")
       (push "--ita-visible-in-index" args))
     (setq args (magit-diff--maybe-add-stat-arguments args))
-    (when (cl-member-if (lambda (arg) (string-prefix-p "--color-moved" arg)) args)
+    (when (cl-member-if (##string-prefix-p "--color-moved" %) args)
       (push "--color=always" args)
       (setq magit-git-global-arguments
             (append magit-diff--reset-non-color-moved
@@ -2339,7 +2339,7 @@ keymap is the parent of their keymaps."
         (if (looking-at "^$") (forward-line) (insert "\n"))))))
 
 (defun magit-diff-wash-diff (args)
-  (when (cl-member-if (lambda (arg) (string-prefix-p "--color-moved" arg)) args)
+  (when (cl-member-if (##string-prefix-p "--color-moved" %) args)
     (require 'ansi-color)
     (ansi-color-apply-on-region (point-min) (point-max)))
   (cond
@@ -2454,7 +2454,7 @@ keymap is the parent of their keymaps."
       (setq header (nreverse header))
       ;; KLUDGE `git-log' ignores `--no-prefix' when `-L' is used.
       (when (and (derived-mode-p 'magit-log-mode)
-                 (seq-some (lambda (arg) (string-prefix-p "-L" arg))
+                 (seq-some (##string-prefix-p "-L" %)
                            magit-buffer-log-args))
         (when orig
           (setq orig (substring orig 2)))

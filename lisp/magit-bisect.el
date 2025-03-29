@@ -62,7 +62,7 @@
    ["Arguments"
     ("-n" "Don't checkout commits"              "--no-checkout")
     ("-p" "Follow only first parent of a merge" "--first-parent"
-     :if (lambda () (magit-git-version>= "2.29")))
+     :if (##magit-git-version>= "2.29"))
     (magit-bisect:--term-old :level 6)
     (magit-bisect:--term-new :level 6)]
    ["Actions"

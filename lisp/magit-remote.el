@@ -68,7 +68,7 @@ has to be used to view and change remote related variables."
   :man-page "git-remote"
   :value '("-f")
   ["Variables"
-   :if (lambda () (and magit-remote-direct-configure (transient-scope)))
+   :if (##and magit-remote-direct-configure (transient-scope))
    ("u" magit-remote.<remote>.url)
    ("U" magit-remote.<remote>.fetch)
    ("s" magit-remote.<remote>.pushurl)
@@ -210,13 +210,11 @@ the now stale refspecs.  Other stale branches are not removed."
                     nil refs))
               (magit-confirm 'prune-stale-refspecs nil
                 (format "Prune %%d stale refspecs and %d branches"
-                        (length (mapcan (lambda (s) (copy-sequence (cdr s)))
-                                        stale)))
+                        (length (mapcan (##copy-sequence (cdr %)) stale)))
                 nil
                 (mapcar (pcase-lambda (`(,refspec . ,refs))
                           (concat refspec "\n"
-                                  (mapconcat (lambda (b) (concat "  " b))
-                                             refs "\n")))
+                                  (mapconcat (##concat "  " %) refs "\n")))
                         stale)))
             (pcase-dolist (`(,refspec . ,refs) stale)
               (magit-call-git "config" "--unset" variable

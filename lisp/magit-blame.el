@@ -343,8 +343,7 @@ in `magit-blame-read-only-mode-map' instead."
          (unless magit-blame--style
            (setq magit-blame--style (car magit-blame-styles)))
          (setq magit-blame--make-margin-overlays
-               (and (cl-find-if (lambda (style)
-                                  (assq 'margin-format (cdr style)))
+               (and (cl-find-if (##assq 'margin-format (cdr %))
                                 magit-blame-styles)))
          (magit-blame--update-margin 'enable))
         (t

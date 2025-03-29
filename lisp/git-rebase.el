@@ -588,8 +588,7 @@ commit.  For an upper-case -C, the message will be used as is."
           (insert
            (format "merge %s %s %s\n"
                    (replace-regexp-in-string
-                    "-[cC]" (lambda (c)
-                              (if (equal c "-c") "-C" "-c"))
+                    "-[cC]" (##if (equal % "-c") "-C" "-c")
                     action-options t t)
                    target
                    trailer)))

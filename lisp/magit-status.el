@@ -783,8 +783,7 @@ Honor the buffer's file filter, which can be set using \"D - -\"."
 (defun magit-insert-ignored-files ()
   "Insert a list of ignored files.
 Honor the buffer's file filter, which can be set using \"D - -\"."
-  (magit-insert-files 'ignored
-                      (lambda (args) (magit-ignored-files "--directory" args))))
+  (magit-insert-files 'ignored (##magit-ignored-files "--directory" %)))
 
 (defun magit-insert-skip-worktree-files ()
   "Insert a list of skip-worktree files.

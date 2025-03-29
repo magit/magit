@@ -63,7 +63,7 @@ To change the value in an existing buffer use the command
 `magit-refs-set-show-commit-count'."
   :package-version '(magit . "2.1.0")
   :group 'magit-refs
-  :safe (lambda (val) (memq val '(all branch nil)))
+  :safe (##memq % '(all branch nil))
   :type '(choice (const :tag "For branches and tags" all)
                  (const :tag "For branches only"     branch)
                  (const :tag "Never"                 nil)))
@@ -134,7 +134,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
   :package-version '(magit . "2.9.0")
   :group 'magit-refs
   :group 'magit-margin
-  :safe (lambda (val) (memq val '(all branch nil)))
+  :safe (##memq % '(all branch nil))
   :type magit-log-margin--custom-type
   :initialize #'magit-custom-initialize-reset
   :set-after '(magit-log-margin)
@@ -333,8 +333,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (transient-define-prefix magit-show-refs (&optional transient)
   "List and compare references in a dedicated buffer."
   :man-page "git-branch"
-  :value (lambda ()
-           (magit-show-refs-arguments magit-prefix-use-buffer-arguments))
+  :value (##magit-show-refs-arguments magit-prefix-use-buffer-arguments)
   ["Arguments"
    (magit-for-each-ref:--contains)
    ("-M" "Merged"               "--merged=" magit-transient-read-revision)

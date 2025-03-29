@@ -635,11 +635,11 @@ with SECTION, otherwise return a list of section types."
       (when-let (((not (oref section hidden)))
                  (children (oref section children)))
         (when (seq-some #'magit-section-content-p children)
-          (when (seq-some (lambda (c) (oref c hidden)) children)
+          (when (seq-some (##oref % hidden) children)
             (keymap-set-after menu "<magit-section-show-children>"
               `(menu-item "Expand children"
                           magit-section-show-children)))
-          (when (seq-some (lambda (c) (not (oref c hidden))) children)
+          (when (seq-some (##not (oref % hidden)) children)
             (keymap-set-after menu "<magit-section-hide-children>"
               `(menu-item "Collapse children"
                           magit-section-hide-children)))))
@@ -1580,7 +1580,7 @@ is explicitly expanded."
 
 (defun magit-insert-headers (hook)
   (let* ((header-sections nil)
-         (fn (lambda () (push magit-insert-section--current header-sections))))
+         (fn (##push magit-insert-section--current header-sections)))
     (unwind-protect
         (progn
           (add-hook 'magit-insert-section-hook fn -90 t)
@@ -2225,7 +2225,7 @@ Configuration'."
       (message "`%s' contains entries that are no longer valid.
 %s\nUsing standard value instead.  Please re-configure hook variable."
                hook
-               (mapconcat (lambda (sym) (format "  `%s'" sym)) invalid "\n"))
+               (mapconcat (##format "  `%s'" %) invalid "\n"))
       (sit-for 5)
       (setq entries (eval (car (get hook 'standard-value)))))
     (dolist (entry entries)
@@ -2466,7 +2466,7 @@ with the variables' values as arguments, which were recorded by
   (format "%s%s"
           (substring (symbol-name major-mode) 0 -5)
           (if-let ((vars (get major-mode 'magit-bookmark-variables)))
-              (mapcan (lambda (var) (ensure-list (symbol-value var))) vars)
+              (mapcan (##ensure-list (symbol-value %)) vars)
             "")))
 
 ;;; Bitmaps

@@ -330,7 +330,7 @@ want to fall back to using \"--3way\", without being prompted."
                      (concat
                       "Could not apply stash because of unstaged changes.\n\n"
                       "To do a tree-way merge, these files have to be staged\n"
-                      (mapconcat (lambda (f) (format "  %s" f)) conflicts "\n")
+                      (mapconcat (##format "  %s" %) conflicts "\n")
                       "\n")
                      nil
                    (?s (format

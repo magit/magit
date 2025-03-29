@@ -302,7 +302,7 @@ See also manpage git-interpret-trailer(1).  This package does
 not use that Git command, but the initial description still
 serves as a good introduction."
   :group 'git-commit
-  :safe (lambda (val) (and (listp val) (seq-every-p #'stringp val)))
+  :safe (##and (listp %) (seq-every-p #'stringp %))
   :type '(repeat string))
 
 (defcustom git-commit-use-local-message-ring nil
