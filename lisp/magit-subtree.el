@@ -82,7 +82,6 @@
          (topdir (magit-toplevel))
          (prefix (read-directory-name (concat prompt ": ") topdir default)))
     (if (file-name-absolute-p prefix)
-        ;; At least `ido-mode's variant is not compatible.
         (if (string-prefix-p topdir prefix)
             (file-relative-name prefix topdir)
           (user-error "%s isn't inside the repository at %s" prefix topdir))

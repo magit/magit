@@ -34,8 +34,6 @@
 (declare-function vc-git-command "vc-git"
                   (buffer okstatus file-or-list &rest flags))
 
-(defvar ido-exit)
-(defvar ido-fallback)
 (defvar project-prefix-map)
 (defvar project-switch-commands)
 
@@ -192,19 +190,6 @@ blame to center around the line point is on."
   (magit-process-file magit-gitk-executable nil 0 nil "--all"))
 
 ;;; Emacs Tools
-
-;;;###autoload
-(defun ido-enter-magit-status ()
-  "Drop into `magit-status' from file switching.
-
-To make this command available use something like:
-
-  (keymap-set ido-common-completion-map
-              \"C-x g\" \\='ido-enter-magit-status)"
-  (interactive)
-  (setq ido-exit 'fallback)
-  (setq ido-fallback #'magit-status)
-  (exit-minibuffer))
 
 ;;;###autoload
 (defun magit-project-status ()
