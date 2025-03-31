@@ -679,7 +679,7 @@ values of `magit-remote-git-executable' and `exec-path'.\n"))
 Also include information about `magit-remote-git-executable'.
 See info node `(magit)Debugging Tools' for more information."
   (interactive)
-  (with-current-buffer (get-buffer-create "*magit-git-debug*")
+  (with-current-buffer (get-buffer-create "*magit-git-executable*")
     (pop-to-buffer (current-buffer))
     (erase-buffer)
     (insert (format "magit-remote-git-executable: %S\n"
