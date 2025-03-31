@@ -484,7 +484,8 @@ insert the run command and stderr into the process buffer."
                     (setq errmsg
                           (cond
                            ((eq return-error 'full)
-                            (buffer-string))
+                            (let ((str (buffer-string)))
+                              (and (not (equal str "")) str)))
                            ((functionp magit-git-debug)
                             (funcall magit-git-debug (buffer-string)))
                            ((magit--locate-error-message)))))
