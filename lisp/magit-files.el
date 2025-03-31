@@ -300,8 +300,8 @@ to `magit-dispatch'."
   :info-manual "(magit) Minor Mode for Buffers Visiting Files"
   [:if magit-file-relative-name
    ["File actions"
-    ("  s" "Stage"    magit-stage-buffer-file)
-    ("  u" "Unstage"  magit-unstage-buffer-file)
+    ("  s" "Stage"    magit-file-stage)
+    ("  u" "Unstage"  magit-file-unstage)
     (", x" "Untrack"  magit-file-untrack)
     (", r" "Rename"   magit-file-rename)
     (", k" "Delete"   magit-file-delete)
@@ -420,7 +420,7 @@ the same location in the respective file in the working tree."
 ;;; File Commands
 
 ;;;###autoload
-(defun magit-stage-buffer-file ()
+(defun magit-file-stage ()
   "Stage all changes to the file being visited in the current buffer."
   (interactive)
   (unless buffer-file-name
@@ -433,7 +433,7 @@ the same location in the respective file in the working tree."
                    (list (magit-file-relative-name)))))
 
 ;;;###autoload
-(defun magit-unstage-buffer-file ()
+(defun magit-file-unstage ()
   "Unstage all changes to the file being visited in the current buffer."
   (interactive)
   (unless buffer-file-name
@@ -581,5 +581,12 @@ If DEFAULT is non-nil, use this as the default value instead of
    (concat "No file changed in " rev-or-range)))
 
 ;;; _
+
+(define-obsolete-function-alias 'magit-stage-buffer-file
+  'magit-file-stage "Magit 4.3.2")
+
+(define-obsolete-function-alias 'magit-unstage-buffer-file
+  'magit-file-unstage "Magit 4.3.2")
+
 (provide 'magit-files)
 ;;; magit-files.el ends here

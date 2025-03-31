@@ -397,7 +397,7 @@ ignored) files."
   (list #'magit-stage
         #'magit-stage-file
         #'magit-stage-modified
-        'magit-stage-buffer-file))
+        'magit-file-stage))
 
 (defun magit-run-post-stage-hook ()
   (when (memq this-command magit-post-stage-hook-commands)
@@ -476,7 +476,7 @@ ignored) files."
   (list #'magit-unstage
         #'magit-unstage-file
         #'magit-unstage-all
-        'magit-unstage-buffer-file))
+        'magit-file-unstage))
 
 (defun magit-run-post-unstage-hook ()
   (when (memq this-command magit-post-unstage-hook-commands)
