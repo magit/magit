@@ -131,6 +131,7 @@ Thanks to all of you, may (the history of) the source be with you!
 [![Melpa](https://melpa.org/packages/magit-badge.svg)](https://melpa.org/#/magit)
 [![Melpa Stable](https://stable.melpa.org/packages/magit-badge.svg)](https://stable.melpa.org/#/magit)
 
+[![Packaging status](https://repology.org/badge/vertical-allrepos/emacs%3Amagit.svg?header=&columns=4&minversion=4&exclude_unsupported=1)](https://repology.org/project/emacs%3Amagit/versions)
 
 [authors]: https://magit.vc/stats/magit/authors.html
 [jonas]:   https://emacsair.me
