@@ -467,7 +467,7 @@ insert the run command and stderr into the process buffer."
               (setq log (make-temp-file "magit-stderr"))
               (delete-file log)
               (setq exit (magit-process-git (list t log) args))
-              (when (or (> exit 0) (eq magit-git-debug 'all))
+              (when (or (> exit 0) (eq magit-git-debug 'include-success))
                 (when (file-exists-p log)
                   (with-temp-buffer
                     (insert-file-contents log)
