@@ -2125,8 +2125,8 @@ keymap is the parent of their keymaps."
   "<remap> <magit-visit-thing>"      #'magit-diff-visit-file
   "<remap> <magit-revert-no-commit>" #'magit-reverse
   "<remap> <magit-delete-thing>"     #'magit-discard
-  "<remap> <magit-unstage-file>"     #'magit-unstage
-  "<remap> <magit-stage-file>"       #'magit-stage
+  "<remap> <magit-unstage-files>"    #'magit-unstage
+  "<remap> <magit-stage-files>"      #'magit-stage
   "<remap> <magit-cherry-apply>"     #'magit-apply
   "<8>" (magit-menu-item "Rename file" #'magit-file-rename
                          '(:enable (eq (magit-diff-scope) 'file)))
@@ -3107,7 +3107,7 @@ It the SECTION has a different type, then do nothing."
 (defvar-keymap magit-unstaged-section-map
   :doc "Keymap for the `unstaged' section."
   "<remap> <magit-visit-thing>"  #'magit-diff-unstaged
-  "<remap> <magit-stage-file>"   #'magit-stage
+  "<remap> <magit-stage-files>"  #'magit-stage
   "<remap> <magit-delete-thing>" #'magit-discard
   "<3>" (magit-menu-item "Discard all" #'magit-discard)
   "<2>" (magit-menu-item "Stage all"   #'magit-stage)
@@ -3128,7 +3128,7 @@ It the SECTION has a different type, then do nothing."
   :doc "Keymap for the `staged' section."
   "<remap> <magit-revert-no-commit>" #'magit-reverse
   "<remap> <magit-delete-thing>"     #'magit-discard
-  "<remap> <magit-unstage-file>"     #'magit-unstage
+  "<remap> <magit-unstage-files>"    #'magit-unstage
   "<remap> <magit-visit-thing>"      #'magit-diff-staged
   "<4>" (magit-menu-item "Reverse all" #'magit-reverse)
   "<3>" (magit-menu-item "Discard all" #'magit-discard)

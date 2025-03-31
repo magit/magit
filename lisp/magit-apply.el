@@ -303,10 +303,10 @@ at point, stage the file but not its content."
         (`(staged        ,_  ,_) (user-error "Already staged"))
         (`(committed     ,_  ,_) (user-error "Cannot stage committed changes"))
         (`(undefined     ,_  ,_) (user-error "Cannot stage this change")))
-    (call-interactively #'magit-stage-file)))
+    (call-interactively #'magit-stage-files)))
 
 ;;;###autoload
-(defun magit-stage-file (files &optional force)
+(defun magit-stage-files (files &optional force)
   "Read one or more files and stage all changes in those files.
 With prefix argument FORCE, offer ignored files for completion."
   (interactive
@@ -322,10 +322,7 @@ With prefix argument FORCE, offer ignored files for completion."
             choices nil t nil nil default)
            current-prefix-arg)))
   (magit-with-toplevel
-    ;; For backward compatibility, and because of
-    ;; the function's name, don't require a list.
-    (magit-stage-1 (and force "--force")
-                   (ensure-list files))))
+    (magit-stage-1 (and force "--force") files)))
 
 ;;;###autoload
 (defun magit-stage-modified (&optional all)
@@ -395,7 +392,7 @@ ignored) files."
 
 (defvar magit-post-stage-hook-commands
   (list #'magit-stage
-        #'magit-stage-file
+        #'magit-stage-files
         #'magit-stage-modified
         'magit-file-stage))
 
@@ -432,7 +429,7 @@ ignored) files."
       (`(undefined     ,_  ,_) (user-error "Cannot unstage this change")))))
 
 ;;;###autoload
-(defun magit-unstage-file (files)
+(defun magit-unstage-files (files)
   "Read one or more files and unstage all changes to those files."
   (interactive
    (let* ((choices (magit-staged-files))
@@ -442,9 +439,7 @@ ignored) files."
      (list (magit-completing-read-multiple "Unstage file,s: " choices
                                            nil t nil nil default))))
   (magit-with-toplevel
-    ;; For backward compatibility, and because of
-    ;; the function's name, don't require a list.
-    (magit-unstage-1 (ensure-list files))))
+    (magit-unstage-1 files)))
 
 (defun magit-unstage-1 (files)
   (magit-wip-commit-before-change files " before unstage")
@@ -474,7 +469,7 @@ ignored) files."
 
 (defvar magit-post-unstage-hook-commands
   (list #'magit-unstage
-        #'magit-unstage-file
+        #'magit-unstage-files
         #'magit-unstage-all
         'magit-file-unstage))
 

@@ -727,7 +727,7 @@ remote in alphabetic order."
 (defvar-keymap magit-untracked-section-map
   :doc "Keymap for the `untracked' section."
   "<remap> <magit-delete-thing>" #'magit-discard
-  "<remap> <magit-stage-file>"   #'magit-stage
+  "<remap> <magit-stage-files>"  #'magit-stage
   "<2>" (magit-menu-item "Discard files" #'magit-discard)
   "<1>" (magit-menu-item "Stage files"   #'magit-stage))
 

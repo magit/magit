@@ -398,11 +398,11 @@ recommended value."
   ":" 'magit-git-command
   "r" 'magit-rebase
   "R" 'magit-file-rename
-  "s" 'magit-stage-file
+  "s" 'magit-stage-files
   "S" 'magit-stage-modified
   "t" 'magit-tag
   "T" 'magit-notes
-  "u" 'magit-unstage-file
+  "u" 'magit-unstage-files
   "U" 'magit-unstage-all
   "v" 'magit-revert-no-commit
   "V" 'magit-revert

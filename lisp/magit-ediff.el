@@ -265,7 +265,7 @@ and alternative commands."
                          (save-excursion
                            (goto-char (point-min))
                            (unless (re-search-forward "^<<<<<<< " nil t)
-                             (magit-stage-file file))))))))
+                             (magit-stage-files (list file)))))))))
         (if fileC
             (magit-ediff-buffers
              ((magit-get-revision-buffer revA fileA)

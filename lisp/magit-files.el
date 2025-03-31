@@ -333,8 +333,8 @@ to `magit-dispatch'."
     ("e" "Edit line"  magit-edit-line-commit)]]
   [:if-not magit-file-relative-name
    ["File actions"
-    ("s" "Stage"    magit-stage-file)
-    ("u" "Unstage"  magit-unstage-file)
+    ("s" "Stage"    magit-stage-files)
+    ("u" "Unstage"  magit-unstage-files)
     ("x" "Untrack"  magit-file-untrack)
     ("r" "Rename"   magit-file-rename)
     ("k" "Delete"   magit-file-delete)

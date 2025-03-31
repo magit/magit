@@ -517,9 +517,9 @@ or, failing that, the abbreviated HEAD commit hash."
   :doc "Keymap for `module' sections."
   "C-j"        #'magit-submodule-visit
   "C-<return>" #'magit-submodule-visit
-  "<remap> <magit-unstage-file>" #'magit-unstage
-  "<remap> <magit-stage-file>"   #'magit-stage
-  "<remap> <magit-visit-thing>"  #'magit-submodule-visit
+  "<remap> <magit-unstage-files>" #'magit-unstage
+  "<remap> <magit-stage-files>"   #'magit-stage
+  "<remap> <magit-visit-thing>"   #'magit-submodule-visit
   "<5>" (magit-menu-item "Module commands..." #'magit-submodule)
   "<4>" '(menu-item "--")
   "<3>" (magit-menu-item "Unstage %T" #'magit-unstage
