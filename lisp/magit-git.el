@@ -226,7 +226,16 @@ framework ultimately determines how the collection is displayed."
 
 ;;; Git
 
-(defvar magit-git-debug nil)
+(defvar magit-git-debug nil
+  "Whether and how to enable additional debugging of git errors.
+
+Use `magit-toggle-git-debug' (which see) to toggle the boolean value of
+this variable.  This can also manually be set to `include-success', in
+which case successful git invocations are also logged.
+
+This can also be a function, which takes one argument, the error output
+as a string.  This is intended for internal use and is established using
+let-bindings around critical code (i.e., in `magit--assert-usable-git').")
 
 (defun magit-toggle-git-debug ()
   "Toggle whether additional git errors are reported.
