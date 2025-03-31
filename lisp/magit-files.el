@@ -419,6 +419,7 @@ the same location in the respective file in the working tree."
 
 ;;; File Commands
 
+;;;###autoload
 (defun magit-file-rename (file newname)
   "Rename or move FILE to NEWNAME.
 NEWNAME may be a file or directory name.  If FILE isn't tracked in
@@ -455,6 +456,7 @@ Git, fallback to using `rename-file'."
             (vc-find-file-hook))))))
   (magit-refresh))
 
+;;;###autoload
 (defun magit-file-untrack (files &optional force)
   "Untrack the selected FILES or one file read in the minibuffer.
 
@@ -469,6 +471,7 @@ staged as well as unstaged changes."
   (magit-with-toplevel
     (magit-run-git "rm" "--cached" (and force "--force") "--" files)))
 
+;;;###autoload
 (defun magit-file-delete (files &optional force)
   "Delete the selected FILES or one file read in the minibuffer.
 
