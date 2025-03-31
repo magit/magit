@@ -675,17 +675,13 @@ START has to be selected from a list of recent commits."
     (commit args message &optional editor delay-edit-confirm noassert confirm)
   (declare (indent 2))
   (when commit
-    (if (eq commit :merge-base)
-        (setq commit
-              (and-let* ((upstream (magit-get-upstream-branch)))
-                (magit-git-string "merge-base" upstream "HEAD")))
-      (unless (magit-rev-ancestor-p commit "HEAD")
-        (user-error "%s isn't an ancestor of HEAD" commit))
-      (if (magit-commit-parents commit)
-          (when (or (not (eq this-command 'magit-rebase-interactive))
-                    magit-rebase-interactive-include-selected)
-            (setq commit (concat commit "^")))
-        (setq args (cons "--root" args)))))
+    (unless (magit-rev-ancestor-p commit "HEAD")
+      (user-error "%s isn't an ancestor of HEAD" commit))
+    (if (magit-commit-parents commit)
+        (when (or (not (eq this-command 'magit-rebase-interactive))
+                  magit-rebase-interactive-include-selected)
+          (setq commit (concat commit "^")))
+      (setq args (cons "--root" args))))
   (when (and commit (not noassert))
     (setq commit (magit-rebase-interactive-assert
                   commit delay-edit-confirm
@@ -761,10 +757,17 @@ START has to be selected from a list of recent commits."
     nil t))
 
 ;;;###autoload
-(defun magit-rebase-autosquash (args)
-  "Combine squash and fixup commits with their intended targets."
-  (interactive (list (magit-rebase-arguments)))
-  (magit-rebase-interactive-1 :merge-base
+(defun magit-rebase-autosquash (select args)
+  "Combine squash and fixup commits with their intended targets.
+By default only squash into commits that are not reachable from
+the upstream branch.  If no upstream is configured or with a prefix
+argument, prompt for the first commit to potentially squash into."
+  (interactive (list current-prefix-arg
+                     (magit-rebase-arguments)))
+  (magit-rebase-interactive-1
+      (and-let* (((not select))
+                 (upstream (magit-get-upstream-branch)))
+        (magit-git-string "merge-base" upstream "HEAD"))
       (nconc (list "--autosquash" "--keep-empty") args)
     "Type %p on a commit to squash into it and then rebase as necessary,"
     "true" nil t))

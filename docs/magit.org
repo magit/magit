@@ -6014,6 +6014,11 @@ is not enabled in the transient.
   This command combines squash and fixup commits with their intended
   targets.
 
+  By default only commits that are not reachable from the upstream
+  branch are potentially squashed into.  If no upstream is configured
+  or with a prefix argument, the user is prompted for the first commit
+  to potentially squash into.
+
 - Key: r m (magit-rebase-edit-commit) ::
 
   This command starts an interactive rebase sequence that lets the
