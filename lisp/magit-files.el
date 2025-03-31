@@ -420,6 +420,21 @@ the same location in the respective file in the working tree."
 ;;; File Commands
 
 ;;;###autoload
+(defun magit-file-untrack (files &optional force)
+  "Untrack the selected FILES or one file read in the minibuffer.
+
+With a prefix argument FORCE do so even when the files have
+staged as well as unstaged changes."
+  (interactive (list (or (if-let ((files (magit-region-values 'file t)))
+                             (if (magit-file-tracked-p (car files))
+                                 (magit-confirm-files 'untrack files "Untrack")
+                               (user-error "Already untracked"))
+                           (list (magit-read-tracked-file "Untrack file"))))
+                     current-prefix-arg))
+  (magit-with-toplevel
+    (magit-run-git "rm" "--cached" (and force "--force") "--" files)))
+
+;;;###autoload
 (defun magit-file-rename (file newname)
   "Rename or move FILE to NEWNAME.
 NEWNAME may be a file or directory name.  If FILE isn't tracked in
@@ -455,21 +470,6 @@ Git, fallback to using `rename-file'."
           (with-no-warnings
             (vc-find-file-hook))))))
   (magit-refresh))
-
-;;;###autoload
-(defun magit-file-untrack (files &optional force)
-  "Untrack the selected FILES or one file read in the minibuffer.
-
-With a prefix argument FORCE do so even when the files have
-staged as well as unstaged changes."
-  (interactive (list (or (if-let ((files (magit-region-values 'file t)))
-                             (if (magit-file-tracked-p (car files))
-                                 (magit-confirm-files 'untrack files "Untrack")
-                               (user-error "Already untracked"))
-                           (list (magit-read-tracked-file "Untrack file"))))
-                     current-prefix-arg))
-  (magit-with-toplevel
-    (magit-run-git "rm" "--cached" (and force "--force") "--" files)))
 
 ;;;###autoload
 (defun magit-file-delete (files &optional force)
