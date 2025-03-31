@@ -517,8 +517,8 @@ newline, return an empty string."
   "Execute Git with ARGS, returning its output as a list of lines.
 Empty lines anywhere in the output are omitted.
 
-If Git exits with a non-zero exit status, then report show a
-message and add a section in the respective process buffer."
+If Git exits with a non-zero exit status, show a message and add
+a section in the respective process buffer."
   (magit--with-temp-process-buffer
     (apply #'magit-git-insert args)
     (split-string (buffer-string) "\n" t)))
@@ -527,8 +527,8 @@ message and add a section in the respective process buffer."
   "Execute Git with ARGS, returning its null-separated output as a list.
 Empty items anywhere in the output are omitted.
 
-If Git exits with a non-zero exit status, then report show a
-message and add a section in the respective process buffer."
+If Git exits with a non-zero exit status, show a message and add
+a section in the respective process buffer."
   (magit--with-temp-process-buffer
     (apply #'magit-git-insert args)
     (split-string (buffer-string) "\0" t)))
