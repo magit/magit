@@ -453,7 +453,7 @@ a boolean, then raise an error."
 
 (defun magit-git-insert (&rest args)
   "Execute Git with ARGS, insert stdout at point and return exit code.
-If `magit-git-debug' in non-nil and the exit code is non-zero, then
+If `magit-git-debug' is non-nil and the exit code is non-zero, then
 insert the run command and stderr into the process buffer."
   (apply #'magit--git-insert nil args))
 
