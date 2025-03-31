@@ -235,7 +235,8 @@ Magit basically calls git for one of these two reasons: for
 side-effects or to do something with its standard output.
 
 When git is run for side-effects then its output, including error
-messages, go into the process buffer which is shown when using ~$~.
+messages, go into the process buffer which is shown when using \
+\\<magit-mode-map>\\[magit-process-buffer].
 
 When git's output is consumed in some way, then it would be too
 expensive to also insert it into this buffer, but with this command
