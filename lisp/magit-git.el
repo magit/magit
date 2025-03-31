@@ -543,18 +543,26 @@ a section in the respective process buffer."
     (apply #'magit-git-insert args)
     (split-string (buffer-string) "\0" t)))
 
-(defvar magit--git-wash-keep-error t)
-
 (defun magit-git-wash (washer &rest args)
-  "Execute Git with ARGS, inserting washed output at point.
-Actually first insert the raw output at point.  If there is no
-output, call `magit-cancel-section'.  Otherwise temporarily narrow
-the buffer to the inserted text, move to its beginning, and then
-call function WASHER with ARGS as its sole argument."
+  "Execute git with ARGS, inserting washed output at point.
+
+First insert the raw output at point.  If there is no output, call
+`magit-cancel-section'.  Otherwise temporarily narrow the buffer to
+the inserted text, move to its beginning, and finally call function
+WASHER with ARGS as its sole argument.
+
+If git exits with a non-zero exit status, apply the `error' face to
+the error message, instead of calling WASHER.  To instead cancel the
+section use `magit--git-wash'."
   (declare (indent 1))
-  (apply #'magit--git-wash washer magit--git-wash-keep-error args))
+  (apply #'magit--git-wash washer t args))
 
 (defun magit--git-wash (washer keep-error &rest args)
+  "Execute git with ARGS, inserting washed output at point.
+
+Like `magit-git-wash' but if KEEP-ERROR is nil and an error occurs, also
+insert standard error.  If KEEP-ERROR is `wash-anyway', insert and wash
+standard output even in case of an error."
   (declare (indent 2))
   (setq args (flatten-tree args))
   (let ((beg (point))
