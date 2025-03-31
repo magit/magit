@@ -420,6 +420,28 @@ the same location in the respective file in the working tree."
 ;;; File Commands
 
 ;;;###autoload
+(defun magit-stage-buffer-file ()
+  "Stage all changes to the file being visited in the current buffer."
+  (interactive)
+  (unless buffer-file-name
+    (user-error "Not visiting a file"))
+  (magit-with-toplevel
+    (magit-stage-1 (and (magit-file-ignored-p buffer-file-name)
+                        (if (y-or-n-p "Visited file is ignored; stage anyway?")
+                            "--force"
+                          (user-error "Abort")))
+                   (list (magit-file-relative-name)))))
+
+;;;###autoload
+(defun magit-unstage-buffer-file ()
+  "Unstage all changes to the file being visited in the current buffer."
+  (interactive)
+  (unless buffer-file-name
+    (user-error "Not visiting a file"))
+  (magit-with-toplevel
+    (magit-unstage-1 (list (magit-file-relative-name)))))
+
+;;;###autoload
 (defun magit-file-untrack (files &optional force)
   "Untrack the selected FILES or one file read in the minibuffer.
 
