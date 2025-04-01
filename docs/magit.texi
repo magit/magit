@@ -7098,6 +7098,11 @@ This command starts an interactive rebase sequence.
 This command combines squash and fixup commits with their intended
 targets.
 
+By default only commits that are not reachable from the upstream
+branch are potentially squashed into.  If no upstream is configured
+or with a prefix argument, the user is prompted for the first commit
+to potentially squash into.
+
 @item @kbd{r m} (@code{magit-rebase-edit-commit})
 @kindex r m
 @findex magit-rebase-edit-commit
