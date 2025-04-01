@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v4.3.2    UNRELEASED
+* v4.3.2    2025-04-01
 
 - Removed legacy options ~magit-wip-*-mode-lighter~.  225ea6fd00
 
