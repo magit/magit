@@ -3,9 +3,9 @@
 
 - Removed legacy options ~magit-wip-*-mode-lighter~.  225ea6fd00
 
-- ~magit-log-current~ now falls back to displaying log for ~HEAD~ if no
-  branch is checked out, and the now redundant ~magit-log-head~ is no
-  longer displayed in the ~magit-log~ menu by default.  c8b1e12bd5
+- ~magit-log-current~ now falls back to displaying the log for ~HEAD~ if
+  no branch is checked out, and the now redundant ~magit-log-head~ is
+  no longer displayed in the ~magit-log~ menu by default.  c8b1e12bd5
 
 - Renamed ~magit-merge-into~ to ~magit-merge-dissolve~ and changed the
   key binding in the ~magit-merge~ menu from ~i~ to ~d~.  The descripton
@@ -15,6 +15,9 @@
 
 - Added new option ~magit-process-apply-ansi-colors~ (but discourage
   its use).  #5348
+
+- Support for Ido has been moved out into a new package ~magit-ido~.
+  6aec967ee4
 
 Bugfixes:
 
@@ -32,7 +35,9 @@ Bugfixes:
 
 - After applying a hunk, the buffer was refreshed twice.  #5343
 
-Also contains code cleanups and other fixes.
+- The diff shown by ~magit-diff-paths~ was not washed. #5093
+
+Also contains more code and documentation cleanups and improvements.
 
 * v4.3.1    2025-03-02
 
@@ -43,7 +48,7 @@ Also contains code cleanups and other fixes.
 - Added new commands ~magit-previous-reference~ and ~magit-next-reference~,
   with entry point ~C-c C-r~.  Enable ~repeat-mode~ to keep navigating with
   ~p~ and ~n~.  #5310
-  
+
 Bugfixes:
 
 - ~magit-commit-revise~ failed if no arguments were used.  #5306
