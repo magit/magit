@@ -1076,8 +1076,10 @@ SECTION's body (and heading) obviously cannot be visible."
 
 (defun magit-section-show-level (level)
   "Show surrounding sections up to LEVEL.
-Likewise hide sections at higher levels.  If LEVEL is negative, show all
-sections up to the absolute value of that, not just surrounding sections."
+Likewise hide sections at higher levels.  If the region selects multiple
+sibling sections, act on all marked trees.  If LEVEL is negative, show
+all sections up to the absolute value of that, not just surrounding
+sections."
   (if (< level 0)
       (let ((s (magit-current-section)))
         (setq level (- level))
@@ -1085,13 +1087,15 @@ sections up to the absolute value of that, not just surrounding sections."
           (setq s (oref s parent))
           (goto-char (oref s start)))
         (magit-section-show-children magit-root-section (1- level)))
-    (cl-do* ((s (magit-current-section)
-                (oref s parent))
-             (i (1- (length (magit-section-ident s)))
-                (cl-decf i)))
-        ((cond ((< i level) (magit-section-show-children s (- level i 1)) t)
-               ((= i level) (magit-section-hide s) t))
-         (magit-section-goto s)))))
+    (dolist (section (or (magit-region-sections)
+                         (list (magit-current-section))))
+      (cl-do* ((s section
+                  (oref s parent))
+               (i (1- (length (magit-section-ident s)))
+                  (cl-decf i)))
+          ((cond ((< i level) (magit-section-show-children s (- level i 1)) t)
+                 ((= i level) (magit-section-hide s) t))
+           (magit-section-goto s))))))
 
 (defun magit-section-show-level-1 ()
   "Show surrounding sections on first level."
