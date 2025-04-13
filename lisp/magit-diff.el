@@ -1395,7 +1395,6 @@ for a revision."
   (interactive
    (pcase-let* ((mcommit (magit-section-value-if 'module-commit))
                 (atpoint (or mcommit
-                             (magit-thing-at-point 'git-revision t)
                              (magit-branch-or-commit-at-point)))
                 (`(,args ,files) (magit-show-commit--arguments)))
      (list (or (and (not current-prefix-arg) atpoint)
