@@ -814,7 +814,7 @@ Also see `magit-git-config-p'."
 
 (defun magit-git-dir (&optional path)
   "Like (expand-file-name PATH (magit-gitdir)) or just (magit-gitdir)."
-  (declare (obsolete 'magit-gitdir "Magit 4.0.0"))
+  (declare (obsolete magit-gitdir "Magit 4.0.0"))
   (and-let* ((dir (magit-gitdir)))
     (if path
         (expand-file-name (convert-standard-filename path) dir)
