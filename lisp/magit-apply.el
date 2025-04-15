@@ -137,11 +137,9 @@ so causes the change to be applied to the index as well."
 (defun magit-apply-diffs (sections &rest args)
   (setq sections (magit-apply--get-diffs sections))
   (magit-apply-patch sections args
-                     (mapconcat
-                      (lambda (s)
-                        (concat (magit-diff-file-header s)
-                                (magit-apply--section-content s)))
-                      sections "")))
+                     (mapconcat (##concat (magit-diff-file-header %)
+                                          (magit-apply--section-content %))
+                                sections "")))
 
 (defun magit-apply-diff (section &rest args)
   (setq section (car (magit-apply--get-diffs (list section))))

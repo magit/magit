@@ -587,10 +587,8 @@ instead of in the one whose root `magit-root-section' is."
                   (pcase-let ((`(,type . ,value) (car ident)))
                     (setq section
                           (cl-find-if
-                           (lambda (section)
-                             (and (eq (oref section type) type)
-                                  (equal (magit-section-ident-value section)
-                                         value)))
+                           (##and (eq (oref % type) type)
+                                  (equal (magit-section-ident-value %) value))
                            (oref section children)))))
         (pop ident))
       section)))
@@ -894,11 +892,11 @@ With a prefix argument also expand it." heading)
      ,@(and (not (plist-member properties :description))
             (list :description heading))
      ,@(and inserter
-            `(:if (lambda () (memq ',inserter
-                              (bound-and-true-p magit-status-sections-hook)))))
-     :inapt-if-not (lambda () (magit-get-section
-                          (cons (cons ',type ,value)
-                                (magit-section-ident magit-root-section))))
+            `(:if (##memq ',inserter
+                          (bound-and-true-p magit-status-sections-hook))))
+     :inapt-if-not (##magit-get-section
+                    (cons (cons ',type ,value)
+                          (magit-section-ident magit-root-section)))
      (interactive "P")
      (if-let ((section (magit-get-section
                         (cons (cons ',type ,value)
@@ -2348,9 +2346,8 @@ This is like moving to POS and then calling `pos-eol'."
                           (magit-section-match magit--imenu-group-types section))
                         (and-let* ((children (oref section children)))
                           `((,(magit--imenu-index-name section)
-                             ,@(mapcar (lambda (s)
-                                         (cons (magit--imenu-index-name s)
-                                               (oref s start)))
+                             ,@(mapcar (##cons (magit--imenu-index-name %)
+                                               (oref % start))
                                        children))))))
                   (magit--imenu-item-types
                    (and (magit-section-match magit--imenu-item-types section)

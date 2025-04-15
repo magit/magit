@@ -1423,9 +1423,8 @@ for a revision."
               (magit-diff--goto-position file line col))))))))
 
 (defun magit-diff--locate-hunk (file line &optional parent)
-  (and-let* ((diff (cl-find-if (lambda (section)
-                                 (and (cl-typep section 'magit-file-section)
-                                      (equal (oref section value) file)))
+  (and-let* ((diff (cl-find-if (##and (cl-typep % 'magit-file-section)
+                                      (equal (oref % value) file))
                                (oref (or parent magit-root-section) children))))
     (let ((hunks (oref diff children)))
       (cl-block nil

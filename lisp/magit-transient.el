@@ -102,10 +102,9 @@
 (defun magit-transient-read-person (prompt initial-input history)
   (magit-completing-read
    prompt
-   (mapcar (lambda (line)
-             (save-excursion
-               (and (string-match "\\`[\s\t]+[0-9]+\t" line)
-                    (list (substring line (match-end 0))))))
+   (mapcar (##save-excursion
+             (and (string-match "\\`[\s\t]+[0-9]+\t" %)
+                  (list (substring % (match-end 0)))))
            (magit-git-lines "shortlog" "-n" "-s" "-e" "HEAD"))
    nil nil initial-input history))
 
@@ -151,9 +150,8 @@
   (if-let ((value (oref obj value)))
       (if (oref obj multi-value)
           (if (cdr value)
-              (mapconcat (lambda (v)
-                           (concat "\n     "
-                                   (propertize v 'face 'transient-value)))
+              (mapconcat (##concat "\n     "
+                                   (propertize % 'face 'transient-value))
                          value "")
             (propertize (car value) 'face 'transient-value))
         (propertize (car (split-string value "\n"))

@@ -848,10 +848,9 @@ Save current message first."
 See also manpage git-interpret-trailer(1).  This command does
 not use that Git command, but the initial description still
 serves as a good introduction."
-  [[:description (lambda ()
-                   (cond (prefix-arg
+  [[:description (##cond (prefix-arg
                           "Insert ... by someone ")
-                         ("Insert ... by yourself")))
+                         ("Insert ... by yourself"))
     ("a"   "Ack"          git-commit-ack)
     ("m"   "Modified"     git-commit-modified)
     ("r"   "Reviewed"     git-commit-review)

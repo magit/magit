@@ -2060,9 +2060,8 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
 
 (defun magit-remote-head (remote)
   (and-let* ((line (cl-find-if
-                    (lambda (line)
-                      (string-match
-                       "\\`ref: refs/heads/\\([^\s\t]+\\)[\s\t]HEAD\\'" line))
+                    (##string-match
+                     "\\`ref: refs/heads/\\([^\s\t]+\\)[\s\t]HEAD\\'" %)
                     (magit-git-lines "ls-remote" "--symref" remote "HEAD"))))
     (match-string 1 line)))
 

@@ -767,9 +767,8 @@ is always ignored."
     (magit-insert-files
      'untracked
      (lambda (files)
-       (mapcan (lambda (line)
-                 (and (eq (aref line 0) ??)
-                      (list (substring line 3))))
+       (mapcan (##and (eq (aref % 0) ??)
+                      (list (substring % 3)))
                (apply #'magit-git-items "status" "-z" "--porcelain"
                       (format "--untracked-files=%s"
                               (if (eq value 'all) "all" "normal"))

@@ -309,10 +309,9 @@ refspec."
 (transient-define-prefix magit-remote-configure (remote)
   "Configure a remote."
   :man-page "git-remote"
-  [:description
-   (lambda ()
-     (concat (propertize "Configure " 'face 'transient-heading)
-             (propertize (transient-scope) 'face 'magit-branch-remote)))
+  [:description (##concat
+                 (propertize "Configure " 'face 'transient-heading)
+                 (propertize (transient-scope) 'face 'magit-branch-remote))
    ("u" magit-remote.<remote>.url)
    ("U" magit-remote.<remote>.fetch)
    ("s" magit-remote.<remote>.pushurl)

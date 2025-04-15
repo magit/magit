@@ -208,11 +208,10 @@ has to be used to view and change branch related variables."
 (transient-define-prefix magit-branch (branch)
   "Add, configure or remove a branch."
   :man-page "git-branch"
-  [:if (lambda () (and magit-branch-direct-configure (transient-scope)))
-   :description
-   (lambda ()
-     (concat (propertize "Configure " 'face 'transient-heading)
-             (propertize (transient-scope) 'face 'magit-branch-local)))
+  [:if (##and magit-branch-direct-configure (transient-scope))
+   :description (##concat
+                 (propertize "Configure " 'face 'transient-heading)
+                 (propertize (transient-scope) 'face 'magit-branch-local))
    ("d" magit-branch.<branch>.description)
    ("u" magit-branch.<branch>.merge/remote)
    ("r" magit-branch.<branch>.rebase)
@@ -854,10 +853,9 @@ and also rename the respective reflog file."
 (transient-define-prefix magit-branch-configure (branch)
   "Configure a branch."
   :man-page "git-branch"
-  [:description
-   (lambda ()
-     (concat (propertize "Configure " 'face 'transient-heading)
-             (propertize (transient-scope) 'face 'magit-branch-local)))
+  [:description (##concat
+                 (propertize "Configure " 'face 'transient-heading)
+                 (propertize (transient-scope) 'face 'magit-branch-local))
    ("d" magit-branch.<branch>.description)
    ("u" magit-branch.<branch>.merge/remote)
    ("r" magit-branch.<branch>.rebase)

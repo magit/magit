@@ -1131,9 +1131,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   (interactive)
   (require (quote elp))
   (cond ((catch 'in-progress
-           (mapatoms (lambda (symbol)
-                       (and (get symbol elp-timer-info-property)
-                            (throw 'in-progress t)))))
+           (mapatoms (##and (get % elp-timer-info-property)
+                            (throw 'in-progress t))))
          (message "Stop profiling and display results...")
          (elp-results)
          (elp-restore-all))
@@ -1209,14 +1208,12 @@ argument (the prefix) non-nil means save all with no questions."
   (when-let ((topdir (magit-rev-parse-safe "--show-toplevel")))
     (let ((remote (file-remote-p default-directory))
           (save-some-buffers-action-alist
-           `((?Y (lambda (buffer)
-                   (with-current-buffer buffer
-                     (setq buffer-save-without-query t)
-                     (save-buffer)))
+           `((?Y (##with-current-buffer %
+                   (setq buffer-save-without-query t)
+                   (save-buffer))
                  "to save the current buffer and remember choice")
-             (?N (lambda (buffer)
-                   (with-current-buffer buffer
-                     (setq magit-inhibit-refresh-save t)))
+             (?N (##with-current-buffer %
+                   (setq magit-inhibit-refresh-save t))
                  "to skip the current buffer and remember choice")
              ,@save-some-buffers-action-alist))
           (topdirs nil)

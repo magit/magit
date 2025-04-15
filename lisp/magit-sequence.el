@@ -547,10 +547,9 @@ This discards all changes made since the sequence started."
    (magit:--gpg-sign)
    (magit:--signoff)]
   [:if-not magit-rebase-in-progress-p
-   :description (lambda ()
-                  (format (propertize "Rebase %s onto" 'face 'transient-heading)
+   :description (##format (propertize "Rebase %s onto" 'face 'transient-heading)
                           (propertize (or (magit-get-current-branch) "HEAD")
-                                      'face 'magit-branch-local)))
+                                      'face 'magit-branch-local))
    ("p" magit-rebase-onto-pushremote)
    ("u" magit-rebase-onto-upstream)
    ("e" "elsewhere" magit-rebase-branch)]

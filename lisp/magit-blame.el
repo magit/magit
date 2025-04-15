@@ -757,10 +757,9 @@ modes is toggled, then this mode also gets toggled automatically.
 Show the information about the chunk at point in the echo area
 when moving between chunks.  Unlike other blaming commands, do
 not turn on `read-only-mode'."
-  :if (lambda ()
-        (and buffer-file-name
+  :if (##and buffer-file-name
              (or (not magit-blame-mode)
-                 buffer-read-only)))
+                 buffer-read-only))
   (interactive (list (magit-blame-arguments)))
   (when magit-buffer-file-name
     (user-error "Blob buffers aren't supported"))

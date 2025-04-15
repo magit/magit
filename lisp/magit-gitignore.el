@@ -42,10 +42,9 @@
    ("p" "privately (.git/info/exclude)"
     magit-gitignore-in-gitdir)
    ("g" magit-gitignore-on-system
-    :if (lambda () (magit-get "core.excludesfile"))
-    :description (lambda ()
-                   (format "privately for all repositories (%s)"
-                           (magit-get "core.excludesfile"))))]
+    :if (##magit-get "core.excludesfile")
+    :description (##format "privately for all repositories (%s)"
+                           (magit-get "core.excludesfile")))]
   ["Skip worktree"
    (7 "w" "do skip worktree"     magit-skip-worktree)
    (7 "W" "do not skip worktree" magit-no-skip-worktree)]
