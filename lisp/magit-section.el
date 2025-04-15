@@ -1076,8 +1076,8 @@ SECTION's body (and heading) obviously cannot be visible."
 
 (defun magit-section-show-level (level)
   "Show surrounding sections up to LEVEL.
-If LEVEL is negative, show up to the absolute value.
-Sections at higher levels are hidden."
+Likewise hide sections at higher levels.  If LEVEL is negative, show all
+sections up to the absolute value of that, not just surrounding sections."
   (if (< level 0)
       (let ((s (magit-current-section)))
         (setq level (- level))
