@@ -6124,7 +6124,8 @@ the following suffix commands.
 
 - Key: k (git-rebase-kill-line) ::
 
-  Kill the current action line.
+  Comment the current action line, or if it is already commented, then
+  uncomment it.
 
 - Key: c (git-rebase-pick) ::
 
