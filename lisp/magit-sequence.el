@@ -1024,9 +1024,7 @@ status buffer (i.e., the reverse of how they will be applied)."
         ((or 'commit (and 'merge (guard abbrev)))
          (magit-sequence-insert-commit action target 'magit-sequence-pick
                                        abbrev trailer))
-        ((or 'exec 'label 'merge)
-         (insert (propertize action 'font-lock-face 'magit-sequence-onto) "\s"
-                 (propertize target 'font-lock-face 'git-rebase-label) "\n")))))
+        (_ (magit-sequence-insert-step action target)))))
   (let ((dir (magit-gitdir)))
     (magit-sequence-insert-sequence
      (magit-file-line (expand-file-name "rebase-merge/stopped-sha" dir))
@@ -1130,6 +1128,14 @@ status buffer (i.e., the reverse of how they will be applied)."
       (if abbrev
           (concat (propertize abbrev 'face 'magit-hash) " " msg "\n")
         (concat (magit-format-rev-summary hash) "\n")))))
+
+(defun magit-sequence-insert-step (type target)
+  (magit-insert-section (rebase-step (cons type target))
+    (magit-insert-heading
+      (propertize type 'font-lock-face 'magit-sequence-onto)
+      (and target
+           (concat "\s"
+                   (propertize target 'font-lock-face 'git-rebase-label))))))
 
 ;;; _
 (provide 'magit-sequence)
