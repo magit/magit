@@ -275,7 +275,8 @@ If the region is active, act on all lines touched by the region."
    (action-options :initarg :action-options :initform nil)
    (target         :initarg :target         :initform nil)
    (trailer        :initarg :trailer        :initform nil)
-   (comment-p      :initarg :comment-p      :initform nil)))
+   (comment-p      :initarg :comment-p      :initform nil)
+   (abbrev)))
 
 (defvar git-rebase-line-regexps
   `((commit . ,(concat
