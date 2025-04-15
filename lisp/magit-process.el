@@ -44,6 +44,9 @@
 (define-obsolete-variable-alias 'magit-process-finish-apply-ansi-colors
   'magit-process-apply-ansi-colors "Magit-Section 4.3.2")
 
+(defclass magit-process-section (magit-section)
+  ((process :initform nil)))
+
 ;;; Options
 
 (defcustom magit-process-connection-type (not (eq system-type 'cygwin))
@@ -725,9 +728,6 @@ Magit status buffer."
         process))))
 
 ;;; Process Internals
-
-(defclass magit-process-section (magit-section)
-  ((process :initform nil)))
 
 (setf (alist-get 'process magit--section-type-alist) 'magit-process-section)
 
