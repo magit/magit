@@ -968,9 +968,8 @@ If no such sequence is in progress, do nothing."
 If no such sequence is in progress, do nothing."
   (when (magit-rebase-in-progress-p)
     (let* ((gitdir (magit-gitdir))
-           (interactive
-            (file-directory-p (expand-file-name "rebase-merge" gitdir)))
-           (dir  (if interactive "rebase-merge/" "rebase-apply/"))
+           (mergep (file-directory-p (expand-file-name "rebase-merge" gitdir)))
+           (dir  (if mergep "rebase-merge/" "rebase-apply/"))
            (name (thread-first (concat dir "head-name")
                    (expand-file-name gitdir)
                    magit-file-line))
@@ -982,7 +981,7 @@ If no such sequence is in progress, do nothing."
            (name (or (magit-rev-name name "refs/heads/*") name)))
       (magit-insert-section (rebase-sequence)
         (magit-insert-heading (format "Rebasing %s onto %s" name onto))
-        (if interactive
+        (if mergep
             (magit-rebase-insert-merge-sequence onto)
           (magit-rebase-insert-apply-sequence onto))
         (insert ?\n)))))
