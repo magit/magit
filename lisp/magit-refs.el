@@ -647,7 +647,7 @@ line is inserted at all."
       (dolist (ref refs)
         (magit-insert-section (shelved-branch ref t)
           (magit-insert-heading
-            (magit--propertize-face (substring ref 13) 'magit-refname))
+            "  " (magit--propertize-face (substring ref 13) 'magit-refname))
           (when (magit-buffer-margin-p)
             (magit-refs--format-margin ref))
           (magit-refs--insert-cherry-commits ref)))
