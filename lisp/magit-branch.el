@@ -812,11 +812,13 @@ the remote."
 ;;;###autoload
 (defun magit-branch-shelve (branch)
   "Shelve a BRANCH.
-Rename \"refs/heads/BRANCH\" to \"refs/shelved/BRANCH\",
+Rename \"refs/heads/BRANCH\" to \"refs/shelved/YYYY-MM-DD-BRANCH\",
 and also rename the respective reflog file."
   (interactive (list (magit-read-other-local-branch "Shelve branch")))
-  (let ((old (concat "refs/heads/"   branch))
-        (new (concat "refs/shelved/" branch)))
+  (let ((old (concat "refs/heads/" branch))
+        (new (format "refs/shelved/%s-%s"
+                     (magit-rev-format "%cs" branch)
+                     branch)))
     (magit-git "update-ref" new old "")
     (magit--rename-reflog-file old new)
     (magit-branch-unset-pushRemote branch)
@@ -825,8 +827,9 @@ and also rename the respective reflog file."
 ;;;###autoload
 (defun magit-branch-unshelve (branch)
   "Unshelve a BRANCH.
-Rename \"refs/shelved/BRANCH\" to \"refs/heads/BRANCH\",
-and also rename the respective reflog file."
+Rename \"refs/shelved/BRANCH\" to \"refs/heads/BRANCH\".  If BRANCH
+is prefixed with \"YYYY-MM-DD\", then drop that part of the name.
+Also rename the respective reflog file."
   (interactive
    (list (magit-completing-read
           "Unshelve branch"
@@ -834,7 +837,11 @@ and also rename the respective reflog file."
                   (magit-list-refnames "refs/shelved"))
           nil t)))
   (let ((old (concat "refs/shelved/" branch))
-        (new (concat "refs/heads/"   branch)))
+        (new (concat "refs/heads/"
+                     (if (string-match-p
+                          "\\`[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}-" branch)
+                         (substring branch 11)
+                       branch))))
     (magit-git "update-ref" new old "")
     (magit--rename-reflog-file old new)
     (magit-run-git "update-ref" "-d" old)))
