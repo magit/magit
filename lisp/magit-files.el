@@ -313,7 +313,8 @@ to `magit-dispatch'."
     ("d" "Diff"       magit-diff-buffer-file)]
    [""
     ("L" "Log..."     magit-log)
-    ("l" "Log"        magit-log-buffer-file)
+    ("l" "Log"        magit-log-buffer-file :if-not-derived dired-mode)
+    ("l" "Log"        magit-dired-log :if-derived dired-mode)
     ("t" "Trace"      magit-log-trace-definition)
     (7 "M" "Merged"   magit-log-merged)]
    [""

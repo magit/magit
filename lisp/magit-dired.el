@@ -61,11 +61,12 @@ is no file at point, then instead visit `default-directory'."
 
 ;;;###autoload
 (defun magit-dired-log (&optional follow)
-  "In Dired, show log for all marked files or the file at point."
+  "In Dired, show log for all marked files or the directory if none are marked."
   (interactive "P")
   (if-let ((topdir (magit-toplevel default-directory)))
       (let ((args (car (magit-log-arguments)))
-            (files (dired-get-marked-files)))
+            (files (or (dired-get-marked-files nil 'marked)
+                       (list default-directory))))
         (when (and follow
                    (not (member "--follow" args))
                    (not (cdr files)))
