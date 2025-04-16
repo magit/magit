@@ -177,6 +177,7 @@ does not carry to other options."
 (defvar magit-margin-overlay-conditions
   '( unpulled unpushed recent stashes local cherries
      [remote branchbuf]
+     [shelved branchbuf]
      [tags branchbuf]
      topics issues pullreqs))
 
