@@ -73,7 +73,7 @@
 (declare-function magit-commit-add-log "magit-commit" ())
 (declare-function magit-diff-trace-definition "magit-log" ())
 (declare-function magit-patch-save "magit-patch" (files &optional arg))
-(declare-function magit-do-async-shell-command "magit-extras" (file))
+(declare-function magit-do-async-shell-command "magit-dired" (file))
 (declare-function magit-add-change-log-entry "magit-extras"
                   (&optional whoami file-name other-window))
 (declare-function magit-add-change-log-entry-other-window "magit-extras"

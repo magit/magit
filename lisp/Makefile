@@ -56,6 +56,7 @@ magit-gitignore.elc:       magit.elc
 magit-sparse-checkout.elc: magit.elc
 magit-bundle.elc:          magit.elc
 magit-extras.elc:          magit.elc magit-merge.elc
+magit-dired.elc:           magit.elc
 git-rebase.elc:            magit.elc
 magit-bookmark.elc:        magit.elc
 

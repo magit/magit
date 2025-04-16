@@ -782,6 +782,7 @@ For X11 something like ~/.xinitrc should work.\n"
     (require 'magit-gitignore)
     (require 'magit-sparse-checkout)
     (require 'magit-extras)
+    (require 'magit-dired)
     (require 'git-rebase)
     (require 'magit-bookmark)))
 

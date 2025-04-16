@@ -101,6 +101,7 @@ ELS += magit-ediff.el
 ELS += magit-gitignore.el
 ELS += magit-bundle.el
 ELS += magit-extras.el
+ELS += magit-dired.el
 ELS += git-rebase.el
 ELS += magit-bookmark.el
 ELCS = $(ELS:.el=.elc)
