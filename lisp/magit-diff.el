@@ -3373,14 +3373,13 @@ are highlighted."
                           (delq section magit-section-unhighlight-sections)))
                    (magit-diff-highlight-hunk-body
                     (setq paint t)))))
+          ((and (oref section hidden)
+                (memq section magit-section-unhighlight-sections))
+           (cl-pushnew section magit-section-highlighted-sections)
+           (setq magit-section-unhighlight-sections
+                 (delq section magit-section-unhighlight-sections)))
           (t
-           (cond ((and (oref section hidden)
-                       (memq section magit-section-unhighlight-sections))
-                  (cl-pushnew section magit-section-highlighted-sections)
-                  (setq magit-section-unhighlight-sections
-                        (delq section magit-section-unhighlight-sections)))
-                 (t
-                  (setq paint t)))))
+           (setq paint t)))
     (when paint
       (save-excursion
         (goto-char (oref section start))
