@@ -240,6 +240,8 @@ Otherwise the value has to have one of these two forms:
 (defcustom magit-section-keep-region-overlay nil
   "Whether to keep the region overlay when there is a valid selection.
 
+We strongly suggest that you keep the default value, nil.
+
 By default Magit removes the regular region overlay if, and only
 if, that region constitutes a valid selection as understood by
 Magit commands.  Otherwise it does not remove that overlay, and
@@ -265,21 +267,10 @@ does *not* constitute a valid selection, then the region is
 circumstances that you want to use a non-magit command to act on
 the region.
 
-Besides keeping the region overlay, setting this option to t also
-causes all face properties, except for `:foreground', to be
-ignored for the faces used to highlight headings of selected
-sections.  This avoids the worst conflicts that result from
-displaying the region and the selection overlays at the same
-time.  We are not interested in dealing with other conflicts.
-In fact we *already* provide a way to avoid all of these
-conflicts: *not* changing the value of this option.
-
-It should be clear by now that we consider it a mistake to set
-this to display the region when the Magit selection is also
-visualized, but since it has been requested a few times and
-because it doesn't cost much to offer this option we do so.
-However that might change.  If the existence of this option
-starts complicating other things, then it will be removed."
+Depending on the used theme, the `magit-*-highlight-selection'
+faces might conflict with the `region' face.  If that happens and
+it bothers you, then you have to customize these faces to address
+the conflicts."
   :package-version '(magit-section . "2.3.0")
   :group 'magit-section
   :type 'boolean)
@@ -1774,13 +1765,6 @@ invisible."
     t))
 
 (defun magit-section-make-overlay (start end face)
-  ;; Yes, this doesn't belong here.  But the alternative of
-  ;; spreading this hack across the code base is even worse.
-  (when (and magit-section-keep-region-overlay
-             (memq face '(magit-section-heading-selection
-                          magit-diff-file-heading-selection
-                          magit-diff-hunk-heading-selection)))
-    (setq face (list :foreground (face-foreground face))))
   (let ((ov (make-overlay start end nil t)))
     (overlay-put ov 'font-lock-face face)
     (overlay-put ov 'evaporate t)
