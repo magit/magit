@@ -1716,13 +1716,14 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (setq magit-section-unhighlight-sections
               magit-section-highlighted-sections)
         (setq magit-section-highlighted-sections nil)
-        (unless (magit-section--maybe-enable-long-lines-shortcuts)
-          (unless (eq section magit-root-section)
-            (run-hook-with-args-until-success
-             'magit-section-highlight-hook section selection))
-          (dolist (s magit-section-unhighlight-sections)
-            (run-hook-with-args-until-success
-             'magit-section-unhighlight-hook s selection)))
+        (cond ((magit-section--maybe-enable-long-lines-shortcuts))
+              ((eq section magit-root-section))
+              (t
+               (run-hook-with-args-until-success
+                'magit-section-highlight-hook section selection)))
+        (dolist (s magit-section-unhighlight-sections)
+          (run-hook-with-args-until-success
+           'magit-section-unhighlight-hook s selection))
         (restore-buffer-modified-p nil)))
     (setq magit-section-highlight-force-update nil)
     (magit-section-maybe-paint-visibility-ellipses)))
@@ -1802,7 +1803,7 @@ Emacs has enabled redisplay shortcuts
 in this buffer because there are lines whose length go beyond
 `long-line-threshold' \(%s characters).  As a result, section
 highlighting and the special appearance of the region has been
-disabled.  Some existing highlighting might remain in effect.
+disabled.
 
 These shortcuts remain enabled, even once there no longer are
 any long lines in this buffer.  To disable them again, kill
