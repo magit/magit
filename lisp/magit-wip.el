@@ -435,6 +435,27 @@ many \"branches\" of each wip ref are shown."
         (cl-decf count))
       (cons wipref (nreverse tips)))))
 
+(defun magit-wip-purge ()
+  "Ask to delete all wip-refs that no longer have a corresponding ref."
+  (interactive)
+  (if-let ((wiprefs (thread-last
+                      (cl-set-difference (magit-list-refs "refs/wip/")
+                                         (magit-list-refs)
+                                         :test (##equal (substring %1 15) %2))
+                      (delete "refs/wip/index/HEAD")
+                      (delete "refs/wip/wtree/HEAD"))))
+      (progn
+        (magit-confirm 'purge-dangling-wiprefs
+          "Delete wip-ref %s without corresponding ref"
+          "Delete %d wip-refs without corresponding ref"
+          nil wiprefs)
+        (message "Deleting wip-refs...")
+        (dolist (wipref wiprefs)
+          (magit-call-git "update-ref" "-d" wipref))
+        (message "Deleting wip-refs...done")
+        (magit-refresh))
+    (message "All wip-refs have a corresponding ref")))
+
 ;;; _
 (provide 'magit-wip)
 ;;; magit-wip.el ends here
