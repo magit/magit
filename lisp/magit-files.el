@@ -316,7 +316,7 @@ to `magit-dispatch'."
     ("l" "Log"        magit-log-buffer-file :if-not-derived dired-mode)
     ("l" "Log"        magit-dired-log :if-derived dired-mode)
     ("t" "Trace"      magit-log-trace-definition)
-    (7 "M" "Merged"   magit-log-merged)]
+    ("M" "Merged"     magit-log-merged :level 7)]
    [""
     ("B" "Blame..."   magit-blame)
     ("b" "Blame"      magit-blame-addition)
