@@ -300,8 +300,10 @@ to `magit-dispatch'."
   :info-manual "(magit) Minor Mode for Buffers Visiting Files"
   [:if magit-file-relative-name
    ["File actions"
-    ("  s" "Stage"    magit-file-stage)
-    ("  u" "Unstage"  magit-file-unstage)
+    ("  s" "Stage"    magit-file-stage :if-not-derived dired-mode)
+    ("  s" "Stage"    magit-dired-stage :if-derived dired-mode)
+    ("  u" "Unstage"  magit-file-unstage :if-not-derived dired-mode)
+    ("  u" "Unstage"  magit-dired-unstage :if-derived dired-mode)
     (", x" "Untrack"  magit-file-untrack)
     (", r" "Rename"   magit-file-rename)
     (", k" "Delete"   magit-file-delete)

@@ -48,6 +48,18 @@ is no file at point, then instead visit `default-directory'."
 ;;; Commands for Dired Buffers
 
 ;;;###autoload
+(defun magit-dired-stage ()
+  "In Dired, staged all marked files or the file at point."
+  (interactive)
+  (magit-stage-files (dired-get-marked-files)))
+
+;;;###autoload
+(defun magit-dired-unstage ()
+  "In Dired, unstaged all marked files or the file at point."
+  (interactive)
+  (magit-unstage-files (dired-get-marked-files)))
+
+;;;###autoload
 (defun magit-dired-log (&optional follow)
   "Show log for all marked files, or the current file."
   (interactive "P")
