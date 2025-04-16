@@ -1716,9 +1716,7 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (setq magit-section-unhighlight-sections
               magit-section-highlighted-sections)
         (setq magit-section-highlighted-sections nil)
-        (if (and (fboundp 'long-line-optimizations-p)
-                 (long-line-optimizations-p))
-            (magit-section--enable-long-lines-shortcuts)
+        (unless (magit-section--maybe-enable-long-lines-shortcuts)
           (unless (eq section magit-root-section)
             (run-hook-with-args-until-success
              'magit-section-highlight-hook section selection))
@@ -1790,13 +1788,16 @@ invisible."
 
 (defvar magit-show-long-lines-warning t)
 
-(defun magit-section--enable-long-lines-shortcuts ()
-  (message "Enabling long lines shortcuts in %S" (current-buffer))
-  (kill-local-variable 'redisplay-highlight-region-function)
-  (kill-local-variable 'redisplay-unhighlight-region-function)
-  (when magit-show-long-lines-warning
-    (setq magit-show-long-lines-warning nil)
-    (display-warning 'magit (format "\
+(defun magit-section--maybe-enable-long-lines-shortcuts ()
+  (and (fboundp 'long-line-optimizations-p)
+       (long-line-optimizations-p)
+       (prog1 t
+         (message "Enabling long lines shortcuts in %S" (current-buffer))
+         (kill-local-variable 'redisplay-highlight-region-function)
+         (kill-local-variable 'redisplay-unhighlight-region-function)
+         (when magit-show-long-lines-warning
+           (setq magit-show-long-lines-warning nil)
+           (display-warning 'magit (format "\
 Emacs has enabled redisplay shortcuts
 in this buffer because there are lines whose length go beyond
 `long-line-threshold' \(%s characters).  As a result, section
@@ -1809,7 +1810,7 @@ and recreate the buffer.
 
 This message won't be shown for this session again.  To disable
 it for all future sessions, set `magit-show-long-lines-warning'
-to nil." (bound-and-true-p long-line-threshold)) :warning)))
+to nil." (bound-and-true-p long-line-threshold)) :warning)))))
 
 (cl-defgeneric magit-section-get-relative-position (section))
 
