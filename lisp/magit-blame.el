@@ -94,11 +94,16 @@ The following %-specs can be used in `heading-format' and
 `margin-format':
 
   %H    hash              using face `magit-blame-hash'
+  %h    truncated hash    using face `magit-blame-hash'
   %s    summary           using face `magit-blame-summary'
   %a    author            using face `magit-blame-name'
   %A    author time       using face `magit-blame-date'
   %c    committer         using face `magit-blame-name'
   %C    committer time    using face `magit-blame-date'
+
+Note that for performance reasons %h results in truncated
+hashes, as opposed to properly abbreviated hashes that are
+guaranteed to uniquely identify a commit.
 
 Additionally if `margin-format' ends with %f, then the string
 that is displayed in the margin is made at least `margin-width'
@@ -701,6 +706,7 @@ modes is toggled, then this mode also gets toggled automatically.
                               (cdr (assoc k2 revinfo)))
                              f)))
               `((?H . ,(p0 rev         'magit-blame-hash))
+                (?h . ,(p0 (magit-blame--abbrev-hash rev)  'magit-blame-hash))
                 (?s . ,(p1 "summary"   'magit-blame-summary))
                 (?a . ,(p1 "author"    'magit-blame-name))
                 (?c . ,(p1 "committer" 'magit-blame-name))
@@ -730,6 +736,13 @@ modes is toggled, then this mode also gets toggled automatically.
     (format-time-string time-format
                         (seconds-to-time (string-to-number time))
                         tz-in-second)))
+
+(defvar-local magit-blame--abbrev-length nil)
+
+(defun magit-blame--abbrev-hash (rev)
+  (substring rev 0 (or magit-blame--abbrev-length
+                       (setq magit-blame--abbrev-length
+                             (magit-abbrev-length)))))
 
 (defun magit-blame--remove-overlays (&optional beg end)
   (save-restriction
