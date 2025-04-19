@@ -4065,12 +4065,9 @@ These commands can only be used when point is inside a diff.
 - Key: RET (magit-diff-visit-file) ::
 
   This command visits the appropriate version of the file that the
-  diff at point is about.
-
-  This commands visits the worktree version of the appropriate file.
-  The location of point inside the diff determines which file is being
-  visited.  The visited version depends on what changes the diff is
-  about.
+  diff at point is about. The location of point inside the diff
+  determines which file is being visited. The visited version depends
+  on what changes the diff is about.
 
   1. If the diff shows uncommitted changes (i.e., staged or unstaged
      changes), then visit the file in the working tree (i.e., the

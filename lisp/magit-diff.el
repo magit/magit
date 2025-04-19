@@ -1596,9 +1596,9 @@ Display the buffer in the selected window.  With a prefix
 argument OTHER-WINDOW display the buffer in another window
 instead.
 
-Visit the worktree version of the appropriate file.  The location
-of point inside the diff determines which file is being visited.
-The visited version depends on what changes the diff is about.
+The location of point inside the diff determines which file is
+being visited.  The visited version depends on what changes the
+diff is about.
 
 1. If the diff shows uncommitted changes (i.e., stage or unstaged
    changes), then visit the file in the working tree (i.e., the
