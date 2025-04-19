@@ -1074,6 +1074,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
     (when (functionp refresh)
       (when magit-refresh-verbose
         (message "Refreshing buffer `%s'..." (buffer-name)))
+      (when (and magit-prefetch (not (file-remote-p default-directory)))
+        (magit--prefetch-caches))
       (let* ((buffer (current-buffer))
              (windows (mapcan
                        (lambda (window)
