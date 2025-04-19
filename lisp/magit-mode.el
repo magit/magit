@@ -1086,7 +1086,7 @@ window."
        for index from 0
        do
        (let* ((name (format " *magit-prefetch-%s*" index))
-              (buffer (get-buffer-create name t))
+              (buffer (get-buffer-create name))
               (key (cons repo-path args))
               (process-environment (magit-process-environment))
               (default-process-coding-system (magit--process-coding-system))
