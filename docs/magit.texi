@@ -7234,7 +7234,8 @@ current commit's message.
 @item @kbd{k} (@code{git-rebase-kill-line})
 @kindex k
 @findex git-rebase-kill-line
-Kill the current action line.
+Comment the current action line, or if it is already commented, then
+uncomment it.
 
 @item @kbd{c} (@code{git-rebase-pick})
 @kindex c
