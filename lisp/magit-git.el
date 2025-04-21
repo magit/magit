@@ -60,6 +60,8 @@
 (declare-function magit-process-git "magit-process" (destination &rest args))
 (declare-function magit-process-insert-section "magit-process"
                   (pwd program args &optional errcode errlog face))
+(declare-function magit-process-environment "magit-process" ())
+(declare-function magit--process-coding-system "magit-process" ())
 (defvar magit-this-error)
 (defvar magit-process-error-message-regexps)
 
