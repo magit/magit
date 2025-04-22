@@ -1716,6 +1716,11 @@ according to the branch type."
                     'magit-branch-local
                   'magit-branch-remote)))))
 
+(defun magit-get-local-upstream-branch (&optional branch)
+  (and-let* ((upstream (magit-get-upstream-branch branch))
+             (upstream (cdr (magit-split-branch-name upstream))))
+    (and (magit-branch-p upstream) upstream)))
+
 (defun magit-get-indirect-upstream-branch (branch &optional force)
   (let ((remote (magit-get "branch" branch "remote")))
     (and remote (not (equal remote "."))
