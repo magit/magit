@@ -139,12 +139,11 @@ obsolete version of the commits that are being merged.  Finally
 if `forge-branch-pullreq' was used to create the merged branch,
 then also remove the respective remote branch."
   (interactive
-   (list (magit-read-other-local-branch
-          (format "Merge `%s' into"
-                  (or (magit-get-current-branch)
-                      (magit-rev-parse "HEAD")))
-          nil
-          (magit-get-local-upstream-branch))
+   (list (let ((branch (magit-get-current-branch)))
+           (magit-read-other-local-branch
+            (format "Merge `%s' into" (or branch (magit-rev-parse "HEAD")))
+            nil
+            (and branch (magit-get-local-upstream-branch branch))))
          (magit-merge-arguments)))
   (let ((current (magit-get-current-branch))
         (head (magit-rev-parse "HEAD")))
