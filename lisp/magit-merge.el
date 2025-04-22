@@ -166,7 +166,7 @@ then also remove the respective remote branch."
                      (magit-merge-arguments)))
   (magit--merge-absorb branch args))
 
-(defun magit--merge-absorb (branch args)
+(defun magit--merge-absorb (branch args &optional message)
   (when (equal branch (magit-main-branch))
     (unless (yes-or-no-p
              (format "Do you really want to merge `%s' into another branch? "
@@ -183,7 +183,9 @@ then also remove the respective remote branch."
                  (magit-process-sentinel process event)
                (process-put process 'inhibit-refresh t)
                (magit-process-sentinel process event)
-               (magit--merge-absorb-1 branch args))))))
+               (magit--merge-absorb-1 branch args))
+             (when message
+               (message message))))))
     (magit--merge-absorb-1 branch args)))
 
 (defun magit--merge-absorb-1 (branch args)
