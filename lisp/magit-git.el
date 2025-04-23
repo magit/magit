@@ -29,6 +29,7 @@
 (require 'magit-base)
 
 (require 'format-spec)
+(require 'benchmark)
 
 ;; From `magit-branch'.
 (defvar magit-branch-prefer-remote-upstream)
@@ -64,6 +65,8 @@
 (declare-function magit--process-coding-system "magit-process" ())
 (defvar magit-this-error)
 (defvar magit-process-error-message-regexps)
+(defvar magit-refresh-verbose)
+(defvar magit-refresh-status-buffer)
 
 (eval-when-compile
   (cl-pushnew 'orig-rev eieio--known-slot-names)
@@ -2856,12 +2859,7 @@ out.  Only existing branches can be selected."
         (magit-confirm t nil (format "%s %%d modules" verb) nil modules)
       (list (magit-read-module-path (format "%s module" verb) predicate)))))
 
-(defcustom magit-prefetch nil
-  "Prefetch caches in parallel before refresh."
-  :group 'magit-refresh
-  :type 'boolean)
-
-(defun magit--prefetch-commands-first-step ()
+(defun magit--prime-cache-commands-first-step ()
   '(("symbolic-ref" "--short" "HEAD")
     ("describe" "--long" "--tags")
     ("describe" "--contains" "HEAD")
@@ -2874,7 +2872,7 @@ out.  Only existing branches can be selected."
     ("rev-parse" "--verify" "refs/stash")
     ("rev-parse" "--verify" "HEAD~10")))
 
-(defun magit--prefetch-commands-second-step ()
+(defun magit--prime-cache-commands-second-step ()
   (let* ((branch (magit-get-current-branch))
          (main (magit-main-branch))
          (push-main (magit-get-push-branch main))
@@ -2900,7 +2898,23 @@ out.  Only existing branches can be selected."
        ("rev-parse" "--verify" ,push-branch))
      :test 'equal)))
 
-(defun magit--prefetch-sentinel (proc key)
+(defun magit-maybe-prime-refresh-cache ()
+  "Prime the refresh cache if possible."
+  (when (and (or magit-refresh-status-buffer
+                 (derived-mode-p 'magit-status-mode))
+             magit--refresh-cache
+             ;; This will certainly lead to a feature request.
+             ;; On the other hand, dropping this will likely
+             ;; cause the "illegal re-entry" issue.
+             (not (file-remote-p default-directory)))
+    (let ((elapsed
+           (benchmark-elapse
+             (magit--prime-caches-with-commands (magit--prime-cache-commands-first-step))
+             (magit--prime-caches-with-commands (magit--prime-cache-commands-second-step)))))
+      (when magit-refresh-verbose
+        (message "Refresh cached primed in %.3fs" elapsed)))))
+
+(defun magit--prime-cache-sentinel (proc key)
   (when (eq (process-status proc) 'exit)
     (let ((buf (process-buffer proc)))
       (when (and (buffer-live-p buf) magit--refresh-cache)
@@ -2914,44 +2928,40 @@ out.  Only existing branches can be selected."
                 (cdr magit--refresh-cache))))
       (kill-buffer buf))))
 
-(defun magit--prefetch-caches ()
-  (magit--prefetch-caches-with-commands (magit--prefetch-commands-first-step))
-  (magit--prefetch-caches-with-commands (magit--prefetch-commands-second-step)))
+(defun magit--prime-caches-with-commands (commands)
+  "Prime the refresh cache with the provided COMMANDS."
+  (let ((processes '())
+        (repo-path (magit-toplevel)))
+    (cl-loop
+     for args in commands
+     for index from 0
+     do
+     (let* ((name (format " *magit-prime-refresh-cache-%s*" index))
+            (buffer (get-buffer-create name))
+            (key (cons repo-path args))
+            (process-environment (magit-process-environment))
+            (default-process-coding-system (magit--process-coding-system))
+            (proc (make-process
+                   :name name
+                   :buffer buffer
+                   :noquery t
+                   :connection-type 'pipe
+                   :command (cons magit-git-executable (magit-process-git-arguments args))
+                   :sentinel (lambda (proc _event)
+                               (magit--prime-cache-sentinel proc key)))))
+       (push (cons proc buffer) processes)))
 
-(defun magit--prefetch-caches-with-commands (commands)
-  "Prefetch the Magit cache with the provided COMMANDS."
-  (when magit--refresh-cache
-    (let ((processes '())
-          (repo-path (magit-toplevel)))
-      (cl-loop
-       for args in commands
-       for index from 0
-       do
-       (let* ((name (format " *magit-prefetch-%s*" index))
-              (buffer (get-buffer-create name))
-              (key (cons repo-path args))
-              (process-environment (magit-process-environment))
-              (default-process-coding-system (magit--process-coding-system))
-              (proc (make-process
-                     :name (format "magit-prefetch:%s:%s" index (mapconcat #'identity args " "))
-                     :buffer buffer
-                     :noquery t
-                     :connection-type 'pipe
-                     :command (cons magit-git-executable (magit-process-git-arguments args))
-                     :sentinel (lambda (proc _event)
-                                 (magit--prefetch-sentinel proc key)))))
-         (push (cons proc buffer) processes)))
-
+    (with-timeout (1)
       (dolist (proc-buf processes)
         (while (process-live-p (car proc-buf))
-          (sit-for 0.01)))
+          (sit-for 0.01))))
 
-      (dolist (proc-buf processes)
-        (let ((proc (car proc-buf))
-              (buf (cdr proc-buf)))
-          (while (accept-process-output proc))
-          (when (buffer-live-p buf)
-            (kill-buffer buf)))))))
+    (dolist (proc-buf processes)
+      (let ((proc (car proc-buf))
+            (buf (cdr proc-buf)))
+        (while (accept-process-output proc))
+        (when (buffer-live-p buf)
+          (kill-buffer buf))))))
 
 ;;; _
 (provide 'magit-git)

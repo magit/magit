@@ -79,7 +79,7 @@ should be used instead of this one."
                  'magit-set-buffer-margin))
 
 (defcustom magit-pre-refresh-hook
-  (list #'magit-maybe-save-repository-buffers)
+  (list #'magit-maybe-save-repository-buffers 'magit-maybe-prime-refresh-cache)
   "Hook run before refreshing in `magit-refresh'.
 
 This hook, or `magit-post-refresh-hook', should be used
@@ -1029,8 +1029,6 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                                         (list (cons 0 0)))))
           (when magit-refresh-verbose
             (message "Refreshing magit..."))
-          (when (and magit-prefetch (not (file-remote-p default-directory)))
-            (magit--prefetch-caches))
           (magit-run-hook-with-benchmark 'magit-pre-refresh-hook)
           (cond ((derived-mode-p 'magit-mode)
                  (magit-refresh-buffer))
