@@ -115,7 +115,7 @@ clean:
 ## Templates #########################################################
 
 define VERSIONLIB_TMPL
-;;; $(PKG)-version.el --- the Magit version you are using
+;;; $(PKG)-version.el --- The Magit version you are using  -*- lexical-binding:t -*-
 
 (setq $(PKG)-version "$(VERSION)")
 
