@@ -1015,7 +1015,7 @@ status buffer (i.e., the reverse of how they will be applied)."
       (while-let ((obj (pop commits))
                   (val (pop abbrevs)))
         (oset obj abbrev val)))
-    (nreverse actions)))
+    actions))
 
 (defun magit-rebase-insert-merge-sequence (onto)
   (dolist (obj (magit-rebase--todo))
