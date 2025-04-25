@@ -2923,28 +2923,28 @@ out.  Only existing branches can be selected."
      (let* ((buffer (generate-new-buffer " *magit-prime-refresh-cache*"))
             (key (cons repo-path args))
             (process-environment (magit-process-environment))
-            (default-process-coding-system (magit--process-coding-system))
-            (proc (make-process
-                   :name (buffer-name buffer)
-                   :buffer buffer
-                   :noquery t
-                   :connection-type 'pipe
-                   :command (cons magit-git-executable (magit-process-git-arguments args))
-                   :sentinel
-                   (lambda (proc _event)
-                     (when (eq (process-status proc) 'exit)
-                       (let ((buf (process-buffer proc)))
-                         (when (and (buffer-live-p buf) magit--refresh-cache)
-                           (let ((value
-                                  (with-current-buffer buf
-                                    (and (= (process-exit-status proc) 0)
-                                         (unless (bobp)
-                                           (goto-char (point-min))
-                                           (buffer-substring-no-properties
-                                            (point) (line-end-position)))))))
-                             (push (cons key value)
-                                   (cdr magit--refresh-cache))))
-                         (cl-decf running)))))))
+            (default-process-coding-system (magit--process-coding-system)))
+       (make-process
+        :name (buffer-name buffer)
+        :buffer buffer
+        :noquery t
+        :connection-type 'pipe
+        :command (cons magit-git-executable (magit-process-git-arguments args))
+        :sentinel
+        (lambda (proc _event)
+          (when (eq (process-status proc) 'exit)
+            (let ((buf (process-buffer proc)))
+              (when (and (buffer-live-p buf) magit--refresh-cache)
+                (let ((value
+                       (with-current-buffer buf
+                         (and (= (process-exit-status proc) 0)
+                              (unless (bobp)
+                                (goto-char (point-min))
+                                (buffer-substring-no-properties
+                                 (point) (line-end-position)))))))
+                  (push (cons key value)
+                        (cdr magit--refresh-cache))))
+              (cl-decf running)))))
        (cl-incf running)
        (push buffer buffers)))
 
