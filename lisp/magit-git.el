@@ -2903,9 +2903,6 @@ out.  Only existing branches can be selected."
   (when (and (or magit-refresh-status-buffer
                  (derived-mode-p 'magit-status-mode))
              magit--refresh-cache
-             ;; This will certainly lead to a feature request.
-             ;; On the other hand, dropping this will likely
-             ;; cause the "illegal re-entry" issue.
              (not (file-remote-p default-directory)))
     (let ((elapsed
            (benchmark-elapse
@@ -2914,54 +2911,50 @@ out.  Only existing branches can be selected."
       (when magit-refresh-verbose
         (message "Refresh cached primed in %.3fs" elapsed)))))
 
-(defun magit--prime-cache-sentinel (proc key)
-  (when (eq (process-status proc) 'exit)
-    (let ((buf (process-buffer proc)))
-      (when (and (buffer-live-p buf) magit--refresh-cache)
-        (let ((value
-               (with-current-buffer buf
-                 (and (= (process-exit-status proc) 0)
-                      (unless (bobp)
-                        (goto-char (point-min))
-                        (buffer-substring-no-properties (point) (line-end-position)))))))
-          (push (cons key value)
-                (cdr magit--refresh-cache))))
-      (kill-buffer buf))))
-
 (defun magit--prime-caches-with-commands (commands)
   "Prime the refresh cache with the provided COMMANDS."
-  (let ((processes '())
-        (repo-path (magit-toplevel)))
+  (let ((buffers '())
+        (repo-path (magit-toplevel))
+        (running 0))
     (cl-loop
      for args in commands
      for index from 0
      do
-     (let* ((name (format " *magit-prime-refresh-cache-%s*" index))
-            (buffer (get-buffer-create name))
+     (let* ((buffer (generate-new-buffer " *magit-prime-refresh-cache*"))
             (key (cons repo-path args))
             (process-environment (magit-process-environment))
             (default-process-coding-system (magit--process-coding-system))
             (proc (make-process
-                   :name name
+                   :name (buffer-name buffer)
                    :buffer buffer
                    :noquery t
                    :connection-type 'pipe
                    :command (cons magit-git-executable (magit-process-git-arguments args))
-                   :sentinel (lambda (proc _event)
-                               (magit--prime-cache-sentinel proc key)))))
-       (push (cons proc buffer) processes)))
+                   :sentinel
+                   (lambda (proc _event)
+                     (when (eq (process-status proc) 'exit)
+                       (let ((buf (process-buffer proc)))
+                         (when (and (buffer-live-p buf) magit--refresh-cache)
+                           (let ((value
+                                  (with-current-buffer buf
+                                    (and (= (process-exit-status proc) 0)
+                                         (unless (bobp)
+                                           (goto-char (point-min))
+                                           (buffer-substring-no-properties
+                                            (point) (line-end-position)))))))
+                             (push (cons key value)
+                                   (cdr magit--refresh-cache))))
+                         (cl-decf running)))))))
+       (cl-incf running)
+       (push buffer buffers)))
 
     (with-timeout (1)
-      (dolist (proc-buf processes)
-        (while (process-live-p (car proc-buf))
-          (sit-for 0.01))))
-
-    (dolist (proc-buf processes)
-      (let ((proc (car proc-buf))
-            (buf (cdr proc-buf)))
-        (while (accept-process-output proc))
-        (when (buffer-live-p buf)
-          (kill-buffer buf))))))
+      (while (> running 0)
+        (sit-for 0.01)
+        (accept-process-output)))
+    
+    (dolist (buffer buffers)
+      (kill-buffer buffer))))
 
 ;;; _
 (provide 'magit-git)
