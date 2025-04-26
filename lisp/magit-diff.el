@@ -3421,8 +3421,8 @@ are highlighted."
                (magit-diff-paint-tab merging tab-width)
                (magit-diff-paint-whitespace merging 'context diff-type)
                (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
-            (forward-line))))))
-  (magit-diff-update-hunk-refinement section))
+            (forward-line))))
+      (magit-diff-update-hunk-refinement section))))
 
 (defvar magit-diff--tab-width-cache nil)
 
