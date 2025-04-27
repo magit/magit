@@ -128,6 +128,16 @@ hardcoded section specific default (see `magit-insert-section').")
   :package-version '(magit-section . "4.3.3")
   :group 'magit-section
   :type 'boolean)
+
+(defcustom magit-section-highlight-selection t
+  "Whether to highlight the selected sections.
+If you disable this, you probably also want to disable
+`magit-section-highlight-current' to get the region to
+always look as it would be in non-magit buffers."
+  :package-version '(magit-section . "4.3.3")
+  :group 'magit-section
+  :type 'boolean)
+
 (defcustom magit-section-show-child-count t
   "Whether to append the number of children to section headings.
 This only applies to sections for which doing so makes sense."
@@ -1876,7 +1886,8 @@ to nil." (bound-and-true-p long-line-threshold)) :warning)))))
 
 (defun magit-section--highlight-region (start end window rol)
   (magit-section--delete-region-overlays)
-  (if (and (not magit-section-keep-region-overlay)
+  (if (and magit-section-highlight-selection
+           (not magit-section-keep-region-overlay)
            (or (magit-region-sections)
                (run-hook-with-args-until-success 'magit-region-highlight-hook
                                                  (magit-current-section)))
