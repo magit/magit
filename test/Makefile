@@ -1,7 +1,7 @@
 -include ../config.mk
 include ../default.mk
 
-test:
+test: lisp
 	@printf "Testing...\n"
 	@$(BATCH) --eval "(progn\
 	$$suppress_warnings\
