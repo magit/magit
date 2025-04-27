@@ -2043,6 +2043,20 @@ excluding SECTION itself."
       ('next  (cdr (member section siblings)))
       (_      (remq section siblings)))))
 
+(defun magit-focused-sections ()
+  "Return a list of the selected sections and all their descendants.
+If no sections are selected return a list of the current section and
+its descendants, except if that is the root section, in which case
+return nil."
+  (let ((current (magit-current-section)))
+    (and (not (eq current magit-root-section))
+         (let (sections)
+           (letrec ((collect (lambda (section)
+                               (mapc collect (oref section children))
+                               (push section sections))))
+             (mapc collect (or (magit-region-sections) (list current))))
+           sections))))
+
 (defun magit-region-values (&optional condition multiple)
   "Return a list of the values of the selected sections.
 
