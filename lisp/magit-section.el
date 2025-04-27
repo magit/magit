@@ -2081,7 +2081,14 @@ forms CONDITION can take."
               (rend (region-end))
               (sbeg (magit-section-at rbeg))
               (send (magit-section-at rend)))
-         (and send
+         ;; It should be possible to select a single section using
+         ;; `set-mark-command', so don't use `use-region-p' above.
+         ;; We still have to prevent the selection overlay from
+         ;; being flashed when clicking inside a section, which
+         ;; the first condition accomplishes:
+         (and (or (not (eq this-command #'mouse-drag-region))
+                  (> rend rbeg))
+              send
               (not (eq send magit-root-section))
               (not (and (eq send sbeg)
                         (or multiple
