@@ -3115,7 +3115,7 @@ It the SECTION has a different type, then do nothing."
 
 (defun magit-insert-unstaged-changes ()
   "Insert section showing unstaged changes."
-  (magit-insert-section (unstaged)
+  (magit-insert-section (unstaged nil nil :complex-highlight t)
     (magit-insert-heading t "Unstaged changes")
     (magit--insert-diff nil
       "diff" magit-buffer-diff-args "--no-prefix"
@@ -3139,7 +3139,7 @@ It the SECTION has a different type, then do nothing."
   "Insert section showing staged changes."
   ;; Avoid listing all files as deleted when visiting a bare repo.
   (unless (magit-bare-repo-p)
-    (magit-insert-section (staged)
+    (magit-insert-section (staged nil nil :complex-highlight t)
       (magit-insert-heading t "Staged changes")
       (magit--insert-diff nil
         "diff" "--cached" magit-buffer-diff-args "--no-prefix"
@@ -3269,95 +3269,19 @@ actually a `diff' but a `diffstat' section."
                      (byte-code-function-p last-command))
                  (eq (region-end) (region-beginning))))))
 
-;;; Diff Highlight
-
-(add-hook 'magit-section-unhighlight-hook #'magit-diff-unhighlight)
-(add-hook 'magit-section-highlight-hook #'magit-diff-highlight)
-
-(defun magit-diff-unhighlight (section selection)
-  "Remove the highlighting of the diff-related SECTION."
-  (when (magit-hunk-section-p section)
-    (magit-diff-paint-hunk section selection nil)
-    t))
-
-(defun magit-diff-highlight (section selection)
-  "Highlight the diff-related SECTION.
-If SECTION is not a diff-related section, then do nothing and
-return nil.  If SELECTION is non-nil, then it is a list of sections
-selected by the region, including SECTION.  All of these sections
-are highlighted."
-  (if (and (magit-section-match 'commit section)
-           (oref section children))
-      (progn (if selection
-                 (dolist (section selection)
-                   (magit-diff-highlight-list section selection))
-               (magit-diff-highlight-list section))
-             t)
-    (when-let ((scope (magit-diff-scope section t)))
-      (cond ((eq scope 'region)
-             (magit-diff-paint-hunk section selection t))
-            (selection
-             (dolist (section selection)
-               (magit-diff-highlight-recursive section selection)))
-            (t
-             (magit-diff-highlight-recursive section)))
-      t)))
-
-(defun magit-diff-highlight-recursive (section &optional selection)
-  (pcase (magit-diff-scope section)
-    ('list (magit-diff-highlight-list section selection))
-    ('file (magit-diff-highlight-file section selection))
-    ('hunk (magit-diff-highlight-heading section selection)
-           (magit-diff-paint-hunk section selection t))
-    (_     (magit-section-highlight section nil))))
-
-(defun magit-diff-highlight-list (section &optional selection)
-  (if (oref section children)
-      (let ((beg (oref section start))
-            (cnt (oref section content))
-            (end (oref section end)))
-        (unless selection
-          (unless (and (region-active-p)
-                       (<= (region-beginning) beg))
-            (magit-section-make-overlay beg cnt 'magit-section-highlight))
-          (if (oref section hidden)
-              (oset section washer #'ignore)
-            (dolist (child (oref section children))
-              (when (or (eq this-command #'mouse-drag-region)
-                        (not (and (region-active-p)
-                                  (<= (region-beginning)
-                                      (oref child start)))))
-                (magit-diff-highlight-recursive child selection)))))
-        (when magit-diff-highlight-hunk-body
-          (magit-section-make-overlay (1- end) end 'magit-section-highlight)))
-    (magit-section-highlight section nil)))
-
-(defun magit-diff-highlight-file (section &optional selection)
-  (magit-diff-highlight-heading section selection)
-  (when (or (not (oref section hidden))
-            (cl-typep section 'magit-module-section))
-    (dolist (child (oref section children))
-      (magit-diff-highlight-recursive child selection))))
-
-(defun magit-diff-highlight-heading (section &optional selection)
-  (magit-section-make-overlay
-   (oref section start)
-   (or (oref section content)
-       (oref section end))
-   (pcase (list (oref section type)
-                (and (member section selection) t))
-     ('(file     t) 'magit-diff-file-heading-selection)
-     ('(file   nil) 'magit-diff-file-heading-highlight)
-     ('(module   t) 'magit-diff-file-heading-selection)
-     ('(module nil) 'magit-diff-file-heading-highlight)
-     ('(hunk     t) 'magit-diff-hunk-heading-selection)
-     ('(hunk   nil) 'magit-diff-hunk-heading-highlight))))
-
 ;;; Hunk Paint
 
+(cl-defmethod magit-section-highlight ((section magit-hunk-section))
+  (magit-section-make-overlay (oref section start)
+                              (oref section content)
+                              (oref section heading-highlight-face))
+  (magit-diff-paint-hunk section t))
+
+(cl-defmethod magit-section-unhighlight ((section magit-hunk-section))
+  (magit-diff-paint-hunk section nil))
+
 (cl-defun magit-diff-paint-hunk
-    (section &optional selection
-             (highlight (magit-section-selected-p section selection)))
+    (section &optional (highlight (magit-section-selected-p section)))
   (let (paint)
     (unless magit-diff-highlight-hunk-body
       (setq highlight nil))

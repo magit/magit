@@ -470,7 +470,8 @@ and delay of your graphical environment or operating system."
 ;;; Section Classes
 
 (defclass magit-commit-section (magit-section)
-  ((keymap :initform 'magit-commit-section-map)))
+  ((keymap :initform 'magit-commit-section-map)
+   (complex-highlight :initform t)))
 
 (setf (alist-get 'commit magit--section-type-alist) 'magit-commit-section)
 
@@ -482,7 +483,10 @@ and delay of your graphical environment or operating system."
   ((keymap :initform 'magit-file-section-map)
    (source :initform nil :initarg :source)
    (header :initform nil :initarg :header)
-   (binary :initform nil :initarg :binary)))
+   (binary :initform nil :initarg :binary)
+   (complex-highlight      :initform t)
+   (heading-highlight-face :initform 'magit-diff-file-heading-highlight)
+   (heading-selection-face :initform 'magit-diff-file-heading-selection)))
 
 (defclass magit-module-section (magit-file-section)
   ((keymap :initform 'magit-module-section-map)
@@ -495,7 +499,10 @@ and delay of your graphical environment or operating system."
    (from-range  :initform nil :initarg :from-range)
    (from-ranges :initform nil)
    (to-range    :initform nil :initarg :to-range)
-   (about       :initform nil :initarg :about)))
+   (about       :initform nil :initarg :about)
+   (complex-highlight      :initform t)
+   (heading-highlight-face :initform 'magit-diff-hunk-heading-highlight)
+   (heading-selection-face :initform 'magit-diff-hunk-heading-selection)))
 
 (setf (alist-get 'file   magit--section-type-alist) 'magit-file-section)
 (setf (alist-get 'module magit--section-type-alist) 'magit-module-section)

@@ -1397,7 +1397,7 @@ Do not add this to a hook variable."
                    ('stash  'stash)
                    ('module 'module-commit)
                    (_       'commit)))
-           hash)
+           hash nil :complex-highlight t)
         (setq hash (propertize (if (eq style 'bisect-log)
                                    (magit-rev-parse "--short" hash)
                                  hash)
