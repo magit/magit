@@ -1460,9 +1460,7 @@ anything this time around.
       (magit-map-sections
        (lambda (section)
          (oset section start (copy-marker (oref section start) t))
-         (oset section end   (copy-marker (oref section end)   t)))))
-    (let ((magit-section-cache-visibility nil))
-      (magit-section-show obj)))
+         (oset section end   (copy-marker (oref section end)   t))))))
    (t
     (magit-section--set-section-properties obj)
     (magit-section-maybe-add-heading-map obj)
@@ -1671,6 +1669,8 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
 
 ;;; Highlight
 
+(defvar magit-section--refreshed-buffers nil)
+
 (defun magit-section-pre-command-hook ()
   (when (and (or magit--context-menu-buffer
                  magit--context-menu-section)
@@ -1684,6 +1684,7 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
     ;; after the menu is aborted.  Here we can only make sure it is
     ;; updated afterwards.
     (magit-menu-highlight-point-section))
+  (setq magit-section--refreshed-buffers nil)
   (setq magit-section-pre-command-region-p (region-active-p))
   (setq magit-section-pre-command-section (magit-current-section)))
 
@@ -1696,8 +1697,9 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
       (when (or magit--context-menu-buffer
                 magit--context-menu-section)
         (magit-menu-highlight-point-section))))
-  (unless (memq this-command '(magit-refresh magit-refresh-all))
-    (magit-section-update-highlight)))
+  (unless (memq (current-buffer) magit-section--refreshed-buffers)
+    (magit-section-update-highlight))
+  (setq magit-section--refreshed-buffers nil))
 
 (defun magit-section-deactivate-mark ()
   (setq magit-section-highlight-force-update t))
