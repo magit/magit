@@ -3282,25 +3282,9 @@ actually a `diff' but a `diffstat' section."
 
 (cl-defun magit-diff-paint-hunk
     (section &optional (highlight (magit-section-selected-p section)))
-  (let (paint)
-    (unless magit-diff-highlight-hunk-body
-      (setq highlight nil))
-    (cond (highlight
-           (unless (oref section hidden)
-             (cl-pushnew section magit-section-highlighted-sections)
-             (cond ((memq section magit-section-unhighlight-sections)
-                    (setq magit-section-unhighlight-sections
-                          (delq section magit-section-unhighlight-sections)))
-                   (magit-diff-highlight-hunk-body
-                    (setq paint t)))))
-          ((and (oref section hidden)
-                (memq section magit-section-unhighlight-sections))
-           (cl-pushnew section magit-section-highlighted-sections)
-           (setq magit-section-unhighlight-sections
-                 (delq section magit-section-unhighlight-sections)))
-          (t
-           (setq paint t)))
-    (when paint
+  (unless (eq (oref section painted)
+              (if highlight 'highlight 'plain))
+    (progn
       (save-excursion
         (goto-char (oref section start))
         (let ((end (oref section end))
@@ -3342,6 +3326,8 @@ actually a `diff' but a `diffstat' section."
                (magit-diff-paint-whitespace merging 'context diff-type)
                (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
             (forward-line))))
+      (oset section painted (if highlight 'highlight 'plain))
+      (cl-pushnew section magit-section-painted-sections)
       (magit-diff-update-hunk-refinement section))))
 
 (defvar magit-diff--tab-width-cache nil)

@@ -298,8 +298,7 @@ no effect.  This also has no effect for Emacs >= 28, where
 (defvar-local magit-section-highlight-force-update nil)
 (defvar-local magit-section-highlight-overlays nil)
 (defvar-local magit-section-selection-overlays nil)
-(defvar-local magit-section-highlighted-sections nil)
-(defvar-local magit-section-unhighlight-sections nil)
+(defvar-local magit-section-painted-sections nil)
 
 (defvar-local magit-section-inhibit-markers nil)
 (defvar-local magit-section-insert-in-reverse nil)
@@ -367,6 +366,7 @@ no effect.  This also has no effect for Emacs >= 28, where
    (content  :initform nil)
    (end      :initform nil)
    (hidden)
+   (painted  :initform nil)
    (washer   :initform nil :initarg :washer)
    (inserter :initform (symbol-value 'magit--current-section-hook))
    (complex-highlight      :initform nil :initarg :complex-highlight)
@@ -1698,7 +1698,8 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
   (setq magit-section-highlight-force-update t))
 
 (defun magit-section-update-highlight (&optional force)
-  (let ((section (magit-current-section)))
+  (let ((section (magit-current-section))
+        (focused (magit-focused-sections)))
     (cond
      ((or force
           magit-section-highlight-force-update
@@ -1711,9 +1712,6 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (mapc #'delete-overlay magit-section-selection-overlays)
         (setq magit-section-highlight-overlays nil)
         (setq magit-section-selection-overlays nil)
-        (setq magit-section-unhighlight-sections
-              magit-section-highlighted-sections)
-        (setq magit-section-highlighted-sections nil)
         (cond ((magit-section--maybe-enable-long-lines-shortcuts))
               ((eq section magit-root-section))
               ((not magit-section-highlight-current)
@@ -1724,8 +1722,14 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
               (t
                (mapc #'magit-section-highlight selection)
                (magit-section-highlight-selection selection)))
-        (dolist (section magit-section-unhighlight-sections)
-          (magit-section-unhighlight section))
+        (dolist (section magit-section-painted-sections)
+          (unless (oref section hidden)
+            (pcase (list (and (memq section focused) 'focused)
+                         (oref section painted))
+              (`(focused ,(or 'nil 'plain))
+               (magit-section-highlight section))
+              (`(nil ,(or 'nil 'highlight))
+               (magit-section-unhighlight section)))))
         (restore-buffer-modified-p nil)))
      ((and (eq magit-section-pre-command-section section)
            magit-section-selection-overlays
