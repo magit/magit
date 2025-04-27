@@ -2620,7 +2620,7 @@ function errors."
       (magit-delete-line)
       (magit-insert-section
           ( hunk value nil
-            :washer #'magit-diff-paint-hunk
+            :washer #'magit-section-paint
             :combined combined
             :from-range (if combined (butlast ranges) (car ranges))
             :to-range (car (last ranges))
@@ -3272,18 +3272,28 @@ actually a `diff' but a `diffstat' section."
 ;;; Hunk Paint
 
 (cl-defmethod magit-section-highlight ((section magit-hunk-section))
+  ;; (message "h] %s" (magit-describe-section-briefly section))
   (magit-section-make-overlay (oref section start)
                               (oref section content)
                               (oref section heading-highlight-face))
-  (magit-diff-paint-hunk section t))
+  (magit-section-paint section t))
 
 (cl-defmethod magit-section-unhighlight ((section magit-hunk-section))
-  (magit-diff-paint-hunk section nil))
+  ;; (message "u] %s" (magit-describe-section-briefly section))
+  (magit-section-paint section nil))
 
-(cl-defun magit-diff-paint-hunk
-    (section &optional (highlight (magit-section-selected-p section)))
-  (unless (eq (oref section painted)
-              (if highlight 'highlight 'plain))
+(cl-defmethod magit-section-paint
+  ((section magit-hunk-section)
+   &optional (highlight (magit-section-selected-p section)))
+  (if (not (magit-section-paint-p section highlight))
+      nil ;;(message "-] %s" (magit-describe-section-briefly section))
+    ;;(message "p] %s" (magit-describe-section-briefly section))
+    ;; (message "p] [%s (%s)] [%s %s] %s"
+    ;;          (magit-section-hidden section)
+    ;;          (oref section hidden)
+    ;;          (oref section painted)
+    ;;          (if highlight 'highlight 'plain)
+    ;;          (magit-describe-section-briefly section))
     (progn
       (save-excursion
         (goto-char (oref section start))

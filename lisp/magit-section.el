@@ -376,7 +376,7 @@ no effect.  This also has no effect for Emacs >= 28, where
    (content  :initform nil)
    (end      :initform nil)
    (hidden)
-   (painted  :initform nil)
+   (painted)
    (washer   :initform nil :initarg :washer)
    (inserter :initform (symbol-value 'magit--current-section-hook))
    (complex-highlight      :initform nil :initarg :complex-highlight)
@@ -1744,9 +1744,9 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
             (pcase (list (and (memq section focused) 'focused)
                          (oref section painted))
               (`(focused ,(or 'nil 'plain))
-               (magit-section-highlight section))
+               (magit-section-paint section t))
               (`(nil ,(or 'nil 'highlight))
-               (magit-section-unhighlight section)))))
+               (magit-section-paint section)))))
         (restore-buffer-modified-p nil)))
      ((and (eq magit-section-pre-command-section section)
            magit-section-selection-overlays
@@ -1804,8 +1804,26 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
     (push ov magit-section-highlight-overlays)
     ov))
 
-(cl-defmethod magit-section-unhighlight ((_section magit-section))
-  nil)
+(cl-defmethod magit-section-unhighlight ((section magit-section))
+  (when (magit-section-paint-p section nil)
+    (magit-section-paint section nil)))
+
+(cl-defmethod magit-section-paint ((section magit-section) &optional _highlight)
+  (error "Slot `paint' bound but `magit-section-paint' not implemented for `%s'"
+         (eieio-object-class-name section)))
+
+(defun magit-section-paint-p (section highlight)
+  "Return t if the body of SECTION needs to be painted.
+This is intended for sections that are painted differently depending
+on whether they have focus or not.  When the section isn't visible,
+always return nil, i.e., delay painting until that's actually useful."
+  (and (slot-boundp section 'painted)
+       (not (or (magit-section-hidden section)
+                (eq (oref section painted)
+                    (if highlight 'highlight 'plain))))))
+
+(defun magit-section-selective-highlight-p ()
+  )
 
 (defvar magit-show-long-lines-warning t)
 
