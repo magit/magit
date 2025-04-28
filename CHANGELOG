@@ -1,4 +1,36 @@
 # -*- mode: org -*-
+* v4.3.3    UNRELEASED
+
+- ~magit-section-show-level~ now acts on all selected sections.  #5354
+
+- Inserting the list of commits being rebased into the status buffer
+  is now much faster.  8e72767262
+
+- All rebase actions are now inserted into the status buffer.
+  69b310e109
+
+- While editing the list of commits and actions to be rebased
+  ~git-rebase-kill-line~ (~k~) on a commented line now uncomments it.
+  ff44ee1bc3
+
+- Added new variants of commands that deal with files for use in Dired
+  buffers, and improved existing variants.  In Dired, these commands
+  are available from ~magit-file-dispatch~ (~C-c M-g~).  542c2f8a75 et al.
+
+- ~magit-branch-shelve~ now appends the date to the refname, and
+  ~magit-branch-unshelve~ removes such suffixes.  78ffd1a389
+
+- The new function ~magit-insert-shelved-branch~ can be added to
+  ~magit-refs-sections-hook~ to list shelved branches.  d6b7784547
+
+- Added new command ~magit-wip-purge~, which removes old branches
+  created by ~magit-wip-mode~.  d5e0f3a639
+  
+- ~magit-blame-styles~ now supports inserting truncated commit hashes.
+  #4057
+
+Also contains code and documentation cleanups and improvements.
+
 * v4.3.2    2025-04-01
 
 - Removed legacy options ~magit-wip-*-mode-lighter~.  225ea6fd00
