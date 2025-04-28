@@ -644,7 +644,7 @@ line is inserted at all."
   (when-let ((refs (magit-list-refs "refs/shelved/")))
     (magit-insert-section (shelved nil)
       (magit-insert-heading t "Shelved branches")
-      (dolist (ref refs)
+      (dolist (ref (nreverse refs))
         (magit-insert-section (shelved-branch ref t)
           (magit-insert-heading
             "  " (magit--propertize-face (substring ref 13) 'magit-refname))

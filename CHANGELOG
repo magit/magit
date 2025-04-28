@@ -17,8 +17,8 @@
   buffers, and improved existing variants.  In Dired, these commands
   are available from ~magit-file-dispatch~ (~C-c M-g~).  542c2f8a75 et al.
 
-- ~magit-branch-shelve~ now appends the date to the refname, and
-  ~magit-branch-unshelve~ removes such suffixes.  78ffd1a389
+- ~magit-branch-shelve~ now prepends the date to the refname, and
+  ~magit-branch-unshelve~ removes such prefixes.  78ffd1a389
 
 - The new function ~magit-insert-shelved-branch~ can be added to
   ~magit-refs-sections-hook~ to list shelved branches.  d6b7784547

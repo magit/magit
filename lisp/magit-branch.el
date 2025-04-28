@@ -834,7 +834,7 @@ Also rename the respective reflog file."
    (list (magit-completing-read
           "Unshelve branch"
           (mapcar (##substring % 8)
-                  (magit-list-refnames "refs/shelved"))
+                  (nreverse (magit-list-refnames "refs/shelved")))
           nil t)))
   (let ((old (concat "refs/shelved/" branch))
         (new (concat "refs/heads/"
