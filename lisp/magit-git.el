@@ -2913,43 +2913,43 @@ out.  Only existing branches can be selected."
 
 (defun magit--prime-caches-with-commands (commands)
   "Prime the refresh cache with the provided COMMANDS."
-  (let ((buffers '())
-        (repo-path (magit-toplevel))
-        (running 0))
-    (mapcar
-     (lambda (args)
-       (let* ((buffer (generate-new-buffer " *magit-prime-refresh-cache*"))
-              (key (cons repo-path args))
-              (process-environment (magit-process-environment))
-              (default-process-coding-system (magit--process-coding-system)))
-         (make-process
-          :name (buffer-name buffer)
-          :buffer buffer
-          :noquery t
-          :connection-type 'pipe
-          :command (cons magit-git-executable (magit-process-git-arguments args))
-          :sentinel
-          (lambda (proc _event)
-            (when (eq (process-status proc) 'exit)
-              (when-let* ((buf (process-buffer proc))
-                          ((buffer-live-p buf)))
-                (push (cons key (with-current-buffer buf
-                                  (and (= (process-exit-status proc) 0)
-                                       (unless (bobp)
-                                         (goto-char (point-min))
-                                         (buffer-substring-no-properties
-                                          (point) (line-end-position))))))
-                      (cdr magit--refresh-cache)))
-              (cl-decf running))))
-         (cl-incf running)
-         (push buffer buffers)))
-     commands)
+  (let* ((repo-path (magit-toplevel))
+         (running 0)
+         (buffers
+          (mapcar
+           (lambda (args)
+             (let* ((buffer (generate-new-buffer " *magit-prime-refresh-cache*"))
+                    (key (cons repo-path args))
+                    (process-environment (magit-process-environment))
+                    (default-process-coding-system (magit--process-coding-system)))
+               (make-process
+                :name (buffer-name buffer)
+                :buffer buffer
+                :noquery t
+                :connection-type 'pipe
+                :command (cons magit-git-executable (magit-process-git-arguments args))
+                :sentinel
+                (lambda (proc _event)
+                  (when (eq (process-status proc) 'exit)
+                    (when-let* ((buf (process-buffer proc))
+                                ((buffer-live-p buf)))
+                      (push (cons key (with-current-buffer buf
+                                        (and (= (process-exit-status proc) 0)
+                                             (unless (bobp)
+                                               (goto-char (point-min))
+                                               (buffer-substring-no-properties
+                                                (point) (line-end-position))))))
+                            (cdr magit--refresh-cache)))
+                    (cl-decf running))))
+               (cl-incf running)
+               buffer))
+           commands)))
 
     (with-timeout (1)
       (while (> running 0)
         (sit-for 0.01)
         (accept-process-output)))
-    
+
     (dolist (buffer buffers)
       (kill-buffer buffer))))
 
