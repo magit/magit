@@ -2950,8 +2950,7 @@ out.  Only existing branches can be selected."
         (sit-for 0.01)
         (accept-process-output)))
 
-    (dolist (buffer buffers)
-      (kill-buffer buffer))))
+    (mapc #'kill-buffer buffers)))
 
 ;;; _
 (provide 'magit-git)
