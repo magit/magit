@@ -2932,7 +2932,7 @@ out.  Only existing branches can be selected."
           (lambda (proc _event)
             (when (eq (process-status proc) 'exit)
               (when-let* ((buf (process-buffer proc))
-                          (buffer-live-p buf))
+                          ((buffer-live-p buf)))
                 (push (cons key (with-current-buffer buf
                                   (and (= (process-exit-status proc) 0)
                                        (unless (bobp)
