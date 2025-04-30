@@ -29,6 +29,8 @@
 - ~magit-blame-styles~ now supports inserting truncated commit hashes.
   #4057
 
+- Added new command ~magit-mouse-set-point~.  3c9e519197
+
 Also contains code and documentation cleanups and improvements.
 
 * v4.3.2    2025-04-01
