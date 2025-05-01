@@ -2920,7 +2920,6 @@ out.  Only existing branches can be selected."
            (lambda (command)
              (let* ((buffer (generate-new-buffer " *magit-prime-refresh-cache*"))
                     (args (seq-filter (##not (keywordp %)) command))
-                    (cache-errors (member :cache-errors command))
                     (key (cons repo-path args))
                     (process-environment (magit-process-environment))
                     (default-process-coding-system (magit--process-coding-system)))
@@ -2935,7 +2934,8 @@ out.  Only existing branches can be selected."
                   (when (eq (process-status proc) 'exit)
                     (when-let* ((buf (process-buffer proc))
                                 ((buffer-live-p buf))
-                                ((or cache-errors (= (process-exit-status proc) 0))))
+                                ((or (member :cache-errors command)
+                                     (= (process-exit-status proc) 0))))
                       (push (cons key (with-current-buffer buf
                                         (and (= (process-exit-status proc) 0)
                                              (unless (bobp)
