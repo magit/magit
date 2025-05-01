@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v4.3.3    UNRELEASED
+* v4.3.3    2025-05-01
 
 - ~magit-section-show-level~ now acts on all selected sections.  #5354
 
