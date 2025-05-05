@@ -93,9 +93,18 @@
   (let ((choices (oref obj choices)))
     (when (functionp choices)
       (setq choices (funcall choices)))
-    (if-let ((value (oref obj value)))
-        (cadr (member value choices))
-      (car choices))))
+    (if current-prefix-arg
+        (pcase-let*
+            ((`(,fallback . ,choices)
+              (magit--git-variable-list-choices obj))
+             (choice (magit-completing-read
+                      (format "Set `%s' to" (oref obj variable))
+                      (if fallback (nconc choices (list fallback)) choices)
+                      nil t)))
+          (if (equal choice fallback) nil choice))
+      (if-let ((value (oref obj value)))
+          (cadr (member value choices))
+        (car choices)))))
 
 ;;;; Readers
 
@@ -163,6 +172,16 @@
       (propertize "unset" 'face 'transient-inactive-value))))
 
 (cl-defmethod transient-format-value ((obj magit--git-variable:choices))
+  (pcase-let ((`(,fallback . ,choices) (magit--git-variable-list-choices obj)))
+    (concat
+     (propertize "[" 'face 'transient-inactive-value)
+     (mapconcat #'identity choices
+                (propertize "|" 'face 'transient-inactive-value))
+     (and fallback (propertize "|" 'face 'transient-inactive-value))
+     fallback
+     (propertize "]" 'face 'transient-inactive-value))))
+
+(defun magit--git-variable-list-choices (obj)
   (let* ((variable (oref obj variable))
          (choices  (oref obj choices))
          (globalp  (oref obj global))
@@ -180,42 +199,35 @@
       (setq global nil))
     (when (functionp choices)
       (setq choices (funcall choices)))
-    (concat
-     (propertize "[" 'face 'transient-inactive-value)
-     (mapconcat (lambda (choice)
-                  (propertize choice 'face (if (equal choice value)
-                                               (if (member choice choices)
-                                                   'transient-value
-                                                 'font-lock-warning-face)
-                                             'transient-inactive-value)))
-                (if (and value (not (member value choices)))
-                    (cons value choices)
-                  choices)
-                (propertize "|" 'face 'transient-inactive-value))
-     (and (or global fallback default)
-          (concat
-           (propertize "|" 'face 'transient-inactive-value)
-           (cond (global
-                  (propertize (concat "global:" global)
-                              'face (cond (value
-                                           'transient-inactive-value)
-                                          ((member global choices)
-                                           'transient-value)
-                                          (t
-                                           'font-lock-warning-face))))
-                 (fallback
-                  (propertize fallback
-                              'face (if value
-                                        'transient-inactive-value
-                                      'transient-value)))
-                 (default
-                  (propertize (if (functionp defaultp)
-                                  (concat "dwim:" default)
-                                (concat "default:" default))
-                              'face (if value
-                                        'transient-inactive-value
-                                      'transient-value))))))
-     (propertize "]" 'face 'transient-inactive-value))))
+    (cons (cond (global
+                 (propertize (concat "global:" global)
+                             'face (cond (value
+                                          'transient-inactive-value)
+                                         ((member global choices)
+                                          'transient-value)
+                                         (t
+                                          'font-lock-warning-face))))
+                (fallback
+                 (propertize fallback
+                             'face (if value
+                                       'transient-inactive-value
+                                     'transient-value)))
+                (default
+                 (propertize (if (functionp defaultp)
+                                 (concat "dwim:" default)
+                               (concat "default:" default))
+                             'face (if value
+                                       'transient-inactive-value
+                                     'transient-value))))
+          (mapcar (lambda (choice)
+                    (propertize choice 'face (if (equal choice value)
+                                                 (if (member choice choices)
+                                                     'transient-value
+                                                   'font-lock-warning-face)
+                                               'transient-inactive-value)))
+                  (if (and value (not (member value choices)))
+                      (cons value choices)
+                    choices)))))
 
 ;;; Utilities
 
