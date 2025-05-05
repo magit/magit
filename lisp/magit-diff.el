@@ -2883,10 +2883,10 @@ or a ref which is not a branch, then it inserts nothing."
 (defun magit-insert-revision-headers ()
   "Insert headers about the commit into a revision buffer."
   (magit-insert-section (headers)
-    (magit-insert-heading
+    (magit-insert-heading nil
       (and-let* ((string (magit-rev-format "%D" magit-buffer-revision
                                            "--decorate=full")))
-        (magit-format-ref-labels string) ?\s)
+        (concat (magit-format-ref-labels string) " "))
       (propertize
        (magit-rev-parse (magit--rev-dereference magit-buffer-revision))
        'font-lock-face 'magit-hash))
