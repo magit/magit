@@ -2906,8 +2906,8 @@ out.  Only existing branches can be selected."
              (not (file-remote-p default-directory)))
     (let ((elapsed
            (benchmark-elapse
-             (magit--prime-caches-with-commands (magit--prime-cache-commands-first-step))
-             (magit--prime-caches-with-commands (magit--prime-cache-commands-second-step)))))
+             (magit--prime-cache-with-commands (magit--prime-cache-commands-first-step))
+             (magit--prime-cache-with-commands (magit--prime-cache-commands-second-step)))))
       (when magit-refresh-verbose
         (message "Refresh cached primed in %.3fs" elapsed)))))
 
