@@ -2911,7 +2911,7 @@ out.  Only existing branches can be selected."
       (when magit-refresh-verbose
         (message "Refresh cached primed in %.3fs" elapsed)))))
 
-(defun magit--prime-caches-with-commands (commands)
+(defun magit--prime-cache-with-commands (commands)
   "Prime the refresh cache with the provided COMMANDS."
   (let* ((repo-path (magit-toplevel))
          (running 0)
