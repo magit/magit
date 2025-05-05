@@ -1027,6 +1027,8 @@ global map, this involves advising `tab-bar--define-keys'."
          (eq (global-key-binding [C-tab]) 'tab-next)
          (fboundp 'tab-bar-switch-to-next-tab))
     (tab-bar-switch-to-next-tab current-prefix-arg))
+   ((eq section magit-root-section)
+    (magit-section-cycle-global))
    ((oref section hidden)
     (magit-section-show section)
     (magit-section-hide-children section))
