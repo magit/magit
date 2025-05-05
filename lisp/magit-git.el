@@ -2869,7 +2869,7 @@ out.  Only existing branches can be selected."
     ("rev-parse" "--short" "HEAD~")
     ("describe" "--contains" "HEAD")
     ("rev-parse" "--verify" "HEAD" :cache-errors)
-    ("rev-parse" "--verify" "refs/stash")
+    ("rev-parse" "--verify" "refs/stash" :cache-errors)
     ("rev-parse" "--verify" "HEAD~10" :cache-errors)))
 
 (defun magit--prime-cache-commands-second-step ()
