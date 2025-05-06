@@ -2940,7 +2940,7 @@ out.  Only existing branches can be selected."
                                 ((or cachep
                                      (zerop (process-exit-status proc)))))
                       (push (cons key (with-current-buffer buf
-                                        (and (= (process-exit-status proc) 0)
+                                        (and (zerop (process-exit-status proc))
                                              (unless (bobp)
                                                (goto-char (point-min))
                                                (buffer-substring-no-properties
