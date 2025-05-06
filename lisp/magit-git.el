@@ -2922,7 +2922,7 @@ out.  Only existing branches can be selected."
            (lambda (command)
              (let* ((buffer (generate-new-buffer " *magit-prime-refresh-cache*"))
                     (cachep (and (eq (car command) t) (pop command)))
-                    (key (cons repo-path args))
+                    (key (cons repo-path command))
                     (process-environment (magit-process-environment))
                     (default-process-coding-system (magit--process-coding-system)))
                (make-process
