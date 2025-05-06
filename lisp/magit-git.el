@@ -2859,6 +2859,8 @@ out.  Only existing branches can be selected."
         (magit-confirm t nil (format "%s %%d modules" verb) nil modules)
       (list (magit-read-module-path (format "%s module" verb) predicate)))))
 
+;;; Refresh Cache
+
 (defun magit--prime-cache-commands-first-step ()
   '(("symbolic-ref" "--short" "HEAD")
     ("describe" "--long" "--tags")
