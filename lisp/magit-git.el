@@ -2861,7 +2861,7 @@ out.  Only existing branches can be selected."
 
 ;;; Refresh Cache
 
-(defvar magit--prime-cache-commands-first-step
+(defvar magit--prime-cache-phase-one
   '(("symbolic-ref" "--short" "HEAD")
     ("describe" "--long" "--tags")
     ("describe" "--contains" "HEAD")
@@ -2874,7 +2874,7 @@ out.  Only existing branches can be selected."
     (t "rev-parse" "--verify" "refs/stash")
     (t "rev-parse" "--verify" "HEAD~10")))
 
-(defun magit--prime-cache-commands-second-step ()
+(defun magit--prime-cache-phase-two ()
   (let* ((branch (magit-get-current-branch))
          (main (magit-main-branch))
          (push-main (magit-get-push-branch main))
@@ -2908,8 +2908,8 @@ out.  Only existing branches can be selected."
              (not (file-remote-p default-directory)))
     (let ((elapsed
            (benchmark-elapse
-             (magit--prime-refresh-cache magit--prime-cache-commands-first-step)
-             (magit--prime-refresh-cache (magit--prime-cache-commands-second-step)))))
+             (magit--prime-refresh-cache magit--prime-cache-phase-one)
+             (magit--prime-refresh-cache (magit--prime-cache-phase-two)))))
       (when magit-refresh-verbose
         (message "Refresh cached primed in %.3fs" elapsed)))))
 
