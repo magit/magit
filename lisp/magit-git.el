@@ -2930,7 +2930,8 @@ out.  Only existing branches can be selected."
                 :buffer buffer
                 :noquery t
                 :connection-type 'pipe
-                :command (cons magit-git-executable (magit-process-git-arguments args))
+                :command (cons magit-git-executable
+                               (magit-process-git-arguments args))
                 :sentinel
                 (lambda (proc _event)
                   (when (eq (process-status proc) 'exit)
