@@ -2922,7 +2922,6 @@ out.  Only existing branches can be selected."
            (lambda (command)
              (let* ((buffer (generate-new-buffer " *magit-prime-refresh-cache*"))
                     (cachep (and (eq (car command) t) (pop command)))
-                    (key (cons repo-path command))
                     (process-environment (magit-process-environment))
                     (default-process-coding-system (magit--process-coding-system)))
                (make-process
@@ -2939,12 +2938,13 @@ out.  Only existing branches can be selected."
                                 ((buffer-live-p buf))
                                 ((or cachep
                                      (zerop (process-exit-status proc)))))
-                      (push (cons key (with-current-buffer buf
-                                        (and (zerop (process-exit-status proc))
-                                             (unless (bobp)
-                                               (goto-char (point-min))
-                                               (buffer-substring-no-properties
-                                                (point) (line-end-position))))))
+                      (push (cons (cons repo-path command)
+                                  (with-current-buffer buf
+                                    (and (zerop (process-exit-status proc))
+                                         (unless (bobp)
+                                           (goto-char (point-min))
+                                           (buffer-substring-no-properties
+                                            (point) (line-end-position))))))
                             (cdr magit--refresh-cache)))
                     (cl-decf running))))
                (cl-incf running)
