@@ -2941,7 +2941,8 @@ out.  Only existing branches can be selected."
                       (push (cons (cons repo-path command)
                                   (with-current-buffer buf
                                     (and (zerop (process-exit-status proc))
-                                         (unless (bobp)
+                                         (not (bobp))
+                                         (progn
                                            (goto-char (point-min))
                                            (buffer-substring-no-properties
                                             (point) (line-end-position))))))
