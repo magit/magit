@@ -2906,12 +2906,12 @@ out.  Only existing branches can be selected."
              (not (file-remote-p default-directory)))
     (let ((elapsed
            (benchmark-elapse
-             (magit--prime-cache-with-commands (magit--prime-cache-commands-first-step))
-             (magit--prime-cache-with-commands (magit--prime-cache-commands-second-step)))))
+             (magit--prime-refresh-cache (magit--prime-cache-commands-first-step))
+             (magit--prime-refresh-cache (magit--prime-cache-commands-second-step)))))
       (when magit-refresh-verbose
         (message "Refresh cached primed in %.3fs" elapsed)))))
 
-(defun magit--prime-cache-with-commands (commands)
+(defun magit--prime-refresh-cache (commands)
   "Prime the refresh cache with the provided COMMANDS."
   (let* ((repo-path (magit-toplevel))
          (running 0)
