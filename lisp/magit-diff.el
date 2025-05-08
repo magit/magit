@@ -2942,18 +2942,18 @@ Refer to user option `magit-revision-insert-related-refs-display-alist'."
 
 (defun magit--insert-related-refs (rev arg title remote)
   (when-let ((refs (magit-list-related-branches arg rev (and remote "-a"))))
-    (insert title ":" (make-string (- 10 (length title)) ?\s))
-    (dolist (branch refs)
-      (if (<= (+ (current-column) 1 (length branch))
-              (window-width))
-          (insert ?\s)
-        (insert ?\n (make-string 12 ?\s)))
-      (magit-insert-section (branch branch)
+    (magit-insert-section (related-refs)
+      (insert title ":" (make-string (- 10 (length title)) ?\s))
+      (dolist (branch refs)
+        (if (<= (+ (current-column) 1 (length branch))
+                (window-width))
+            (insert ?\s)
+          (insert ?\n (make-string 12 ?\s)))
         (insert (propertize branch 'font-lock-face
                             (if (string-prefix-p "remotes/" branch)
                                 'magit-branch-remote
-                              'magit-branch-local)))))
-    (insert ?\n)))
+                              'magit-branch-local))))
+      (insert ?\n))))
 
 (defun magit-insert-revision-gravatars (rev beg)
   (when (and magit-revision-show-gravatars

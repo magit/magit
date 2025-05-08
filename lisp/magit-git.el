@@ -1527,6 +1527,7 @@ to, or to some other symbolic-ref that points to the same ref."
     (pullreq (and (fboundp 'forge--pullreq-branch)
                   (magit-branch-p
                    (forge--pullreq-branch (oref it value)))))
+    (related-refs (magit--painted-branch-at-point))
     ((unpulled unpushed)
      (magit-ref-abbrev
       (replace-regexp-in-string "\\.\\.\\.?" "" (oref it value))))))
