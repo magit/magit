@@ -1891,14 +1891,15 @@ to nil." (bound-and-true-p long-line-threshold)) :warning)))))
 (put 'magit-section-visibility-cache 'permanent-local t)
 
 (defun magit-section-cached-visibility (section)
-  "Set SECTION's visibility to the cached value.
-When `magit-section-preserve-visibility' is nil, do nothing."
+  "Return the visibility cached for SECTION.
+When `magit-section-preserve-visibility' is nil, return nil."
   (and magit-section-preserve-visibility
        (cdr (assoc (magit-section-ident section)
                    magit-section-visibility-cache))))
 
 (cl-defun magit-section-cache-visibility
     (&optional (section magit-insert-section--current))
+  "Cache SECTION's current visibility."
   (setf (compat-call alist-get
                      (magit-section-ident section)
                      magit-section-visibility-cache
