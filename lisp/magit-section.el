@@ -1765,11 +1765,10 @@ part of the hook variable, then such a region would be
 invisible."
   (when (and selection
              (not (and (eq this-command 'mouse-drag-region))))
-    (dolist (section selection)
-      (magit-section-make-overlay (oref section start)
-                                  (or (oref section content)
-                                      (oref section end))
-                                  'magit-section-heading-selection))
+    (dolist (sibling selection)
+      (with-slots (start content end heading-selection-face) sibling
+        (magit-section-make-overlay start (or content end)
+                                    'magit-section-heading-selection)))
     t))
 
 (defun magit-section-make-overlay (start end face)
