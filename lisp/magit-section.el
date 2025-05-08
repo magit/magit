@@ -1781,6 +1781,8 @@ invisible."
 
 (defvar magit-show-long-lines-warning t)
 
+;;; Long Lines
+
 (defun magit-section--maybe-enable-long-lines-shortcuts ()
   (and (fboundp 'long-line-optimizations-p)
        (long-line-optimizations-p)
@@ -1804,6 +1806,8 @@ and recreate the buffer.
 This message won't be shown for this session again.  To disable
 it for all future sessions, set `magit-show-long-lines-warning'
 to nil." (bound-and-true-p long-line-threshold)) :warning)))))
+
+;;; Successor
 
 (cl-defgeneric magit-section-get-relative-position (section))
 
