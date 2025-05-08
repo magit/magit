@@ -1778,9 +1778,9 @@ invisible."
     (push ov magit-section-highlight-overlays)
     ov))
 
-(defvar magit-show-long-lines-warning t)
-
 ;;; Long Lines
+
+(defvar magit-show-long-lines-warning t)
 
 (defun magit-section--maybe-enable-long-lines-shortcuts ()
   (and (fboundp 'long-line-optimizations-p)
