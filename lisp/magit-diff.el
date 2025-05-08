@@ -3524,7 +3524,6 @@ are highlighted."
                       (recurse child)))))
       (recurse magit-root-section))))
 
-
 ;;; Hunk Region
 
 (defun magit-diff-hunk-region-beginning ()
