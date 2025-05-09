@@ -28,4 +28,4 @@ Please summarize the changes made in the commits.  Explain why you are making th
 How to update the manual
 =================================================================
 
-If you make changes to the manual, then edit only "magit.org".  Do not update "magit.texi"; a maintainer will do it and amend to your commit.
+Edit only "magit.org" and "magit-section.org".  To update "magit.texi" and "magit-section.texi" run "make texi".
