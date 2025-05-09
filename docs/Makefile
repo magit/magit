@@ -18,6 +18,9 @@ ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH) -l ol-man
 ORG_EVAL += --eval "(progn $$ORG_MAN_EXPORT)"
 ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
 ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
+ORG_EVAL += --eval "\
+(defun org-texinfo--sanitize-content (text)\
+  (replace-regexp-in-string \"[@@{}]\" \"@@\\&\" text))"
 ORG_EVAL += --funcall org-texinfo-export-to-texinfo
 
 redo-docs:
