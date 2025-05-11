@@ -42,7 +42,7 @@ Also contains code and documentation cleanups and improvements.
   no longer displayed in the ~magit-log~ menu by default.  c8b1e12bd5
 
 - Renamed ~magit-merge-into~ to ~magit-merge-dissolve~ and changed the
-  key binding in the ~magit-merge~ menu from ~i~ to ~d~.  The descripton
+  key binding in the ~magit-merge~ menu from ~i~ to ~d~.  The description
   in that menu already was "dissolve".  Do this to make it more
   obvious that this command deletes the source branch after it has
   been merged into the target branch.  #4386
