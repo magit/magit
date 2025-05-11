@@ -1004,7 +1004,7 @@ status buffer (i.e., the reverse of how they will be applied)."
         (forward-line)))
     (let ((abbrevs
            (magit-git-lines
-            "log" "--no-walk" "--format=%h"
+            "log" "--no-walk" "--format=%H %h"
             (mapcar (lambda (obj)
                       (if (eq (oref obj action) 'merge)
                           (let ((options (oref obj action-options)))
@@ -1012,9 +1012,13 @@ status buffer (i.e., the reverse of how they will be applied)."
                                  (match-string 1 options)))
                         (oref obj target)))
                     commits))))
-      (while-let ((obj (pop commits))
-                  (val (pop abbrevs)))
-        (oset obj abbrev val)))
+      (while-let ((obj (pop commits)))
+        (let* ((rev (oref obj target))
+               (elt (assoc rev abbrevs)))
+          (cond (elt
+                 (setq abbrevs (delq elt abbrevs))
+                 (oset obj abbrev (cadr elt)))
+                ((oset obj abbrev (magit-rev-abbrev rev)))))))
     actions))
 
 (defun magit-rebase-insert-merge-sequence (onto)
