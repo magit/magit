@@ -1024,7 +1024,7 @@ status buffer (i.e., the reverse of how they will be applied)."
         ((or 'commit (and 'merge (guard abbrev)))
          (magit-sequence-insert-commit action target 'magit-sequence-pick
                                        abbrev trailer))
-        (_ (magit-sequence-insert-step action target)))))
+        ((guard action) (magit-sequence-insert-step action target)))))
   (let ((dir (magit-gitdir)))
     (magit-sequence-insert-sequence
      (magit-file-line (expand-file-name "rebase-merge/stopped-sha" dir))
