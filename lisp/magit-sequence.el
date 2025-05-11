@@ -1136,7 +1136,7 @@ status buffer (i.e., the reverse of how they will be applied)."
 (defun magit-sequence-insert-step (type target)
   (magit-insert-section (rebase-step (cons type target))
     (magit-insert-heading
-      (propertize type 'font-lock-face 'magit-sequence-onto)
+      (propertize type 'font-lock-face 'magit-sequence-pick)
       (and target
            (concat "\s"
                    (propertize target 'font-lock-face 'git-rebase-label))))))
