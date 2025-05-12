@@ -1,4 +1,11 @@
 # -*- mode: org -*-
+* v4.3.4    UNRELEASED
+
+Bugfixes:
+
+- Fixed a v4.3.3 regression in inserting rebase actions into the
+  status buffer when ~--rebase-merges~ is specified.  #5365
+
 * v4.3.3    2025-05-01
 
 - ~magit-section-show-level~ now acts on all selected sections.  #5354
