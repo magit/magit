@@ -242,9 +242,10 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
       (let ((section (magit-current-section)))
         (pcase (oref section type)
           ((or 'hunk 'file 'module) section)
-          ((or 'staged 'unstaged 'untracked
+          ((or 'staged 'unstaged
                'stashed-index 'stashed-worktree 'stashed-untracked)
            (oref section children))
+          ('untracked t)
           (_ (user-error "Cannot apply this, it's not a change"))))))
 
 (defun magit-apply--get-diffs (sections)
@@ -486,14 +487,18 @@ of a side, then keep that side without prompting."
   (interactive)
   (when-let ((s (magit-apply--get-selection)))
     (pcase (list (magit-diff-type) (magit-diff-scope))
-      (`(committed ,_) (user-error "Cannot discard committed changes"))
-      (`(undefined ,_) (user-error "Cannot discard this change"))
-      (`(,_    region) (magit-discard-region s))
-      (`(,_      hunk) (magit-discard-hunk   s))
-      (`(,_     hunks) (magit-discard-hunks  s))
-      (`(,_      file) (magit-discard-file   s))
-      (`(,_     files) (magit-discard-files  s))
-      (`(,_      list) (magit-discard-files  s)))))
+      (`(committed   ,_) (user-error "Cannot discard committed changes"))
+      (`(undefined   ,_) (user-error "Cannot discard this change"))
+      (`(untracked list) (magit-discard-files--delete
+                          (magit-with-toplevel
+                            (magit-untracked-files nil nil "--directory"))
+                          nil))
+      (`(,_      region) (magit-discard-region s))
+      (`(,_        hunk) (magit-discard-hunk   s))
+      (`(,_       hunks) (magit-discard-hunks  s))
+      (`(,_        file) (magit-discard-file   s))
+      (`(,_       files) (magit-discard-files  s))
+      (`(,_        list) (magit-discard-files  s)))))
 
 (defun magit-discard-region (section)
   (magit-confirm 'discard "Discard region")
