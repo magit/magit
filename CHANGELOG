@@ -1,10 +1,22 @@
 # -*- mode: org -*-
 * v4.3.4    UNRELEASED
 
+- Arguments, that are normally set by cycling through the possible
+  values displayed in the menu, can now also be set using completion,
+  by using a prefix argument.  #5362
+
 Bugfixes:
+
+- Matching references were no longer displayed on the first line of
+  revision buffers.  48b158500d
 
 - Fixed a v4.3.3 regression in inserting rebase actions into the
   status buffer when ~--rebase-merges~ is specified.  #5365
+
+- On the "Untracked files" section, ~k~ no longer worked as intended.
+  #5366
+
+Also contains code and documentation cleanups and improvements.
 
 * v4.3.3    2025-05-01
 
