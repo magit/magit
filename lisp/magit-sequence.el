@@ -1003,15 +1003,16 @@ status buffer (i.e., the reverse of how they will be applied)."
             (push obj commits)))
         (forward-line)))
     (let ((abbrevs
-           (magit-git-lines
-            "log" "--no-walk=unsorted" "--format=%h"
-            (mapcar (lambda (obj)
-                      (if (eq (oref obj action-type) 'merge)
-                          (let ((options (oref obj action-options)))
-                            (and (string-match "-[cC] \\([^ ]+\\)" options)
-                                 (match-string 1 options)))
-                        (oref obj target)))
-                    commits))))
+           (and commits
+                (magit-git-lines
+                 "log" "--no-walk=unsorted" "--format=%h"
+                 (mapcar (lambda (obj)
+                           (if (eq (oref obj action-type) 'merge)
+                               (let ((options (oref obj action-options)))
+                                 (and (string-match "-[cC] \\([^ ]+\\)" options)
+                                      (match-string 1 options)))
+                             (oref obj target)))
+                         commits)))))
       (cl-assert (equal (length commits) (length abbrevs)))
       (while-let ((obj (pop commits))
                   (val (pop abbrevs)))
