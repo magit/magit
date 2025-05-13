@@ -331,6 +331,7 @@ All Contributors
 - Rémi Vanicat
 - René Stadler
 - Richard Kim
+- Richard Sent
 - Robert Boone
 - Robert Irelan
 - Robin Green
@@ -408,6 +409,7 @@ All Contributors
 - Win Treese
 - Wojciech Siewierski
 - Wouter Bolsterlee
+- X4lldux
 - Xavier Noria
 - Xu Chunyang
 - Yann Herklotz
