@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v4.3.4    UNRELEASED
+* v4.3.4    2025-05-13
 
 - Arguments, that are normally set by cycling through the possible
   values displayed in the menu, can now also be set using completion,
