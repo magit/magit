@@ -807,10 +807,9 @@ line is inserted at all."
 (defun magit-refs--format-margin (commit)
   (save-excursion
     (goto-char (line-beginning-position 0))
-    (let ((line (magit-rev-format "%ct%cN" commit)))
-      (magit-log-format-margin commit
-                               (substring line 10)
-                               (substring line 0 10)))))
+    (when-let ((line (magit-rev-format "%cN%x00%ct" commit)))
+      (apply #'magit-log-format-margin commit
+             (split-string line "\0")))))
 
 ;;; _
 (provide 'magit-refs)
