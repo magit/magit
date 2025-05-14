@@ -1,4 +1,11 @@
 # -*- mode: org -*-
+* v4.3.5    2025-05-14
+
+Bugfixes:
+
+- Fixed a v4.3.3 regression in inserting rebase actions into the
+  status buffer when stopping at the last commit.  #5365
+
 * v4.3.4    2025-05-13
 
 - Arguments, that are normally set by cycling through the possible
