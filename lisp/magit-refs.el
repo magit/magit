@@ -565,7 +565,7 @@ line is inserted at all."
                   (magit-refs--format-margin tag))
                 (magit-refs--insert-cherry-commits tag)))))
         (insert ?\n)
-        (magit-make-margin-overlay nil t)))))
+        (magit-make-margin-overlay)))))
 
 (defun magit-insert-remote-branches ()
   "Insert sections showing all remote-tracking branches."
@@ -620,7 +620,7 @@ line is inserted at all."
                     (magit-refs--format-margin branch))
                   (magit-refs--insert-cherry-commits branch))))))))
       (insert ?\n)
-      (magit-make-margin-overlay nil t))))
+      (magit-make-margin-overlay))))
 
 (defun magit-insert-local-branches ()
   "Insert sections showing all local branches."
@@ -637,7 +637,7 @@ line is inserted at all."
             (magit-refs--format-margin branch))
           (magit-refs--insert-cherry-commits branch))))
     (insert ?\n)
-    (magit-make-margin-overlay nil t)))
+    (magit-make-margin-overlay)))
 
 (defun magit-insert-shelved-branches ()
   "Insert sections showing all shelved branches."
@@ -652,7 +652,7 @@ line is inserted at all."
             (magit-refs--format-margin ref))
           (magit-refs--insert-cherry-commits ref)))
       (insert ?\n)
-      (magit-make-margin-overlay nil t))))
+      (magit-make-margin-overlay))))
 
 (defun magit-refs--format-local-branches ()
   (let ((lines (seq-keep #'magit-refs--format-local-branch
@@ -802,14 +802,12 @@ line is inserted at all."
         "cherry" "-v" (magit-abbrev-arg) magit-buffer-upstream ref)
       (if (= (point) start)
           (message "No cherries for %s" ref)
-        (magit-make-margin-overlay nil t)))))
+        (magit-make-margin-overlay)))))
 
 (defun magit-refs--format-margin (commit)
-  (save-excursion
-    (goto-char (line-beginning-position 0))
-    (if-let ((line (magit-rev-format "%cN%x00%ct" commit)))
-        (apply #'magit-log-format-margin commit (split-string line "\0"))
-      (magit-make-margin-overlay))))
+  (if-let ((line (magit-rev-format "%cN%x00%ct" commit)))
+      (apply #'magit-log-format-margin commit (split-string line "\0"))
+    (magit-make-margin-overlay)))
 
 ;;; _
 (provide 'magit-refs)

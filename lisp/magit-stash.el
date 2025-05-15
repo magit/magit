@@ -527,16 +527,12 @@ instead of \"Stashes:\"."
             (magit-insert-section (stash autostash)
               (insert (propertize "AUTOSTASH" 'font-lock-face 'magit-hash))
               (insert " " msg "\n")
-              (save-excursion
-                (backward-char)
-                (magit-log-format-margin autostash author date)))))
+              (magit-log-format-margin autostash author date))))
         (if verified
             (magit-git-wash (apply-partially #'magit-log-wash-log 'stash)
               "reflog" "--format=%gd%x00%aN%x00%at%x00%gs" ref)
           (insert ?\n)
-          (save-excursion
-            (backward-char)
-            (magit-make-margin-overlay)))))))
+          (magit-make-margin-overlay))))))
 
 ;;; List Stashes
 

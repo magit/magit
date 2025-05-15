@@ -159,15 +159,16 @@ does not carry to other options."
        (and (magit-buffer-margin-p)
             (nth 2 magit-buffer-margin))))))
 
-(defun magit-make-margin-overlay (&optional string previous-line)
-  (if previous-line
-      (save-excursion
-        (forward-line -1)
-        (magit-make-margin-overlay string))
+(cl-defun magit-make-margin-overlay (&optional string (previous-line nil sline))
+  "Display STRING in the margin of the previous (or current) line.
+If point is at the beginning of a line, set the margin string for
+the previous line, otherwise for the current line.  Semi-obsolete
+optional PREVIOUS-LINE can be used to explicitly specify which
+line is affected."
+  (save-excursion
+    (forward-line (if (if sline previous-line (bolp)) -1 0))
     ;; Don't put the overlay on the complete line to work around #1880.
-    (let ((o (make-overlay (1+ (line-beginning-position))
-                           (line-end-position)
-                           nil t)))
+    (let ((o (make-overlay (1+ (point)) (line-end-position) nil t)))
       (overlay-put o 'evaporate t)
       (overlay-put o 'before-string
                    (propertize "o" 'display
@@ -184,7 +185,7 @@ does not carry to other options."
 (defun magit-maybe-make-margin-overlay ()
   (when (magit-section-match magit-margin-overlay-conditions
                              magit-insert-section--current)
-    (magit-make-margin-overlay nil t)))
+    (magit-make-margin-overlay)))
 
 ;;; Custom Support
 
