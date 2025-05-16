@@ -443,57 +443,54 @@ commits before and half after."
 ;;; Commands
 ;;;; Prefix Commands
 
-(eval-and-compile
-  (defvar magit-log-infix-arguments
-    ;; The grouping in git-log(1) appears to be guided by implementation
-    ;; details, so our logical grouping only follows it to an extend.
-    ;; Arguments that are "misplaced" here:
-    ;;   1. From "Commit Formatting".
-    ;;   2. From "Common Diff Options".
-    ;;   3. From unnamed first group.
-    ;;   4. Implemented by Magit.
-    [:class transient-subgroups
-     ["Commit limiting"
-      (magit-log:-n)
-      (magit:--author)
-      (7 magit-log:--since)
-      (7 magit-log:--until)
-      (magit-log:--grep)
-      (7 "-i" "Search case-insensitive" ("-i" "--regexp-ignore-case"))
-      (7 "-I" "Invert search pattern"   "--invert-grep")
-      (magit-log:-G)     ;2
-      (magit-log:-S)     ;2
-      (magit-log:-L)     ;2
-      (7 "=m" "Omit merges"            "--no-merges")
-      (7 "=p" "First parent"           "--first-parent")]
-     ["History simplification"
-      (  "-D" "Simplify by decoration"                  "--simplify-by-decoration")
-      (magit:--)
-      (  "-f" "Follow renames when showing single-file log"     "--follow") ;3
-      (6 "/s" "Only commits changing given paths"               "--sparse")
-      (7 "/d" "Only selected commits plus meaningful history"   "--dense")
-      (7 "/a" "Only commits existing directly on ancestry path" "--ancestry-path")
-      (6 "/f" "Do not prune history"                            "--full-history")
-      (7 "/m" "Prune some history"                              "--simplify-merges")]
-     ["Commit ordering"
-      (magit-log:--*-order)
-      ("-r" "Reverse order" "--reverse")]
-     ["Formatting"
-      ("-g" "Show graph"          "--graph")          ;1
-      ("-c" "Show graph in color" "--color")          ;2
-      ("-d" "Show refnames"       "--decorate")       ;3
-      ("=S" "Show signatures"     "--show-signature") ;1
-      ("-h" "Show header"         "++header")         ;4
-      ("-p" "Show diffs"          ("-p" "--patch"))   ;2
-      ("-s" "Show diffstats"      "--stat")]          ;2
-     ]))
+(transient-define-group magit-log-infix-arguments
+  ;; The grouping in git-log(1) appears to be guided by implementation
+  ;; details, so our logical grouping only follows it to an extend.
+  ;; Arguments that are "misplaced" here:
+  ;;   1. From "Commit Formatting".
+  ;;   2. From "Common Diff Options".
+  ;;   3. From unnamed first group.
+  ;;   4. Implemented by Magit.
+  ["Commit limiting"
+   (magit-log:-n)
+   (magit:--author)
+   (7 magit-log:--since)
+   (7 magit-log:--until)
+   (magit-log:--grep)
+   (7 "-i" "Search case-insensitive" ("-i" "--regexp-ignore-case"))
+   (7 "-I" "Invert search pattern"   "--invert-grep")
+   (magit-log:-G)     ;2
+   (magit-log:-S)     ;2
+   (magit-log:-L)     ;2
+   (7 "=m" "Omit merges"            "--no-merges")
+   (7 "=p" "First parent"           "--first-parent")]
+  ["History simplification"
+   (  "-D" "Simplify by decoration"                  "--simplify-by-decoration")
+   (magit:--)
+   (  "-f" "Follow renames when showing single-file log"     "--follow") ;3
+   (6 "/s" "Only commits changing given paths"               "--sparse")
+   (7 "/d" "Only selected commits plus meaningful history"   "--dense")
+   (7 "/a" "Only commits existing directly on ancestry path" "--ancestry-path")
+   (6 "/f" "Do not prune history"                            "--full-history")
+   (7 "/m" "Prune some history"                              "--simplify-merges")]
+  ["Commit ordering"
+   (magit-log:--*-order)
+   ("-r" "Reverse order" "--reverse")]
+  ["Formatting"
+   ("-g" "Show graph"          "--graph")          ;1
+   ("-c" "Show graph in color" "--color")          ;2
+   ("-d" "Show refnames"       "--decorate")       ;3
+   ("=S" "Show signatures"     "--show-signature") ;1
+   ("-h" "Show header"         "++header")         ;4
+   ("-p" "Show diffs"          ("-p" "--patch"))   ;2
+   ("-s" "Show diffstats"      "--stat")])         ;2
 
 ;;;###autoload (autoload 'magit-log "magit-log" nil t)
 (transient-define-prefix magit-log ()
   "Show a commit or reference log."
   :man-page "git-log"
   :class 'magit-log-prefix
-  [magit-log-infix-arguments]
+  [:class transient-subgroups magit-log-infix-arguments]
   [["Log"
     ("l"                     magit-log-current)
     ("o" "other"             magit-log-other)
@@ -523,6 +520,7 @@ commits before and half after."
   :man-page "git-log"
   :class 'magit-log-refresh-prefix
   [:if-mode magit-log-mode
+   :class transient-subgroups
    magit-log-infix-arguments]
   [:if-not-mode magit-log-mode
    :description "Arguments"

@@ -897,37 +897,35 @@ and `:slant'."
 ;;; Commands
 ;;;; Prefix Commands
 
-(eval-and-compile
-  (defvar magit-diff-infix-arguments
-    [:class transient-subgroups
-     ["Limit arguments"
-       (magit:--)
-       (magit-diff:--ignore-submodules)
-       ("-b" "Ignore whitespace changes"  ("-b" "--ignore-space-change"))
-       ("-w" "Ignore all whitespace"      ("-w" "--ignore-all-space"))
-       ("-D" "Omit preimage for deletes"  ("-D" "--irreversible-delete")
-        :level 5)]
-      ["Context arguments"
-       (magit-diff:-U)
-       ("-W" "Show surrounding functions" ("-W" "--function-context"))]
-      ["Tune arguments"
-       (magit-diff:--diff-algorithm)
-       (magit-diff:--diff-merges)
-       (magit-diff:-M)
-       (magit-diff:-C)
-       (magit-diff:-R               :level 5)
-       (magit-diff:--color-moved    :level 5)
-       (magit-diff:--color-moved-ws :level 5)
-       (magit-diff:--no-ext-diff)
-       (magit-diff:--stat)
-       (magit-diff:--show-signature)]]))
+(transient-define-group magit-diff-infix-arguments
+  ["Limit arguments"
+   (magit:--)
+   (magit-diff:--ignore-submodules)
+   ("-b" "Ignore whitespace changes"  ("-b" "--ignore-space-change"))
+   ("-w" "Ignore all whitespace"      ("-w" "--ignore-all-space"))
+   ("-D" "Omit preimage for deletes"  ("-D" "--irreversible-delete")
+    :level 5)]
+  ["Context arguments"
+   (magit-diff:-U)
+   ("-W" "Show surrounding functions" ("-W" "--function-context"))]
+  ["Tune arguments"
+   (magit-diff:--diff-algorithm)
+   (magit-diff:--diff-merges)
+   (magit-diff:-M)
+   (magit-diff:-C)
+   (magit-diff:-R               :level 5)
+   (magit-diff:--color-moved    :level 5)
+   (magit-diff:--color-moved-ws :level 5)
+   (magit-diff:--no-ext-diff)
+   (magit-diff:--stat)
+   (magit-diff:--show-signature)])
 
 ;;;###autoload (autoload 'magit-diff "magit-diff" nil t)
 (transient-define-prefix magit-diff ()
   "Show changes between different versions."
   :man-page "git-diff"
   :class 'magit-diff-prefix
-  [magit-diff-infix-arguments]
+  'magit-diff-infix-arguments
   ["Actions"
    [("d" "Dwim"          magit-diff-dwim)
     ("r" "Diff range"    magit-diff-range)
@@ -943,7 +941,7 @@ and `:slant'."
   "Change the arguments used for the diff(s) in the current buffer."
   :man-page "git-diff"
   :class 'magit-diff-refresh-prefix
-  [magit-diff-infix-arguments]
+  'magit-diff-infix-arguments
   [["Refresh"
     ("g" "buffer"                   magit-diff-refresh)
     ("s" "buffer and set defaults"  transient-set-and-exit)
