@@ -452,6 +452,7 @@ commits before and half after."
   ;;   3. From unnamed first group.
   ;;   4. Implemented by Magit.
   ["Commit limiting"
+   :if magit-log-infix-arguments--show-p
    (magit-log:-n)
    (magit:--author)
    (7 magit-log:--since)
@@ -465,6 +466,7 @@ commits before and half after."
    (7 "=m" "Omit merges"            "--no-merges")
    (7 "=p" "First parent"           "--first-parent")]
   ["History simplification"
+   :if magit-log-infix-arguments--show-p
    (  "-D" "Simplify by decoration"                  "--simplify-by-decoration")
    (magit:--)
    (  "-f" "Follow renames when showing single-file log"     "--follow") ;3
@@ -474,9 +476,11 @@ commits before and half after."
    (6 "/f" "Do not prune history"                            "--full-history")
    (7 "/m" "Prune some history"                              "--simplify-merges")]
   ["Commit ordering"
+   :if magit-log-infix-arguments--show-p
    (magit-log:--*-order)
    ("-r" "Reverse order" "--reverse")]
   ["Formatting"
+   :if magit-log-infix-arguments--show-p
    ("-g" "Show graph"          "--graph")          ;1
    ("-c" "Show graph in color" "--color")          ;2
    ("-d" "Show refnames"       "--decorate")       ;3
@@ -485,12 +489,17 @@ commits before and half after."
    ("-p" "Show diffs"          ("-p" "--patch"))   ;2
    ("-s" "Show diffstats"      "--stat")])         ;2
 
+(defun magit-log-infix-arguments--show-p ()
+  (if (eq (oref (transient-prefix-object) command) 'magit-log-refresh)
+      (eq major-mode 'magit-log-mode)
+    t))
+
 ;;;###autoload (autoload 'magit-log "magit-log" nil t)
 (transient-define-prefix magit-log ()
   "Show a commit or reference log."
   :man-page "git-log"
   :class 'magit-log-prefix
-  [:class transient-subgroups magit-log-infix-arguments]
+  'magit-log-infix-arguments
   [["Log"
     ("l"                     magit-log-current)
     ("o" "other"             magit-log-other)
@@ -519,9 +528,7 @@ commits before and half after."
   "Change the arguments used for the log(s) in the current buffer."
   :man-page "git-log"
   :class 'magit-log-refresh-prefix
-  [:if-mode magit-log-mode
-   :class transient-subgroups
-   magit-log-infix-arguments]
+  magit-log-infix-arguments
   [:if-not-mode magit-log-mode
    :description "Arguments"
    (magit-log:-n)
