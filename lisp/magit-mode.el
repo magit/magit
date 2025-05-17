@@ -1068,7 +1068,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
 (defun magit-refresh-buffer (&optional created)
   "Refresh the current Magit buffer."
   (interactive)
-  (let ((magit--refresh-start-time (current-time))
+  (let ((magit--refreshing-buffer-p t)
+        (magit--refresh-start-time (current-time))
         (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0))))
         (refresh (intern (format "%s-refresh-buffer"
                                  (substring (symbol-name major-mode) 0 -5)))))
@@ -1095,8 +1096,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
         (setq magit-section-pre-command-section nil)
         (setq magit-section-highlight-overlays nil)
         (setq magit-section-selection-overlays nil)
-        (setq magit-section-highlighted-sections nil)
-        (setq magit-section-unhighlight-sections nil)
+        (setq magit-section-repaint-sections nil)
         (let ((inhibit-read-only t))
           (erase-buffer)
           (save-excursion
