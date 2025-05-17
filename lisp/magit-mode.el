@@ -570,7 +570,7 @@ Magit is documented in info node `(magit)'."
   (magit-hack-dir-local-variables)
   (face-remap-add-relative 'header-line 'magit-header-line)
   (setq mode-line-process (magit-repository-local-get 'mode-line-process))
-  (setq-local revert-buffer-function #'magit-refresh-buffer)
+  (setq-local revert-buffer-function #'magit-revert-buffer)
   (setq-local bookmark-make-record-function #'magit--make-bookmark)
   (setq-local imenu-create-index-function #'magit--imenu-create-index)
   (setq-local imenu-default-goto-function #'magit--imenu-goto-function)
@@ -1065,7 +1065,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
 
 (defvar-local magit--refresh-start-time nil)
 
-(defun magit-refresh-buffer (&rest _ignore)
+(defun magit-refresh-buffer ()
   "Refresh the current Magit buffer."
   (interactive)
   (let ((magit--refresh-start-time (current-time))
@@ -1113,6 +1113,10 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
       (when magit-refresh-verbose
         (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name)
                  (float-time (time-since magit--refresh-start-time)))))))
+
+(defun magit-revert-buffer (_ignore-auto _noconfirm)
+  "Wrapper around `magit-refresh-buffer' suitable as `revert-buffer-function'."
+  (magit-refresh-buffer))
 
 (defun magit-profile-refresh-buffer ()
   "Profile refreshing the current Magit buffer."
