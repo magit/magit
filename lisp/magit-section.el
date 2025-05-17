@@ -2087,7 +2087,9 @@ forms CONDITION can take."
               (send (magit-section-at rend)))
          (and send
               (not (eq send magit-root-section))
-              (not (and multiple (eq send sbeg)))
+              (not (and (eq send sbeg)
+                        (or multiple
+                            (> rend rbeg))))
               (let ((siblings (cons sbeg (magit-section-siblings sbeg 'next)))
                     (sections ()))
                 (and (memq send siblings)
