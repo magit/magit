@@ -434,7 +434,7 @@ Type \\[magit-commit] to create a commit.
   :group 'magit-status
   (magit-hack-dir-local-variables)
   (when magit-status-initial-section
-    (add-hook 'magit-post-create-buffer-hook
+    (add-hook 'magit--initial-section-hook
               #'magit-status-goto-initial-section nil t))
   (setq magit--imenu-group-types '(not branch commit)))
 
