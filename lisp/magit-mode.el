@@ -1063,15 +1063,15 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
     (with-current-buffer buffer (magit-refresh-buffer)))
   (magit-run-hook-with-benchmark 'magit-post-refresh-hook))
 
-(defvar-local magit-refresh-start-time nil)
+(defvar-local magit--refresh-start-time nil)
 
 (defun magit-refresh-buffer (&rest _ignore)
   "Refresh the current Magit buffer."
   (interactive)
-  (setq magit-refresh-start-time (current-time))
-  (let ((refresh (intern (format "%s-refresh-buffer"
-                                 (substring (symbol-name major-mode) 0 -5))))
-        (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0)))))
+  (let ((magit--refresh-start-time (current-time))
+        (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0))))
+        (refresh (intern (format "%s-refresh-buffer"
+                                 (substring (symbol-name major-mode) 0 -5)))))
     (when (functionp refresh)
       (when magit-refresh-verbose
         (message "Refreshing buffer `%s'..." (buffer-name)))
@@ -1112,7 +1112,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
         (set-buffer-modified-p nil))
       (when magit-refresh-verbose
         (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name)
-                 (float-time (time-since magit-refresh-start-time)))))))
+                 (float-time (time-since magit--refresh-start-time)))))))
 
 (defun magit-profile-refresh-buffer ()
   "Profile refreshing the current Magit buffer."
