@@ -1455,7 +1455,6 @@ for a revision."
         (when (oref section hidden)
           (magit-section-show section))
         (setq section (oref section parent))))
-    (magit-section-update-highlight)
     t))
 
 ;;;; Setting Commands
