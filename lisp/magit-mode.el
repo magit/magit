@@ -1020,7 +1020,8 @@ window."
 Refresh the current buffer if its major mode derives from
 `magit-mode', and refresh the corresponding status buffer.
 
-Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
+Run hooks `magit-pre-refresh-hook', `magit-post-refresh-hook'
+and `magit-unwind-refresh-hook'."
   (interactive)
   (unless magit-inhibit-refresh
     (unwind-protect
