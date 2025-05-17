@@ -444,8 +444,8 @@ current line."
         (bounds (git-rebase-region-bounds)))
     (mapc #'delete-overlay magit-section-highlight-overlays)
     (when bounds
-      (magit-section-make-overlay (car bounds) (cadr bounds)
-                                  'magit-section-heading-selection))
+      (magit-section-highlight-range (car bounds) (cadr bounds)
+                                     'magit-section-heading-selection))
     (if (and bounds (not magit-section-keep-region-overlay))
         (funcall (default-value 'redisplay-unhighlight-region-function) rol)
       (funcall (default-value 'redisplay-highlight-region-function)

@@ -3319,7 +3319,7 @@ are highlighted."
         (unless selection
           (unless (and (region-active-p)
                        (<= (region-beginning) beg))
-            (magit-section-make-overlay beg cnt 'magit-section-highlight))
+            (magit-section-highlight-range beg cnt))
           (if (oref section hidden)
               (oset section washer #'ignore)
             (dolist (child (oref section children))
@@ -3329,7 +3329,7 @@ are highlighted."
                                       (oref child start)))))
                 (magit-diff-highlight-recursive child selection)))))
         (when magit-diff-highlight-hunk-body
-          (magit-section-make-overlay (1- end) end 'magit-section-highlight)))
+          (magit-section-highlight-range (1- end) end)))
     (magit-section-highlight section nil)))
 
 (defun magit-diff-highlight-file (section &optional selection)
@@ -3340,7 +3340,7 @@ are highlighted."
       (magit-diff-highlight-recursive child selection))))
 
 (defun magit-diff-highlight-heading (section &optional selection)
-  (magit-section-make-overlay
+  (magit-section-highlight-range
    (oref section start)
    (or (oref section content)
        (oref section end))
