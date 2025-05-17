@@ -1451,9 +1451,7 @@ anything this time around.
       (magit-map-sections
        (lambda (section)
          (oset section start (copy-marker (oref section start) t))
-         (oset section end   (copy-marker (oref section end)   t)))))
-    (let ((magit-section-cache-visibility nil))
-      (magit-section-show obj)))
+         (oset section end   (copy-marker (oref section end)   t))))))
    (t
     (magit-section--set-section-properties obj)
     (magit-section-maybe-add-heading-map obj)
