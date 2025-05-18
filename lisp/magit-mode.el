@@ -1108,6 +1108,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
             (with-current-buffer buffer
               (let ((magit-section-movement-hook nil))
                 (apply #'magit-section-goto-successor args)))))
+        (let ((magit-section-cache-visibility nil))
+          (magit-section-show magit-root-section))
         (run-hooks 'magit-refresh-buffer-hook)
         (magit-section-update-highlight)
         (set-buffer-modified-p nil)
