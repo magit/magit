@@ -385,9 +385,12 @@ no effect.  This also has no effect for Emacs >= 28, where
    (content  :initform nil)
    (end      :initform nil)
    (hidden)
+   (painted)
    (washer   :initform nil :initarg :washer)
    (inserter :initform (symbol-value 'magit--current-section-hook))
+   (selective-highlight    :initform nil :initarg :selective-highlight)
    (heading-highlight-face :initform nil :initarg :heading-highlight-face)
+   (heading-selection-face :initform nil :initarg :heading-selection-face)
    (parent   :initform nil)
    (children :initform nil)))
 
@@ -1740,8 +1743,14 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (setq magit-section-highlighted-sections nil)
         (cond ((magit-section--maybe-enable-long-lines-shortcuts))
               ((eq section magit-root-section))
-              (magit-section-highlight-current
-               (magit-section-highlight section selection)))
+              ((not magit-section-highlight-current)
+               (when selection
+                 (magit-section-highlight-selection selection)))
+              ((not selection)
+               (magit-section-highlight section))
+              (t
+               (mapc #'magit-section-highlight selection)
+               (magit-section-highlight-selection selection)))
         (dolist (s magit-section-unhighlight-sections)
           (run-hook-with-args-until-success
            'magit-section-unhighlight-hook s selection))
@@ -1755,24 +1764,29 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
     (setq magit-section-highlight-force-update nil)
     (magit-section-maybe-paint-visibility-ellipses)))
 
-(cl-defmethod magit-section-highlight (section selection)
-  (when-let ((face (oref section heading-highlight-face)))
-    (dolist (section (or selection (list section)))
-      (magit-section-highlight-range
-       (oref section start)
-       (or (oref section content)
-           (oref section end))
-       face)))
-  (cond (selection
-         (magit-section-highlight-range (oref (car selection) start)
-                                        (oref (car (last selection)) end))
-         (magit-section-highlight-selection selection))
-        (t
-         (magit-section-highlight-range (oref section start)
-                                     (oref section end)))))
+(cl-defmethod magit-section-highlight ((section magit-section))
+  (pcase-let*
+      (((eieio start content end children heading-highlight-face) section)
+       (headlight heading-highlight-face)
+       (selective (magit-section-selective-highlight-p section)))
+    (cond
+     (selective
+      (magit-section-highlight-range start (or content end) headlight)
+      (cond (children
+             (let ((child-start (oref (car children) start)))
+               (when (and content (< content child-start))
+                 (magit-section-highlight-range content child-start)))
+             (mapc #'magit-section-highlight children))
+            ((and content (not (slot-boundp section 'painted)))
+             (magit-section-highlight-range content end))))
+     (headlight
+      (magit-section-highlight-range start (or content end) headlight)
+      (when content
+        (magit-section-highlight-range (if headlight content start) end)))
+     ((magit-section-highlight-range start end)))))
 
 (defun magit-section-highlight-selection (selection)
-  (when (and magit-section-highlight-selection selection)
+  (when magit-section-highlight-selection
     (dolist (sibling selection)
       (with-slots (start content end heading-selection-face) sibling
         (let ((ov (make-overlay start (or content end) nil t)))
@@ -1789,6 +1803,14 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
     (overlay-put ov 'evaporate t)
     (push ov magit-section-highlight-overlays)
     ov))
+
+(defun magit-section-selective-highlight-p (section &optional as-child)
+  (or (oref section selective-highlight)
+      (and as-child
+           (oref section heading-highlight-face))
+      (slot-boundp section 'painted)
+      (and-let* ((children (oref section children)))
+        (magit-section-selective-highlight-p (car children) t))))
 
 ;;; Long Lines
 
