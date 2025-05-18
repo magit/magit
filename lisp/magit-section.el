@@ -108,13 +108,6 @@ similar defect.")
   "Hook run by `magit-section-goto'.
 That function in turn is used by all section movement commands.")
 
-(defvar magit-section-highlight-hook
-  (list #'magit-section-highlight
-        #'magit-section-highlight-selection)
-  "Functions used to highlight the current section.
-Each function is run with the current section as only argument
-until one of them returns non-nil.")
-
 (defvar magit-section-unhighlight-hook nil
   "Functions used to unhighlight the previously current section.
 Each function is run with the current section as only argument
@@ -136,6 +129,21 @@ hardcoded section specific default (see `magit-insert-section').")
   "Expandable sections."
   :link '(info-link "(magit)Sections")
   :group 'extensions)
+
+(defcustom magit-section-highlight-current t
+  "Whether to highlight the current section."
+  :package-version '(magit-section . "4.3.6")
+  :group 'magit-section
+  :type 'boolean)
+
+(defcustom magit-section-highlight-selection t
+  "Whether to highlight the selected sections.
+If you disable this, you probably also want to disable
+`magit-section-highlight-current' to get the region to
+always look as it would be in non-magit buffers."
+  :package-version '(magit-section . "4.3.6")
+  :group 'magit-section
+  :type 'boolean)
 
 (defcustom magit-section-show-child-count t
   "Whether to append the number of children to section headings.
@@ -1732,9 +1740,8 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (setq magit-section-highlighted-sections nil)
         (cond ((magit-section--maybe-enable-long-lines-shortcuts))
               ((eq section magit-root-section))
-              (t
-               (run-hook-with-args-until-success
-                'magit-section-highlight-hook section selection)))
+              (magit-section-highlight-current
+               (magit-section-highlight section selection)))
         (dolist (s magit-section-unhighlight-sections)
           (run-hook-with-args-until-success
            'magit-section-unhighlight-hook s selection))
@@ -1748,11 +1755,7 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
     (setq magit-section-highlight-force-update nil)
     (magit-section-maybe-paint-visibility-ellipses)))
 
-(defun magit-section-highlight (section selection)
-  "Highlight SECTION and if non-nil all sections in SELECTION.
-This function works for any section but produces undesirable
-effects for diff related sections, which by default are
-highlighted using `magit-diff-highlight'.  Return t."
+(cl-defmethod magit-section-highlight (section selection)
   (when-let ((face (oref section heading-highlight-face)))
     (dolist (section (or selection (list section)))
       (magit-section-highlight-range
@@ -1762,27 +1765,14 @@ highlighted using `magit-diff-highlight'.  Return t."
        face)))
   (cond (selection
          (magit-section-highlight-range (oref (car selection) start)
-                                     (oref (car (last selection)) end))
-         (magit-section-highlight-selection nil selection))
+                                        (oref (car (last selection)) end))
+         (magit-section-highlight-selection selection))
         (t
          (magit-section-highlight-range (oref section start)
-                                     (oref section end))))
-  t)
+                                     (oref section end)))))
 
-(defun magit-section-highlight-selection (_ selection)
-  "Highlight the section-selection region.
-If SELECTION is non-nil, then it is a list of sections selected by
-the region.  The headings of these sections are then highlighted.
-
-This is a fallback for people who don't want to highlight the
-current section and therefore removed `magit-section-highlight'
-from `magit-section-highlight-hook'.
-
-This function is necessary to ensure that a representation of
-such a region is visible.  If neither of these functions were
-part of the hook variable, then such a region would be
-invisible."
-  (when selection
+(defun magit-section-highlight-selection (selection)
+  (when (and magit-section-highlight-selection selection)
     (dolist (sibling selection)
       (with-slots (start content end heading-selection-face) sibling
         (let ((ov (make-overlay start (or content end) nil t)))
@@ -1791,8 +1781,7 @@ invisible."
                            'magit-section-heading-selection))
           (overlay-put ov 'evaporate t)
           (push ov magit-section-selection-overlays)
-          ov)))
-    t))
+          ov)))))
 
 (defun magit-section-highlight-range (start end &optional face)
   (let ((ov (make-overlay start end nil t)))
@@ -1891,7 +1880,8 @@ to nil." (bound-and-true-p long-line-threshold)) :warning)))))
 
 (defun magit-section--highlight-region (start end window rol)
   (magit-section--delete-region-overlays)
-  (if (and (not magit-section-keep-region-overlay)
+  (if (and magit-section-highlight-selection
+           (not magit-section-keep-region-overlay)
            (or (magit-region-sections)
                (run-hook-with-args-until-success 'magit-region-highlight-hook
                                                  (magit-current-section)))

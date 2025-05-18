@@ -141,9 +141,7 @@ to have any effect."
   :type 'float)
 
 (defcustom magit-diff-highlight-hunk-body t
-  "Whether to highlight bodies of selected hunk sections.
-This only has an effect if `magit-diff-highlight' is a
-member of `magit-section-highlight-hook', which see."
+  "Whether to highlight bodies of selected hunk sections."
   :package-version '(magit . "2.1.0")
   :group 'magit-diff
   :type 'boolean)
@@ -3271,7 +3269,6 @@ actually a `diff' but a `diffstat' section."
 ;;; Diff Highlight
 
 (add-hook 'magit-section-unhighlight-hook #'magit-diff-unhighlight)
-(add-hook 'magit-section-highlight-hook #'magit-diff-highlight)
 
 (defun magit-diff-unhighlight (section selection)
   "Remove the highlighting of the diff-related SECTION."
@@ -3279,19 +3276,21 @@ actually a `diff' but a `diffstat' section."
     (magit-diff-paint-hunk section selection nil)
     t))
 
-(defun magit-diff-highlight (section selection)
-  "Highlight the diff-related SECTION.
-If SECTION is not a diff-related section, then do nothing and
-return nil.  If SELECTION is non-nil, then it is a list of sections
-selected by the region, including SECTION.  All of these sections
-are highlighted."
+(cl-deftype magit--diff-related-section ()
+  (declare (parents eieio-default-superclass))
+  '(satisfies (lambda (section)
+                (and (cl-typep section 'magit-section)
+                     (magit-diff-scope section t)
+                     t))))
+
+(cl-defmethod magit-section-highlight
+  ((section magit--diff-related-section) selection)
   (if (and (magit-section-match 'commit section)
            (oref section children))
-      (progn (if selection
-                 (dolist (section selection)
-                   (magit-diff-highlight-list section selection))
-               (magit-diff-highlight-list section))
-             t)
+      (if selection
+          (dolist (section selection)
+            (magit-diff-highlight-list section selection))
+        (magit-diff-highlight-list section))
     (when-let ((scope (magit-diff-scope section t)))
       (cond ((eq scope 'region)
              (magit-diff-paint-hunk section selection t))
@@ -3299,8 +3298,7 @@ are highlighted."
              (dolist (section selection)
                (magit-diff-highlight-recursive section selection)))
             (t
-             (magit-diff-highlight-recursive section)))
-      t)))
+             (magit-diff-highlight-recursive section))))))
 
 (defun magit-diff-highlight-recursive (section &optional selection)
   (pcase (magit-diff-scope section)
