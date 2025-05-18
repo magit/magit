@@ -912,7 +912,7 @@ With a prefix argument also expand it." heading)
   "Show the body of the current section."
   (interactive (list (magit-current-section)))
   (oset section hidden nil)
-  (magit-section--maybe-wash section)
+  (magit-section--opportunistic-wash section)
   (when-let ((beg (oref section content)))
     (remove-overlays beg (oref section end) 'invisible t))
   (magit-section-maybe-update-visibility-indicator section)
@@ -921,22 +921,6 @@ With a prefix argument also expand it." heading)
     (if (oref child hidden)
         (magit-section-hide child)
       (magit-section-show child))))
-
-(defun magit-section--maybe-wash (section)
-  (when-let ((washer (oref section washer)))
-    (oset section washer nil)
-    (let ((inhibit-read-only t)
-          (magit-insert-section--parent section)
-          (magit-insert-section--current section)
-          (content (oref section content)))
-      (save-excursion
-        (if (and content (< content (oref section end)))
-            (funcall washer section) ; already partially washed (hunk)
-          (goto-char (oref section end))
-          (oset section content (point-marker))
-          (funcall washer)
-          (oset section end (point-marker)))))
-    (setq magit-section-highlight-force-update t)))
 
 (defun magit-section-hide (section)
   "Hide the body of the current section."
@@ -1676,6 +1660,22 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (goto-char (- content 3))
         (delete-char 1)
         (insert (format "%s" count)))))))
+
+(defun magit-section--opportunistic-wash (section)
+  (when-let ((washer (oref section washer)))
+    (oset section washer nil)
+    (let ((inhibit-read-only t)
+          (magit-insert-section--parent section)
+          (magit-insert-section--current section)
+          (content (oref section content)))
+      (save-excursion
+        (if (and content (< content (oref section end)))
+            (funcall washer section) ; already partially washed (hunk)
+          (goto-char (oref section end))
+          (oset section content (point-marker))
+          (funcall washer)
+          (oset section end (point-marker)))))
+    (setq magit-section-highlight-force-update t)))
 
 ;;; Highlight
 
