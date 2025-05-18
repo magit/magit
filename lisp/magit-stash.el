@@ -173,14 +173,16 @@ while two prefix arguments are equivalent to `--all'."
 
 The message that Git would have picked, is available as the
 default (used when the user enters the empty string) and as
-the next history element (which can be accessed with \
-\\<minibuffer-local-map>\\[next-history-element])."
-  (read-string (format "Stash message (default: On%s:%s): "
-                       (magit--ellipsis) (magit--ellipsis))
-               nil nil
-               (format "On %s: %s"
-                       (or (magit-get-current-branch) "(no branch)")
-                       (magit-rev-format "%h %s"))))
+the second future history element.  The first future history
+element is just \"On BRANCH: \".  Future history elements can
+be accessed using \\<minibuffer-local-map>\\[next-history-element])."
+  (let ((branch (or (magit-get-current-branch) "(no branch)"))
+        (ellipsis (magit--ellipsis)))
+    (read-string (format "Stash message (default: On%s:%s): " ellipsis ellipsis)
+                 nil nil
+                 (list (format "On %s: " branch)
+                       (format "On %s: %s" branch
+                               (magit-rev-format "%h %s"))))))
 
 (defun magit-stash-read-message-traditional ()
   "Read a message from the minibuffer, to be used for a stash.
