@@ -1094,6 +1094,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
         (deactivate-mark)
         (setq magit-section-pre-command-section nil)
         (setq magit-section-highlight-overlays nil)
+        (setq magit-section-selection-overlays nil)
         (setq magit-section-highlighted-sections nil)
         (setq magit-section-unhighlight-sections nil)
         (let ((inhibit-read-only t))

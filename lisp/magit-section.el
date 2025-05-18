@@ -306,6 +306,7 @@ no effect.  This also has no effect for Emacs >= 28, where
 (defvar-local magit-section-pre-command-section nil)
 (defvar-local magit-section-highlight-force-update nil)
 (defvar-local magit-section-highlight-overlays nil)
+(defvar-local magit-section-selection-overlays nil)
 (defvar-local magit-section-highlighted-sections nil)
 (defvar-local magit-section-unhighlight-sections nil)
 (defvar-local magit-section-focused-sections nil)
@@ -1712,15 +1713,18 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
 
 (defun magit-section-update-highlight (&optional force)
   (let ((section (magit-current-section)))
-    (when (or force
-              magit-section-highlight-force-update
-              (xor magit-section-pre-command-region-p (region-active-p))
-              (not (eq magit-section-pre-command-section section)))
+    (cond
+     ((or force
+          magit-section-highlight-force-update
+          (xor magit-section-pre-command-region-p (region-active-p))
+          (not (eq magit-section-pre-command-section section)))
       (let ((inhibit-read-only t)
             (deactivate-mark nil)
             (selection (magit-region-sections)))
         (mapc #'delete-overlay magit-section-highlight-overlays)
+        (mapc #'delete-overlay magit-section-selection-overlays)
         (setq magit-section-highlight-overlays nil)
+        (setq magit-section-selection-overlays nil)
         (setq magit-section-unhighlight-sections
               magit-section-highlighted-sections)
         (setq magit-section-highlighted-sections nil)
@@ -1733,6 +1737,12 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
           (run-hook-with-args-until-success
            'magit-section-unhighlight-hook s selection))
         (restore-buffer-modified-p nil)))
+     ((and (eq magit-section-pre-command-section section)
+           magit-section-selection-overlays
+           (region-active-p)
+           (not (magit-region-sections)))
+      (mapc #'delete-overlay magit-section-selection-overlays)
+      (setq magit-section-selection-overlays nil)))
     (setq magit-section-highlight-force-update nil)
     (magit-section-maybe-paint-visibility-ellipses)))
 
@@ -1775,8 +1785,13 @@ invisible."
   (when selection
     (dolist (sibling selection)
       (with-slots (start content end heading-selection-face) sibling
-        (magit-section-make-overlay start (or content end)
-                                    'magit-section-heading-selection)))
+        (let ((ov (make-overlay start (or content end) nil t)))
+          (overlay-put ov 'font-lock-face
+                       (or heading-selection-face
+                           'magit-section-heading-selection))
+          (overlay-put ov 'evaporate t)
+          (push ov magit-section-selection-overlays)
+          ov)))
     t))
 
 (defun magit-section-make-overlay (start end face)
