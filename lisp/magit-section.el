@@ -308,6 +308,7 @@ no effect.  This also has no effect for Emacs >= 28, where
 (defvar-local magit-section-highlight-overlays nil)
 (defvar-local magit-section-highlighted-sections nil)
 (defvar-local magit-section-unhighlight-sections nil)
+(defvar-local magit-section-focused-sections nil)
 
 (defvar-local magit-section-inhibit-markers nil)
 (defvar-local magit-section-insert-in-reverse nil)
@@ -1684,7 +1685,8 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
     ;; updated afterwards.
     (magit-menu-highlight-point-section))
   (setq magit-section-pre-command-region-p (region-active-p))
-  (setq magit-section-pre-command-section (magit-current-section)))
+  (setq magit-section-pre-command-section (magit-current-section))
+  (setq magit-section-focused-sections nil))
 
 (defun magit-section-post-command-hook ()
   (let ((window (selected-window)))
@@ -2045,6 +2047,23 @@ excluding SECTION itself."
       ('prev  (cdr (member section (reverse siblings))))
       ('next  (cdr (member section siblings)))
       (_      (remq section siblings)))))
+
+(defun magit-focused-sections ()
+  "Return a list of the selected sections and all their descendants.
+If no sections are selected return a list of the current section and
+its descendants, except if that is the root section, in which case
+return nil."
+  (or magit-section-focused-sections
+      (setq magit-section-focused-sections
+            (let ((current (magit-current-section)))
+              (and (not (eq current magit-root-section))
+                   (let (sections)
+                     (letrec ((collect (lambda (section)
+                                         (mapc collect (oref section children))
+                                         (push section sections))))
+                       (mapc collect
+                             (or (magit-region-sections) (list current))))
+                     sections))))))
 
 (defun magit-region-values (&optional condition multiple)
   "Return a list of the values of the selected sections.
