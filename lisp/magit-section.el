@@ -1753,20 +1753,18 @@ effects for diff related sections, which by default are
 highlighted using `magit-diff-highlight'.  Return t."
   (when-let ((face (oref section heading-highlight-face)))
     (dolist (section (or selection (list section)))
-      (magit-section-make-overlay
+      (magit-section-highlight-range
        (oref section start)
        (or (oref section content)
            (oref section end))
        face)))
   (cond (selection
-         (magit-section-make-overlay (oref (car selection) start)
-                                     (oref (car (last selection)) end)
-                                     'magit-section-highlight)
+         (magit-section-highlight-range (oref (car selection) start)
+                                     (oref (car (last selection)) end))
          (magit-section-highlight-selection nil selection))
         (t
-         (magit-section-make-overlay (oref section start)
-                                     (oref section end)
-                                     'magit-section-highlight)))
+         (magit-section-highlight-range (oref section start)
+                                     (oref section end))))
   t)
 
 (defun magit-section-highlight-selection (_ selection)
@@ -1794,9 +1792,9 @@ invisible."
           ov)))
     t))
 
-(defun magit-section-make-overlay (start end face)
+(defun magit-section-highlight-range (start end &optional face)
   (let ((ov (make-overlay start end nil t)))
-    (overlay-put ov 'font-lock-face face)
+    (overlay-put ov 'font-lock-face (or face 'magit-section-highlight))
     (overlay-put ov 'evaporate t)
     (push ov magit-section-highlight-overlays)
     ov))
