@@ -1110,7 +1110,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                 (apply #'magit-section-goto-successor args)))))
         (run-hooks 'magit-refresh-buffer-hook)
         (magit-section-update-highlight)
-        (set-buffer-modified-p nil))
+        (set-buffer-modified-p nil)
+        (push buffer magit-section--refreshed-buffers))
       (when magit-refresh-verbose
         (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name)
                  (float-time (time-since magit--refresh-start-time)))))))
