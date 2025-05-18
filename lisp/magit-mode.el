@@ -662,7 +662,7 @@ The buffer's major-mode should derive from `magit-section-mode'."
     (magit-display-buffer buffer)
     (with-current-buffer buffer
       (run-hooks 'magit-setup-buffer-hook)
-      (magit-refresh-buffer)
+      (magit-refresh-buffer created)
       (when created
         (run-hooks 'magit-post-create-buffer-hook)))
     buffer))
@@ -1065,7 +1065,9 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
 
 (defvar-local magit--refresh-start-time nil)
 
-(defun magit-refresh-buffer ()
+(defvar magit--initial-section-hook nil)
+
+(defun magit-refresh-buffer (&optional created)
   "Refresh the current Magit buffer."
   (interactive)
   (let ((magit--refresh-start-time (current-time))
@@ -1108,6 +1110,9 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
             (with-current-buffer buffer
               (let ((magit-section-movement-hook nil))
                 (apply #'magit-section-goto-successor args)))))
+        (when created
+          (run-hooks 'magit--initial-section-hook)
+          (setq-local magit--initial-section-hook nil))
         (let ((magit-section-cache-visibility nil))
           (magit-section-show magit-root-section))
         (run-hooks 'magit-refresh-buffer-hook)
