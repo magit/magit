@@ -1763,8 +1763,7 @@ This function is necessary to ensure that a representation of
 such a region is visible.  If neither of these functions were
 part of the hook variable, then such a region would be
 invisible."
-  (when (and selection
-             (not (and (eq this-command 'mouse-drag-region))))
+  (when selection
     (dolist (sibling selection)
       (with-slots (start content end heading-selection-face) sibling
         (magit-section-make-overlay start (or content end)
@@ -2085,7 +2084,14 @@ forms CONDITION can take."
               (rend (region-end))
               (sbeg (magit-section-at rbeg))
               (send (magit-section-at rend)))
-         (and send
+         ;; It should be possible to select a single section using
+         ;; `set-mark-command', so don't use `use-region-p' above.
+         ;; We still have to prevent the selection overlay from
+         ;; being flashed when clicking inside a section, which
+         ;; the first condition accomplishes:
+         (and (or (not (eq this-command #'mouse-drag-region))
+                  (> rend rbeg))
+              send
               (not (eq send magit-root-section))
               (not (and (eq send sbeg)
                         (or multiple
