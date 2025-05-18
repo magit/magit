@@ -1053,7 +1053,14 @@ global map, this involves advising `tab-bar--define-keys'."
           (t
            (mapc #'magit-section-hide children)))))
 
+(defun magit-section-hidden (section)
+  "Return t if SECTION and/or an ancestor is hidden."
+  (or (oref section hidden)
+      (and-let* ((parent (oref section parent)))
+        (magit-section-hidden parent))))
+
 (defun magit-section-hidden-body (section &optional pred)
+  "Return t if the content of SECTION or of any children is hidden."
   (if-let ((children (oref section children)))
       (funcall (or pred #'seq-some) #'magit-section-hidden-body children)
     (and (oref section content)
