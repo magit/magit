@@ -2635,7 +2635,7 @@ function errors."
 (defun magit-diff-expansion-threshold (section)
   "Keep new diff sections collapsed if washing takes too long."
   (and (magit-file-section-p section)
-       (> (float-time (time-since magit-refresh-start-time))
+       (> (float-time (time-since magit--refresh-start-time))
           magit-diff-expansion-threshold)
        'hide))
 
