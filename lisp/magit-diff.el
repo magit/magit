@@ -1402,7 +1402,7 @@ for a revision."
                 (magit-section-parent-value (magit-current-section))))))
   (require 'magit)
   (let* ((file (magit-file-relative-name))
-         (ln (and file (line-number-at-pos))))
+         (line (and file (line-number-at-pos))))
     (magit-with-toplevel
       (when module
         (setq default-directory
@@ -1413,7 +1413,7 @@ for a revision."
         (save-buffer))
       (let ((buf (magit-revision-setup-buffer rev args files)))
         (when file
-          (let ((line (magit-diff-visit--offset file (list "-R" rev) ln))
+          (let ((line (magit-diff-visit--offset file (list "-R" rev) line))
                 (col (current-column)))
             (with-current-buffer buf
               (magit-diff--goto-position file line col))))))))
