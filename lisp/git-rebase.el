@@ -44,8 +44,8 @@
 ;;   M-p      Move the commit at point up.
 ;;   M-n      Move the commit at point down.
 ;;
-;;   k        Drop the commit at point.
-;;   c        Don't drop the commit at point.
+;;   d        Drop the commit at point.
+;;   c        Keep the commit at point.
 ;;   r        Change the message of the commit at point.
 ;;   e        Edit the commit at point.
 ;;   s        Squash the commit at point, into the one above.
@@ -53,6 +53,7 @@
 ;;   b        Break for editing at this point in the sequence.
 ;;   x        Add a script to be run with the commit at point
 ;;            being checked out.
+;;   k        Un-/comment current line.
 ;;   z        Add noop action at point.
 ;;
 ;;   SPC      Show the commit at point in another buffer.
@@ -152,6 +153,7 @@
   "M-p" #'git-rebase-move-line-up
   "M-n" #'git-rebase-move-line-down
   "c"   #'git-rebase-pick
+  "d"   #'git-rebase-drop
   "k"   #'git-rebase-kill-line
   "C-k" #'git-rebase-kill-line
   "b"   #'git-rebase-break
@@ -184,6 +186,7 @@
   "Git-Rebase mode menu."
   '("Rebase"
     ["Pick" git-rebase-pick t]
+    ["Drop" git-rebase-drop t]
     ["Reword" git-rebase-reword t]
     ["Edit" git-rebase-edit t]
     ["Squash" git-rebase-squash t]
@@ -208,7 +211,8 @@
     (git-rebase-show-commit
      . "show the commit at point in another buffer and select its window")
     (undo                         . "undo last change")
-    (git-rebase-kill-line         . "drop the commit at point")
+    (git-rebase-drop              . "drop the commit at point")
+    (git-rebase-kill-line         . "un-/comment current line")
     (git-rebase-insert            . "insert a line for an arbitrary commit")
     (git-rebase-noop              . "add noop action at point")))
 
@@ -219,6 +223,12 @@
 If the region is active, act on all lines touched by the region."
   (interactive)
   (git-rebase-set-action "pick"))
+
+(defun git-rebase-drop ()
+  "Drop commit on current line.
+If the region is active, act on all lines touched by the region."
+  (interactive)
+  (git-rebase-set-action "drop"))
 
 (defun git-rebase-reword ()
   "Edit message of commit on current line.
@@ -248,6 +258,7 @@ If the region is active, act on all lines touched by the region."
 
 (defvar git-rebase-short-options
   '((?b . "break")
+    (?d . "drop")
     (?e . "edit")
     (?f . "fixup")
     (?l . "label")
@@ -281,6 +292,7 @@ If the region is active, act on all lines touched by the region."
 (defvar git-rebase-line-regexps
   `((commit . ,(concat
                 (regexp-opt '("e" "edit"
+                              "d" "drop"
                               "f" "fixup"
                               "p" "pick"
                               "r" "reword"
@@ -772,6 +784,8 @@ running \"man git-rebase\" at the command line) for details."
     ("^\\(m\\(?:erge\\)?\\) \\([^ \n]+\\)"
      (1 'git-rebase-action)
      (2 'git-rebase-label))
+    ("^drop \\(.+\\)"
+     1 'git-rebase-killed-action t)
     (,(concat git-rebase-comment-re " *"
               (cdr (assq 'commit git-rebase-line-regexps)))
      0 'git-rebase-killed-action t)
