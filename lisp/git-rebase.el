@@ -309,10 +309,9 @@ instance with all nil values is returned."
     (goto-char (line-beginning-position))
     (if-let ((re-start (concat "^\\(?5:" (regexp-quote comment-start)
                                "\\)? *"))
-             (type (seq-some (lambda (arg)
+             (type (seq-some (pcase-lambda (`(,type . ,re))
                                (let ((case-fold-search nil))
-                                 (and (looking-at (concat re-start (cdr arg)))
-                                      (car arg))))
+                                 (and (looking-at (concat re-start re)) type)))
                              git-rebase-line-regexps)))
         (git-rebase-action
          :action-type    type
@@ -323,7 +322,7 @@ instance with all nil values is returned."
          :target         (match-string-no-properties 3)
          :trailer        (match-string-no-properties 4)
          :comment-p      (and (match-string 5) t))
-      ;; Use default empty class rather than nil to ease handling.
+      ;; Use empty object rather than nil to ease handling.
       (git-rebase-action))))
 
 (defun git-rebase-set-action (action)
