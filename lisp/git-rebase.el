@@ -346,14 +346,18 @@ region is active, act on all lines touched by the region."
                       " ?\\(?4:.*\\)"))))
 
 ;;;###autoload
-(defun git-rebase-current-line ()
+(defun git-rebase-current-line (&optional batch)
   "Parse current line into a `git-rebase-action' instance.
 If the current line isn't recognized as a rebase line, an
-instance with all nil values is returned."
+instance with all nil values is returned, unless optional
+BATCH is non-nil, in which case nil is returned.  Non-nil
+BATCH also ignores commented lines."
   (save-excursion
     (goto-char (line-beginning-position))
-    (if-let ((re-start (concat "^\\(?5:" (regexp-quote comment-start)
-                               "\\)? *"))
+    (if-let ((re-start (if batch
+                           "^"
+                         (format "^\\(?5:%s\\)? *"
+                                 (regexp-quote comment-start))))
              (type (seq-some (pcase-lambda (`(,type . ,re))
                                (let ((case-fold-search nil))
                                  (and (looking-at (concat re-start re)) type)))
@@ -367,8 +371,9 @@ instance with all nil values is returned."
          :target         (match-string-no-properties 3)
          :trailer        (match-string-no-properties 4)
          :comment-p      (and (match-string 5) t))
-      ;; Use empty object rather than nil to ease handling.
-      (git-rebase-action))))
+      (and (not batch)
+           ;; Use empty object rather than nil to ease handling.
+           (git-rebase-action)))))
 
 (defun git-rebase-set-action (action)
   "Set action of commit line to ACTION.

@@ -50,7 +50,7 @@
 (declare-function magit-blame-mode "magit-blame" (&optional arg))
 (defvar magit-blame-mode)
 ;; For `magit-diff-show-or-scroll'
-(declare-function git-rebase-current-line "git-rebase" ())
+(declare-function git-rebase-current-line "git-rebase" (&optional batch))
 ;; For `magit-diff-unmerged'
 (declare-function magit-merge-in-progress-p "magit-merge" ())
 (declare-function magit--merge-range "magit-merge" (&optional head))

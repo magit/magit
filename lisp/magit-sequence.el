@@ -31,7 +31,7 @@
 (require 'magit)
 
 ;; For `magit-rebase--todo'.
-(declare-function git-rebase-current-line "git-rebase" ())
+(declare-function git-rebase-current-line "git-rebase" (&optional batch))
 (eval-when-compile
   (cl-pushnew 'action-type eieio--known-slot-names)
   (cl-pushnew 'action eieio--known-slot-names)
@@ -997,7 +997,7 @@ status buffer (i.e., the reverse of how they will be applied)."
       (insert-file-contents
        (expand-file-name "rebase-merge/git-rebase-todo" (magit-gitdir)))
       (while (not (eobp))
-        (when-let ((obj (git-rebase-current-line)))
+        (when-let ((obj (git-rebase-current-line t)))
           (push obj actions)
           (when (memq (oref obj action-type) '(commit merge))
             (push obj commits)))
