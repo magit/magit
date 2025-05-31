@@ -1549,6 +1549,14 @@ instead."
     (setq magit-buffer-diff-args val))
   (magit-refresh))
 
+(defun magit-diff-get-context ()
+  (string-to-number
+   (or (seq-some (##and (string-match "\\`-U\\([0-9]+\\)?\\'" %)
+                        (match-string 1 %))
+                 magit-buffer-diff-args)
+       (magit-get "diff.context")
+       "3")))
+
 (defun magit-diff-context-p ()
   (if-let ((arg (seq-find (##string-match "^-U\\([0-9]+\\)$" %)
                           magit-buffer-diff-args)))

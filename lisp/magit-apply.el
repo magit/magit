@@ -220,6 +220,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
          (command (if (and command (string-match "^magit-\\([^-]+\\)" command))
                       (match-string 1 command)
                     "apply"))
+         (context (magit-diff-get-context))
          (ignore-context (magit-diff-ignore-any-space-p)))
     (unless (magit-diff-context-p)
       (user-error "Not enough context to apply patch.  Increase the context"))
@@ -230,7 +231,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
       (let ((magit-inhibit-refresh t))
         (magit-run-git-with-input
          "apply" args "-p0"
-         (and ignore-context "-C0")
+         (if ignore-context "-C0" (format "-C%s" context))
          "--ignore-space-change" "-")))
     (unless magit-inhibit-refresh
       (when magit-wip-after-apply-mode
