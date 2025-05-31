@@ -7220,13 +7220,40 @@ Stop at the commit on the current line.
 @item @kbd{s} (@code{git-rebase-squash})
 @kindex s
 @findex git-rebase-squash
-Meld commit on current line into previous commit, and edit message.
+This command folds the commit on the current line into the previous
+commit, giving the user a change to manually merge the two messages.
+
+@item @kbd{S} (@code{git-rebase-squish})
+@kindex S
+@findex git-rebase-squish
+This command folds the commit on the current line into the previous
+commit, discarding the message of the previous commit but giving the
+user a change to edit the final message, based on the message of the
+current commit.
+
+This action's indicator, shown in the list of commits, is @code{fixup -c}
+(with a lower-case c).
 
 @item @kbd{f} (@code{git-rebase-fixup})
 @kindex f
 @findex git-rebase-fixup
-Meld commit on current line into previous commit, discarding the
-current commit's message.
+This command folds the commit on the current line into the previous
+commit, using only the message of the previous commit as-is and
+discarding the message of the current commit.
+
+@item @kbd{F} (@code{git-rebase-alter})
+@kindex F
+@findex git-rebase-alter
+This command folds the commit on the current into the previous
+commit, discarding the message of the previous commit and instead
+using the message of the current commit as-is.
+
+This is like @code{git-rebase-alter}, except that it uses the other
+message.  This is also like @code{git-rebase-squish}, except that it lets
+the user edit the message.
+
+This action's indicator, shown in the list of commits, is @code{fixup -C}
+(with a upper-case C).
 
 @item @kbd{k} (@code{git-rebase-kill-line})
 @kindex k
