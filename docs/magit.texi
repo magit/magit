@@ -3945,9 +3945,12 @@ Whether to show word-granularity differences within diff hunks.
 @item
 @code{nil} Never show fine differences.
 @item
-@code{t} Show fine differences for the current diff hunk only.
-@item
 @code{all} Show fine differences for all displayed diff hunks.
+@item
+@code{t} Refine each hunk once it becomes the current section.
+Keep the refinement when another section is selected.
+Refreshing the buffer removes all refinement.  This
+variant is only provided for performance reasons.
 @end itemize
 @end defopt
 

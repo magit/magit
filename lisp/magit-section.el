@@ -1770,7 +1770,9 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
                  (magit-section-highlight-range content child-start)))
              (mapc #'magit-section-highlight children))
             ((and content (not (slot-boundp section 'painted)))
-             (magit-section-highlight-range content end))))
+             (magit-section-highlight-range content end))
+            ;; Unfortunate kludge for delayed hunk refinement.
+            ((magit-section--refine section))))
      (headlight
       (magit-section-highlight-range start (or content end) headlight)
       (when content
@@ -1844,6 +1846,8 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (unless (oref section painted)
           (cl-pushnew section magit-section-highlighted-sections))
       (magit-section-update-paint section (magit-focused-sections)))))
+
+(cl-defmethod magit-section--refine ((_section magit-section)))
 
 ;;; Long Lines
 

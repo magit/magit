@@ -192,13 +192,16 @@ keep their distinct foreground colors."
   "Whether to show word-granularity differences within diff hunks.
 
 `nil'  Never show fine differences.
-`t'    Show fine differences for the current diff hunk only.
-`all'  Show fine differences for all displayed diff hunks."
+`all'  Show fine differences for all displayed diff hunks.
+`t'    Refine each hunk once it becomes the current section.
+       Keep the refinement when another section is selected.
+       Refreshing the buffer removes all refinement.  This
+       variant is only provided for performance reasons."
   :group 'magit-diff
   :safe (##memq % '(nil t all))
-  :type '(choice (const :tag "Never" nil)
-                 (const :tag "Current" t)
-                 (const :tag "All" all)))
+  :type '(choice (const :tag "No refinement" nil)
+                 (const :tag "Immediately refine all hunks" all)
+                 (const :tag "Refine each hunk when moving to it" t)))
 
 (defcustom magit-diff-refine-ignore-whitespace smerge-refine-ignore-whitespace
   "Whether to ignore whitespace changes in word-granularity differences."
@@ -3309,7 +3312,8 @@ actually a `diff' but a `diffstat' section."
          (magit-diff-paint-whitespace merging 'context diff-type)
          (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
       (forward-line)))
-  (magit-diff-update-hunk-refinement section)
+  (when (eq magit-diff-refine-hunk 'all)
+    (magit-diff-update-hunk-refinement section))
   (oset section painted (if highlight 'highlight 'plain)))
 
 (defvar magit-diff--tab-width-cache nil)
@@ -3383,7 +3387,11 @@ actually a `diff' but a `diffstat' section."
           (overlay-put ov 'priority 2)
           (overlay-put ov 'evaporate t))))))
 
-(defun magit-diff-update-hunk-refinement (&optional section)
+(cl-defmethod magit-section--refine ((section magit-hunk-section))
+  (when (eq magit-diff-refine-hunk t)
+    (magit-diff-update-hunk-refinement section)))
+
+(defun magit-diff-update-hunk-refinement (&optional section allow-remove)
   (if section
       (unless (oref section hidden)
         (pcase (list magit-diff-refine-hunk
@@ -3400,14 +3408,15 @@ actually a `diff' but a `diffstat' section."
                      ;; Avoid fsyncing many small temp files.
                      (write-region-inhibit-fsync t))
                  (diff-refine-hunk)))))
-          ((or `(nil t ,_) '(t t nil))
+          ((and (guard allow-remove)
+                (or `(nil t ,_) '(t t nil)))
            (oset section refined nil)
            (remove-overlays (oref section start)
                             (oref section end)
                             'diff-mode 'fine))))
     (cl-labels ((recurse (section)
                   (if (magit-section-match 'hunk section)
-                      (magit-diff-update-hunk-refinement section)
+                      (magit-diff-update-hunk-refinement section t)
                     (dolist (child (oref section children))
                       (recurse child)))))
       (recurse magit-root-section))))

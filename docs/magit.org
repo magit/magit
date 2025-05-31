@@ -3357,8 +3357,11 @@ that they are available here too.
   Whether to show word-granularity differences within diff hunks.
 
   - ~nil~ Never show fine differences.
-  - ~t~ Show fine differences for the current diff hunk only.
   - ~all~ Show fine differences for all displayed diff hunks.
+  - ~t~ Refine each hunk once it becomes the current section.
+    Keep the refinement when another section is selected.
+    Refreshing the buffer removes all refinement.  This
+    variant is only provided for performance reasons.
 
 - User Option: magit-diff-refine-ignore-whitespace ::
 
