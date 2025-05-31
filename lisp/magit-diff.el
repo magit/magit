@@ -3397,7 +3397,7 @@ actually a `diff' but a `diffstat' section."
              (unless (looking-at "@@@")
                (let ((smerge-refine-ignore-whitespace
                       magit-diff-refine-ignore-whitespace)
-                     ;; Avoid fsyncing many small temp files
+                     ;; Avoid fsyncing many small temp files.
                      (write-region-inhibit-fsync t))
                  (diff-refine-hunk)))))
           ((or `(nil t ,_) '(t t nil))
