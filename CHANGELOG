@@ -1,20 +1,31 @@
 # -*- mode: org -*-
-* v4.3.6    UNRELEASED
+* v4.3.6    2025-06-01
 
 - Generalized and heavily refactored the code, previously used only to
   highlight diff-related sections and to paint hunks, so that it can
   be used for other sections as well.  The new implementation should
   also be a bit faster.  cfe4faaaf6^..c556fee1bd
 
-- A single-section selection how requires a non-empty region.
+- A single-section selection now requires a non-empty region.
   6c4c16942a
 
 - When creating a stash, "On <branch>: " is now offered as a second
   future history element.  75c6191999, 9b81df36b4
 
+- Added new commands ~git-rebase-drop~, ~git-rebase-alter~ and
+  ~git-rebase-squish~.  479c467080, 9674c4755a
+
 Bugfixes:
 
 - Fixed issues concerning date handling in log margins.  #5373
+
+- The list of rebase actions in the status buffer could contain
+  invalid elements derived from comments in Git's list of such
+  actions.  91806dc729
+
+- Applying the region used to fail, if some part of the same hunk but
+  outside the region has conflicts, even if the part in the region did
+  not.  9e551d9eb7
 
 * v4.3.5    2025-05-14
 
