@@ -1788,6 +1788,7 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
                        (or heading-selection-face
                            'magit-section-heading-selection))
           (overlay-put ov 'evaporate t)
+          (overlay-put ov 'priority '(nil . 9))
           (push ov magit-section-selection-overlays)
           ov)))))
 

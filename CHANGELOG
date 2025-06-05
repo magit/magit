@@ -1,4 +1,11 @@
 # -*- mode: org -*-
+* v4.3.7    UNRELEASED
+
+- Fixed a regression in v4.3.6, which caused a conflict between the
+  overlays used for section highlighting and section selection, if
+  both of these faces relied on the same face property (likely the
+  foreground color).  #5389
+
 * v4.3.6    2025-06-01
 
 - Generalized and heavily refactored the code, previously used only to
