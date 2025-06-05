@@ -37,6 +37,11 @@
 (cl-defmethod magit-bookmark-get-filename (&context (major-mode magit-mode))
   (magit-toplevel))
 
+(cl-defmethod magit-bookmark-get-value
+  (bookmark &context (major-mode magit-mode))
+  (dolist (var (get major-mode 'magit-bookmark-variables))
+    (bookmark-prop-set bookmark var (symbol-value var))))
+
 (cl-defmethod magit-bookmark-get-buffer-create
   (bookmark (mode (derived-mode magit-mode)))
   (let ((default-directory (bookmark-get-filename bookmark))
