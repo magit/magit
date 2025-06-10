@@ -1530,7 +1530,8 @@ exists mostly for backward compatibility reasons."
 
 (defun magit-log-maybe-update-revision-buffer (&optional _)
   "When moving in a log or cherry buffer, update the revision buffer.
-If there is no revision buffer in the same frame, then do nothing."
+If there is no revision buffer in the same frame, then do nothing.
+See also info node `(magit)Section Movement'."
   (when (derived-mode-p 'magit-log-mode 'magit-cherry-mode 'magit-reflog-mode)
     (magit--maybe-update-revision-buffer)))
 
@@ -1558,7 +1559,8 @@ If there is no revision buffer in the same frame, then do nothing."
 
 (defun magit-log-maybe-update-blob-buffer (&optional _)
   "When moving in a log or cherry buffer, update the blob buffer.
-If there is no blob buffer in the same frame, then do nothing."
+If there is no blob buffer in the same frame, then do nothing.
+See also info node `(magit)Section Movement'."
   (when (derived-mode-p 'magit-log-mode 'magit-cherry-mode 'magit-reflog-mode)
     (magit--maybe-update-blob-buffer)))
 

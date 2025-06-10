@@ -891,6 +891,12 @@ To move within a section use the usual keys (~C-p~, ~C-n~, ~C-b~, ~C-f~ etc),
 whose global bindings are not shadowed.  To move to another section use
 the following commands.
 
+The section movement commands described here run the hook
+~magit-section-movement-hook~.  Note that they explicitly run that hook
+and that aribrary other movement, defined in Emacs and other packages,
+do not run that hook.  That hook, and hook functions that can be added
+to it, or are part of its default value, are described below.
+
 - Key: p (magit-section-backward) ::
 
   When not at the beginning of a section, then move to the beginning
@@ -931,8 +937,10 @@ remove function that haven't even been added yet, for example:
 
 - Variable: magit-section-movement-hook ::
 
-  This hook is run by all of the above movement commands, after
-  arriving at the destination.
+  This hook is run by all of the above section movement commands,
+  after arriving at the destination.  It is *not* run by arbitrary other
+  movement commands (such as ~next-line~), which are provided by Emacs
+  or third-party packages.
 
 - Function: magit-hunk-set-window-start ::
 
@@ -999,9 +1007,11 @@ remove function that haven't even been added yet, for example:
 
   Delay before automatically updating the other window.
 
-  When moving around in certain buffers, then certain other buffers,
-  which are being displayed in another window, may optionally be
-  updated to display information about the section at point.
+  When moving around in certain buffers using Magit's own section
+  movement commands (but not other movement commands), then certain
+  other buffers, which are being displayed in another window, may
+  optionally be updated to display information about the section at
+  point.
 
   When holding down a key to move by more than just one section, then
   that would update that buffer for each section on the way.  To

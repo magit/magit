@@ -500,19 +500,22 @@ Type \\[magit-commit] to create a commit.
 
 (defun magit-status-maybe-update-revision-buffer (&optional _)
   "When moving in the status buffer, update the revision buffer.
-If there is no revision buffer in the same frame, then do nothing."
+If there is no revision buffer in the same frame, then do nothing.
+See also info node `(magit)Section Movement'."
   (when (derived-mode-p 'magit-status-mode)
     (magit--maybe-update-revision-buffer)))
 
 (defun magit-status-maybe-update-stash-buffer (&optional _)
   "When moving in the status buffer, update the stash buffer.
-If there is no stash buffer in the same frame, then do nothing."
+If there is no stash buffer in the same frame, then do nothing.
+See also info node `(magit)Section Movement'."
   (when (derived-mode-p 'magit-status-mode)
     (magit--maybe-update-stash-buffer)))
 
 (defun magit-status-maybe-update-blob-buffer (&optional _)
   "When moving in the status buffer, update the blob buffer.
-If there is no blob buffer in the same frame, then do nothing."
+If there is no blob buffer in the same frame, then do nothing.
+See also info node `(magit)Section Movement'."
   (when (derived-mode-p 'magit-status-mode)
     (magit--maybe-update-blob-buffer)))
 

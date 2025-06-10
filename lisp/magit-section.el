@@ -106,7 +106,8 @@ similar defect.")
 
 (defvar magit-section-movement-hook nil
   "Hook run by `magit-section-goto'.
-That function in turn is used by all section movement commands.")
+That function in turn is used by all section movement commands.
+See also info node `(magit)Section Movement'.")
 
 (defvar magit-section-set-visibility-hook
   (list #'magit-section-cached-visibility)
@@ -874,6 +875,8 @@ If there is no previous sibling section, then move to the parent."
   (run-hook-with-args 'magit-section-movement-hook (magit-current-section)))
 
 (defun magit-section-goto (arg)
+  "Run `magit-section-movement-hook'.
+See info node `(magit)Section Movement'."
   (if (integerp arg)
       (progn (forward-line arg)
              (setq arg (magit-current-section)))

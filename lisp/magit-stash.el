@@ -569,7 +569,8 @@ instead of \"Stashes:\"."
 
 (defun magit-stashes-maybe-update-stash-buffer (&optional _)
   "When moving in the stashes buffer, update the stash buffer.
-If there is no stash buffer in the same frame, then do nothing."
+If there is no stash buffer in the same frame, then do nothing.
+See also info node `(magit)Section Movement'."
   (when (derived-mode-p 'magit-stashes-mode)
     (magit--maybe-update-stash-buffer)))
 
