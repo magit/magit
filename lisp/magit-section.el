@@ -1829,6 +1829,8 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
         (`(focus ,(or 'nil 'plain))
          (paint t)
          (cl-pushnew section magit-section-highlighted-sections))
+        (`(focus highlight)
+         (cl-pushnew section magit-section-highlighted-sections))
         (`(unfocus ,(or 'nil 'highlight))
          (paint nil)
          (unregister))
