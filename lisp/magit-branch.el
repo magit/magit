@@ -224,7 +224,9 @@ has to be used to view and change branch related variables."
     :inapt-if-not magit-get-some-remote)]
   ["Arguments"
    (7 "-r" "Recurse submodules when checking out an existing branch"
-      "--recurse-submodules")]
+      "--recurse-submodules")
+   (7 "-f" "proceed even if the index or the working tree differs from HEAD, and even if there are untracked files in the way."
+      "--force")]
   [["Checkout"
     ("b" "branch/revision"   magit-checkout)
     ("l" "local branch"      magit-branch-checkout)
