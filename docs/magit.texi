@@ -6229,7 +6229,7 @@ checkout branches, and to make changes to existing branches.  It is
 not used to fetch, pull, merge, rebase, or push branches, i.e., this
 command deals with branches themselves, not with the commits reachable
 from them.  Those features are available from separate transient
-command.
+commands.
 
 @table @asis
 @item @kbd{b} (@code{magit-branch})
