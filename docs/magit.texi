@@ -2218,8 +2218,11 @@ line until the next magit buffer refresh.
 If you do not wish process errors to be indicated in the mode line,
 set @code{magit-process-display-mode-line-error} to @code{nil}.
 
-Process errors are additionally displayed at the top of the status
-buffer and in the echo area.
+Process errors are displayed at the top of the status buffer and in
+the echo area.  In both places a hint is appended, which informs users
+that they can see the full output in the process buffer and how to
+display that buffer.  However, once you are aware of that, you might
+want to set @code{magit-show-process-buffer-hint} to @code{nil}.
 
 @anchor{Running Git Manually}
 @subsection Running Git Manually

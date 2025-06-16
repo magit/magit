@@ -249,8 +249,33 @@ implement such functions."
   :type 'boolean)
 
 (defcustom magit-process-display-mode-line-error t
-  "Whether Magit should retain and highlight process errors in the mode line."
+  "Whether Magit should retain and highlight process errors in the mode line.
+
+See `magit-show-process-buffer-hint' for another way to display the
+complete output on demand."
   :package-version '(magit . "2.12.0")
+  :group 'magit-process
+  :type 'boolean)
+
+(defcustom magit-show-process-buffer-hint t
+  "Whether to append hint about process buffer to Git error messages.
+
+When Magit runs Git for side-effects, the output is always logged to
+a per-repository process buffer.  If Git exits with a non-zero status,
+then a single line of its error output is shown in the repositories
+status buffer and in the echo area.
+
+When a user want to learn more about the error, they can switch to that
+process buffer, to see the complete output, but initially users are not
+aware of this, so Magit appends a usage hint to the error message in
+both of these places.
+
+Once you are aware of this, you probably won't need the reminder and can
+set this option to nil.
+
+See `magit-process-display-mode-line-error' for another way to display
+the complete output on demand."
+  :package-version '(magit . "4.3.7")
   :group 'magit-process
   :type 'boolean)
 
@@ -1237,10 +1262,11 @@ Limited by `magit-process-error-tooltip-max-lines'."
             (with-current-buffer status-buf
               (setq magit-this-error msg)))))
       (let ((usage
-             (if-let ((keys (where-is-internal 'magit-process-buffer)))
-                 (format "Type %s to see %S for details"
-                         (key-description (car keys)) process-buf)
-               (format "See %S for details" process-buf))))
+             (and magit-show-process-buffer-hint
+                  (if-let ((keys (where-is-internal 'magit-process-buffer)))
+                      (format "Type %s to see %S for details"
+                              (key-description (car keys)) process-buf)
+                    (format "See %S for details" process-buf)))))
         (if magit-process-raise-error
             (signal 'magit-git-error
                     (list msg (or usage (list 'in default-dir))))
