@@ -1173,21 +1173,17 @@ If STR is supplied, it replaces the `mode-line-process' text."
 
 (defun magit-process-error-summary (process-buf section)
   "A one-line error summary from the given SECTION."
-  (or (and (buffer-live-p process-buf)
-           (with-current-buffer process-buf
-             (and (oref section content)
-                  (save-excursion
-                    (goto-char (oref section end))
-                    (run-hook-wrapped
-                     'magit-process-error-message-regexps
-                     (lambda (re)
-                       (save-excursion
-                         (and (re-search-backward
-                               re (oref section start) t)
-                              (or (match-string-no-properties 1)
-                                  (and (not magit-process-raise-error)
-                                       'suppressed))))))))))
-      "Git failed"))
+  (and (buffer-live-p process-buf)
+       (with-current-buffer process-buf
+         (and (oref section content)
+              (save-excursion
+                (goto-char (oref section end))
+                (run-hook-wrapped
+                 'magit-process-error-message-regexps
+                 (lambda (re)
+                   (save-excursion
+                     (and (re-search-backward re (oref section start) t)
+                          (match-string-no-properties 1))))))))))
 
 (defun magit-process-error-tooltip (process-buf section)
   "Returns the text from SECTION of the PROCESS-BUF buffer.
@@ -1233,23 +1229,23 @@ Limited by `magit-process-error-tooltip-max-lines'."
     (let ((msg (magit-process-error-summary process-buf section)))
       (if magit-process-display-mode-line-error
           (magit-process-set-mode-line-error-status
-           (or (magit-process-error-tooltip process-buf section)
-               msg))
+           (or (magit-process-error-tooltip process-buf section) msg))
         (magit-process-unset-mode-line default-dir))
-      (cond
-       (magit-process-raise-error
-        (signal 'magit-git-error (list (format "%s (in %s)" msg default-dir))))
-       ((not (eq msg 'suppressed))
-        (when (buffer-live-p process-buf)
-          (with-current-buffer process-buf
-            (when-let ((status-buf (magit-get-mode-buffer 'magit-status-mode)))
-              (with-current-buffer status-buf
-                (setq magit-this-error msg)))))
-        (message "%s ... [%s buffer %s for details]" msg
-                 (if-let ((keys (where-is-internal 'magit-process-buffer)))
-                     (format "Hit %s to see" (key-description (car keys)))
-                   "See")
-                 (buffer-name process-buf))))))
+      (when (buffer-live-p process-buf)
+        (with-current-buffer process-buf
+          (when-let ((status-buf (magit-get-mode-buffer 'magit-status-mode)))
+            (with-current-buffer status-buf
+              (setq magit-this-error msg)))))
+      (let ((usage
+             (if-let ((keys (where-is-internal 'magit-process-buffer)))
+                 (format "Type %s to see %S for details"
+                         (key-description (car keys)) process-buf)
+               (format "See %S for details" process-buf))))
+        (if magit-process-raise-error
+            (signal 'magit-git-error
+                    (list msg (or usage (list 'in default-dir))))
+          (message "Git error: %s"
+                   (concat msg (and usage (format " [%s]" usage))))))))
   arg)
 
 (defun magit-process-finish-section (section exit-code)
