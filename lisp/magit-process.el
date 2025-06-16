@@ -1230,18 +1230,13 @@ Limited by `magit-process-error-tooltip-max-lines'."
     (with-current-buffer process-buf
       (magit-process-finish-section section arg)))
   (if (= arg 0)
-      ;; Unset the `mode-line-process' value upon success.
       (magit-process-unset-mode-line default-dir)
-    ;; Otherwise process the error.
     (let ((msg (magit-process-error-summary process-buf section)))
-      ;; Change `mode-line-process' to an error face upon failure.
       (if magit-process-display-mode-line-error
           (magit-process-set-mode-line-error-status
            (or (magit-process-error-tooltip process-buf section)
                msg))
         (magit-process-unset-mode-line default-dir))
-      ;; Either signal the error, or else display the error summary in
-      ;; the status buffer and with a message in the echo area.
       (cond
        (magit-process-raise-error
         (signal 'magit-git-error (list (format "%s (in %s)" msg default-dir))))
