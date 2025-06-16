@@ -2154,15 +2154,15 @@ some value (e.g., the name of the current branch).
 
 When Git is run for side-effects, the process output is logged in a
 per-repository log buffer, which can be consulted using the
-@code{magit-process} command when things don't go as expected.
+@code{magit-process-buffer} command, when things don't go as expected.
 
-The output/errors for up to `magit-process-log-max' Git commands are
+The output/errors for up to @code{magit-process-log-max} Git commands are
 retained.
 
 @table @asis
-@item @kbd{$} (@code{magit-process})
+@item @kbd{$} (@code{magit-process-buffer})
 @kindex $
-@findex magit-process
+@findex magit-process-buffer
 This commands displays the process buffer for the current
 repository.
 @end table
@@ -2216,10 +2216,10 @@ tooltip for mouse users.  This error indicator persists in the mode
 line until the next magit buffer refresh.
 
 If you do not wish process errors to be indicated in the mode line,
-customize the @code{magit-process-display-mode-line-error} user option.
+set @code{magit-process-display-mode-line-error} to @code{nil}.
 
-Process errors are additionally indicated at the top of the status
-buffer.
+Process errors are additionally displayed at the top of the status
+buffer and in the echo area.
 
 @anchor{Running Git Manually}
 @subsection Running Git Manually
