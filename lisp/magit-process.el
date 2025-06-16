@@ -1216,11 +1216,10 @@ Limited by `magit-process-error-tooltip-max-lines'."
 
 (defvar-local magit-this-error nil)
 
-(defun magit-process-finish (arg &optional process-buf command-buf
+(defun magit-process-finish (arg &optional process-buf _command-buf
                                  default-dir section)
   (unless (integerp arg)
     (setq process-buf (process-buffer arg))
-    (setq command-buf (process-get arg 'command-buf))
     (setq default-dir (process-get arg 'default-dir))
     (setq section     (process-get arg 'section))
     (setq arg         (process-exit-status arg)))
@@ -1247,11 +1246,8 @@ Limited by `magit-process-error-tooltip-max-lines'."
               (with-current-buffer status-buf
                 (setq magit-this-error msg)))))
         (message "%s ... [%s buffer %s for details]" msg
-                 (if-let ((key (and (buffer-live-p command-buf)
-                                    (with-current-buffer command-buf
-                                      (car (where-is-internal
-                                            'magit-process-buffer))))))
-                     (format "Hit %s to see" (key-description key))
+                 (if-let ((keys (where-is-internal 'magit-process-buffer)))
+                     (format "Hit %s to see" (key-description (car keys)))
                    "See")
                  (buffer-name process-buf))))))
   arg)
