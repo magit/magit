@@ -1222,12 +1222,12 @@ argument (the prefix) non-nil means save all with no questions."
   (when-let ((topdir (magit-rev-parse-safe "--show-toplevel")))
     (let ((remote (file-remote-p default-directory))
           (save-some-buffers-action-alist
-           `((?Y (##with-current-buffer %
-                   (setq buffer-save-without-query t)
-                   (save-buffer))
+           `((?Y ,(##with-current-buffer %
+                    (setq buffer-save-without-query t)
+                    (save-buffer))
                  "to save the current buffer and remember choice")
-             (?N (##with-current-buffer %
-                   (setq magit-inhibit-refresh-save t))
+             (?N ,(##with-current-buffer %
+                    (setq magit-inhibit-refresh-save t))
                  "to skip the current buffer and remember choice")
              ,@save-some-buffers-action-alist))
           (topdirs nil)
