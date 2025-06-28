@@ -306,6 +306,7 @@ no effect.  This also has no effect for Emacs >= 28, where
 
 (defvar-local magit-section-pre-command-region-p nil)
 (defvar-local magit-section-pre-command-section nil)
+
 (defvar-local magit-section-highlight-force-update nil)
 (defvar-local magit-section-highlight-overlays nil)
 (defvar-local magit-section-selection-overlays nil)
