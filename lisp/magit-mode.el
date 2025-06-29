@@ -1120,11 +1120,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                     `((,window
                        ,section
                        ,@(magit-section-get-relative-position section)))))))
-            ;; If it qualifies, then the selected window
-            ;; comes first, but we want to handle it last
-            ;; so that its `magit-section-movement-hook'
-            ;; run can override the effects of other runs.
-            (or (nreverse (get-buffer-window-list buffer nil t))
+            (or (get-buffer-window-list buffer nil t)
                 (list (selected-window))))))
 
 (defun magit--refresh-buffer-set-positions (positions)
@@ -1132,8 +1128,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
     (if (eq (current-buffer) (window-buffer window))
         (with-selected-window window
           (apply #'magit-section-goto-successor args))
-      (let ((magit-section-movement-hook nil))
-        (apply #'magit-section-goto-successor args)))))
+      (apply #'magit-section-goto-successor args))))
 
 (defun magit-revert-buffer (_ignore-auto _noconfirm)
   "Wrapper around `magit-refresh-buffer' suitable as `revert-buffer-function'."
