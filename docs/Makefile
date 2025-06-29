@@ -117,8 +117,7 @@ AUTHORS.md:
 	&& printf "done\n" ; ) \
 	|| printf "FAILED (non-fatal)\n"
 	@git commit --gpg-sign -m "AUTHORS.md: Update list of contributors" \
-	-o -- $@ ../.mailmap || true
-	@git show --pretty= -p HEAD
+	-o -- $@ ../.mailmap && git show --pretty= -p HEAD || true
 
 PUBLISH_PATH   ?= /manual/
 RELEASE_PATH   ?= /manual/$(VERSION)/
