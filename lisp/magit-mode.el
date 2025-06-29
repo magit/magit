@@ -1073,9 +1073,10 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
   (when-let ((refresh (magit--refresh-buffer-function)))
     (let ((magit--refreshing-buffer-p t)
           (magit--refresh-start-time (current-time))
-          (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0)))))
+          (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0))))
+          (action (if created "Creating" "Refreshing")))
       (when magit-refresh-verbose
-        (message "Refreshing buffer `%s'..." (buffer-name)))
+        (message "%s buffer `%s'..." action (buffer-name)))
       (cond
        (created
         (funcall refresh)
@@ -1098,7 +1099,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
       (set-buffer-modified-p nil)
       (push (current-buffer) magit-section--refreshed-buffers)
       (when magit-refresh-verbose
-        (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name)
+        (message "%s buffer `%s'...done (%.3fs)" action (buffer-name)
                  (float-time (time-since magit--refresh-start-time)))))))
 
 (defun magit--refresh-buffer-function ()
