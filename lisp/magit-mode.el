@@ -1076,18 +1076,21 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
           (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0)))))
       (when magit-refresh-verbose
         (message "Refreshing buffer `%s'..." (buffer-name)))
-      (deactivate-mark)
-      (setq magit-section-pre-command-section nil)
-      (setq magit-section-highlight-overlays nil)
-      (setq magit-section-selection-overlays nil)
-      (setq magit-section-highlighted-sections nil)
-      (setq magit-section-focused-sections nil)
-      (let ((positions (magit--refresh-buffer-get-positions)))
+      (cond
+       (created
         (funcall refresh)
-        (magit--refresh-buffer-set-positions positions))
-      (when created
         (run-hooks 'magit--initial-section-hook)
         (setq-local magit--initial-section-hook nil))
+       (t
+        (deactivate-mark)
+        (setq magit-section-pre-command-section nil)
+        (setq magit-section-highlight-overlays nil)
+        (setq magit-section-selection-overlays nil)
+        (setq magit-section-highlighted-sections nil)
+        (setq magit-section-focused-sections nil)
+        (let ((positions (magit--refresh-buffer-get-positions)))
+          (funcall refresh)
+          (magit--refresh-buffer-set-positions positions))))
       (let ((magit-section-cache-visibility nil))
         (magit-section-show magit-root-section))
       (run-hooks 'magit-refresh-buffer-hook)
