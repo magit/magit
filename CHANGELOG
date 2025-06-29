@@ -1,10 +1,33 @@
 # -*- mode: org -*-
 * v4.3.7    UNRELEASED
 
+- When running ~git~ for side-effects and that signals an error, we
+  did not augment the error message to inform the user that the full
+  output can be found in the process buffer.  When the error is not
+  signaled, we did already append that hint to the message.  Also
+  added a new option, ~magit-show-process-buffer-hint~, for people who
+  are already aware of the process buffer and would like to avoid
+  the noisy reminder.  #5396
+
+Bugfixes:
+
+- Some instructions inserted into rebase sequence buffers were not
+  prefixed with ~comment-start~, instead # was used unconditionally.
+  #5388
+
 - Fixed a regression in v4.3.6, which caused a conflict between the
   overlays used for section highlighting and section selection, if
   both of these faces relied on the same face property (likely the
   foreground color).  #5389
+
+- Hunks could remain painted as selected when navigating away.  #5393
+
+- The log arguments "--grep" and "--graph" are no longer mutually
+  exclusive, but we still dropped the latter when the former was
+  used. #5391
+
+- ~magit-save-repository-buffers~ errored on older Emacs releases,
+  if the value of the variable by the same name is ~ask~.  #5399
 
 * v4.3.6    2025-06-01
 
