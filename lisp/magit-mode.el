@@ -1070,12 +1070,10 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
 (defun magit-refresh-buffer (&optional created)
   "Refresh the current Magit buffer."
   (interactive)
-  (let ((magit--refreshing-buffer-p t)
-        (magit--refresh-start-time (current-time))
-        (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0))))
-        (refresh (intern (format "%s-refresh-buffer"
-                                 (substring (symbol-name major-mode) 0 -5)))))
-    (when (functionp refresh)
+  (when-let ((refresh (magit--refresh-buffer-function)))
+    (let ((magit--refreshing-buffer-p t)
+          (magit--refresh-start-time (current-time))
+          (magit--refresh-cache (or magit--refresh-cache (list (cons 0 0)))))
       (when magit-refresh-verbose
         (message "Refreshing buffer `%s'..." (buffer-name)))
       (deactivate-mark)
@@ -1085,10 +1083,7 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
       (setq magit-section-highlighted-sections nil)
       (setq magit-section-focused-sections nil)
       (let ((positions (magit--refresh-buffer-get-positions)))
-        (let ((inhibit-read-only t))
-          (erase-buffer)
-          (save-excursion
-            (funcall refresh)))
+        (funcall refresh)
         (magit--refresh-buffer-set-positions positions))
       (when created
         (run-hooks 'magit--initial-section-hook)
@@ -1102,6 +1097,15 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
       (when magit-refresh-verbose
         (message "Refreshing buffer `%s'...done (%.3fs)" (buffer-name)
                  (float-time (time-since magit--refresh-start-time)))))))
+
+(defun magit--refresh-buffer-function ()
+  (let ((fn (intern (format "%s-refresh-buffer"
+                            (substring (symbol-name major-mode) 0 -5)))))
+    (and (functionp fn)
+         (lambda ()
+           (let ((inhibit-read-only t))
+             (erase-buffer)
+             (save-excursion (funcall fn)))))))
 
 (defun magit--refresh-buffer-get-positions ()
   (let ((buffer (current-buffer)))
