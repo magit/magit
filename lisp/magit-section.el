@@ -547,6 +547,11 @@ The return value has the form ((TYPE . VALUE)...)."
         (and-let* ((parent (oref section parent)))
           (magit-section-ident parent))))
 
+(defun magit-section-equal (a b)
+  "Return t if A an B are the same section."
+  (and a b (equal (magit-section-ident a)
+                  (magit-section-ident b))))
+
 (cl-defgeneric magit-section-ident-value (object)
   "Return OBJECT's value, making it constant and unique if necessary.
 
