@@ -1124,11 +1124,11 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                 (list (selected-window))))))
 
 (defun magit--refresh-buffer-set-positions (positions)
-  (pcase-dolist (`(,window . ,args) positions)
+  (pcase-dolist (`(,window ,section ,line ,char) positions)
     (if (eq (current-buffer) (window-buffer window))
         (with-selected-window window
-          (apply #'magit-section-goto-successor args))
-      (apply #'magit-section-goto-successor args))))
+          (magit-section-goto-successor section line char))
+      (magit-section-goto-successor section line char))))
 
 (defun magit-revert-buffer (_ignore-auto _noconfirm)
   "Wrapper around `magit-refresh-buffer' suitable as `revert-buffer-function'."
