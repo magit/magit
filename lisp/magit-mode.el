@@ -1112,20 +1112,22 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
              (save-excursion (funcall fn)))))))
 
 (defun magit--refresh-buffer-get-positions ()
-  (let ((buffer (current-buffer)))
-    (mapcan (lambda (window)
-              (with-selected-window window
-                (with-current-buffer buffer
-                  (and-let* ((section (magit-section-at)))
-                    `((,window
-                       ,section
-                       ,@(magit-section-get-relative-position section)))))))
-            (or (get-buffer-window-list buffer nil t)
-                (list (selected-window))))))
+  (or (let ((buffer (current-buffer)))
+        (mapcan
+         (lambda (window)
+           (with-selected-window window
+             (with-current-buffer buffer
+               (and-let* ((section (magit-section-at)))
+                 `((,window
+                    ,section
+                    ,@(magit-section-get-relative-position section)))))))
+         (get-buffer-window-list buffer nil t)))
+      (and-let* ((section (magit-section-at)))
+        `((nil ,section ,@(magit-section-get-relative-position section))))))
 
 (defun magit--refresh-buffer-set-positions (positions)
   (pcase-dolist (`(,window ,section ,line ,char) positions)
-    (if (eq (current-buffer) (window-buffer window))
+    (if window
         (with-selected-window window
           (magit-section-goto-successor section line char))
       (magit-section-goto-successor section line char))))
