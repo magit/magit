@@ -1,6 +1,10 @@
 # -*- mode: org -*-
 * v4.3.7    UNRELEASED
 
+- Refreshing a buffer causes its content to be recreated, which can
+  result in scrolling.  Now we attempt to restore the display-start
+  positions of the windows displaying the buffer.  #5403
+
 - When running ~git~ for side-effects and that signals an error, we
   did not augment the error message to inform the user that the full
   output can be found in the process buffer.  When the error is not

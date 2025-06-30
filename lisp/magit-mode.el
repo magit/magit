@@ -1120,16 +1120,32 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                (and-let* ((section (magit-section-at)))
                  `((,window
                     ,section
-                    ,@(magit-section-get-relative-position section)))))))
+                    ,@(magit-section-get-relative-position section)
+                    ,@(and-let* ((ws (magit-section-at (window-start))))
+                        (list ws
+                              (car (magit-section-get-relative-position ws))
+                              (window-start)))))))))
          (get-buffer-window-list buffer nil t)))
       (and-let* ((section (magit-section-at)))
         `((nil ,section ,@(magit-section-get-relative-position section))))))
 
 (defun magit--refresh-buffer-set-positions (positions)
-  (pcase-dolist (`(,window ,section ,line ,char) positions)
+  (pcase-dolist
+      (`(,window ,section ,line ,char ,ws-section ,ws-line ,window-start)
+       positions)
     (if window
         (with-selected-window window
-          (magit-section-goto-successor section line char))
+          (magit-section-goto-successor section line char)
+          (cond
+           ((or (not window-start)
+                (> window-start (point))))
+           ((magit-section-equal ws-section (magit-section-at window-start))
+            (set-window-start window window-start t))
+           ((when-let ((pos (save-excursion
+                              (and (magit-section-goto-successor--same
+                                    ws-section ws-line 0)
+                                   (point)))))
+              (set-window-start window pos t)))))
       (magit-section-goto-successor section line char))))
 
 (defun magit-revert-buffer (_ignore-auto _noconfirm)
