@@ -1,4 +1,14 @@
 # -*- mode: org -*-
+* v4.3.8    UNRELEASED
+
+Bugfixes:
+
+- In v4.3.7 we started to restore the display-start positions of the
+  windows displaying a buffer that is being refreshed, but in log
+  buffers that is undesirable.  After creating a new commit we want
+  that to immediately be displayed at the top of windows displaying
+  log buffers.  #5403
+
 * v4.3.7    2025-07-01
 
 - Refreshing a buffer causes its content to be recreated, which can

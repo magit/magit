@@ -1141,7 +1141,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
                 (> window-start (point))))
            ((magit-section-equal ws-section (magit-section-at window-start))
             (set-window-start window window-start t))
-           ((when-let ((pos (save-excursion
+           ((not (derived-mode-p 'magit-log-mode))
+            (when-let ((pos (save-excursion
                               (and (magit-section-goto-successor--same
                                     ws-section ws-line 0)
                                    (point)))))
