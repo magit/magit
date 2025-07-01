@@ -33,6 +33,8 @@ Bugfixes:
 - ~magit-save-repository-buffers~ errored on older Emacs releases,
   if the value of the variable by the same name is ~ask~.  #5399
 
+- ~magit-after-save-refresh-status~ did not honor ~magit-inhibit-refresh~.
+
 * v4.3.6    2025-06-01
 
 - Generalized and heavily refactored the code, previously used only to
