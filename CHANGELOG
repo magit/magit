@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v4.3.7    UNRELEASED
+* v4.3.7    2025-07-01
 
 - Refreshing a buffer causes its content to be recreated, which can
   result in scrolling.  Now we attempt to restore the display-start
@@ -34,6 +34,7 @@ Bugfixes:
   if the value of the variable by the same name is ~ask~.  #5399
 
 - ~magit-after-save-refresh-status~ did not honor ~magit-inhibit-refresh~.
+  d9d2f6c312
 
 * v4.3.6    2025-06-01
 

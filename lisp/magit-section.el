@@ -8,7 +8,7 @@
 ;; Homepage: https://github.com/magit/magit
 ;; Keywords: tools
 
-;; Package-Version: 4.3.6
+;; Package-Version: 4.3.7
 ;; Package-Requires: (
 ;;     (emacs "27.1")
 ;;     (compat "30.1")
