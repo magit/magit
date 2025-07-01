@@ -9,6 +9,8 @@ Bugfixes:
   that to immediately be displayed at the top of windows displaying
   log buffers.  #5403
 
+- Refreshing was skipped after discarding all untracked files.
+
 * v4.3.7    2025-07-01
 
 - Refreshing a buffer causes its content to be recreated, which can
