@@ -63,6 +63,9 @@
 (defvar magit-this-error)
 (defvar magit-process-error-message-regexps)
 
+;; From `magit-status'.
+(defvar magit-status-show-untracked-files)
+
 (eval-when-compile
   (cl-pushnew 'orig-rev eieio--known-slot-names)
   (cl-pushnew 'number eieio--known-slot-names))
@@ -1069,9 +1072,41 @@ tracked file."
   (magit-list-files "--cached" args))
 
 (defun magit-untracked-files (&optional all files &rest args)
+  "Return a list of untracked files.
+
+Note that when using \"--directory\", the rules from \".gitignore\"
+files from sub-directories are ignore, which is probably a Git bug.
+See also `magit-list-untracked-files', which does not have this
+issue."
   (magit-list-files "--other" args
                     (and (not all) "--exclude-standard")
                     "--" files))
+
+(defun magit-list-untracked-files (&optional files)
+  "Return a list of untracked files.
+
+List files if `magit-status-show-untracked-files' is non-nil, but also
+take the local value of Git variable `status.showUntrackedFiles' into
+account.  The local value of the Lisp variable takes precedence over the
+local value of the Git variable.  The global value of the Git variable
+is always ignored.
+
+See also `magit-untracked-files'."
+  (and-let*
+      ((value (or (and (local-variable-p 'magit-status-show-untracked-files)
+                       magit-status-show-untracked-files)
+                  (pcase (magit-get "--local" "status.showUntrackedFiles")
+                    ((or "no" "off" "false" "0") 'no)
+                    ((or "yes" "on" "true" "1") t)
+                    ("all" 'all))
+                  magit-status-show-untracked-files))
+       ((not (eq value 'no))))
+    (mapcan (##and (eq (aref % 0) ??)
+                   (list (substring % 3)))
+            (apply #'magit-git-items "status" "-z" "--porcelain"
+                   (format "--untracked-files=%s"
+                           (if (eq value 'all) "all" "normal"))
+                   "--" files))))
 
 (defun magit-ignored-files (&rest args)
   (magit-list-files "--others" "--ignored" "--exclude-standard" args))

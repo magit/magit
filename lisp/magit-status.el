@@ -752,31 +752,14 @@ remote in alphabetic order."
   magit-insert-assume-unchanged-files)
 
 (defun magit-insert-untracked-files ()
-  "Maybe insert list of untracked files.
+  "Maybe insert a list of untracked files.
 
 List files if `magit-status-show-untracked-files' is non-nil, but also
 take the local value of Git variable `status.showUntrackedFiles' into
 account.  The local value of the Lisp variable takes precedence over the
 local value of the Git variable.  The global value of the Git variable
 is always ignored."
-  (when-let*
-      ((value (or (and (local-variable-p 'magit-status-show-untracked-files)
-                       magit-status-show-untracked-files)
-                  (pcase (magit-get "--local" "status.showUntrackedFiles")
-                    ((or "no" "off" "false" "0") 'no)
-                    ((or "yes" "on" "true" "1") t)
-                    ("all" 'all))
-                  magit-status-show-untracked-files))
-       ((not (eq value 'no))))
-    (magit-insert-files
-     'untracked
-     (lambda (files)
-       (mapcan (##and (eq (aref % 0) ??)
-                      (list (substring % 3)))
-               (apply #'magit-git-items "status" "-z" "--porcelain"
-                      (format "--untracked-files=%s"
-                              (if (eq value 'all) "all" "normal"))
-                      "--" files))))))
+  (magit-insert-files 'untracked #'magit-list-untracked-files))
 
 (defun magit-insert-tracked-files ()
   "Insert a list of tracked files.

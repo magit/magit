@@ -500,8 +500,7 @@ of a side, then keep that side without prompting."
 
 (defun magit-discard-untracked ()
   (magit-discard-files--delete
-   (magit-with-toplevel
-     (magit-untracked-files nil nil "--directory"))
+   (magit-with-toplevel (magit-list-untracked-files))
    nil)
   (magit-refresh))
 

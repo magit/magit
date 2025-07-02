@@ -11,6 +11,12 @@ Bugfixes:
 
 - Refreshing was skipped after discarding all untracked files.
 
+- When sub-directories contain ".gitignore" files, then invoking
+  ~magit-discard~ on the "Untracked files" section did not necessarily
+  remove the same set of files as listed in that section.  (At least
+  it did show the files, which would be removed, in the confirmation
+  prompt.)  #5405
+
 * v4.3.7    2025-07-01
 
 - Refreshing a buffer causes its content to be recreated, which can
