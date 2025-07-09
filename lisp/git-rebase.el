@@ -333,7 +333,8 @@ region is active, act on all lines touched by the region."
                               "r"    "reword"
                               "s"    "squash")
                             "\\(?1:")
-                " \\(?3:[^ \n]+\\) ?\\(?4:.*\\)"))
+                " \\(?3:[^ \n]+\\)"
+                "\\(?: \\(?4:.*\\)\\)?"))
     (exec . "\\(?1:x\\|exec\\) \\(?3:.*\\)")
     (bare . ,(concat (regexp-opt '("b" "break" "noop") "\\(?1:")
                      " *$"))
@@ -341,7 +342,8 @@ region is active, act on all lines touched by the region."
                                     "t" "reset"
                                     "u" "update-ref")
                                   "\\(?1:")
-                      " \\(?3:[^ \n]+\\) ?\\(?4:.*\\)"))
+                      " \\(?3:[^ \n]+\\)"
+                      "\\(?: \\(?4:.*\\)\\)?"))
     ;; merge [-C <commit> | -c <commit>] <label> [# <oneline>]
     ;; <commit> is matched by group 22 (part of group 2), not group 3
     (merge . ,(concat "\\(?1:m\\|merge\\) "
@@ -808,7 +810,7 @@ running \"man git-rebase\" at the command line) for details."
   `((,(concat "^" (cdr (assq 'commit git-rebase-line-regexps)))
      (1 'git-rebase-action)
      (3 'git-rebase-hash)
-     (4 'git-rebase-description))
+     (4 'git-rebase-description nil t))
     (,(concat "^" (cdr (assq 'exec git-rebase-line-regexps)))
      (1 'git-rebase-action)
      (3 'git-rebase-description))
@@ -817,7 +819,7 @@ running \"man git-rebase\" at the command line) for details."
     (,(concat "^" (cdr (assq 'label git-rebase-line-regexps)))
      (1 'git-rebase-action)
      (3 'git-rebase-label)
-     (4 'git-rebase-description))
+     (4 'git-rebase-description nil t))
     (,(concat "^" (cdr (assq 'merge git-rebase-line-regexps)))
      (1  'git-rebase-action)
      (21 'git-rebase-action nil t)
