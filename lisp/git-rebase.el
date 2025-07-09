@@ -831,9 +831,11 @@ running \"man git-rebase\" at the command line) for details."
      (1  'git-rebase-action)
      (21 'git-rebase-action nil t)
      (22 'git-rebase-hash t t)
-     (3  'git-rebase-label)
+     (3  'magit-branch-local)
      (4  'font-lock-comment-face nil t)
      (5  'git-rebase-description nil t))
+    (,(format "^%s Branch \\(.*\\)" comment-start)
+     (1 'magit-branch-local t))
     ("^drop \\(.+\\)"
      (1 'git-rebase-killed-action t))
     (,(concat git-rebase-comment-re " *"
@@ -849,9 +851,7 @@ running \"man git-rebase\" at the command line) for details."
      (1 'git-rebase-comment-hash t)
      (2 'git-rebase-comment-hash t))
     (,(format "^%s \\(Commands:\\)" comment-start)
-     (1 'git-rebase-comment-heading t))
-    (,(format "^%s Branch \\(.*\\)" comment-start)
-     (1 'git-rebase-label t))))
+     (1 'git-rebase-comment-heading t))))
 
 (defun git-rebase-mode-show-keybindings ()
   "Modify the \"Commands:\" section of the comment Git generates.
