@@ -321,6 +321,8 @@ region is active, act on all lines touched by the region."
    (abbrev)))
 
 (defvar git-rebase-line-regexps
+  ;; <action> <commit> [[# ] <oneline>]
+  ;; fixup [-C|-c] <commit> [[# ] <oneline>]
   `((commit . ,(concat
                 (regexp-opt '("d"    "drop"
                               "e"    "edit"
@@ -340,10 +342,12 @@ region is active, act on all lines touched by the region."
                                     "u" "update-ref")
                                   "\\(?1:")
                       " \\(?3:[^ \n]+\\) ?\\(?4:.*\\)"))
+    ;; merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+    ;; <commit> is matched by group 22 (part of group 2), not group 3
     (merge . ,(concat "\\(?1:m\\|merge\\) "
-                      "\\(?:\\(?2:-[cC] [^ \n]+\\) \\)?"
+                      "\\(?:\\(?2:\\(?21:-[cC]\\) \\(?22:[^ \n]+\\)\\) \\)?"
                       "\\(?3:[^ \n]+\\)"
-                      " ?\\(?4:.*\\)"))))
+                      "\\(?: # \\(?4:.*\\)\\)?"))))
 
 ;;;###autoload
 (defun git-rebase-current-line (&optional batch)
@@ -814,14 +818,12 @@ running \"man git-rebase\" at the command line) for details."
      (1 'git-rebase-action)
      (3 'git-rebase-label)
      (4 'git-rebase-description))
-    ("^\\(m\\(?:erge\\)? -[Cc]\\) \\([^ \n]+\\) \\([^ \n]+\\)\\( #.*\\)?"
-     (1 'git-rebase-action)
-     (2 'git-rebase-hash)
-     (3 'git-rebase-label)
-     (4 'git-rebase-description))
-    ("^\\(m\\(?:erge\\)?\\) \\([^ \n]+\\)"
-     (1 'git-rebase-action)
-     (2 'git-rebase-label))
+    (,(concat "^" (cdr (assq 'merge git-rebase-line-regexps)))
+     (1  'git-rebase-action)
+     (21 'git-rebase-action nil t)
+     (22 'git-rebase-hash t t)
+     (3  'git-rebase-label)
+     (4  'git-rebase-description nil t))
     ("^drop \\(.+\\)"
      (1 'git-rebase-killed-action t))
     (,(concat git-rebase-comment-re " *"
