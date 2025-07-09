@@ -813,12 +813,12 @@ running \"man git-rebase\" at the command line) for details."
     (,(concat "^" (cdr (assq 'label git-rebase-line-regexps)))
      (1 'git-rebase-action)
      (3 'git-rebase-label)
-     (4 'font-lock-comment-face))
+     (4 'git-rebase-description))
     ("^\\(m\\(?:erge\\)?\\) -[Cc] \\([^ \n]+\\) \\([^ \n]+\\)\\( #.*\\)?"
      (1 'git-rebase-action)
      (2 'git-rebase-hash)
      (3 'git-rebase-label)
-     (4 'font-lock-comment-face))
+     (4 'git-rebase-description))
     ("^\\(m\\(?:erge\\)?\\) \\([^ \n]+\\)"
      (1 'git-rebase-action)
      (2 'git-rebase-label))
