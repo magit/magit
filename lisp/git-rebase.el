@@ -823,15 +823,16 @@ running \"man git-rebase\" at the command line) for details."
      (1 'git-rebase-action)
      (2 'git-rebase-label))
     ("^drop \\(.+\\)"
-     1 'git-rebase-killed-action t)
+     (1 'git-rebase-killed-action t))
     (,(concat git-rebase-comment-re " *"
               (cdr (assq 'commit git-rebase-line-regexps)))
-     0 'git-rebase-killed-action t)
-    (git-rebase-match-comment-line 0 'font-lock-comment-face)
+     (0 'git-rebase-killed-action t))
+    (git-rebase-match-comment-line
+     (0 'font-lock-comment-face))
     ("\\[[^[]*\\]"
-     0 'magit-keyword t)
+     (0 'magit-keyword t))
     ("\\(?:fixup!\\|squash!\\|amend!\\)"
-     0 'magit-keyword-squash t)
+     (0 'magit-keyword-squash t))
     (,(format "^%s Rebase \\([^ ]*\\) onto \\([^ ]*\\)" comment-start)
      (1 'git-rebase-comment-hash t)
      (2 'git-rebase-comment-hash t))
