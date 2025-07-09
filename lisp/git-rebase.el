@@ -356,7 +356,7 @@ BATCH also ignores commented lines."
     (goto-char (line-beginning-position))
     (if-let ((re-start (if batch
                            "^"
-                         (format "^\\(?5:%s\\)? *"
+                         (format "^\\(?99:%s\\)? *"
                                  (regexp-quote comment-start))))
              (type (seq-some (pcase-lambda (`(,type . ,re))
                                (let ((case-fold-search nil))
@@ -370,7 +370,7 @@ BATCH also ignores commented lines."
          :action-options (match-string-no-properties 2)
          :target         (match-string-no-properties 3)
          :trailer        (match-string-no-properties 4)
-         :comment-p      (and (match-string 5) t))
+         :comment-p      (and (match-string 99) t))
       (and (not batch)
            ;; Use empty object rather than nil to ease handling.
            (git-rebase-action)))))
