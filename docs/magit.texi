@@ -10371,6 +10371,9 @@ wait for git to complete before letting the user do something else.
 For example after staging a change it is useful to wait until after
 the refresh because that also automatically moves to the next change.
 
+The synchronous functions return the exit code, while the asynchronous
+functions return the process object.
+
 @defun magit-call-git &rest args
 Calls git synchronously with ARGS@.
 @end defun

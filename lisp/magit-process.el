@@ -464,7 +464,7 @@ After Git returns, the current buffer (if it is a Magit buffer)
 as well as the current repository's status buffer are refreshed.
 
 Process output goes into a new section in the buffer returned by
-`magit-process-buffer'."
+`magit-process-buffer'.  Return the exit code."
   (let ((magit--refresh-cache (list (cons 0 0))))
     (prog1 (magit-call-git args)
       (when (member (car args) '("init" "clone"))
@@ -483,7 +483,7 @@ The arguments ARGS specify arguments to Git, they are flattened
 before use.
 
 Process output goes into a new section in the buffer returned by
-`magit-process-buffer'."
+`magit-process-buffer'.  Return the exit code."
   (run-hooks 'magit-pre-call-git-hook)
   (let ((default-process-coding-system (magit--process-coding-system)))
     (apply #'magit-call-process
@@ -493,7 +493,7 @@ Process output goes into a new section in the buffer returned by
 (defun magit-call-process (program &rest args)
   "Call PROGRAM synchronously in a separate process.
 Process output goes into a new section in the buffer returned by
-`magit-process-buffer'."
+`magit-process-buffer'.  Return the exit code."
   (pcase-let ((`(,process-buf . ,section)
                (magit-process-setup program args)))
     (magit-process-finish
@@ -514,8 +514,9 @@ ensure unix eol conversion."
 
 (defun magit-process-file (process &optional infile buffer display &rest args)
   "Process files synchronously in a separate process.
-Similar to `process-file' but temporarily enable Cygwin's
-\"noglob\" option during the call and ensure unix eol conversion."
+Return the exit code.  Similar to `process-file' but temporarily
+enable Cygwin's \"noglob\" option during the call and ensure unix
+eol conversion."
   (when magit-process-record-invocations
     (let ((messages-buffer-name magit-process-record-buffer-name)
           (inhibit-message t))
@@ -552,7 +553,7 @@ ARGS is flattened and then used as arguments to Git.
 
 The current buffer's content is used as the process's standard
 input.  The buffer is assumed to be temporary and thus OK to
-modify.
+modify.  Return the exit code.
 
 Function `magit-git-executable' specifies the Git executable and
 option `magit-git-global-arguments' specifies constant arguments.
