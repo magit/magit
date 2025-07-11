@@ -431,8 +431,8 @@ Otherwise the author dates are also changed."
   :type 'boolean)
 
 ;;;###autoload
-(defun magit-reshelve-since (rev keyid)
-  "Change the author and committer dates of the commits since REV.
+(defun magit-reshelve-since (commit keyid)
+  "Change the author and committer dates of the commits since COMMIT.
 
 Ask the user for the first reachable commit whose dates should
 be changed.  Then read the new date for that commit.  The initial
@@ -453,7 +453,7 @@ list returned by `magit-rebase-arguments'."
                       (user-error "Refusing to reshelve detached head")))
          (backup (concat "refs/original/refs/heads/" current)))
     (cond
-     ((not rev)
+     ((not commit)
       (when (and (magit-ref-p backup)
                  (not (magit-y-or-n-p
                        (format "Backup ref %s already exists.  Override? "
@@ -470,7 +470,7 @@ list returned by `magit-rebase-arguments'."
                    (+ (floor time)
                       (* offset 60)
                       (- (car (decode-time time)))))))
-        (let* ((start (concat rev "^"))
+        (let* ((start (concat commit "^"))
                (range (concat start ".." current))
                (time-rev (adjust (float-time (string-to-number
                                               (magit-rev-format "%at" start)))

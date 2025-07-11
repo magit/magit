@@ -450,8 +450,8 @@ Then apply STASH, dropping it if it applies cleanly."
                                                 ((not worktree) "staged")
                                                 (t "local"))))))
 
-(defun magit-stash-store (message ref commit)
-  (magit-update-ref ref message commit))
+(defun magit-stash-store (message ref rev)
+  (magit-update-ref ref message rev))
 
 (defun magit-stash-create (message index worktree untracked)
   (unless (magit-rev-parse "--verify" "HEAD")
@@ -637,8 +637,8 @@ See also info node `(magit)Section Movement'."
 (cl-defmethod magit-buffer-value (&context (major-mode magit-stash-mode))
   magit-buffer-revision)
 
-(defun magit-stash-insert-section (commit range message &optional files)
-  (magit-insert-section (commit commit)
+(defun magit-stash-insert-section (rev range message &optional files)
+  (magit-insert-section (commit rev)
     (magit-insert-heading message)
     (magit--insert-diff nil
       "diff" range "-p" "--no-prefix" magit-buffer-diff-args

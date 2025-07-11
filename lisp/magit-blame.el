@@ -432,14 +432,14 @@ modes is toggled, then this mode also gets toggled automatically.
     (set-process-sentinel magit-this-process
                           #'magit-blame-process-quickstart-sentinel)))
 
-(defun magit-blame-run-process (revision file args &optional lines)
+(defun magit-blame-run-process (rev file args &optional lines)
   (let ((process (magit-parse-git-async
                   "blame" "--incremental" args
                   (and lines (list "-L" (apply #'format "%s,%s" lines)))
-                  revision "--" file)))
+                  rev "--" file)))
     (set-process-filter   process #'magit-blame-process-filter)
     (set-process-sentinel process #'magit-blame-process-sentinel)
-    (process-put process 'arguments (list revision file args))
+    (process-put process 'arguments (list rev file args))
     (setq magit-blame-cache (make-hash-table :test #'equal))
     (setq magit-blame-process process)))
 

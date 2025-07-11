@@ -780,7 +780,7 @@ restrict the log to the lines that the region touches."
     (user-error "Buffer isn't visiting a file")))
 
 ;;;###autoload
-(defun magit-log-trace-definition (file fn rev)
+(defun magit-log-trace-definition (file fn commit)
   "Show log for the definition at point."
   (interactive (list (or (magit-file-relative-name)
                          (user-error "Buffer isn't visiting a file"))
@@ -791,7 +791,7 @@ restrict the log to the lines that the region touches."
                          "HEAD")))
   (require 'magit)
   (magit-log-setup-buffer
-   (list rev)
+   (list commit)
    (cons (format "-L:%s%s:%s"
                  (string-replace ":" "\\:" (regexp-quote fn))
                  (if (derived-mode-p 'lisp-mode 'emacs-lisp-mode)
@@ -937,10 +937,10 @@ is displayed in the current frame."
                       "\\[magit-log-double-commit-limit] first"))))
         (user-error "Parent %s does not exist" parent-rev)))))
 
-(defun magit-log-move-to-revision (rev)
-  "Read a revision and move to it in current log buffer.
+(defun magit-log-move-to-revision (commit)
+  "Read a commit and move to it in current log buffer.
 
-If the chosen reference or revision isn't being displayed in
+If the chosen reference or commit isn't being displayed in
 the current log buffer, then inform the user about that and do
 nothing else.
 
@@ -962,8 +962,8 @@ of the current repository first; creating it if necessary."
                (pop-to-buffer-same-window buf)))
             (t
              (apply #'magit-log-all-branches (magit-log-arguments))))
-    (unless (magit-log-goto-commit-section (magit-rev-abbrev rev))
-      (user-error "%s isn't visible in the current log buffer" rev))))
+    (unless (magit-log-goto-commit-section (magit-rev-abbrev commit))
+      (user-error "%s isn't visible in the current log buffer" commit))))
 
 ;;;; Shortlog Commands
 
@@ -996,12 +996,12 @@ of the current repository first; creating it if necessary."
         (switch-to-buffer-other-window (current-buffer))))))
 
 ;;;###autoload
-(defun magit-shortlog-since (rev args)
+(defun magit-shortlog-since (commit args)
   "Show a history summary for commits since REV."
   (interactive
    (list (magit-read-branch-or-commit "Shortlog since" (magit-get-current-tag))
          (transient-args 'magit-shortlog)))
-  (magit-git-shortlog (concat rev "..") args))
+  (magit-git-shortlog (concat commit "..") args))
 
 ;;;###autoload
 (defun magit-shortlog-range (rev-or-range args)

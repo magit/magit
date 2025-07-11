@@ -62,8 +62,8 @@
   :history-key 'magit:--gpg-sign)
 
 ;;;###autoload
-(defun magit-tag-create (name rev &optional args)
-  "Create a new tag with the given NAME at REV.
+(defun magit-tag-create (name commit &optional args)
+  "Create a new tag with the given NAME at COMMIT.
 With a prefix argument annotate the tag.
 \n(git tag [--annotate] NAME REV)"
   (interactive (list (magit-read-tag "Tag name")
@@ -72,7 +72,7 @@ With a prefix argument annotate the tag.
                        (when current-prefix-arg
                          (cl-pushnew "--annotate" args :test #'equal))
                        args)))
-  (magit-run-git-with-editor "tag" args name rev))
+  (magit-run-git-with-editor "tag" args name commit))
 
 ;;;###autoload
 (defun magit-tag-delete (tags)

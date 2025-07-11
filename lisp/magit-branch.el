@@ -252,24 +252,24 @@ has to be used to view and change branch related variables."
   (transient-args 'magit-branch))
 
 ;;;###autoload
-(defun magit-checkout (revision &optional args)
-  "Checkout REVISION, updating the index and the working tree.
-If REVISION is a local branch, then that becomes the current
+(defun magit-checkout (commit &optional args)
+  "Checkout COMMIT, updating the index and the working tree.
+If COMMIT is a local branch, then that becomes the current
 branch.  If it is something else, then `HEAD' becomes detached.
 Checkout fails if the working tree or the staging area contain
 changes.
-\n(git checkout REVISION)."
+\n(git checkout COMMIT)."
   (declare (interactive-only magit--checkout))
   (interactive (list (magit-read-other-branch-or-commit "Checkout")
                      (magit-branch-arguments)))
-  (when (string-match "\\`heads/\\(.+\\)" revision)
-    (setq revision (match-string 1 revision)))
-  (magit-run-git-async "checkout" args revision))
+  (when (string-match "\\`heads/\\(.+\\)" commit)
+    (setq commit (match-string 1 commit)))
+  (magit-run-git-async "checkout" args commit))
 
-(defun magit--checkout (revision &optional args)
-  (when (string-match "\\`heads/\\(.+\\)" revision)
-    (setq revision (match-string 1 revision)))
-  (magit-call-git "checkout" args revision))
+(defun magit--checkout (rev &optional args)
+  (when (string-match "\\`heads/\\(.+\\)" rev)
+    (setq rev (match-string 1 rev)))
+  (magit-call-git "checkout" args rev))
 
 ;;;###autoload
 (defun magit-branch-create (branch start-point)

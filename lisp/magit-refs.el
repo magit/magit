@@ -804,9 +804,9 @@ line is inserted at all."
           (message "No cherries for %s" ref)
         (magit-make-margin-overlay)))))
 
-(defun magit-refs--format-margin (commit)
-  (if-let ((line (magit-rev-format "%cN%x00%ct" commit)))
-      (apply #'magit-log-format-margin commit (split-string line "\0"))
+(defun magit-refs--format-margin (rev)
+  (if-let ((line (magit-rev-format "%cN%x00%ct" rev)))
+      (apply #'magit-log-format-margin rev (split-string line "\0"))
     (magit-make-margin-overlay)))
 
 ;;; _
