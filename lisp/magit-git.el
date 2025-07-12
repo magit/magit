@@ -1984,9 +1984,8 @@ SORTBY is a key or list of keys to pass to the `--sort' flag of
             (magit-git-lines "for-each-ref"
                              (concat "--format=%(symref)" format)
                              (mapcar (##concat "--sort=" %)
-                                     (pcase (or sortby magit-list-refs-sortby)
-                                       ((and val (pred stringp)) (list val))
-                                       ((and val (pred listp)) val)))
+                                     (ensure-list
+                                      (or sortby magit-list-refs-sortby)))
                              (or namespaces magit-list-refs-namespaces))))
 
 (defun magit-list-branches ()
