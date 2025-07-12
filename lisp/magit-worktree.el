@@ -54,31 +54,31 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
     ("g" "Visit worktree"        magit-worktree-status)]])
 
 ;;;###autoload
-(defun magit-worktree-checkout (path branch)
-  "Checkout BRANCH in a new worktree at PATH."
+(defun magit-worktree-checkout (directory branch)
+  "Checkout BRANCH in a new worktree at DIRECTORY."
   (interactive
    (let ((branch (magit-read-branch-or-commit "In new worktree; checkout")))
      (list (funcall magit-worktree-read-directory-name-function
                     (format "Checkout %s in new worktree: " branch))
            branch)))
   (when (zerop (magit-run-git "worktree" "add"
-                              (magit--expand-worktree path) branch))
-    (magit-diff-visit-directory path)))
+                              (magit--expand-worktree directory) branch))
+    (magit-diff-visit-directory directory)))
 
 ;;;###autoload
-(defun magit-worktree-branch (path branch start-point)
-  "Create a new BRANCH and check it out in a new worktree at PATH."
+(defun magit-worktree-branch (directory branch start-point)
+  "Create a new BRANCH and check it out in a new worktree at DIRECTORY."
   (interactive
    `(,(funcall magit-worktree-read-directory-name-function
                "In new worktree; checkout new branch")
      ,@(magit-branch-read-args "Create and checkout branch")))
   (when (zerop (magit-run-git "worktree" "add" "-b" branch
-                              (magit--expand-worktree path) start-point))
-    (magit-diff-visit-directory path)))
+                              (magit--expand-worktree directory) start-point))
+    (magit-diff-visit-directory directory)))
 
 ;;;###autoload
-(defun magit-worktree-move (worktree path)
-  "Move WORKTREE to PATH."
+(defun magit-worktree-move (worktree directory)
+  "Move existing WORKTREE directory to DIRECTORY."
   (interactive
    (list (magit-completing-read "Move worktree"
                                 (cdr (magit-list-worktrees))
@@ -88,17 +88,17 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
                   "Move worktree to: ")))
   (if (file-directory-p (expand-file-name ".git" worktree))
       (user-error "You may not move the main working tree")
-    (let ((preexisting-directory (file-directory-p path)))
+    (let ((preexisting-directory (file-directory-p directory)))
       (when (and (zerop (magit-call-git "worktree" "move" worktree
-                                        (magit--expand-worktree path)))
+                                        (magit--expand-worktree directory)))
                  (not (file-exists-p default-directory))
                  (derived-mode-p 'magit-status-mode))
         (kill-buffer)
         (magit-diff-visit-directory
          (if preexisting-directory
-             (concat (file-name-as-directory path)
+             (concat (file-name-as-directory directory)
                      (file-name-nondirectory worktree))
-           path)))
+           directory)))
       (magit-refresh))))
 
 (defun magit-worktree-delete (worktree)
@@ -140,8 +140,8 @@ then show it in Dired instead."
                          :test #'equal :key #'car)))))
   (magit-diff-visit-directory worktree))
 
-(defun magit--expand-worktree (path)
-  (magit-convert-filename-for-git (expand-file-name path)))
+(defun magit--expand-worktree (directory)
+  (magit-convert-filename-for-git (expand-file-name directory)))
 
 ;;; Sections
 
