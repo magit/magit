@@ -191,14 +191,13 @@ that change the upstream and many that create new branches."
 (defcustom magit-list-refs-namespaces
   '("refs/heads"
     "refs/remotes"
-    "refs/tags"
-    "refs/pullreqs")
+    "refs/tags")
   "List of ref namespaces considered when reading a ref.
 
 This controls the order of refs returned by `magit-list-refs',
 which is called by functions like `magit-list-branch-names' to
 generate the collection of refs."
-  :package-version '(magit . "3.1.0")
+  :package-version '(magit . "4.3.9")
   :group 'magit-commands
   :type '(repeat string))
 
