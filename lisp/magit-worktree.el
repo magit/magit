@@ -86,8 +86,7 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
                                 (cdr (magit-list-worktrees))
                                 nil t nil nil
                                 (magit-section-value-if 'worktree))
-         (funcall magit-worktree-read-directory-name-function
-                  "Move worktree to: ")))
+         (read-directory-name "Move worktree to: ")))
   (if (file-directory-p (expand-file-name ".git" worktree))
       (user-error "You may not move the main working tree")
     (let ((preexisting-directory (file-directory-p directory)))
