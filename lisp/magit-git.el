@@ -1978,7 +1978,8 @@ and defaults to \"%(refname)\".
 
 SORTBY is a key or list of keys to pass to the `--sort' flag
 of `git for-each-ref' to sort the refs within each namespace.
-When nil, use `magit-list-refs-sortby'."
+When nil, use `magit-list-refs-sortby'.  If both are nil, use
+\"version:refname\", but only for \"refs/tags\"."
   (let ((format (concat "--format=%(symref)" (or format "%(refname)")))
         (sortby (mapcar (##concat "--sort=" %)
                         (ensure-list (or sortby magit-list-refs-sortby)))))
@@ -1987,7 +1988,12 @@ When nil, use `magit-list-refs-sortby'."
                               (split-string line ""))
                              (symrefp (not (equal symrefp ""))))
                   (and (not symrefp) value)))
-              (mapcan (##magit-git-lines "for-each-ref" format sortby %)
+              (mapcan (lambda (ns)
+                        (if (and (not sortby)
+                                 (equal ns "refs/tags"))
+                            (magit-git-lines "for-each-ref" format
+                                             "--sort=-version:refname" ns)
+                          (magit-git-lines "for-each-ref" format sortby ns)))
                       (ensure-list
                        (or namespaces magit-list-refs-namespaces))))))
 
