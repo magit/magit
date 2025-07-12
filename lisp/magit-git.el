@@ -194,9 +194,10 @@ that change the upstream and many that create new branches."
     "refs/tags")
   "List of ref namespaces considered when reading a ref.
 
-This controls the order of refs returned by `magit-list-refs',
-which is called by functions like `magit-list-branch-names' to
-generate the collection of refs."
+This controls which refs are returned by `magit-list-refs', which
+is called by functions like `magit-list-branch-names' to generate
+the collection of refs.  Additionally namespaces appear in the same
+order as specified here."
   :package-version '(magit . "4.3.9")
   :group 'magit-commands
   :type '(repeat string))
@@ -215,6 +216,9 @@ be used.  For example, \"-creatordate\" places refs with more
 recent committer or tagger dates earlier in the list.  A list of
 strings can also be given in order to pass multiple sort keys to
 \"git for-each-ref\".
+
+Regardless of what is specified here, refs are first sorted by
+namespace, according to the order of `magit-list-refs-namespaces'.
 
 Note that, depending on the completion framework you use, this
 may not be sufficient to change the order in which the refs are
@@ -1972,21 +1976,20 @@ rather than those from `magit-list-refs-namespaces'.
 FORMAT is passed to the `--format' flag of `git for-each-ref'
 and defaults to \"%(refname)\".
 
-SORTBY is a key or list of keys to pass to the `--sort' flag of
-`git for-each-ref'.  When nil, use `magit-list-refs-sortby'"
-  (unless format
-    (setq format "%(refname)"))
-  (seq-keep (lambda (line)
-              (pcase-let* ((`(,symrefp ,value)
-                            (split-string line ""))
-                           (symrefp (not (equal symrefp ""))))
-                (and (not symrefp) value)))
-            (magit-git-lines "for-each-ref"
-                             (concat "--format=%(symref)" format)
-                             (mapcar (##concat "--sort=" %)
-                                     (ensure-list
-                                      (or sortby magit-list-refs-sortby)))
-                             (or namespaces magit-list-refs-namespaces))))
+SORTBY is a key or list of keys to pass to the `--sort' flag
+of `git for-each-ref' to sort the refs within each namespace.
+When nil, use `magit-list-refs-sortby'."
+  (let ((format (concat "--format=%(symref)" (or format "%(refname)")))
+        (sortby (mapcar (##concat "--sort=" %)
+                        (ensure-list (or sortby magit-list-refs-sortby)))))
+    (seq-keep (lambda (line)
+                (pcase-let* ((`(,symrefp ,value)
+                              (split-string line ""))
+                             (symrefp (not (equal symrefp ""))))
+                  (and (not symrefp) value)))
+              (mapcan (##magit-git-lines "for-each-ref" format sortby %)
+                      (ensure-list
+                       (or namespaces magit-list-refs-namespaces))))))
 
 (defun magit-list-branches ()
   (magit-list-refs (list "refs/heads" "refs/remotes")))
