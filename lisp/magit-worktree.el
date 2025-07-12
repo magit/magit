@@ -30,14 +30,63 @@
 
 ;;; Options
 
-(defcustom magit-worktree-read-directory-name-function #'read-directory-name
-  "Function used to read a directory for worktree commands.
-This is called with one argument, the prompt, and can be used
-to, e.g., use a base directory other than `default-directory'.
-Used by `magit-worktree-checkout' and `magit-worktree-branch'."
-  :package-version '(magit . "3.0.0")
+(defcustom magit-read-worktree-directory-function
+  #'magit-read-worktree-directory-sibling
+  "Function used to read the directory to be used as a new worktree.
+This is called with two argument, the prompt and the branch to be
+checked out.  When not checking out a branch then use nil for the
+second argument."
+  :package-version '(magit . "4.3.9")
   :group 'magit-commands
-  :type 'function)
+  :type `(radio (function-item ,#'magit-read-worktree-directory)
+                (function-item ,#'magit-read-worktree-directory-nested)
+                (function-item ,#'magit-read-worktree-directory-sibling)
+                function))
+
+(defvar magit-worktree-read-directory-name-function nil
+  "Like `magit-read-worktree-directory-function' but takes only one argument.")
+(make-obsolete-variable 'magit-worktree-read-directory-name-function
+                        'magit-read-worktree-directory-function
+                        "Magit 4.3.9")
+
+;;; Functions
+
+(defun magit-read-worktree-directory (prompt _branch)
+  "Call `read-directory-name' with PROMPT, but ignoring _BRANCH."
+  (read-directory-name prompt))
+
+(defun magit-read-worktree-directory-nested (prompt branch)
+  "Call `read-directory-name' in current worktree.
+For `read-directory-name's INITIAL argument use a string based on
+BRANCH, replacing slashes with dashes.  If BRANCH is nil, use nil
+as INITIAL.  Always forward PROMPT as-is."
+  (read-directory-name prompt nil nil nil
+                       (and branch (string-replace "/" "-" branch))))
+
+(defun magit-read-worktree-directory-sibling (prompt branch)
+  "Call `read-directory-name' in parent directory of current worktree.
+For `read-directory-name's INITIAL argument use a string based on the
+name of the current worktree and BRANCH.  Use \"PREFIX_BRANCH\" where
+PREFIX is the name of the current worktree, up to the first underscore,
+and slashes in BRANCH are replaced with dashes.  If BRANCH is nil use
+just \"PREFIX_\".  Always forward PROMPT as-is."
+  (let* ((path (directory-file-name default-directory))
+         (name (file-name-nondirectory path)))
+    (read-directory-name
+     prompt (file-name-directory path) nil nil
+     (concat (if (string-match "/" name)
+                 (substring name 0 (match-beginning 0))
+               name)
+             "_"
+             (and branch (string-replace "/" "-" branch))))))
+
+(defun magit--read-worktree-directory (rev branchp)
+  (let ((default-directory (magit-toplevel))
+        (prompt (format "Checkout %s in new worktree: " rev)))
+    (if magit-worktree-read-directory-name-function
+        (funcall magit-worktree-read-directory-name-function prompt)
+      (funcall magit-read-worktree-directory-function
+               prompt (and branchp rev)))))
 
 ;;; Commands
 
@@ -54,26 +103,30 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
     ("g" "Visit worktree"        magit-worktree-status)]])
 
 ;;;###autoload
-(defun magit-worktree-checkout (directory branch)
-  "Checkout BRANCH in a new worktree at DIRECTORY."
+(defun magit-worktree-checkout (directory commit)
+  "Checkout COMMIT in a new worktree in DIRECTORY.
+COMMIT may, but does not have to be, a local branch.
+Interactively, use `magit-read-worktree-directory-function'."
   (interactive
-   (let ((branch (magit-read-branch-or-commit
+   (let ((commit (magit-read-branch-or-commit
                   "In new worktree; checkout" nil
                   (mapcar #'caddr (magit-list-worktrees)))))
-     (list (funcall magit-worktree-read-directory-name-function
-                    (format "Checkout %s in new worktree: " branch))
-           branch)))
+     (list (magit--read-worktree-directory commit (magit-local-branch-p commit))
+           commit)))
   (when (zerop (magit-run-git "worktree" "add"
-                              (magit--expand-worktree directory) branch))
+                              (magit--expand-worktree directory) commit))
     (magit-diff-visit-directory directory)))
 
 ;;;###autoload
 (defun magit-worktree-branch (directory branch start-point)
-  "Create a new BRANCH and check it out in a new worktree at DIRECTORY."
+  "Create a new BRANCH and check it out in a new worktree at DIRECTORY.
+Interactively, use `magit-read-worktree-directory-function'."
   (interactive
-   `(,(funcall magit-worktree-read-directory-name-function
-               "In new worktree; checkout new branch")
-     ,@(magit-branch-read-args "Create and checkout branch")))
+   (pcase-let
+       ((`(,branch ,start-point)
+         (magit-branch-read-args "In new worktree; checkout new branch")))
+     (list (magit--read-worktree-directory branch t)
+           branch start-point)))
   (when (zerop (magit-run-git "worktree" "add" "-b" branch
                               (magit--expand-worktree directory) start-point))
     (magit-diff-visit-directory directory)))
