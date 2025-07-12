@@ -57,7 +57,7 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
 (defun magit-worktree-checkout (path branch)
   "Checkout BRANCH in a new worktree at PATH."
   (interactive
-   (let ((branch (magit-read-branch-or-commit "Checkout")))
+   (let ((branch (magit-read-branch-or-commit "In new worktree; checkout")))
      (list (funcall magit-worktree-read-directory-name-function
                     (format "Checkout %s in new worktree: " branch))
            branch)))
@@ -70,7 +70,7 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
   "Create a new BRANCH and check it out in a new worktree at PATH."
   (interactive
    `(,(funcall magit-worktree-read-directory-name-function
-               "Create worktree: ")
+               "In new worktree; checkout new branch")
      ,@(magit-branch-read-args "Create and checkout branch")))
   (when (zerop (magit-run-git "worktree" "add" "-b" branch
                               (magit--expand-worktree path) start-point))
