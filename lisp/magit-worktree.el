@@ -160,7 +160,7 @@ Interactively, use `magit-read-worktree-directory-function'."
 The primary worktree cannot be deleted."
   (interactive
    (list (magit-completing-read "Delete worktree"
-                                (cdr (magit-list-worktrees))
+                                (mapcar #'car (cdr (magit-list-worktrees)))
                                 nil t nil nil
                                 (magit-section-value-if 'worktree))))
   (if (file-directory-p (expand-file-name ".git" worktree))
