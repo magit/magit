@@ -57,7 +57,9 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
 (defun magit-worktree-checkout (directory branch)
   "Checkout BRANCH in a new worktree at DIRECTORY."
   (interactive
-   (let ((branch (magit-read-branch-or-commit "In new worktree; checkout")))
+   (let ((branch (magit-read-branch-or-commit
+                  "In new worktree; checkout" nil
+                  (mapcar #'caddr (magit-list-worktrees)))))
      (list (funcall magit-worktree-read-directory-name-function
                     (format "Checkout %s in new worktree: " branch))
            branch)))
