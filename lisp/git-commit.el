@@ -624,7 +624,8 @@ Used as the local value of `header-line-format', in buffer using
             (sit-for 0.01))
           t)
         (run-hooks 'git-commit-post-finish-hook)
-      (message "No commit created after 1 second.  Not running %s."
+      (message "No commit created after %s second.  Not running %s."
+               git-commit-post-finish-hook-timeout
                'git-commit-post-finish-hook))))
 
 (define-minor-mode git-commit-mode
