@@ -619,17 +619,13 @@ Used as the local value of `header-line-format', in buffer using
 
 (defun git-commit-run-post-finish-hook (previous)
   (when git-commit-post-finish-hook
-    (cl-block nil
-      (let ((break (time-add (current-time)
-                             (seconds-to-time
-                              git-commit-post-finish-hook-timeout))))
-        (while (equal (magit-rev-parse "HEAD") previous)
-          (if (time-less-p (current-time) break)
-              (sit-for 0.01)
-            (message "No commit created after 1 second.  Not running %s."
-                     'git-commit-post-finish-hook)
-            (cl-return))))
-      (run-hooks 'git-commit-post-finish-hook))))
+    (if (with-timeout (git-commit-post-finish-hook-timeout)
+          (while (equal (magit-rev-parse "HEAD") previous)
+            (sit-for 0.01))
+          t)
+        (run-hooks 'git-commit-post-finish-hook)
+      (message "No commit created after 1 second.  Not running %s."
+               'git-commit-post-finish-hook))))
 
 (define-minor-mode git-commit-mode
   "Auxiliary minor mode used when editing Git commit messages.
