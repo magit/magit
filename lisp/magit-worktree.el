@@ -74,7 +74,7 @@ just \"PREFIX_\".  Always forward PROMPT as-is."
          (name (file-name-nondirectory path)))
     (read-directory-name
      prompt (file-name-directory path) nil nil
-     (concat (if (string-match "/" name)
+     (concat (if (string-match "_" name)
                  (substring name 0 (match-beginning 0))
                name)
              "_"
