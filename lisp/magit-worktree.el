@@ -33,7 +33,7 @@
 (defcustom magit-read-worktree-directory-function
   #'magit-read-worktree-directory-sibling
   "Function used to read the directory to be used as a new worktree.
-This is called with two argument, the prompt and the branch to be
+This is called with two arguments, the prompt and the branch to be
 checked out.  When not checking out a branch then use nil for the
 second argument."
   :package-version '(magit . "4.3.9")
