@@ -235,7 +235,7 @@ Also see `magit-post-commit-hook'."
   :type 'hook
   :get #'magit-hook-custom-get)
 
-(defcustom git-commit-post-finish-hook-timeout 1
+(defcustom git-commit-post-finish-hook-timeout 2
   "Time in seconds to wait for git to create a commit.
 
 The hook `git-commit-post-finish-hook' (which see) is run only
