@@ -355,7 +355,7 @@ to `magit-dispatch'."
   "b" #'magit-blame-addition
   "r" #'magit-blame-removal
   "f" #'magit-blame-reverse
-  "q" #'magit-kill-this-buffer)
+  "q" #'magit-bury-or-kill-buffer)
 
 (define-minor-mode magit-blob-mode
   "Enable some Magit features in blob-visiting buffers.
@@ -363,6 +363,26 @@ to `magit-dispatch'."
 Currently this only adds the following key bindings.
 \n\\{magit-blob-mode-map}"
   :package-version '(magit . "2.3.0"))
+
+(defun magit-bury-buffer (&optional kill-buffer)
+  "Bury the current buffer, or with a prefix argument kill it."
+  (interactive "P")
+  (if kill-buffer (kill-buffer) (bury-buffer)))
+
+(defun magit-bury-or-kill-buffer (&optional bury-buffer)
+  "Bury the current buffer if displayed in multiple windows, else kill it.
+With a prefix argument only bury the buffer even if it is only displayed
+in a single window."
+  (interactive "P")
+  (if (and (cdr (get-buffer-window-list nil nil t))
+           (not bury-buffer))
+      (kill-buffer)
+    (bury-buffer)))
+
+(defun magit-kill-this-buffer ()
+  "Kill the current buffer."
+  (interactive)
+  (kill-buffer))
 
 (defun magit-blob-next ()
   "Visit the next blob which modified the current file."

@@ -974,11 +974,6 @@ Pad the left side of STRING so that it aligns with the text area."
 
 ;;; Missing from Emacs
 
-(defun magit-kill-this-buffer ()
-  "Kill the current buffer."
-  (interactive)
-  (kill-buffer (current-buffer)))
-
 (defun magit--buffer-string (&optional min max trim)
   "Like `buffer-substring-no-properties' but the arguments are optional.
 

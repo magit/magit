@@ -9755,18 +9755,24 @@ bindings, but this might be extended.
 @item @kbd{p} (@code{magit-blob-previous})
 @kindex p
 @findex magit-blob-previous
-Visit the previous blob which modified the current file.
+This command visits the previous blob that modified the current
+file.
 
 @item @kbd{n} (@code{magit-blob-next})
 @kindex n
 @findex magit-blob-next
-Visit the next blob which modified the current file.
+This command visit the next blob that modified the current file.
 
-@item @kbd{q} (@code{magit-kill-this-buffer})
+@item @kbd{q} (@code{magit-bury-or-kill-buffer})
 @kindex q
-@findex magit-kill-this-buffer
-Kill the current buffer.
+@findex magit-bury-or-kill-buffer
+This command buries the current buffer, if that is being displayed
+in multiple windows and/or when a prefix argument is used.  If
+neither is the case, it instead kills the current buffer.
 @end table
+
+You might want to bind @code{u} to another command.  Suitable commands
+include @code{bury-buffer}, @code{magit-bury-buffer} and @code{magit-kill-this-buffer}.
 
 @node Customizing
 @chapter Customizing
