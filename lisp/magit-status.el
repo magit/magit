@@ -433,9 +433,6 @@ Type \\[magit-commit] to create a commit.
   :interactive nil
   :group 'magit-status
   (magit-hack-dir-local-variables)
-  (when magit-status-initial-section
-    (add-hook 'magit--initial-section-hook
-              #'magit-status-goto-initial-section nil t))
   (setq magit--imenu-group-types '(not branch commit)))
 
 (put 'magit-status-mode 'magit-diff-default-arguments
@@ -457,6 +454,7 @@ Type \\[magit-commit] to create a commit.
          (line (and file (save-restriction (widen) (line-number-at-pos))))
          (col  (and file (save-restriction (widen) (current-column))))
          (buf  (magit-setup-buffer #'magit-status-mode nil
+                 :initial-section #'magit-status-goto-initial-section
                  (magit-buffer-diff-args  (nth 0 d))
                  (magit-buffer-diff-files (nth 1 d))
                  (magit-buffer-log-args   (nth 0 l))

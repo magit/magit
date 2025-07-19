@@ -626,16 +626,27 @@ The buffer's major-mode should derive from `magit-section-mode'."
 
 ;;; Setup Buffer
 
-(defmacro magit-setup-buffer (mode &optional locked &rest bindings)
-  (declare (indent 2))
-  `(magit-setup-buffer-internal
-    ,mode ,locked
-    ,(cons 'list (mapcar (pcase-lambda (`(,var ,form))
-                           `(list ',var ,form))
-                         bindings))))
+(defmacro magit-setup-buffer (mode &optional locked &rest args)
+  "\n\n(fn MODE &optional LOCKED &key BUFFER DIRECTORY \
+INITIAL-SECTION SELECT-SECTION &rest BINDINGS)"
+  (declare (indent 2)
+           (debug (form [&optional locked]
+                        [&rest keywordp form]
+                        [&rest (symbolp form)])))
+  (let (kwargs)
+    (while (keywordp (car args))
+      (push (pop args) kwargs)
+      (push (pop args) kwargs))
+    `(magit-setup-buffer-internal
+      ,mode ,locked
+      ,(cons 'list (mapcar (pcase-lambda (`(,var ,form))
+                             `(list ',var ,form))
+                           args))
+      ,@(nreverse kwargs))))
 
-(cl-defun magit-setup-buffer-internal ( mode locked bindings
-                                        &key buffer directory)
+(cl-defun magit-setup-buffer-internal
+    ( mode locked bindings
+      &key buffer directory initial-section select-section)
   (let* ((value   (and locked
                        (with-temp-buffer
                          (pcase-dolist (`(,var ,val) bindings)
@@ -662,7 +673,9 @@ The buffer's major-mode should derive from `magit-section-mode'."
     (magit-display-buffer buffer)
     (with-current-buffer buffer
       (run-hooks 'magit-setup-buffer-hook)
-      (magit-refresh-buffer created)
+      (magit-refresh-buffer created
+                            :initial-section initial-section
+                            :select-section select-section)
       (when created
         (run-hooks 'magit-post-create-buffer-hook)))
     buffer))
@@ -1065,10 +1078,10 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
 
 (defvar-local magit--refresh-start-time nil)
 
-(defvar magit--initial-section-hook nil)
-
-(defun magit-refresh-buffer (&optional created)
-  "Refresh the current Magit buffer."
+(cl-defun magit-refresh-buffer ( &optional created
+                                 &key initial-section select-section)
+  "Refresh the current Magit buffer.
+The arguments are for internal use."
   (interactive)
   (when-let ((refresh (magit--refresh-buffer-function)))
     (let ((magit--refreshing-buffer-p t)
@@ -1080,8 +1093,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
       (cond
        (created
         (funcall refresh)
-        (run-hooks 'magit--initial-section-hook)
-        (setq-local magit--initial-section-hook nil))
+        (cond (initial-section (funcall initial-section))
+              (select-section (funcall select-section))))
        (t
         (deactivate-mark)
         (setq magit-section-pre-command-section nil)
@@ -1091,7 +1104,8 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
         (setq magit-section-focused-sections nil)
         (let ((positions (magit--refresh-buffer-get-positions)))
           (funcall refresh)
-          (magit--refresh-buffer-set-positions positions))))
+          (cond (select-section (funcall select-section))
+                ((magit--refresh-buffer-set-positions positions))))))
       (let ((magit-section-cache-visibility nil))
         (magit-section-show magit-root-section))
       (run-hooks 'magit-refresh-buffer-hook)
