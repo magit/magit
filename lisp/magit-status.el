@@ -450,10 +450,8 @@ Type \\[magit-commit] to create a commit.
   (when (file-remote-p directory)
     (magit-git-version-assert))
   (let* ((default-directory directory)
-         (d (magit-diff--get-value 'magit-status-mode
-                                   magit-status-use-buffer-arguments))
-         (l (magit-log--get-value 'magit-status-mode
-                                  magit-status-use-buffer-arguments))
+         (d (magit-diff--get-value 'magit-status-mode 'status))
+         (l (magit-log--get-value 'magit-status-mode 'status))
          (file (and magit-status-goto-file-position
                     (magit-file-relative-name)))
          (line (and file (save-restriction (widen) (line-number-at-pos))))

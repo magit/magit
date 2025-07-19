@@ -35,6 +35,8 @@
 (require 'image)
 (require 'smerge-mode)
 
+;; For `magit-diff--get-value'
+(defvar magit-status-use-buffer-arguments)
 ;; For `magit-diff-popup'
 (declare-function magit-stash-show "magit-stash" (stash &optional args files))
 ;; For `magit-diff-visit-file'
@@ -828,8 +830,7 @@ and `:slant'."
 
 (cl-defmethod transient-init-value ((obj magit-diff-prefix))
   (pcase-let ((`(,args ,files)
-               (magit-diff--get-value 'magit-diff-mode
-                                      magit-prefix-use-buffer-arguments)))
+               (magit-diff--get-value 'magit-diff-mode 'prefix)))
     (when-let (((not (eq transient-current-command 'magit-dispatch)))
                (file (magit-file-relative-name)))
       (setq files (list file)))
@@ -853,11 +854,17 @@ and `:slant'."
   "Return the current diff arguments."
   (if (memq transient-current-command '(magit-diff magit-diff-refresh))
       (magit--transient-args-and-files)
-    (magit-diff--get-value (or mode 'magit-diff-mode))))
+    (magit-diff--get-value (or mode 'magit-diff-mode) 'direct)))
 
 (defun magit-diff--get-value (mode &optional use-buffer-args)
-  (unless use-buffer-args
-    (setq use-buffer-args magit-direct-use-buffer-arguments))
+  (setq use-buffer-args
+        (pcase-exhaustive use-buffer-args
+          ('prefix magit-prefix-use-buffer-arguments)
+          ('status magit-status-use-buffer-arguments)
+          ('direct magit-direct-use-buffer-arguments)
+          ('nil    magit-direct-use-buffer-arguments)
+          ((or 'always 'selected 'current 'never)
+           use-buffer-args)))
   (let (args files)
     (cond
      ((and (memq use-buffer-args '(always selected current))

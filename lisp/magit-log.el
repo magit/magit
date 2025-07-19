@@ -51,6 +51,7 @@
 (defvar magit-buffer-margin)
 (defvar magit-status-margin)
 (defvar magit-status-sections-hook)
+(defvar magit-status-use-buffer-arguments)
 
 (require 'ansi-color)
 (require 'crm)
@@ -372,8 +373,7 @@ commits before and half after."
 
 (cl-defmethod transient-init-value ((obj magit-log-prefix))
   (pcase-let ((`(,args ,files)
-               (magit-log--get-value 'magit-log-mode
-                                     magit-prefix-use-buffer-arguments)))
+               (magit-log--get-value 'magit-log-mode 'prefix)))
     (when-let (((not (eq transient-current-command 'magit-dispatch)))
                (file (magit-file-relative-name)))
       (setq files (list file)))
@@ -397,11 +397,17 @@ commits before and half after."
   "Return the current log arguments."
   (if (memq transient-current-command '(magit-log magit-log-refresh))
       (magit--transient-args-and-files)
-    (magit-log--get-value (or mode 'magit-log-mode))))
+    (magit-log--get-value (or mode 'magit-log-mode) 'direct)))
 
 (defun magit-log--get-value (mode &optional use-buffer-args)
-  (unless use-buffer-args
-    (setq use-buffer-args magit-direct-use-buffer-arguments))
+  (setq use-buffer-args
+        (pcase-exhaustive use-buffer-args
+          ('prefix magit-prefix-use-buffer-arguments)
+          ('status magit-status-use-buffer-arguments)
+          ('direct magit-direct-use-buffer-arguments)
+          ('nil    magit-direct-use-buffer-arguments)
+          ((or 'always 'selected 'current 'never)
+           use-buffer-args)))
   (let (args files)
     (cond
      ((and (memq use-buffer-args '(always selected current))
@@ -1745,8 +1751,7 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
   (magit-log-select-setup-buffer
    (or branch (magit-get-current-branch) "HEAD")
    (append args
-           (car (magit-log--get-value 'magit-log-select-mode
-                                      magit-direct-use-buffer-arguments))))
+           (car (magit-log--get-value 'magit-log-select-mode 'direct))))
   (if initial
       (magit-log-goto-commit-section initial)
     (while-let ((rev (magit-section-value-if 'commit))
