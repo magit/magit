@@ -1369,7 +1369,7 @@ the file or blob."
                                        (list file)
                                        'unstaged
                                        magit-diff-buffer-file-locked)
-            (magit-diff--goto-position file line col))))
+            (magit-diff--goto-file-position file line col))))
     (user-error "Buffer isn't visiting a file")))
 
 ;;;###autoload
@@ -1426,7 +1426,7 @@ for a revision."
           (let ((line (magit-diff-visit--offset file (list "-R" rev) line))
                 (col (current-column)))
             (with-current-buffer buf
-              (magit-diff--goto-position file line col))))))))
+              (magit-diff--goto-file-position file line col))))))))
 
 (defun magit-diff--locate-hunk (file line &optional parent)
   (and-let* ((diff (cl-find-if (##and (cl-typep % 'magit-file-section)
@@ -1442,7 +1442,7 @@ for a revision."
                     ((<= beg line end) (cl-return (list hunk t)))
                     ((null hunks)      (cl-return (list hunk nil)))))))))))
 
-(defun magit-diff--goto-position (file line column &optional parent)
+(defun magit-diff--goto-file-position (file line column &optional parent)
   (when-let ((pos (magit-diff--locate-hunk file line parent)))
     (pcase-let ((`(,section ,exact) pos))
       (cond ((cl-typep section 'magit-file-section)

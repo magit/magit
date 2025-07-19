@@ -463,12 +463,13 @@ Type \\[magit-commit] to create a commit.
           (let ((staged (magit-get-section '((staged) (status)))))
             (if (and staged
                      (cadr (magit-diff--locate-hunk file line staged)))
-                (magit-diff--goto-position file line col staged)
+                (magit-diff--goto-file-position file line col staged)
               (let ((unstaged (magit-get-section '((unstaged) (status)))))
                 (unless (and unstaged
-                             (magit-diff--goto-position file line col unstaged))
+                             (magit-diff--goto-file-position
+                              file line col unstaged))
                   (when staged
-                    (magit-diff--goto-position file line col staged))))))))
+                    (magit-diff--goto-file-position file line col staged))))))))
       buf)))
 
 (defun magit-status-refresh-buffer ()
