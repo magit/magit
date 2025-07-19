@@ -471,11 +471,9 @@ Type \\[magit-commit] to create a commit.
 
 (defun magit-status--goto-file-position (file line column)
   (pcase-let ((`(,upos ,_uhunk)
-               (magit-diff--locate-file-position
-                file line column (magit-get-section '((unstaged) (status)))))
+               (magit-diff--locate-file-position file line column 'unstaged))
               (`(,spos ,shunk)
-               (magit-diff--locate-file-position
-                file line column (magit-get-section '((staged) (status))))))
+               (magit-diff--locate-file-position file line column 'staged)))
     (cond (shunk (goto-char spos))
           (upos  (goto-char upos))
           (spos  (goto-char spos)))

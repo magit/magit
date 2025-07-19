@@ -1430,9 +1430,15 @@ for a revision."
 
 (defun magit-diff--locate-file-position (file line column &optional parent)
   (and-let*
-      ((diff (cl-find-if (##and (cl-typep % 'magit-file-section)
-                                (equal (oref % value) file))
-                         (oref (or parent magit-root-section) children)))
+      ((parent (pcase parent
+                 ('unstaged (magit-get-section '((unstaged) (status))))
+                 ('staged   (magit-get-section '((staged)   (status))))
+                 ('nil (and (cl-typep (car (oref magit-root-section children))
+                                      'magit-file-section)
+                            magit-root-section))
+                 (_ parent)))
+       (diff (cl-find-if (##equal (oref % value) file)
+                         (oref parent children)))
        (hunks (oref diff children)))
     (let (hunk pos found)
       (while (and (setq hunk (pop hunks))
