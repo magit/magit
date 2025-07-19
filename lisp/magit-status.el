@@ -445,37 +445,40 @@ Type \\[magit-commit] to create a commit.
   (let ((default-directory (or directory default-directory)))
     (when (file-remote-p default-directory)
       (magit-git-version-assert))
-    (pcase-let*
+    (pcase-let
         ((`(,dargs ,dfiles) (magit-diff--get-value 'magit-status-mode 'status))
-         (`(,largs ,lfiles) (magit-log--get-value  'magit-status-mode 'status))
-         (file (and magit-status-goto-file-position
-                    (magit-file-relative-name)))
-         (line (and file (save-restriction (widen) (line-number-at-pos))))
-         (col  (and file (save-restriction (widen) (current-column))))
-         (buf  (magit-setup-buffer #'magit-status-mode nil
-                 :initial-section #'magit-status-goto-initial-section
-                 (magit-buffer-diff-args  dargs)
-                 (magit-buffer-diff-files dfiles)
-                 (magit-buffer-log-args   largs)
-                 (magit-buffer-log-files  lfiles))))
-      (when file
-        (with-current-buffer buf
-          (let ((staged (magit-get-section '((staged) (status)))))
-            (if (and staged
-                     (cadr (magit-diff--locate-hunk file line staged)))
-                (magit-diff--goto-file-position file line col staged)
-              (let ((unstaged (magit-get-section '((unstaged) (status)))))
-                (unless (and unstaged
-                             (magit-diff--goto-file-position
-                              file line col unstaged))
-                  (when staged
-                    (magit-diff--goto-file-position file line col staged))))))))
-      buf)))
+         (`(,largs ,lfiles) (magit-log--get-value  'magit-status-mode 'status)))
+      (magit-setup-buffer #'magit-status-mode nil
+        :initial-section #'magit-status-goto-initial-section
+        :select-section (and-let* ((args (magit-status--get-file-position)))
+                          (lambda () (apply #'magit-status--goto-file-position args)))
+        (magit-buffer-diff-args  dargs)
+        (magit-buffer-diff-files dfiles)
+        (magit-buffer-log-args   largs)
+        (magit-buffer-log-files  lfiles)))))
 
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
   (magit-insert-section (status)
     (magit-run-section-hook 'magit-status-sections-hook)))
+
+(defun magit-status--get-file-position ()
+  (and-let* ((magit-status-goto-file-position)
+             (file (magit-file-relative-name)))
+    (save-excursion
+      (widen)
+      (list file (line-number-at-pos) (current-column)))))
+
+(defun magit-status--goto-file-position (file line column)
+  (let ((staged (magit-get-section '((staged) (status)))))
+    (if (and staged
+             (cadr (magit-diff--locate-hunk file line staged)))
+        (magit-diff--goto-file-position file line column staged)
+      (let ((unstaged (magit-get-section '((unstaged) (status)))))
+        (unless (and unstaged
+                     (magit-diff--goto-file-position file line column unstaged))
+          (when staged
+            (magit-diff--goto-file-position file line column staged)))))))
 
 (defun magit-status-goto-initial-section ()
   "Jump to the section specified by `magit-status-initial-section'."
