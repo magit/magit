@@ -634,16 +634,16 @@ The buffer's major-mode should derive from `magit-section-mode'."
                            `(list ',var ,form))
                          bindings))))
 
-(defun magit-setup-buffer-internal ( mode locked bindings
-                                     &optional buffer-or-name directory)
+(cl-defun magit-setup-buffer-internal ( mode locked bindings
+                                        &key buffer directory)
   (let* ((value   (and locked
                        (with-temp-buffer
                          (pcase-dolist (`(,var ,val) bindings)
                            (set (make-local-variable var) val))
                          (let ((major-mode mode))
                            (magit-buffer-value)))))
-         (buffer  (if buffer-or-name
-                      (get-buffer-create buffer-or-name)
+         (buffer  (if buffer
+                      (get-buffer-create buffer)
                     (magit-get-mode-buffer mode value)))
          (section (and buffer (magit-current-section)))
          (created (not buffer)))
@@ -1395,7 +1395,8 @@ Later, when the buffer is buried, it may be restored by
     (when-let ((tail (nthcdr 30 help-xref-stack)))
       (setcdr tail nil))
     (setq help-xref-stack-item
-          (list 'magit-xref-restore fn default-directory args))))
+          (list 'magit-xref-restore fn args
+                :directory default-directory))))
 
 (defun magit-xref-restore (fn dir args)
   (setq default-directory dir)
