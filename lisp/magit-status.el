@@ -442,35 +442,34 @@ Type \\[magit-commit] to create a commit.
 
 ;;;###autoload
 (defun magit-status-setup-buffer (&optional directory)
-  (unless directory
-    (setq directory default-directory))
-  (when (file-remote-p directory)
-    (magit-git-version-assert))
-  (let* ((default-directory directory)
-         (d (magit-diff--get-value 'magit-status-mode 'status))
-         (l (magit-log--get-value 'magit-status-mode 'status))
+  (let ((default-directory (or directory default-directory)))
+    (when (file-remote-p default-directory)
+      (magit-git-version-assert))
+    (pcase-let*
+        ((`(,dargs ,dfiles) (magit-diff--get-value 'magit-status-mode 'status))
+         (`(,largs ,lfiles) (magit-log--get-value  'magit-status-mode 'status))
          (file (and magit-status-goto-file-position
                     (magit-file-relative-name)))
          (line (and file (save-restriction (widen) (line-number-at-pos))))
          (col  (and file (save-restriction (widen) (current-column))))
          (buf  (magit-setup-buffer #'magit-status-mode nil
                  :initial-section #'magit-status-goto-initial-section
-                 (magit-buffer-diff-args  (nth 0 d))
-                 (magit-buffer-diff-files (nth 1 d))
-                 (magit-buffer-log-args   (nth 0 l))
-                 (magit-buffer-log-files  (nth 1 l)))))
-    (when file
-      (with-current-buffer buf
-        (let ((staged (magit-get-section '((staged) (status)))))
-          (if (and staged
-                   (cadr (magit-diff--locate-hunk file line staged)))
-              (magit-diff--goto-position file line col staged)
-            (let ((unstaged (magit-get-section '((unstaged) (status)))))
-              (unless (and unstaged
-                           (magit-diff--goto-position file line col unstaged))
-                (when staged
-                  (magit-diff--goto-position file line col staged))))))))
-    buf))
+                 (magit-buffer-diff-args  dargs)
+                 (magit-buffer-diff-files dfiles)
+                 (magit-buffer-log-args   largs)
+                 (magit-buffer-log-files  lfiles))))
+      (when file
+        (with-current-buffer buf
+          (let ((staged (magit-get-section '((staged) (status)))))
+            (if (and staged
+                     (cadr (magit-diff--locate-hunk file line staged)))
+                (magit-diff--goto-position file line col staged)
+              (let ((unstaged (magit-get-section '((unstaged) (status)))))
+                (unless (and unstaged
+                             (magit-diff--goto-position file line col unstaged))
+                  (when staged
+                    (magit-diff--goto-position file line col staged))))))))
+      buf)))
 
 (defun magit-status-refresh-buffer ()
   (magit-git-exit-code "update-index" "--refresh")
