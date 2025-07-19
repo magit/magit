@@ -1428,38 +1428,43 @@ for a revision."
             (with-current-buffer buf
               (magit-diff--goto-file-position file line col))))))))
 
-(defun magit-diff--locate-hunk (file line &optional parent)
-  (and-let* ((diff (cl-find-if (##and (cl-typep % 'magit-file-section)
-                                      (equal (oref % value) file))
-                               (oref (or parent magit-root-section) children))))
-    (let ((hunks (oref diff children)))
-      (cl-block nil
-        (while-let ((hunk (pop hunks)))
-          (when-let ((range (oref hunk to-range)))
-            (pcase-let* ((`(,beg ,len) range)
-                         (end (+ beg len)))
-              (cond ((>  beg line)     (cl-return (list diff nil)))
-                    ((<= beg line end) (cl-return (list hunk t)))
-                    ((null hunks)      (cl-return (list hunk nil)))))))))))
+(defun magit-diff--locate-file-position (file line column &optional parent)
+  (and-let*
+      ((diff (cl-find-if (##and (cl-typep % 'magit-file-section)
+                                (equal (oref % value) file))
+                         (oref (or parent magit-root-section) children)))
+       (hunks (oref diff children)))
+    (let (hunk pos found)
+      (while (and (setq hunk (pop hunks))
+                  (not pos))
+        (when-let* ((range (oref hunk to-range))
+                    (beg (car range))
+                    (len (cadr range))
+                    (end (+ beg len)))
+          (cond
+           ((> beg line)
+            (setq pos (oref diff start)))
+           ((<= beg line end)
+            (save-excursion
+              (goto-char (oref hunk content))
+              (let ((l beg))
+                (while (or (< l line)
+                           (= (char-after) ?-))
+                  (unless (= (char-after) ?-)
+                    (cl-incf l))
+                  (forward-line)))
+              (setq found (if (= (char-after) ?+) 'line 'hunk))
+              (forward-char (1+ column))
+              (setq pos (point))))
+           ((null hunks)
+            (setq pos (oref hunk start))))))
+      (and pos
+           (list pos (or found file))))))
 
 (defun magit-diff--goto-file-position (file line column &optional parent)
-  (when-let ((pos (magit-diff--locate-hunk file line parent)))
-    (pcase-let ((`(,section ,exact) pos))
-      (cond ((cl-typep section 'magit-file-section)
-             (goto-char (oref section start)))
-            (exact
-             (goto-char (oref section content))
-             (let ((pos (car (oref section to-range))))
-               (while (or (< pos line)
-                          (= (char-after) ?-))
-                 (unless (= (char-after) ?-)
-                   (cl-incf pos))
-                 (forward-line)))
-             (forward-char (1+ column)))
-            (t
-             (goto-char (oref section start))
-             (setq section (oref section parent))))
-      (magit-section-reveal section))))
+  (when-let ((pos (magit-diff--locate-file-position file line column parent)))
+    (goto-char (car pos))
+    (magit-section-reveal (magit-current-section))))
 
 ;;;; Setting Commands
 

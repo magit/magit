@@ -470,15 +470,17 @@ Type \\[magit-commit] to create a commit.
       (list file (line-number-at-pos) (current-column)))))
 
 (defun magit-status--goto-file-position (file line column)
-  (let ((staged (magit-get-section '((staged) (status)))))
-    (if (and staged
-             (cadr (magit-diff--locate-hunk file line staged)))
-        (magit-diff--goto-file-position file line column staged)
-      (let ((unstaged (magit-get-section '((unstaged) (status)))))
-        (unless (and unstaged
-                     (magit-diff--goto-file-position file line column unstaged))
-          (when staged
-            (magit-diff--goto-file-position file line column staged)))))))
+  (pcase-let ((`(,upos ,_uhunk)
+               (magit-diff--locate-file-position
+                file line column (magit-get-section '((unstaged) (status)))))
+              (`(,spos ,shunk)
+               (magit-diff--locate-file-position
+                file line column (magit-get-section '((staged) (status))))))
+    (cond (shunk (goto-char spos))
+          (upos  (goto-char upos))
+          (spos  (goto-char spos)))
+    (when (or upos spos)
+      (magit-section-reveal (magit-current-section)))))
 
 (defun magit-status-goto-initial-section ()
   "Jump to the section specified by `magit-status-initial-section'."
