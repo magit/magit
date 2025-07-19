@@ -2102,6 +2102,12 @@ When `magit-section-preserve-visibility' is nil, return nil."
         (setq magit-section--opened-sections nil))
     (funcall fn)))
 
+(defun magit-section-reveal (section)
+  (while section
+    (when (oref section hidden)
+      (magit-section-show section))
+    (setq section (oref section parent))))
+
 ;;; Utilities
 
 (cl-defun magit-section-selected-p (section &optional (selection nil sselection))

@@ -1459,10 +1459,7 @@ for a revision."
             (t
              (goto-char (oref section start))
              (setq section (oref section parent))))
-      (while section
-        (when (oref section hidden)
-          (magit-section-show section))
-        (setq section (oref section parent))))
+      (magit-section-reveal section))
     t))
 
 ;;;; Setting Commands
