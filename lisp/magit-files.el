@@ -374,10 +374,9 @@ Currently this only adds the following key bindings.
 With a prefix argument only bury the buffer even if it is only displayed
 in a single window."
   (interactive "P")
-  (if (and (cdr (get-buffer-window-list nil nil t))
-           (not bury-buffer))
-      (kill-buffer)
-    (bury-buffer)))
+  (if (or bury-buffer (cdr (get-buffer-window-list nil nil t)))
+      (bury-buffer)
+    (kill-buffer)))
 
 (defun magit-kill-this-buffer ()
   "Kill the current buffer."
