@@ -896,7 +896,7 @@ See info node `(magit)Section Movement'."
 
 (defmacro magit-define-section-jumper
     (name heading type &optional value inserter &rest properties)
-  "Define an interactive function to go some section.
+  "Define an interactive function to go to some section.
 Together TYPE and VALUE identify the section.
 HEADING is the displayed heading of the section."
   (declare (indent defun))
