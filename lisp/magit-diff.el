@@ -2027,6 +2027,52 @@ commit or stash at point, then prompt for a commit."
               (t
                (mapc #'magit-section-hide sections)))))))
 
+;;;; Jump Commands
+
+(transient-define-prefix magit-revision-jump (&optional menu)
+  "In a Magit-Revision buffer, jump to a section.
+Show a menu to choose a section, unless point is on a file
+heading, or with a prefix argument, in which case behave
+like 'magit-jump-to-diffstat-or-diff'."
+  [["Jump to"
+    ("h" magit-jump-to-revision-headers)
+    ("m" magit-jump-to-revision-message)
+    ("n" magit-jump-to-revision-notes)
+    ("s" magit-jump-to-revision-diffstat)
+    ("d" magit-jump-to-revision-diff)]
+   ["Jump using"
+    ("j" "Imenu" imenu)]]
+  (interactive (list (or (not (magit-section-match 'file))
+                         current-prefix-arg)))
+  (if menu
+      (transient-setup 'magit-revision-jump)
+    (magit-jump-to-diffstat-or-diff)))
+
+(magit-define-section-jumper magit-jump-to-revision-headers
+  "Headings" headers nil magit-insert-revision-headers)
+
+(magit-define-section-jumper magit-jump-to-revision-message
+  "Message" commit-message nil magit-insert-revision-message)
+
+(magit-define-section-jumper magit-jump-to-revision-notes
+  "Notes" notes nil magit-insert-revision-notes)
+
+(magit-define-section-jumper magit-jump-to-revision-diffstat
+  "Diffstat" diffstat nil magit-insert-revision-diff)
+
+(transient-define-suffix magit-jump-to-revision-diff (&optional expand)
+  :description "Diff"
+  :inapt-if-not (##cl-find-if (##eq (oref % type) 'file)
+                              (oref magit-root-section children))
+  (interactive "P")
+  (if-let ((section (cl-find-if (##eq (oref % type) 'file)
+                                (oref magit-root-section children))))
+      (progn (goto-char (oref section start))
+             (when expand
+               (with-local-quit (magit-section-show section))
+               (recenter 0)))
+    (message (format "No diff sections found"))))
+
 ;;; Diff Mode
 
 (defvar-keymap magit-diff-mode-map
@@ -2663,6 +2709,11 @@ function errors."
 (add-hook 'magit-section-set-visibility-hook #'magit-diff-expansion-threshold)
 
 ;;; Revision Mode
+
+(defvar-keymap magit-revision-mode-map
+  :doc "Keymap for `magit-revision-mode'."
+  :parent magit-diff-mode-map
+  "j" #'magit-revision-jump)
 
 (define-derived-mode magit-revision-mode magit-diff-mode "Magit Rev"
   "Mode for looking at a Git commit.
