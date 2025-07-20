@@ -8043,6 +8043,9 @@ all, add this to your init file and restart Emacs.
   the position in that buffer, which corresponds to the position
   in the current file-visiting buffer (if any).
 
+  Before doing so, save all file-visiting buffers belonging to the
+  current repository without prompting.
+
 - Key: C-c M-g G (magit-display-repository-buffer) ::
 
   This command reads and displays a Magit buffer belonging to the

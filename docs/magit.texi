@@ -9717,6 +9717,9 @@ buffer, like @code{magit-status} does.  Additionally it tries to go to
 the position in that buffer, which corresponds to the position
 in the current file-visiting buffer (if any).
 
+Before doing so, save all file-visiting buffers belonging to the
+current repository without prompting.
+
 @item @kbd{C-c M-g G} (@code{magit-display-repository-buffer})
 @kindex C-c M-g G
 @findex magit-display-repository-buffer

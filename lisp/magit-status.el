@@ -346,8 +346,12 @@ also contains other useful hints.")
 
 ;;;###autoload
 (defun magit-status-here ()
-  "Like `magit-status' but with non-nil `magit-status-goto-file-position'."
+  "Like `magit-status' but with non-nil `magit-status-goto-file-position'.
+Before doing so, save all file-visiting buffers belonging to the current
+repository without prompting."
   (interactive)
+  (let ((magit-inhibit-refresh t))
+    (magit-save-repository-buffers t))
   (let ((magit-status-goto-file-position t))
     (call-interactively #'magit-status)))
 
