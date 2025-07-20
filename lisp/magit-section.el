@@ -908,7 +908,10 @@ With a prefix argument also expand it." heading)
             (list :description heading))
      ,@(and inserter
             `(:if (##memq ',inserter
-                          (bound-and-true-p magit-status-sections-hook))))
+                          (symbol-value
+                           (intern (format "%s-sections-hook"
+                                           (substring (symbol-name major-mode)
+                                                      0 -5)))))))
      :inapt-if-not (##magit-get-section
                     (cons (cons ',type ,value)
                           (magit-section-ident magit-root-section)))
