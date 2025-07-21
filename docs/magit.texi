@@ -2675,7 +2675,7 @@ untracked files in the status buffer.
 If @code{nil}, do not list any untracked files.
 @item
 If @code{t}, list untracked files, but if a directory does not contain any
-untracked files, then only list that directory, not the contained
+tracked files, then only list that directory, not the contained
 untracked files.
 @item
 If @code{all}, then list each individual untracked files.  This is can be

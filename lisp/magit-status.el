@@ -147,7 +147,7 @@ The functions which respect this option are
 
 - If nil, do not list any untracked files.
 - If t, list untracked files, but if a directory does not contain any
-  untracked files, then only list that directory, not the contained
+  tracked files, then only list that directory, not the contained
   untracked files.
 - If all, then list each individual untracked files.  This is can be
   very slow and is discouraged.
