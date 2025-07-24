@@ -456,7 +456,7 @@ Magit-Section is documented in info node `(magit-section)'."
   ;; Turn off syntactic font locking, but not by setting
   ;; `font-lock-defaults' because that would enable font locking, and
   ;; not all magit plugins may be ready for that (see #3950).
-  (setq-local font-lock-syntactic-face-function #'ignore)
+  (setq font-lock-keywords-only t)
   (setq show-trailing-whitespace nil)
   (setq-local symbol-overlay-inhibit-map t)
   (setq list-buffers-directory (abbreviate-file-name default-directory))
