@@ -1780,7 +1780,7 @@ the Magit-Status buffer for DIRECTORY."
       (list buf nil))))
 
 (defun magit-diff--file-at-point (&optional expand assert)
-  ;; This is a variation of magit-file-at-point.
+  ;; This is a variation of `magit-file-at-point'.
   (if-let* ((file-section (magit-section-case
                             (file it)
                             (hunk (oref it parent))))
