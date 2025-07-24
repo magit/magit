@@ -2235,31 +2235,7 @@ keymap is the parent of their keymaps."
     map)
   "Keymap for `hunk' sections.")
 
-(defconst magit-diff-conflict-headline-re
-  (concat "^" (regexp-opt
-               ;; Defined in merge-tree.c in this order.
-               '("merged"
-                 "added in remote"
-                 "added in both"
-                 "added in local"
-                 "removed in both"
-                 "changed in both"
-                 "removed in local"
-                 "removed in remote"))))
-
-(defconst magit-diff-headline-re
-  (concat "^\\(@@@?\\|diff\\|Submodule\\|"
-          "\\* Unmerged path\\|"
-          (substring magit-diff-conflict-headline-re 1)
-          "\\)"))
-
-(defconst magit-diff-statline-re
-  (concat "^ ?"
-          "\\(.*\\)"     ; file
-          "\\( +| +\\)"  ; separator
-          "\\([0-9]+\\|Bin\\(?: +[0-9]+ -> [0-9]+ bytes\\)?$\\) ?"
-          "\\(\\+*\\)"   ; add
-          "\\(-*\\)$"))  ; del
+;;; Diff Insert
 
 (defvar magit-diff--reset-non-color-moved
   (list
@@ -2315,6 +2291,34 @@ keymap is the parent of their keymaps."
                 magit-diff-extra-stat-arguments)
               args)
     args))
+
+;;; Diff Wash
+
+(defconst magit-diff-conflict-headline-re
+  (concat "^" (regexp-opt
+               ;; Defined in merge-tree.c in this order.
+               '("merged"
+                 "added in remote"
+                 "added in both"
+                 "added in local"
+                 "removed in both"
+                 "changed in both"
+                 "removed in local"
+                 "removed in remote"))))
+
+(defconst magit-diff-headline-re
+  (concat "^\\(@@@?\\|diff\\|Submodule\\|"
+          "\\* Unmerged path\\|"
+          (substring magit-diff-conflict-headline-re 1)
+          "\\)"))
+
+(defconst magit-diff-statline-re
+  (concat "^ ?"
+          "\\(.*\\)"     ; file
+          "\\( +| +\\)"  ; separator
+          "\\([0-9]+\\|Bin\\(?: +[0-9]+ -> [0-9]+ bytes\\)?$\\) ?"
+          "\\(\\+*\\)"   ; add
+          "\\(-*\\)$"))  ; del
 
 (defun magit-diff-use-window-width-as-stat-width ()
   "Use the `window-width' as the value of `--stat-width'."
