@@ -2772,6 +2772,8 @@ Staging and applying changes is documented in info node
 (cl-defmethod magit-buffer-value (&context (major-mode magit-revision-mode))
   (cons magit-buffer-revision magit-buffer-diff-files))
 
+;;; Revision Sections
+
 (defun magit-insert-revision-diff ()
   "Insert the diff into this `magit-revision-mode' buffer."
   (magit--insert-diff t
