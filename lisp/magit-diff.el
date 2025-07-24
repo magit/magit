@@ -3225,8 +3225,6 @@ It the SECTION has a different type, then do nothing."
 
 ;;; Diff Type
 
-(defvar magit--diff-use-recorded-type-p t)
-
 (defun magit-diff-type (&optional section)
   "Return the diff type of SECTION.
 
@@ -3255,8 +3253,7 @@ Do not confuse this with `magit-diff-scope' (which see)."
           ((derived-mode-p 'magit-diff-mode)
            (let ((range magit-buffer-range)
                  (const magit-buffer-typearg))
-             (cond ((and magit--diff-use-recorded-type-p
-                         magit-buffer-diff-type))
+             (cond (magit-buffer-diff-type)
                    ((equal const "--no-index") 'undefined)
                    ((or (not range)
                         (equal range "HEAD")
