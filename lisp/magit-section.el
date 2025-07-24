@@ -2384,8 +2384,8 @@ Configuration'."
 (defun magit--add-face-text-property ( beg end face
                                        &optional append object adopt-face)
   "Like `add-face-text-property' but for `font-lock-face'.
-If optional ADOPT-FACE, the replace `face' with `font-lock-face'
-first.  This is a hack, which is likely to be remove again."
+If optional ADOPT-FACE, then replace `face' with `font-lock-face'
+first.  The latter is a hack, which is likely to be removed again."
   (when (stringp object)
     (unless beg (setq beg 0))
     (unless end (setq end (length object))))
