@@ -3345,6 +3345,7 @@ actually a `diff' but a `diffstat' section."
                  (eq (region-end) (region-beginning))))))
 
 ;;; Hunk Paint
+;;;; Paint
 
 (cl-defmethod magit-section-paint ((section magit-hunk-section) highlight)
   (unless magit-diff-highlight-hunk-body
@@ -3391,6 +3392,8 @@ actually a `diff' but a `diffstat' section."
   (when (eq magit-diff-refine-hunk 'all)
     (magit-diff-update-hunk-refinement section))
   (oset section painted (if highlight 'highlight 'plain)))
+
+;;;; Whitespace
 
 (defvar magit-diff--tab-width-cache nil)
 
@@ -3462,6 +3465,8 @@ actually a `diff' but a `diffstat' section."
           (overlay-put ov 'font-lock-face 'magit-diff-whitespace-warning)
           (overlay-put ov 'priority 2)
           (overlay-put ov 'evaporate t))))))
+
+;;;; Refinement
 
 (cl-defmethod magit-section--refine ((section magit-hunk-section))
   (when (eq magit-diff-refine-hunk t)
