@@ -971,31 +971,6 @@ Pad the left side of STRING so that it aligns with the text area."
 
 ;;; Missing from Emacs
 
-(defun magit--buffer-string (&optional min max trim)
-  "Like `buffer-substring-no-properties' but the arguments are optional.
-
-This combines the benefits of `buffer-string', `buffer-substring'
-and `buffer-substring-no-properties' into one function that is
-not as painful to use as the latter.  I.e., you can write
-  (magit--buffer-string)
-instead of
-  (buffer-substring-no-properties (point-min)
-                                  (point-max))
-
-Optional MIN defaults to the value of `point-min'.
-Optional MAX defaults to the value of `point-max'.
-
-If optional TRIM is non-nil, then all leading and trailing
-whitespace is remove.  If it is the newline character, then
-one trailing newline is added."
-  ;; Lets write that one last time and be done with it:
-  (let ((str (buffer-substring-no-properties (or min (point-min))
-                                             (or max (point-max)))))
-    (if trim
-        (concat (string-trim str)
-                (and (eq trim ?\n) "\n"))
-      str)))
-
 (defun magit--separate (pred list)
   "Separate elements of LIST that do and don't satisfy PRED.
 Return a list of two lists; the first containing the elements that
