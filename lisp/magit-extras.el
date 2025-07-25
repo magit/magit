@@ -205,9 +205,6 @@ to nil before loading Magit to prevent \"m\" from being bound.")
 
 (with-eval-after-load 'project
   (when (and magit-bind-magit-project-status
-             ;; Added in Emacs 28.1.
-             (boundp 'project-prefix-map)
-             (boundp 'project-switch-commands)
              ;; Only modify if it hasn't already been modified.
              (equal project-switch-commands
                     (eval (car (get 'project-switch-commands 'standard-value))

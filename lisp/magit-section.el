@@ -10,7 +10,7 @@
 
 ;; Package-Version: 4.3.8
 ;; Package-Requires: (
-;;     (emacs "27.1")
+;;     (emacs "28.1")
 ;;     (compat "30.1")
 ;;     (llama "1.0.0")
 ;;     (seq "2.24"))
@@ -290,16 +290,6 @@ but that ship has sailed, thus this option."
   :group 'magit-section
   :type 'boolean)
 
-(defcustom magit-section-show-context-menu-for-emacs<28 nil
-  "Whether `mouse-3' shows a context menu for Emacs < 28.
-
-This has to be set before loading `magit-section' or it has
-no effect.  This also has no effect for Emacs >= 28, where
-`context-menu-mode' should be enabled instead."
-  :package-version '(magit-section . "4.0.0")
-  :group 'magit-section
-  :type 'boolean)
-
 ;;; Variables
 
 (defvar-local magit-section-preserve-visibility t)
@@ -403,45 +393,31 @@ This keymap is used in addition to the section-specific keymap, if any."
   "<double-mouse-1>" #'magit-mouse-toggle-section
   "<double-mouse-2>" #'magit-mouse-toggle-section)
 
-(defvar magit-section-mode-map
-  (let ((map (make-keymap)))
-    (suppress-keymap map t)
-    (when (and magit-section-show-context-menu-for-emacs<28
-               (< emacs-major-version 28))
-      (keymap-set map "<mouse-3>" nil)
-      (keymap-set
-       map "<down-mouse-3>"
-       `( menu-item "" ,(make-sparse-keymap)
-          :filter ,(lambda (_)
-                     (let ((menu (make-sparse-keymap)))
-                       (if (fboundp 'context-menu-local)
-                           (context-menu-local menu last-input-event)
-                         (magit--context-menu-local menu last-input-event))
-                       (magit-section-context-menu menu last-input-event)
-                       menu)))))
-    (keymap-set map "<left-fringe> <mouse-1>" #'magit-mouse-toggle-section)
-    (keymap-set map "<left-fringe> <mouse-2>" #'magit-mouse-toggle-section)
-    (keymap-set map "TAB"       #'magit-section-toggle)
-    (keymap-set map "C-c TAB"   #'magit-section-cycle)
-    (keymap-set map "C-<tab>"   #'magit-section-cycle)
-    (keymap-set map "M-<tab>"   #'magit-section-cycle)
-    ;; <backtab> is the most portable binding for Shift+Tab.
-    (keymap-set map "<backtab>" #'magit-section-cycle-global)
-    (keymap-set map   "^" #'magit-section-up)
-    (keymap-set map   "p" #'magit-section-backward)
-    (keymap-set map   "n" #'magit-section-forward)
-    (keymap-set map "M-p" #'magit-section-backward-sibling)
-    (keymap-set map "M-n" #'magit-section-forward-sibling)
-    (keymap-set map   "1" #'magit-section-show-level-1)
-    (keymap-set map   "2" #'magit-section-show-level-2)
-    (keymap-set map   "3" #'magit-section-show-level-3)
-    (keymap-set map   "4" #'magit-section-show-level-4)
-    (keymap-set map "M-1" #'magit-section-show-level-1-all)
-    (keymap-set map "M-2" #'magit-section-show-level-2-all)
-    (keymap-set map "M-3" #'magit-section-show-level-3-all)
-    (keymap-set map "M-4" #'magit-section-show-level-4-all)
-    map)
-  "Parent keymap for all keymaps of modes derived from `magit-section-mode'.")
+(defvar-keymap magit-section-mode-map
+  :doc "Parent keymap for keymaps of modes derived from `magit-section-mode'."
+  :full t
+  :suppress t
+  "<left-fringe> <mouse-1>" #'magit-mouse-toggle-section
+  "<left-fringe> <mouse-2>" #'magit-mouse-toggle-section
+  "TAB"       #'magit-section-toggle
+  "C-c TAB"   #'magit-section-cycle
+  "C-<tab>"   #'magit-section-cycle
+  "M-<tab>"   #'magit-section-cycle
+  ;; <backtab> is the most portable binding for Shift+Tab.
+  "<backtab>" #'magit-section-cycle-global
+  "^"   #'magit-section-up
+  "p"   #'magit-section-backward
+  "n"   #'magit-section-forward
+  "M-p" #'magit-section-backward-sibling
+  "M-n" #'magit-section-forward-sibling
+  "1"   #'magit-section-show-level-1
+  "2"   #'magit-section-show-level-2
+  "3"   #'magit-section-show-level-3
+  "4"   #'magit-section-show-level-4
+  "M-1" #'magit-section-show-level-1-all
+  "M-2" #'magit-section-show-level-2-all
+  "M-3" #'magit-section-show-level-3-all
+  "M-4" #'magit-section-show-level-4-all)
 
 (define-derived-mode magit-section-mode special-mode "Magit-Sections"
   "Parent major mode from which major modes with Magit-like sections inherit.
@@ -661,9 +637,7 @@ with SECTION, otherwise return a list of section types."
                     (when (consp binding)
                       (define-key-after menu (vector key)
                         (copy-sequence binding))))
-                  (if (fboundp 'menu-bar-keymap)
-                      (menu-bar-keymap map)
-                    (magit--menu-bar-keymap map)))))
+                  (menu-bar-keymap map))))
   menu)
 
 (defun magit-menu-item (desc def &optional props)
@@ -756,28 +730,6 @@ The following %-specs are allowed:
                    (?m . ,(or multiple single))
                    (?M . ,(or multiple value))
                    (?x . ,(format "%s" magit-menu-common-value))))))
-
-(defun magit--menu-bar-keymap (keymap)
-  "Backport of `menu-bar-keymap' for Emacs < 28.
-Slight trimmed down."
-  (let ((menu-bar nil))
-    (map-keymap (lambda (key binding)
-                  (push (cons key binding) menu-bar))
-                keymap)
-    (cons 'keymap (nreverse menu-bar))))
-
-(defun magit--context-menu-local (menu _click)
-  "Backport of `context-menu-local' for Emacs < 28."
-  (run-hooks 'activate-menubar-hook 'menu-bar-update-hook)
-  (keymap-set-after menu "<separator-local>" menu-bar-separator)
-  (let ((keymap (local-key-binding [menu-bar])))
-    (when keymap
-      (map-keymap (lambda (key binding)
-                    (when (consp binding)
-                      (define-key-after menu (vector key)
-                        (copy-sequence binding))))
-                  (magit--menu-bar-keymap keymap))))
-  menu)
 
 (define-advice context-menu-region (:around (fn menu click) magit-section-mode)
   "Disable in `magit-section-mode' buffers."

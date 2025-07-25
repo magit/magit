@@ -19,7 +19,7 @@
 
 ;; Package-Version: 4.3.8
 ;; Package-Requires: (
-;;     (emacs "27.1")
+;;     (emacs "28.1")
 ;;     (compat "30.1")
 ;;     (llama "1.0.0")
 ;;     (magit-section "4.3.8")

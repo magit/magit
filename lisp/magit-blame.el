@@ -326,12 +326,6 @@ in `magit-blame-read-only-mode-map' instead."
   :lighter magit-blame-mode-lighter
   :interactive nil
   (cond (magit-blame-mode
-         (unless arg
-           ;; Emacs < 28.1 doesn't support `:interactive'.
-           (setq magit-blame-mode nil)
-           (user-error
-            (concat "Don't call `magit-blame-mode' directly; "
-                    "instead use `magit-blame'")))
          (add-hook 'after-save-hook     #'magit-blame--refresh t t)
          (add-hook 'post-command-hook   #'magit-blame-goto-chunk-hook t t)
          (add-hook 'before-revert-hook  #'magit-blame--remove-overlays t t)

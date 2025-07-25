@@ -435,52 +435,51 @@ recommended value."
   "This is a placeholder command, which signals an error if called.
 Where applicable, other keymaps remap this command to another,
 which actually deletes the thing at point."
+  (declare (completion ignore))
   (interactive)
   (user-error "There is no thing at point that could be deleted"))
-;; Starting with Emacs 28.1 we could use (declare (completion ignore)).
-(put 'magit-delete-thing 'completion-predicate #'ignore)
 
 (defun magit-visit-thing ()
   "This is a placeholder command, which may signal an error if called.
 Where applicable, other keymaps remap this command to another,
 which actually visits the thing at point."
+  (declare (completion ignore))
   (interactive)
   (if (eq transient-current-command 'magit-dispatch)
       (call-interactively (key-binding (this-command-keys)))
     (if-let ((url (thing-at-point 'url t)))
         (browse-url url)
       (user-error "There is no thing at point that could be visited"))))
-(put 'magit-visit-thing 'completion-predicate #'ignore)
 
 (defun magit-edit-thing ()
   "This is a placeholder command, which may signal an error if called.
 Where applicable, other keymaps remap this command to another,
 which actually lets you edit the thing at point, likely in another
 buffer."
+  (declare (completion ignore))
   (interactive)
   (if (eq transient-current-command 'magit-dispatch)
       (call-interactively (key-binding (this-command-keys)))
     (user-error "There is no thing at point that could be edited")))
-(put 'magit-edit-thing 'completion-predicate #'ignore)
 
 (defun magit-browse-thing ()
   "This is a placeholder command, which may signal an error if called.
 Where applicable, other keymaps remap this command to another,
 which actually visits thing at point using `browse-url'."
+  (declare (completion ignore))
   (interactive)
   (if-let ((url (thing-at-point 'url t)))
       (browse-url url)
     (user-error "There is no thing at point that could be browsed")))
-(put 'magit-browse-thing 'completion-predicate #'ignore)
 
 (defun magit-copy-thing ()
   "This is a placeholder command, which signals an error if called.
 Where applicable, other keymaps remap this command to another,
 which actually copies some representation of the thing at point
 to the kill ring."
+  (declare (completion ignore))
   (interactive)
   (user-error "There is no thing at point that we know how to copy"))
-(put 'magit-copy-thing 'completion-predicate #'ignore)
 
 ;;;###autoload
 (defun magit-info ()

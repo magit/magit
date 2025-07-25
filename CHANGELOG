@@ -1,4 +1,10 @@
 # -*- mode: org -*-
+* v4.3.9    UNRELEASED
+
+- At least Emacs 28.1 is required now.  Emacs 30.1 was released
+  earlier this year, so we do actually continue to support Emacs
+  "oldoldstable".
+
 * v4.3.8    2025-07-05
 
 Bugfixes:
