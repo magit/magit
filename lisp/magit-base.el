@@ -887,21 +887,18 @@ See info node `(magit)Debugging Tools' for more information."
 
 (defmacro magit-bind-match-strings (varlist string &rest body)
   "Bind variables to submatches according to VARLIST then evaluate BODY.
-Bind the symbols in VARLIST to submatches of the current match
-data, starting with 1 and incrementing by 1 for each symbol.  If
-the last match was against a string, then that has to be provided
-as STRING."
+Bind the symbols in VARLIST to submatches of the current match data,
+starting with 1 and incrementing by 1 for each symbol.  If the last
+match was against a string, then that has to be provided as STRING."
   (declare (indent 2) (debug (listp form body)))
   (let ((s (gensym "string"))
         (i 0))
-    `(let ((,s ,string))
-       (let ,(save-match-data
-               (mapcan (lambda (sym)
-                         (cl-incf i)
-                         (and (not (eq (aref (symbol-name sym) 0) ?_))
-                              (list (list sym (list 'match-str i s)))))
-                       varlist))
-         ,@body))))
+    `(let* ((,s ,string)
+            ,@(save-match-data
+                (seq-keep (##and (not (eq (aref (symbol-name %) 0) ?_))
+                                 `(,% (match-str ,(cl-incf i) ,s)))
+                          varlist)))
+       ,@body)))
 
 (defun magit-delete-line ()
   "Delete the rest of the current line."
