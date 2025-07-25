@@ -40,7 +40,7 @@
 ;; For `magit-diff-popup'
 (declare-function magit-stash-show "magit-stash" (stash &optional args files))
 ;; For `magit-diff-visit-file'
-(declare-function magit-find-file-noselect "magit-files" (rev file))
+(declare-function magit-find-file-noselect "magit-files" (rev file &optional revert))
 (declare-function magit-status-setup-buffer "magit-status" (&optional directory))
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-diff-1 "magit-commit" ())

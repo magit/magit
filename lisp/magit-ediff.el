@@ -332,7 +332,7 @@ FILE has to be relative to the top directory of the repository."
            (bufC* (or bufC (find-file-noselect file)))
            (coding-system-for-read
             (buffer-local-value 'buffer-file-coding-system bufC*))
-           (bufA* (magit-find-file-noselect-1 "HEAD" file t))
+           (bufA* (magit-find-file-noselect "HEAD" file t))
            (bufB* (magit-find-file-index-noselect file t)))
       (with-current-buffer bufB* (setq buffer-read-only nil))
       (magit-ediff-buffers

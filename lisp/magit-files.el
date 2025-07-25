@@ -107,13 +107,7 @@ the line and column corresponding to that location."
         (move-to-column col)))
     buf))
 
-(defun magit-find-file-noselect (rev file)
-  "Read FILE from REV into a buffer and return the buffer.
-REV is a revision or one of \"{worktree}\" or \"{index}\".
-FILE must be relative to the top directory of the repository."
-  (magit-find-file-noselect-1 rev file))
-
-(defun magit-find-file-noselect-1 (rev file &optional revert)
+(defun magit-find-file-noselect (rev file &optional revert)
   "Read FILE from REV into a buffer and return the buffer.
 REV is a revision or one of \"{worktree}\" or \"{index}\".
 FILE must be relative to the top directory of the repository.
@@ -200,7 +194,7 @@ See also https://github.com/doomemacs/doomemacs/pull/6309."
 (defun magit-find-file-index-noselect (file &optional revert)
   "Read FILE from the index into a buffer and return the buffer.
 FILE must to be relative to the top directory of the repository."
-  (magit-find-file-noselect-1 "{index}" file (or revert 'ask-revert)))
+  (magit-find-file-noselect "{index}" file (or revert 'ask-revert)))
 
 (defun magit-update-index ()
   "Update the index with the contents of the current buffer.
@@ -609,6 +603,9 @@ If DEFAULT is non-nil, use this as the default value instead of
 
 (define-obsolete-function-alias 'magit-unstage-buffer-file
   'magit-file-unstage "Magit 4.3.2")
+
+(define-obsolete-function-alias 'magit-find-file-noselect-1
+  'magit-find-file-noselect "Magit 4.3.9")
 
 (provide 'magit-files)
 ;; Local Variables:
