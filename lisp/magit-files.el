@@ -109,11 +109,10 @@ the line and column corresponding to that location."
 
 (defun magit-find-file-noselect (rev file &optional revert)
   "Read FILE from REV into a buffer and return the buffer.
-REV is a revision or one of \"{worktree}\" or \"{index}\".
-FILE must be relative to the top directory of the repository.
-Non-nil REVERT means to revert the buffer.  If `ask-revert',
-then only after asking.  A non-nil value for REVERT is ignored if REV is
-\"{worktree}\"."
+REV is a revision or one of \"{worktree}\" or \"{index}\".  FILE must
+be relative to the top directory of the repository.  Non-nil REVERT
+means to revert the buffer.  If `ask-revert', then only after asking.
+A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
   (if (equal rev "{worktree}")
       (find-file-noselect (expand-file-name file (magit-toplevel)))
     (let ((topdir (magit-toplevel)))
