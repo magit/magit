@@ -134,4 +134,9 @@ or \"detached head\" will be substituted for %s."
 
 ;;; _
 (provide 'magit-reset)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-reset.el ends here

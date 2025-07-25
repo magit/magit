@@ -430,7 +430,7 @@ many \"branches\" of each wip ref are shown."
                                 reflog :test #'string-match-p))
         (when (and (cadr reflog)
                    (string-match "^[^ ]+ \\([^:]+\\)" (cadr reflog)))
-          (push (match-string 1 (cadr reflog)) tips))
+          (push (match-str 1 (cadr reflog)) tips))
         (setq reflog (cddr reflog))
         (cl-decf count))
       (cons wipref (nreverse tips)))))
@@ -458,4 +458,9 @@ many \"branches\" of each wip ref are shown."
 
 ;;; _
 (provide 'magit-wip)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-wip.el ends here

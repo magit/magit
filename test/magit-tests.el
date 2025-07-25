@@ -271,13 +271,13 @@
   (let* ((prompts '("^foo '\\(?99:.*\\)': ?$"))
          (prompt (magit-process-match-prompt prompts "foo 'bar':")))
     (should (equal prompt "foo 'bar': "))
-    (should (equal (match-string 99 "foo 'bar':") "bar"))))
+    (should (equal (matched 99 "foo 'bar':") "bar"))))
 
 (ert-deftest magit-process:password-prompt-regexps ()
   (cl-flet ((m (prompt)
               (and (magit-process-match-prompt
                     magit-process-password-prompt-regexps prompt)
-                   (or (match-string 99 prompt) t))))
+                   (or (matched 99 prompt) t))))
     ;; History of `magit-process-password-prompt-regexps':
     ;; a36a801cc2 Initial noisy version.
     ;; 2a3bbc3c53 First cleanup.
@@ -537,4 +537,7 @@ Recent commits\n[[:xdigit:]]\\{7,\\} master dummy\\'"
 
 ;;; _
 (provide 'magit-tests)
+;; Local Variables:
+;; read-symbol-shorthands: (("matched" . "match-string-no-properties"))
+;; End:
 ;;; magit-tests.el ends here

@@ -120,4 +120,9 @@ Each of these options falls into one or more of these categories:
 
 ;;; _
 (provide 'magit-core)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-core.el ends here

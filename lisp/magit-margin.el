@@ -250,4 +250,9 @@ English.")
 
 ;;; _
 (provide 'magit-margin)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-margin.el ends here

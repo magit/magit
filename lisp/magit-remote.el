@@ -175,8 +175,8 @@ the now stale refspecs.  Other stale branches are not removed."
          stale)
     (dolist (refspec refspecs)
       (when (string-match magit--refspec-re refspec)
-        (let ((theirs (match-string 2 refspec))
-              (ours   (match-string 3 refspec)))
+        (let ((theirs (match-str 2 refspec))
+              (ours   (match-str 3 refspec)))
           (unless (if (string-match "\\*" theirs)
                       (let ((re (replace-match ".*" t t theirs)))
                         (seq-some (##string-match-p re %) remote-refs))
@@ -393,4 +393,9 @@ refspec."
 
 ;;; _
 (provide 'magit-remote)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-remote.el ends here

@@ -1583,4 +1583,9 @@ line.  Avoid including the line after the end of the file."
 
 ;;; _
 (provide 'magit-mode)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-mode.el ends here

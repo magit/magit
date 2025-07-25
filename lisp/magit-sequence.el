@@ -1010,7 +1010,7 @@ status buffer (i.e., the reverse of how they will be applied)."
                            (if (eq (oref obj action-type) 'merge)
                                (let ((options (oref obj action-options)))
                                  (and (string-match "-[cC] \\([^ ]+\\)" options)
-                                      (match-string 1 options)))
+                                      (match-str 1 options)))
                              (oref obj target)))
                          commits)))))
       (cl-assert (equal (length commits) (length abbrevs)))
@@ -1141,4 +1141,9 @@ status buffer (i.e., the reverse of how they will be applied)."
 
 ;;; _
 (provide 'magit-sequence)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-sequence.el ends here

@@ -156,4 +156,9 @@
 
 ;;; _
 (provide 'magit-bookmark)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-bookmark.el ends here

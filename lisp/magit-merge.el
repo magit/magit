@@ -312,4 +312,9 @@ If no merge is in progress, do nothing."
 
 ;;; _
 (provide 'magit-merge)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-merge.el ends here

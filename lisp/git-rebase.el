@@ -372,13 +372,13 @@ BATCH also ignores commented lines."
                              git-rebase-line-regexps)))
         (git-rebase-action
          :action-type    type
-         :action         (and-let* ((action (match-string-no-properties 1)))
+         :action         (and-let* ((action (match-str 1)))
                            (or (cdr (assoc action git-rebase-short-options))
                                action))
-         :action-options (match-string-no-properties 2)
-         :target         (match-string-no-properties 3)
-         :trailer        (match-string-no-properties 5)
-         :comment-p      (and (match-string 99) t))
+         :action-options (match-str 2)
+         :target         (match-str 3)
+         :trailer        (match-str 5)
+         :comment-p      (and (match-str 99) t))
       (and (not batch)
            ;; Use empty object rather than nil to ease handling.
            (git-rebase-action)))))
@@ -591,7 +591,7 @@ remove the label on the current line, if any."
     (save-excursion
       (goto-char (point-min))
       (while (re-search-forward "^\\(?:l\\|label\\) \\([^ \n]+\\)" nil t)
-        (push (match-string-no-properties 1) labels)))
+        (push (match-str 1) labels)))
     (nreverse labels)))
 
 (defun git-rebase-reset (arg)
@@ -871,11 +871,11 @@ except for the \"pick\" command."
               (line (concat git-rebase-comment-re "\\(?:\\( \\.?     *\\)\\|"
                             "\\( +\\)\\([^\n,],\\) \\([^\n ]+\\) \\)")))
           (while (re-search-forward line nil t)
-            (if (match-string 1)
+            (if (match-str 1)
                 (if (assq cmd git-rebase-fixup-descriptions)
                     (delete-line)
                   (replace-match (make-string 10 ?\s) t t nil 1))
-              (setq cmd (intern (concat "git-rebase-" (match-string 4))))
+              (setq cmd (intern (concat "git-rebase-" (match-str 4))))
               (cond
                ((not (fboundp cmd))
                 (delete-line))
@@ -944,4 +944,9 @@ is used as a value for `imenu-extract-index-name-function'."
 
 ;;; _
 (provide 'git-rebase)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; git-rebase.el ends here

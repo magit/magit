@@ -314,13 +314,13 @@ Then show the status buffer for the new repository."
 
 (defun magit-clone--url-to-name (url)
   (and (string-match "\\([^/:]+?\\)\\(/?\\.git\\)?$" url)
-       (match-string 1 url)))
+       (match-str 1 url)))
 
 (defun magit-clone--name-to-url (name)
   (or (seq-some
        (pcase-lambda (`(,re ,host ,user))
          (and (string-match re name)
-              (let ((repo (match-string 1 name)))
+              (let ((repo (match-str 1 name)))
                 (magit-clone--format-url host user repo))))
        magit-clone-name-alist)
       (user-error "Not an url and no matching entry in `%s'"
@@ -348,4 +348,9 @@ Then show the status buffer for the new repository."
 
 ;;; _
 (provide 'magit-clone)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-clone.el ends here

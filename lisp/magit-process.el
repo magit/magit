@@ -947,8 +947,8 @@ PARENT is used as the parent of the returned keymap."
                  (y-or-n-p-map
                   (magit-process-make-keymap process y-or-n-p-map)))
              (yes-or-no-p (substring string 0 beg))))
-         (concat (downcase (match-string 1 string)) "\n")
-       (concat (downcase (match-string 2 string)) "\n")))))
+         (concat (downcase (match-str 1 string)) "\n")
+       (concat (downcase (match-str 2 string)) "\n")))))
 
 (defun magit-process-password-auth-source (key)
   "Use `auth-source-search' to get a password.
@@ -990,8 +990,8 @@ be translated on the fly by doing this once
   (require 'auth-source)
   (and (fboundp 'auth-source-search)
        (string-match "\\`\\(.+\\)@\\([^@]+\\)\\'" key)
-       (let* ((user (match-string 1 key))
-              (host (match-string 2 key))
+       (let* ((user (match-str 1 key))
+              (host (match-str 2 key))
               (secret
                (plist-get
                 (car (or (auth-source-search :max 1 :host host :user user)
@@ -1026,7 +1026,7 @@ from the user."
                       magit-process-password-prompt-regexps string)))
     (process-send-string
      process
-     (concat (or (and-let* ((key (match-string 99 string)))
+     (concat (or (and-let* ((key (match-str 99 string)))
                    (run-hook-with-args-until-success
                     'magit-process-find-password-functions key))
                  (let ((read-passwd-map
@@ -1048,7 +1048,7 @@ from the user."
   "Match STRING against PROMPTS and set match data.
 Return the matched string, appending \": \" if needed."
   (when (seq-some (##string-match % string) prompts)
-    (let ((prompt (match-string 0 string)))
+    (let ((prompt (match-str 0 string)))
       (cond ((string-suffix-p ": " prompt) prompt)
             ((string-suffix-p ":"  prompt) (concat prompt " "))
             (t                             (concat prompt ": "))))))
@@ -1209,7 +1209,7 @@ If STR is supplied, it replaces the `mode-line-process' text."
                  (lambda (re)
                    (save-excursion
                      (and (re-search-backward re (oref section start) t)
-                          (match-string-no-properties 1))))))))))
+                          (match-str 1))))))))))
 
 (defun magit-process-error-tooltip (process-buf section)
   "Returns the text from SECTION of the PROCESS-BUF buffer.
@@ -1344,4 +1344,9 @@ Limited by `magit-process-error-tooltip-max-lines'."
 
 ;;; _
 (provide 'magit-process)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-process.el ends here

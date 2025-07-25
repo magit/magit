@@ -893,7 +893,7 @@ limit.  Otherwise set it to 256."
 (defun magit-log-set-commit-limit (fn)
   (let* ((val magit-buffer-log-args)
          (arg (seq-find (##string-match "^-n\\([0-9]+\\)?$" %) val))
-         (num (and arg (string-to-number (match-string 1 arg))))
+         (num (and arg (string-to-number (match-str 1 arg))))
          (num (if num (funcall fn num 2) 256)))
     (setq val (remove arg val))
     (setq magit-buffer-log-args
@@ -905,7 +905,7 @@ limit.  Otherwise set it to 256."
 (defun magit-log-get-commit-limit (&optional args)
   (and-let* ((str (seq-find (##string-match "^-n\\([0-9]+\\)?$" %)
                             (or args magit-buffer-log-args))))
-    (string-to-number (match-string 1 str))))
+    (string-to-number (match-str 1 str))))
 
 ;;;; Mode Commands
 
@@ -1249,7 +1249,7 @@ Do not add this to a hook variable."
       (progn
         (when-let ((order (seq-find (##string-match "^\\+\\+order=\\(.+\\)$" %)
                                     args)))
-          (setq args (cons (format "--%s-order" (match-string 1 order))
+          (setq args (cons (format "--%s-order" (match-str 1 order))
                            (remove order args))))
         (when (member "--decorate" args)
           (setq args (cons "--decorate=full" (remove "--decorate" args))))
@@ -1456,9 +1456,9 @@ Do not add this to a hook variable."
           (goto-char (line-beginning-position))
           (when (and refsub
                      (string-match "\\`\\([^ ]\\) \\+\\(..\\)\\(..\\)" date))
-            (setq date (+ (string-to-number (match-string 1 date))
-                          (* (string-to-number (match-string 2 date)) 60 60)
-                          (* (string-to-number (match-string 3 date)) 60))))
+            (setq date (+ (string-to-number (match-str 1 date))
+                          (* (string-to-number (match-str 2 date)) 60 60)
+                          (* (string-to-number (match-str 3 date)) 60))))
           (magit-log-format-margin hash author date))
         (when (and (eq style 'cherry)
                    (magit-buffer-margin-p))
@@ -1502,7 +1502,7 @@ Do not add this to a hook variable."
               (save-excursion
                 (forward-line -1)
                 (looking-at "[-_/|\\*o<>. ]*"))
-              (setq graph (match-string 0))
+              (setq graph (match-str 0))
               (unless (string-match-p "[/\\.]" graph)
                 (insert graph ?\n))))))))
   t)
@@ -2055,4 +2055,9 @@ all others with \"-\"."
 
 ;;; _
 (provide 'magit-log)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-log.el ends here

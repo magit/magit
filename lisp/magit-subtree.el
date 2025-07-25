@@ -184,4 +184,9 @@
 
 ;;; _
 (provide 'magit-subtree)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-subtree.el ends here

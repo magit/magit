@@ -370,4 +370,9 @@ You can add this command as a suffix using something like:
 
 ;;; _
 (provide 'magit-push)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-push.el ends here

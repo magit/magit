@@ -155,4 +155,9 @@ This header is not inserted by default.  To enable it, add it to
 
 ;;; _
 (provide 'magit-sparse-checkout)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-sparse-checkout.el ends here

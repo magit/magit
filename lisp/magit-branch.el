@@ -263,12 +263,12 @@ changes.
   (interactive (list (magit-read-other-branch-or-commit "Checkout")
                      (magit-branch-arguments)))
   (when (string-match "\\`heads/\\(.+\\)" commit)
-    (setq commit (match-string 1 commit)))
+    (setq commit (match-str 1 commit)))
   (magit-run-git-async "checkout" args commit))
 
 (defun magit--checkout (rev &optional args)
   (when (string-match "\\`heads/\\(.+\\)" rev)
-    (setq rev (match-string 1 rev)))
+    (setq rev (match-str 1 rev)))
   (magit-call-git "checkout" args rev))
 
 ;;;###autoload
@@ -319,7 +319,7 @@ does."
            (and (not (magit-commit-p arg))
                 (magit-read-starting-point "Create and checkout branch" arg)))))
   (when (string-match "\\`heads/\\(.+\\)" arg)
-    (setq arg (match-string 1 arg)))
+    (setq arg (match-str 1 arg)))
   (if start-point
       (with-suppressed-warnings ((interactive-only magit-branch-and-checkout))
         (magit-branch-and-checkout arg start-point))
@@ -622,7 +622,7 @@ prompt is confusing."
            (format "%s of these names are" len))))))
     (cond
      ((string-match "^refs/remotes/\\([^/]+\\)" (car refs))
-      (let* ((remote (match-string 1 (car refs)))
+      (let* ((remote (match-str 1 (car refs)))
              (offset (1+ (length remote))))
         (cond
          ((magit-confirm 'delete-branch-on-remote
@@ -766,7 +766,7 @@ the remote."
                                  nil 'magit-revision-history)
            current-prefix-arg)))
   (when (string-match "\\`heads/\\(.+\\)" old)
-    (setq old (match-string 1 old)))
+    (setq old (match-str 1 old)))
   (when (equal old new)
     (user-error "Old and new branch names are the same"))
   (magit-call-git "branch" (if force "-M" "-m") old new)
@@ -979,4 +979,9 @@ Also rename the respective reflog file."
 
 ;;; _
 (provide 'magit-branch)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-branch.el ends here

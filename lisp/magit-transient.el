@@ -240,4 +240,9 @@ The value derives from that returned by `transient-get-value'."
 
 ;;; _
 (provide 'magit-transient)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-transient.el ends here

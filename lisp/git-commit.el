@@ -718,15 +718,15 @@ conventions are checked."
       (save-excursion
         (goto-char (point-min))
         (re-search-forward (git-commit-summary-regexp) nil t)
-        (if (equal (match-string 1) "")
+        (if (equal (match-str 1) "")
             t ; Just try; we don't know whether --allow-empty-message was used.
           (and (or (not (memq 'overlong-summary-line
                               git-commit-style-convention-checks))
-                   (equal (match-string 2) "")
+                   (equal (match-str 2) "")
                    (y-or-n-p "Summary line is too long.  Commit anyway? "))
                (or (not (memq 'non-empty-second-line
                               git-commit-style-convention-checks))
-                   (not (match-string 3))
+                   (not (match-str 3))
                    (y-or-n-p "Second line is not empty.  Commit anyway? ")))))))
 
 (defun git-commit-cancel-message ()
@@ -950,8 +950,8 @@ completion candidates.  The input must have the form \"NAME <EMAIL>\"."
               nil nil nil 'git-commit-read-ident-history)))
     (save-match-data
       (if (string-match "\\`\\([^<]+\\) *<\\([^>]+\\)>\\'" str)
-          (list (save-match-data (string-trim (match-string 1 str)))
-                (string-trim (match-string 2 str)))
+          (list (save-match-data (string-trim (match-str 1 str)))
+                (string-trim (match-str 2 str)))
         (user-error "Invalid input")))))
 
 (defun git-commit--insert-ident-trailer (trailer name email)
@@ -1218,4 +1218,9 @@ Elisp doc-strings, including this one.  Unlike in doc-strings,
  "git-commit 4.0.0")
 
 (provide 'git-commit)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; git-commit.el ends here

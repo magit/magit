@@ -611,4 +611,9 @@ If DEFAULT is non-nil, use this as the default value instead of
   'magit-file-unstage "Magit 4.3.2")
 
 (provide 'magit-files)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-files.el ends here

@@ -106,4 +106,9 @@ Interactively, open the file at point."
 
 ;;; _
 (provide 'magit-dired)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-dired.el ends here

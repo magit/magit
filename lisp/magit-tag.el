@@ -167,7 +167,7 @@ that is not the case, propose a message using a reasonable format."
           (`(,pver ,ptag ,pmsg) (car (magit--list-releases)))
           (msg (magit-rev-format "%s"))
           (ver (and (string-match magit-release-commit-regexp msg)
-                    (match-string 1 msg)))
+                    (match-str 1 msg)))
           (_   (and (not ver)
                     (require (quote sisyphus) nil t)
                     (string-match magit-release-commit-regexp
@@ -185,14 +185,14 @@ that is not the case, propose a message using a reasonable format."
                                 ver)))
                 (ver
                  (concat (and (string-match magit-release-tag-regexp ptag)
-                              (match-string 1 ptag))
+                              (match-str 1 ptag))
                          ver))
                 (t
                  (read-string
                   (format "Create release tag (previous was %s): " ptag)
                   ptag))))
           (ver (and (string-match magit-release-tag-regexp tag)
-                    (match-string 2 tag))))
+                    (match-str 2 tag))))
        (list tag
              (and (seq-some (apply-partially
                              #'string-match-p
@@ -232,7 +232,7 @@ a tag qualifies as a release tag."
                        (let ((tag (substring line 0 (match-beginning 0)))
                              (msg (substring line (match-end 0))))
                          (and (string-match magit-release-tag-regexp tag)
-                              (let ((ver (match-string 2 tag))
+                              (let ((ver (match-str 2 tag))
                                     (version-regexp-alist
                                      magit-tag-version-regexp-alist))
                                 (list (list (version-to-list ver)
@@ -245,4 +245,9 @@ a tag qualifies as a release tag."
 
 ;;; _
 (provide 'magit-tag)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-tag.el ends here

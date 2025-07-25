@@ -268,4 +268,9 @@ defaults to nil) for any BUFFER."
 
 ;;; _
 (provide 'magit-autorevert)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-autorevert.el ends here

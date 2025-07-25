@@ -899,7 +899,7 @@ as STRING."
                (mapcan (lambda (sym)
                          (cl-incf i)
                          (and (not (eq (aref (symbol-name sym) 0) ?_))
-                              (list (list sym (list 'match-string i s)))))
+                              (list (list sym (list 'match-str i s)))))
                        varlist))
          ,@body))))
 
@@ -948,8 +948,8 @@ Pad the left side of STRING so that it aligns with the text area."
         (delete-char 1))
        ;; Valid format spec.
        ((looking-at "\\([-0-9.]*\\)\\([a-zA-Z]\\)")
-        (let* ((num (match-string 1))
-               (spec (string-to-char (match-string 2)))
+        (let* ((num (match-str 1))
+               (spec (string-to-char (match-str 2)))
                (val (assq spec specification)))
           (unless val
             (error "Invalid format character: `%%%c'" spec))
@@ -1087,9 +1087,9 @@ the value in the symbol's `saved-value' property if any, or
         (pcase magit-view-git-manual-method
           ('info  (funcall fn fork))
           ('man   (require 'man)
-                  (man (match-string 1 node)))
+                  (man (match-str 1 node)))
           ('woman (require 'woman)
-                  (woman (match-string 1 node)))
+                  (woman (match-str 1 node)))
           (_ (user-error "Invalid value for `magit-view-git-manual-method'")))
       (funcall fn fork))))
 
@@ -1193,4 +1193,9 @@ Like `message', except that `message-log-max' is bound to nil."
 
 ;;; _
 (provide 'magit-base)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-base.el ends here

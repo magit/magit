@@ -817,4 +817,9 @@ Honor the buffer's file filter, which can be set using \"D - -\"."
 
 ;;; _
 (provide 'magit-status)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-status.el ends here

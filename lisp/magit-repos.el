@@ -384,7 +384,7 @@ Usually this is just its basename."
         (when (match-end 4)
           (magit--put-face (or (match-beginning 3) (match-beginning 4))
                            (match-end 4) 'error v))
-        (when (and (equal (match-string 2 v) "1")
+        (when (and (equal (match-str 2 v) "1")
                    (string-match-p magit-repolist-column-version-resume-regexp
                                    (magit-rev-format "%s")))
           (setq v (replace-match (propertize "+" 'face 'shadow) t t v 1))))
@@ -397,8 +397,8 @@ Usually this is just its basename."
 (defun magit-repolist-version< (a b)
   (save-match-data
     (let ((re "[0-9]+\\(\\.[0-9]*\\)*"))
-      (setq a (and (string-match re a) (match-string 0 a)))
-      (setq b (and (string-match re b) (match-string 0 b)))
+      (setq a (and (string-match re a) (match-str 0 a)))
+      (setq b (and (string-match re b) (match-str 0 b)))
       (cond ((and a b) (version< a b))
             (b nil)
             (t t)))))
@@ -544,4 +544,9 @@ instead."
 
 ;;; _
 (provide 'magit-repos)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-repos.el ends here

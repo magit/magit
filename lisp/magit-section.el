@@ -2604,4 +2604,9 @@ with the variables' values as arguments, which were recorded by
 
 ;;; _
 (provide 'magit-section)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-section.el ends here

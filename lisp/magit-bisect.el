@@ -258,7 +258,7 @@ bisect run'."
                               (pop lines))
                          (seq-find (##string-match done-re %) lines))))
       (magit-insert-section ((eval (if bad-line 'commit 'bisect-output))
-                             (and bad-line (match-string 1 bad-line)))
+                             (and bad-line (match-str 1 bad-line)))
         (magit-insert-heading
           (propertize (or bad-line (pop lines))
                       'font-lock-face 'magit-section-heading))
@@ -291,7 +291,7 @@ bisect run'."
     (while (progn (setq beg (point-marker))
                   (re-search-forward
                    "^\\(\\(?:git bisect\\|# status:\\) [^\n]+\n\\)" nil t))
-      (if (string-prefix-p "# status:" (match-string 1))
+      (if (string-prefix-p "# status:" (match-str 1))
           (magit-delete-match)
         (magit-bind-match-strings (heading) nil
           (magit-delete-match)
@@ -315,4 +315,9 @@ bisect run'."
 
 ;;; _
 (provide 'magit-bisect)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-bisect.el ends here

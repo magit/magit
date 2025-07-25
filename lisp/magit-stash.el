@@ -681,4 +681,9 @@ that make up the stash."
 
 ;;; _
 (provide 'magit-stash)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-stash.el ends here

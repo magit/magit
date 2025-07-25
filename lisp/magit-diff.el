@@ -1482,7 +1482,7 @@ Change \"revA..revB\" to \"revA...revB\", or vice versa."
            (derived-mode-p 'magit-diff-mode)
            (string-match magit-range-re magit-buffer-range))
       (setq magit-buffer-range
-            (replace-match (if (string= (match-string 2 magit-buffer-range) "..")
+            (replace-match (if (string= (match-str 2 magit-buffer-range) "..")
                                "..."
                              "..")
                            t t magit-buffer-range 2))
@@ -1498,9 +1498,9 @@ Change \"revA..revB\" to \"revB..revA\"."
            (string-match magit-range-re magit-buffer-range))
       (progn
         (setq magit-buffer-range
-              (concat (match-string 3 magit-buffer-range)
-                      (match-string 2 magit-buffer-range)
-                      (match-string 1 magit-buffer-range)))
+              (concat (match-str 3 magit-buffer-range)
+                      (match-str 2 magit-buffer-range)
+                      (match-str 1 magit-buffer-range)))
         (magit-refresh))
     (user-error "No range to swap")))
 
@@ -1553,7 +1553,7 @@ instead."
                 3))
          (val magit-buffer-diff-args)
          (arg (seq-find (##string-match "^-U\\([0-9]+\\)?$" %) val))
-         (num (if-let ((str (and arg (match-string 1 arg))))
+         (num (if-let ((str (and arg (match-str 1 arg))))
                   (string-to-number str)
                 def))
          (val (delete arg val))
@@ -1566,7 +1566,7 @@ instead."
 (defun magit-diff-get-context ()
   (string-to-number
    (or (seq-some (##and (string-match "\\`-U\\([0-9]+\\)?\\'" %)
-                        (match-string 1 %))
+                        (match-str 1 %))
                  magit-buffer-diff-args)
        (magit-get "diff.context")
        "3")))
@@ -1885,9 +1885,9 @@ the Magit-Status buffer for DIRECTORY."
         (while (re-search-forward
                 "^@@ -\\([0-9]+\\),\\([0-9]+\\) \\+\\([0-9]+\\),\\([0-9]+\\) @@.*\n"
                 nil t)
-          (let ((from-beg (string-to-number (match-string 1)))
-                (from-len (string-to-number (match-string 2)))
-                (  to-len (string-to-number (match-string 4))))
+          (let ((from-beg (string-to-number (match-str 1)))
+                (from-len (string-to-number (match-str 2)))
+                (  to-len (string-to-number (match-str 4))))
             (if (<= from-beg line)
                 (if (< (+ from-beg from-len) line)
                     (cl-incf offset (- to-len from-len))
@@ -2365,7 +2365,7 @@ keymap is the parent of their keymaps."
 (defun magit-diff-wash-diffstat ()
   (let (heading (beg (point)))
     (when (re-search-forward "^ ?\\([0-9]+ +files? change[^\n]*\n\\)" nil t)
-      (setq heading (match-string 1))
+      (setq heading (match-str 1))
       (magit-delete-match)
       (goto-char beg)
       (magit-insert-section (diffstat)
@@ -2374,10 +2374,10 @@ keymap is the parent of their keymaps."
         (let (files)
           (while (looking-at "^[-0-9]+\t[-0-9]+\t\\(.+\\)$")
             (push (magit-decode-git-path
-                   (let ((f (match-string 1)))
+                   (let ((f (match-str 1)))
                      (cond
                       ((string-match "{.* => \\(.*\\)}" f)
-                       (replace-match (match-string 1 f) nil t f))
+                       (replace-match (match-str 1 f) nil t f))
                       ((string-match " => " f)
                        (substring f (match-end 0)))
                       (t f))))
@@ -2388,7 +2388,7 @@ keymap is the parent of their keymaps."
             (magit-bind-match-strings (file sep cnt add del) nil
               (magit-delete-line)
               (when (string-match " +$" file)
-                (setq sep (concat (match-string 0 file) sep))
+                (setq sep (concat (match-str 0 file) sep))
                 (setq file (substring file 0 (match-beginning 0))))
               (let ((le (length file)) ld)
                 (setq file (magit-decode-git-path file))
@@ -2415,7 +2415,7 @@ keymap is the parent of their keymaps."
    ((looking-at "^Submodule")
     (magit-diff-wash-submodule))
    ((looking-at "^\\* Unmerged path \\(.*\\)")
-    (let ((file (magit-decode-git-path (match-string 1))))
+    (let ((file (magit-decode-git-path (match-str 1))))
       (magit-delete-line)
       (unless (and (derived-mode-p 'magit-status-mode)
                    (not (member "--cached" args)))
@@ -2434,7 +2434,7 @@ keymap is the parent of their keymaps."
           (insert ?\n))))
     t)
    ((looking-at magit-diff-conflict-headline-re)
-    (let ((long-status (match-string 0))
+    (let ((long-status (match-str 0))
           (status "BUG")
           file orig base)
       (if (equal long-status "merged")
@@ -2467,11 +2467,11 @@ keymap is the parent of their keymaps."
    ((looking-at "^diff --\
 \\(?:\\(?1:git\\) \\(?:\\(?2:.+?\\) \\2\\)?\
 \\|\\(?:cc\\|combined\\) \\(?3:.+\\)\\)")
-    (let ((status (cond ((equal (match-string 1) "git")        "modified")
+    (let ((status (cond ((equal (match-str 1) "git")        "modified")
                         ((derived-mode-p 'magit-revision-mode) "resolved")
                         (t                                     "unmerged")))
           (orig nil)
-          (file (or (match-string 2) (match-string 3)))
+          (file (or (match-str 2) (match-str 3)))
           (header (list (buffer-substring-no-properties
                          (line-beginning-position) (1+ (line-end-position)))))
           (modes nil)
@@ -2481,29 +2481,29 @@ keymap is the parent of their keymaps."
       (while (not (or (eobp) (looking-at magit-diff-headline-re)))
         (cond
          ((looking-at "old mode \\(?:[^\n]+\\)\nnew mode \\(?:[^\n]+\\)\n")
-          (setq modes (match-string 0)))
+          (setq modes (match-str 0)))
          ((looking-at "deleted file .+\n")
           (setq status "deleted"))
          ((looking-at "new file .+\n")
           (setq status "new file"))
          ((looking-at "rename from \\(.+\\)\nrename to \\(.+\\)\n")
-          (setq rename (match-string 0))
-          (setq orig (match-string 1))
-          (setq file (match-string 2))
+          (setq rename (match-str 0))
+          (setq orig (match-str 1))
+          (setq file (match-str 2))
           (setq status "renamed"))
          ((looking-at "copy from \\(.+\\)\ncopy to \\(.+\\)\n")
-          (setq orig (match-string 1))
-          (setq file (match-string 2))
+          (setq orig (match-str 1))
+          (setq file (match-str 2))
           (setq status "new file"))
          ((looking-at "similarity index .+\n"))
          ((looking-at "dissimilarity index .+\n"))
          ((looking-at "index .+\n"))
          ((looking-at "--- \\(.+?\\)\t?\n")
-          (unless (equal (match-string 1) "/dev/null")
-            (setq orig (match-string 1))))
+          (unless (equal (match-str 1) "/dev/null")
+            (setq orig (match-str 1))))
          ((looking-at "\\+\\+\\+ \\(.+?\\)\t?\n")
-          (unless (equal (match-string 1) "/dev/null")
-            (setq file (match-string 1))))
+          (unless (equal (match-str 1) "/dev/null")
+            (setq file (match-str 1))))
          ((looking-at "Binary files .+ and .+ differ\n")
           (setq binary t))
          ((looking-at "Binary files differ\n")
@@ -2513,9 +2513,9 @@ keymap is the parent of their keymaps."
          ((error "BUG: Unknown extended header: %S"
                  (buffer-substring (point) (line-end-position)))))
         ;; These headers are treated as some sort of special hunk.
-        (unless (or (string-prefix-p "old mode" (match-string 0))
-                    (string-prefix-p "rename"   (match-string 0)))
-          (push (match-string 0) header))
+        (unless (or (string-prefix-p "old mode" (match-str 0))
+                    (string-prefix-p "rename"   (match-str 0)))
+          (push (match-str 0) header))
         (magit-delete-match))
       (when orig
         (setq orig (magit-decode-git-path orig)))
@@ -2531,7 +2531,7 @@ keymap is the parent of their keymaps."
         (setq header (list (save-excursion
                              (string-match "diff [^ ]+" (car header))
                              (format "%s %s %s\n"
-                                     (match-string 0 (car header))
+                                     (match-str 0 (car header))
                                      (or orig file)
                                      (or file orig)))
                            (format "--- %s\n" (or orig "/dev/null"))
@@ -2613,7 +2613,7 @@ function errors."
 (defun magit-diff-wash-submodule ()
   ;; See `show_submodule_summary' in submodule.c and "this" commit.
   (when (looking-at "^Submodule \\([^ ]+\\)")
-    (let ((module (match-string 1))
+    (let ((module (match-str 1))
           untracked modified)
       (when (looking-at "^Submodule [^ ]+ contains untracked content$")
         (magit-delete-line)
@@ -2623,7 +2623,7 @@ function errors."
         (setq modified t))
       (cond
        ((and (looking-at "^Submodule \\([^ ]+\\) \\([^ :]+\\)\\( (rewind)\\)?:$")
-             (equal (match-string 1) module))
+             (equal (match-str 1) module))
         (magit-bind-match-strings (_module range rewind) nil
           (magit-delete-line)
           (while (looking-at "^  \\([<>]\\) \\(.*\\)$")
@@ -2654,7 +2654,7 @@ function errors."
                   "log" "--oneline" "--left-right" range)
                 (delete-char -1))))))
        ((and (looking-at "^Submodule \\([^ ]+\\) \\([^ ]+\\) (\\([^)]+\\))$")
-             (equal (match-string 1) module))
+             (equal (match-str 1) module))
         (magit-bind-match-strings (_module _range msg) nil
           (magit-delete-line)
           (magit-insert-section (module module)
@@ -2675,7 +2675,7 @@ function errors."
 
 (defun magit-diff-wash-hunk ()
   (when (looking-at "^@\\{2,\\} \\(.+?\\) @\\{2,\\}\\(?: \\(.*\\)\\)?")
-    (let* ((heading  (match-string 0))
+    (let* ((heading  (match-str 0))
            (ranges   (mapcar
                       (lambda (str)
                         (let ((range
@@ -2685,8 +2685,8 @@ function errors."
                           (if (length= range 1)
                               (nconc range (list 1))
                             range)))
-                      (split-string (match-string 1))))
-           (about    (match-string 2))
+                      (split-string (match-str 1))))
+           (about    (match-str 2))
            (combined (length= ranges 3))
            (value    (cons about ranges)))
       (magit-delete-line)
@@ -2804,8 +2804,8 @@ or a ref which is not a branch, then it inserts nothing."
         (delete-region beg (point)))
       (looking-at "^tagger \\([^<]+\\) <\\([^>]+\\)")
       (let ((heading (format "Tagger: %s <%s>"
-                             (match-string 1)
-                             (match-string 2))))
+                             (match-str 1)
+                             (match-str 2))))
         (magit-delete-line)
         (magit-insert-heading
           (propertize heading 'font-lock-face
@@ -3051,7 +3051,7 @@ Refer to user option `magit-revision-insert-related-refs-display-alist'."
     (goto-char beg)
     (when-let (((re-search-forward regexp nil t))
                (window (get-buffer-window)))
-      (let* ((column   (length (match-string 0)))
+      (let* ((column   (length (match-str 0)))
              (font-obj (query-font (font-at (point) window)))
              (size     (* 2 (+ (aref font-obj 4)
                                (aref font-obj 5))))
@@ -3365,7 +3365,7 @@ actually a `diff' but a `diffstat' section."
        (point) (1+ (line-end-position)) 'font-lock-face
        (cond
         ((looking-at "^\\+\\+?\\([<=|>]\\)\\{7\\}")
-         (setq stage (pcase (list (match-string 1) highlight)
+         (setq stage (pcase (list (match-str 1) highlight)
                        ('("<" nil) 'magit-diff-our)
                        ('("<"   t) 'magit-diff-our-highlight)
                        ('("|" nil) 'magit-diff-base)
@@ -3642,12 +3642,12 @@ last (visual) lines of the region."
       (goto-char sbeg)
       (while (< (point) send)
         (looking-at "\\(.\\)\\([^\n]*\n\\)")
-        (cond ((or (string-match-p "[@ ]" (match-string-no-properties 1))
+        (cond ((or (string-match-p "[@ ]" (match-str 1))
                    (and (>= (point) rbeg)
                         (<= (point) rend)))
-               (push (match-string-no-properties 0) patch))
-              ((equal op (match-string-no-properties 1))
-               (push (concat " " (match-string-no-properties 2)) patch)))
+               (push (match-str 0) patch))
+              ((equal op (match-str 1))
+               (push (concat " " (match-str 2)) patch)))
         (forward-line)))
     (let ((buffer-list-update-hook nil)) ; #3759
       (with-temp-buffer
@@ -3658,4 +3658,9 @@ last (visual) lines of the region."
 
 ;;; _
 (provide 'magit-diff)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-diff.el ends here

@@ -325,4 +325,9 @@ is asked to pull.  START has to be reachable from that commit."
 
 ;;; _
 (provide 'magit-patch)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-patch.el ends here

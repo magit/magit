@@ -495,22 +495,22 @@ modes is toggled, then this mode also gets toggled automatically.
              (buffer-substring-no-properties (point) (line-end-position))))
     (with-slots (orig-rev orig-file prev-rev prev-file)
         (setq chunk (magit-blame-chunk
-                     :orig-rev                     (match-string 1)
-                     :orig-line  (string-to-number (match-string 2))
-                     :final-line (string-to-number (match-string 3))
-                     :num-lines  (string-to-number (match-string 4))))
+                     :orig-rev                     (match-str 1)
+                     :orig-line  (string-to-number (match-str 2))
+                     :final-line (string-to-number (match-str 3))
+                     :num-lines  (string-to-number (match-str 4))))
       (forward-line)
       (let (done)
         (while (not done)
           (cond ((looking-at "^filename \\(.+\\)")
                  (setq done t)
-                 (setf orig-file (magit-decode-git-path (match-string 1))))
+                 (setf orig-file (magit-decode-git-path (match-str 1))))
                 ((looking-at "^previous \\(.\\{40,\\}\\) \\(.+\\)")
-                 (setf prev-rev  (match-string 1))
-                 (setf prev-file (magit-decode-git-path (match-string 2))))
+                 (setf prev-rev  (match-str 1))
+                 (setf prev-file (magit-decode-git-path (match-str 2))))
                 ((looking-at "^\\([^ ]+\\) \\(.+\\)")
-                 (push (cons (match-string 1)
-                             (match-string 2))
+                 (push (cons (match-str 1)
+                             (match-str 2))
                        revinfo)))
           (forward-line)))
       (when (and (eq type 'removal) prev-rev)
@@ -996,4 +996,9 @@ instead of the hash, like `kill-ring-save' would."
 
 ;;; _
 (provide 'magit-blame)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-blame.el ends here

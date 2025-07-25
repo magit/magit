@@ -784,7 +784,7 @@ actually insert the entry."
       (narrow-to-region (point-min) (point))
       (cond ((re-search-backward (format "* %s\\(?: (\\([^)]+\\))\\)?: " file)
                                  nil t)
-             (when (equal (match-string 1) defun)
+             (when (equal (match-str 1) defun)
                (setq defun nil))
              (re-search-forward ": "))
             (t
@@ -813,4 +813,9 @@ actually insert the entry."
 
 ;;; _
 (provide 'magit-commit)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-commit.el ends here

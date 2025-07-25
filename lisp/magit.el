@@ -651,7 +651,7 @@ the output in the kill ring.
               (let ((dirname (file-name-nondirectory
                               (directory-file-name topdir))))
                 (when (string-match "\\`magit-\\([0-9].*\\)" dirname)
-                  (setq magit-version (match-string 1 dirname)))))
+                  (setq magit-version (match-str 1 dirname)))))
             ;; If all else fails, just report the commit hash. It's
             ;; better than nothing and we cannot do better in the case
             ;; of e.g., a shallow clone.
@@ -796,4 +796,9 @@ For X11 something like ~/.xinitrc should work.\n"
     (add-hook 'after-init-hook #'magit-startup-asserts t)
     (add-hook 'after-init-hook #'magit-version t)))
 
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit.el ends here

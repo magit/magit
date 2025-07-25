@@ -161,15 +161,15 @@ and only the second and third are to be applied, they would be
 adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
   (let* ((first-hunk (car hunks))
          (offset (if (string-match diff-hunk-header-re-unified first-hunk)
-                     (- (string-to-number (match-string 3 first-hunk))
-                        (string-to-number (match-string 1 first-hunk)))
+                     (- (string-to-number (match-str 3 first-hunk))
+                        (string-to-number (match-str 1 first-hunk)))
                    (error "Header hunks have to be applied individually"))))
     (if (= offset 0)
         hunks
       (mapcar (lambda (hunk)
                 (if (string-match diff-hunk-header-re-unified hunk)
                     (replace-match (number-to-string
-                                    (- (string-to-number (match-string 3 hunk))
+                                    (- (string-to-number (match-str 3 hunk))
                                        offset))
                                    t t hunk 3)
                   (error "Hunk does not have expected header")))
@@ -218,7 +218,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
                   (mapcar (##oref % value) section:s)))
          (command (symbol-name this-command))
          (command (if (and command (string-match "^magit-\\([^-]+\\)" command))
-                      (match-string 1 command)
+                      (match-str 1 command)
                     "apply"))
          (context (magit-diff-get-context))
          (ignore-context (magit-diff-ignore-any-space-p)))
@@ -637,7 +637,7 @@ of a side, then keep that side without prompting."
         (?M  (let ((temp (magit-git-string "checkout-index" "--temp" file)))
                (string-match
                 (format "\\(.+?\\)\t%s" (regexp-quote file)) temp)
-               (rename-file (match-string 1 temp)
+               (rename-file (match-str 1 temp)
                             (setq temp (concat file ".~{index}~")))
                (delete-file temp t))
              (magit-call-git "rm" "--cached" "--force" "--" file))
@@ -831,4 +831,9 @@ a separate commit.  A typical workflow would be:
 
 ;;; _
 (provide 'magit-apply)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-apply.el ends here

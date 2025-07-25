@@ -183,4 +183,9 @@ with a prefix argument."
 
 ;;; _
 (provide 'magit-fetch)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-fetch.el ends here

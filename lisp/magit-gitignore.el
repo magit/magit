@@ -192,4 +192,9 @@ Rules that are defined in that file affect all local repositories."
 
 ;;; _
 (provide 'magit-gitignore)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-gitignore.el ends here

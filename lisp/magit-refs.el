@@ -547,8 +547,8 @@ line is inserted at all."
         (magit-insert-heading (length tags) "Tags")
         (dolist (tag tags)
           (string-match "^\\([^ \t]+\\)[ \t]+\\([^ \t\n].*\\)?" tag)
-          (let ((tag (match-string 1 tag))
-                (msg (match-string 2 tag)))
+          (let ((tag (match-str 1 tag))
+                (msg (match-str 2 tag)))
             (when (magit-refs--insert-refname-p tag)
               (magit-insert-section (tag tag t)
                 (magit-insert-heading
@@ -709,20 +709,20 @@ line is inserted at all."
                             (string-match "ahead \\([0-9]+\\)" u:track)
                             (magit--propertize-face
                              (concat (and magit-refs-pad-commit-counts " ")
-                                     (match-string 1 u:track)
+                                     (match-str 1 u:track)
                                      ">")
                              'magit-dimmed)))
              (u:behind (and u:track
                             (string-match "behind \\([0-9]+\\)" u:track)
                             (magit--propertize-face
                              (concat "<"
-                                     (match-string 1 u:track)
+                                     (match-str 1 u:track)
                                      (and magit-refs-pad-commit-counts " "))
                              'magit-dimmed)))
              (p:ahead  (and pushp p:track
                             (string-match "ahead \\([0-9]+\\)" p:track)
                             (magit--propertize-face
-                             (concat (match-string 1 p:track)
+                             (concat (match-str 1 p:track)
                                      ">"
                                      (and magit-refs-pad-commit-counts " "))
                              'magit-branch-remote)))
@@ -730,7 +730,7 @@ line is inserted at all."
                             (string-match "behind \\([0-9]+\\)" p:track)
                             (magit--propertize-face
                              (concat "<"
-                                     (match-string 1 p:track)
+                                     (match-str 1 p:track)
                                      (and magit-refs-pad-commit-counts " "))
                              'magit-dimmed))))
         (list (1+ (length (concat branch-pretty u:ahead p:ahead u:behind)))
@@ -811,4 +811,9 @@ line is inserted at all."
 
 ;;; _
 (provide 'magit-refs)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-refs.el ends here

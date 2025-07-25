@@ -194,8 +194,13 @@ Also see `magit-notes-merge'."
   (list (magit-read-branch-or-commit prompt (magit-stash-at-point))
         (and-let* ((str (seq-find (##string-match "^--ref=\\(.+\\)" %)
                                   (transient-args 'magit-notes))))
-          (match-string 1 str))))
+          (match-str 1 str))))
 
 ;;; _
 (provide 'magit-notes)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-notes.el ends here

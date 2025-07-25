@@ -614,7 +614,7 @@ the minibuffer too."
                         (save-excursion
                           (if (re-search-backward idx-format nil t)
                               (number-to-string
-                               (1+ (string-to-number (match-string 1))))
+                               (1+ (string-to-number (match-str 1))))
                             "1"))))
               pnt-args eob-args)
           (when (listp pnt-format)
@@ -743,7 +743,7 @@ abbreviated revision to the `kill-ring' and the
                           (magit-diff-mode
                            (if (string-match "\\.\\.\\.?\\(.+\\)"
                                              magit-buffer-range)
-                               (match-string 1 magit-buffer-range)
+                               (match-str 1 magit-buffer-range)
                              magit-buffer-range))
                           (magit-status-mode "HEAD")))))
       (when (magit-commit-p rev)
@@ -832,4 +832,9 @@ In Magit diffs, also skip over - and + at the beginning of the line."
 
 ;;; _
 (provide 'magit-extras)
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("match-string" . "match-string")
+;;   ("match-str" . "match-string-no-properties"))
+;; End:
 ;;; magit-extras.el ends here
