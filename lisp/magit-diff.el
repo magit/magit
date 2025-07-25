@@ -205,6 +205,8 @@ keep their distinct foreground colors."
                  (const :tag "Immediately refine all hunks" all)
                  (const :tag "Refine each hunk when moving to it" t)))
 
+(put 'magit-diff-refine-hunk 'permanent-local t)
+
 (defcustom magit-diff-refine-ignore-whitespace smerge-refine-ignore-whitespace
   "Whether to ignore whitespace changes in word-granularity differences."
   :package-version '(magit . "3.0.0")
@@ -212,8 +214,6 @@ keep their distinct foreground colors."
   :group 'magit-diff
   :safe 'booleanp
   :type 'boolean)
-
-(put 'magit-diff-refine-hunk 'permanent-local t)
 
 (defcustom magit-diff-adjust-tab-width nil
   "Whether to adjust the width of tabs in diffs.
