@@ -1117,12 +1117,15 @@ silently ignored."
 
 ;;;; Auxiliary
 
-(defun magit-describe-section-briefly (section &optional ident interactive)
-  "Show information about the section at point.
+(defun magit-describe-section-briefly (&optional section ident interactive)
+  "Show information about SECTION or the section at point.
 With a prefix argument show the section identity instead of the
 section lineage.  This command is intended for debugging purposes.
-\n(fn SECTION &optional IDENT)"
+Non-interactively, just return the information.  Interactively,
+or when INTERACTIVE is non-nil, show the section in the echo area."
   (interactive (list (magit-current-section) current-prefix-arg t))
+  (unless section
+    (setq section (magit-current-section)))
   (let ((str (format "#<%s %S %S %s-%s%s>"
                      (eieio-object-class section)
                      (let ((val (oref section value)))
