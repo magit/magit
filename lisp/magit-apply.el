@@ -798,11 +798,12 @@ a separate commit.  A typical workflow would be:
   (magit-call-smerge #'smerge-keep-all))
 
 (defun magit-call-smerge (fn)
+  ;; FIXME Might not be file we end up using.
   (pcase-let* ((file (magit-file-at-point t t))
                (keep (get-file-buffer file))
                (`(,buf ,pos)
                 (let ((magit-diff-visit-jump-to-change nil))
-                  (magit-diff-visit-file--noselect file))))
+                  (magit-diff-visit-file--noselect))))
     (with-current-buffer buf
       (save-excursion
         (save-restriction
