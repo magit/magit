@@ -1794,8 +1794,7 @@ the Magit-Status buffer for DIRECTORY."
                        (and (not (stringp rev))
                             (or magit-diff-visit-avoid-head-blob
                                 (not goto-from))))
-                   (or (get-file-buffer file)
-                       (find-file-noselect file))
+                   (find-file-noselect file)
                  (magit-find-file-noselect (if (stringp rev) rev "HEAD")
                                            file))))
     (if line
