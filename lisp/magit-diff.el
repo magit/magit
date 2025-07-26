@@ -1779,18 +1779,20 @@ the Magit-Status buffer for DIRECTORY."
     (error "File buffer is not visible")))
 
 (defun magit-diff-visit-file--noselect (&optional goto-worktree)
-  (let* ((file (magit-diff--file-at-point t t))
-         (hunk (magit-diff-visit--hunk))
+  (pcase-let*
+        ((hunk (magit-diff-visit--hunk))
+         (`((,old-rev ,old-file)
+            (,new-rev ,new-file))
+          (magit-diff-visit--sides hunk))
          (goto-from (magit-diff-visit--goto-from-p hunk goto-worktree))
-         (spec (magit-diff--dwim))
-         (rev  (if goto-from
-                   (magit-diff-visit--range-from spec)
-                 (let ((rev (magit-diff-visit--range-to spec)))
-                   (if (and (stringp rev)
-                            magit-diff-visit-avoid-head-blob
-                            (magit-rev-head-p rev))
-                       'unstaged
-                     rev))))
+         (`(,rev ,file)
+          (cond (goto-from
+                 (list old-rev old-file))
+                ((and (stringp new-rev)
+                      magit-diff-visit-avoid-head-blob
+                      (magit-rev-head-p new-rev))
+                 (list 'unstaged new-file))
+                ((list new-rev new-file))))
          (buf  (if (or goto-worktree
                        (equal magit-buffer-typearg "--no-index")
                        (and (not (stringp rev))
@@ -1801,6 +1803,19 @@ the Magit-Status buffer for DIRECTORY."
                                            file))))
     (list buf
           (magit-diff-visit--position buf rev file goto-worktree goto-from))))
+
+(defun magit-diff-visit--sides (hunk)
+  (pcase-let* ((spec (magit-diff--dwim))
+               (old-rev (magit-diff-visit--range-from spec))
+               (new-rev (magit-diff-visit--range-to spec))
+               ((eieio source value) (oref hunk parent))
+               (old-file (or source value))
+               (new-file value))
+    (when (equal magit-buffer-typearg "--no-index")
+      (setq old-file (concat "/" old-file))
+      (setq new-file (concat "/" new-file)))
+    (list (list old-rev old-file)
+          (list new-rev new-file))))
 
 (defun magit-diff-visit--position (buffer rev file goto-worktree goto-from)
   (and-let* ((hunk (magit-diff-visit--hunk)))
