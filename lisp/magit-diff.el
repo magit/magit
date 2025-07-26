@@ -674,7 +674,7 @@ If you prefer the old behaviors, then set this to t."
 
 ;;;; Hunk Bodies
 
-(defcustom magit-diff-specify-hunk-foreground nil
+(defcustom magit-diff-specify-hunk-foreground t
   "Whether to specify foreground colors for hunk faces.
 Setting this only has an effect if done before Magit is loaded."
   :package-version '(magit . "4.3.9")
