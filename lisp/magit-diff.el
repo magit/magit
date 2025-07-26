@@ -798,20 +798,20 @@ Setting this only has an effect if done before Magit is loaded."
 (defface magit-diff-indicator-removed
   `((((class color) (background light))
      :weight bold
-     :foreground "red")
+     :foreground "#aa2222")
     (((class color) (background dark))
      :weight bold
-     :foreground "red"))
+     :foreground "#eecccc"))
   "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
 (defface magit-diff-indicator-added
   `((((class color) (background light))
      :weight bold
-     :foreground "green")
+     :foreground "#22aa22")
     (((class color) (background dark))
      :weight bold
-     :foreground "green"))
+     :foreground "#cceecc"))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
