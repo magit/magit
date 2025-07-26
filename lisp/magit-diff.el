@@ -788,6 +788,26 @@ If you prefer the old behaviors, then set this to t."
   "Face for lines in a diff for their side in a conflict."
   :group 'magit-faces)
 
+(defface magit-diff-indicator-removed
+  `((((class color) (background light))
+     :weight bold
+     :foreground "red")
+    (((class color) (background dark))
+     :weight bold
+     :foreground "red"))
+  "Face for lines in a diff that have been removed."
+  :group 'magit-faces)
+
+(defface magit-diff-indicator-added
+  `((((class color) (background light))
+     :weight bold
+     :foreground "green")
+    (((class color) (background dark))
+     :weight bold
+     :foreground "green"))
+  "Face for lines in a diff that have been added."
+  :group 'magit-faces)
+
 (defface magit-diffstat-removed
   '((((class color) (background light)) :foreground "#aa2222")
     (((class color) (background  dark)) :foreground "#aa4444"))
@@ -3365,6 +3385,7 @@ actually a `diff' but a `diffstat' section."
     (while (< (point) end)
       (let ((bol (point))
             (eol (line-end-position))
+            (iface nil)
             (lface nil))
         (when (and magit-diff-hide-trailing-cr-characters
                    (char-equal ?\r (char-before eol)))
@@ -3383,12 +3404,16 @@ actually a `diff' but a `diffstat' section."
          ((looking-at (if merging "^\\(\\+\\| \\+\\)" "^\\+"))
           (magit-diff-paint-tab merging tab-width)
           (magit-diff-paint-whitespace merging 'added diff-type)
-          (setq lface (cond (stage)
-                            (highlight 'magit-diff-added-highlight)
-                            ('magit-diff-added))))
+          (if stage
+              (setq lface stage)
+            (setq iface 'magit-diff-indicator-added)
+            (setq lface (if highlight
+                            'magit-diff-added-highlight
+                          'magit-diff-added))))
          ((looking-at (if merging "^\\(-\\| -\\)" "^-"))
           (magit-diff-paint-tab merging tab-width)
           (magit-diff-paint-whitespace merging 'removed diff-type)
+          (setq iface 'magit-diff-indicator-removed)
           (setq lface (if highlight
                           'magit-diff-removed-highlight
                         'magit-diff-removed)))
@@ -3398,7 +3423,9 @@ actually a `diff' but a `diffstat' section."
           (setq lface (if highlight
                           'magit-diff-context-highlight
                         'magit-diff-context))))
-        (put-text-property bol (1+ eol) 'font-lock-face lface))
+        (put-text-property bol (1+ eol) 'font-lock-face lface)
+        (when iface
+          (magit--add-face-text-property bol (match-end 0) iface)))
       (forward-line)))
   (when (eq magit-diff-refine-hunk 'all)
     (magit-diff-update-hunk-refinement section))
