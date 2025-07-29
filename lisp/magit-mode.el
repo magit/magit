@@ -1138,7 +1138,10 @@ The arguments are for internal use."
                         (list ws
                               (car (magit-section-get-relative-position ws))
                               (window-start)))))))))
-         (get-buffer-window-list buffer nil t)))
+         ;; For hunks we run `magit-section-movement-hook' (once for
+         ;; each window displaying the buffer).  The selected window
+         ;; comes first in this list, but we want to process it last.
+         (nreverse (get-buffer-window-list buffer nil t))))
       (and-let* ((section (magit-section-at)))
         `((nil ,section ,@(magit-section-get-relative-position section))))))
 
@@ -1160,7 +1163,15 @@ The arguments are for internal use."
                                     ws-section ws-line 0)
                                    (point)))))
               (set-window-start window pos t)))))
-      (magit-section-goto-successor section line char))))
+      ;; We must make sure this does not call `set-window-start',
+      ;; which the HUNK METHOD does by calling `magit-section-goto'
+      ;; because that runs the `magit-section-goto-successor-hook'
+      ;; and thus `magit-hunk-set-window-start'.  The window does
+      ;; not display this buffer, so the window start would be set
+      ;; for the wrong buffer.  Originally reported in #4196 and
+      ;; fixed with 482c25a3204468a4f6c2fe12ff061666b61f5f4d.
+      (let ((magit-section-movement-hook nil))
+        (magit-section-goto-successor section line char)))))
 
 (defun magit-revert-buffer (_ignore-auto _noconfirm)
   "Wrapper around `magit-refresh-buffer' suitable as `revert-buffer-function'."
