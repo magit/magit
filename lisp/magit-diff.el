@@ -87,10 +87,9 @@
 (declare-function magit-smerge-keep-base "magit-apply" ())
 (declare-function magit-smerge-keep-lower "magit-apply" ())
 
-(eval-when-compile
-  (cl-pushnew 'orig-rev eieio--known-slot-names)
-  (cl-pushnew 'action-type eieio--known-slot-names)
-  (cl-pushnew 'target eieio--known-slot-names))
+(cl-pushnew 'orig-rev eieio--known-slot-names)
+(cl-pushnew 'action-type eieio--known-slot-names)
+(cl-pushnew 'target eieio--known-slot-names)
 
 (define-obsolete-variable-alias 'magit-diff-section-base-map
   'magit-diff-section-map "Magit 4.0.0")

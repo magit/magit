@@ -66,9 +66,8 @@
 ;; From `magit-status'.
 (defvar magit-status-show-untracked-files)
 
-(eval-when-compile
-  (cl-pushnew 'orig-rev eieio--known-slot-names)
-  (cl-pushnew 'number eieio--known-slot-names))
+(cl-pushnew 'orig-rev eieio--known-slot-names)
+(cl-pushnew 'number eieio--known-slot-names)
 
 ;;; Options
 
