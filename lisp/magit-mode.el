@@ -1419,8 +1419,7 @@ Later, when the buffer is buried, it may be restored by
     (when-let ((tail (nthcdr 30 help-xref-stack)))
       (setcdr tail nil))
     (setq help-xref-stack-item
-          (list 'magit-xref-restore fn args
-                :directory default-directory))))
+          (list 'magit-xref-restore fn default-directory args))))
 
 (defun magit-xref-restore (fn dir args)
   (setq default-directory dir)
