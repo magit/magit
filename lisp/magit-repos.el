@@ -31,6 +31,7 @@
 (require 'magit-core)
 
 (declare-function magit-status-setup-buffer "magit-status" (&optional directory))
+(declare-function magit-dired-jump "magit-dired" (&optional other-window))
 
 (defvar x-stretch-cursor)
 
@@ -262,7 +263,8 @@ If it contains \"%s\" then the directory is substituted for that."
   "m"   #'magit-repolist-mark
   "u"   #'magit-repolist-unmark
   "f"   #'magit-repolist-fetch
-  "5"   #'magit-repolist-find-file-other-frame)
+  "5"   #'magit-repolist-find-file-other-frame
+  "<remap> <dired-jump>" #'magit-dired-jump)
 
 (define-derived-mode magit-repolist-mode tabulated-list-mode "Repos"
   "Major mode for browsing a list of Git repositories."
