@@ -1750,16 +1750,17 @@ the Magit-Status buffer for DIRECTORY."
 (defun magit-diff-visit-file--noselect (&optional file goto-worktree)
   (unless file
     (setq file (magit-diff--file-at-point t t)))
-  (let* ((hunk (magit-diff-visit--hunk))
-         (goto-from (and hunk
-                         (magit-diff-visit--goto-from-p hunk goto-worktree)))
-         (line (and hunk (magit-diff-hunk-line   hunk goto-from)))
-         (col  (and hunk (magit-diff-hunk-column hunk goto-from)))
-         (spec (magit-diff--dwim))
-         (rev  (if goto-from
-                   (magit-diff-visit--range-from spec)
-                 (magit-diff-visit--range-to spec)))
-         (buf  (if (or goto-worktree
+  (pcase-let*
+      ((hunk (magit-diff-visit--hunk))
+       (goto-from (and hunk
+                       (magit-diff-visit--goto-from-p hunk goto-worktree)))
+       (line (and hunk (magit-diff-hunk-line   hunk goto-from)))
+       (col  (and hunk (magit-diff-hunk-column hunk goto-from)))
+       (spec (magit-diff--dwim))
+       (rev  (if goto-from
+                 (magit-diff-visit--range-from spec)
+               (magit-diff-visit--range-to spec)))
+       (buffer (if (or goto-worktree
                        (equal magit-buffer-typearg "--no-index")
                        (and (not (stringp rev))
                             (or magit-diff-visit-avoid-head-blob
@@ -1769,19 +1770,19 @@ the Magit-Status buffer for DIRECTORY."
                  (magit-find-file-noselect (if (stringp rev) rev "HEAD")
                                            file))))
     (if line
-        (with-current-buffer buf
+        (with-current-buffer buffer
           (cond ((eq rev 'staged)
                  (setq line (magit-diff-visit--offset file nil line)))
                 ((and goto-worktree
                       (stringp rev))
                  (setq line (magit-diff-visit--offset file rev line))))
-          (list buf (save-restriction
-                      (widen)
-                      (goto-char (point-min))
-                      (forward-line (1- line))
-                      (move-to-column col)
-                      (point))))
-      (list buf nil))))
+          (list buffer (save-restriction
+                         (widen)
+                         (goto-char (point-min))
+                         (forward-line (1- line))
+                         (move-to-column col)
+                         (point))))
+      (list buffer nil))))
 
 (defun magit-diff--file-at-point (&optional expand assert)
   ;; This is a variation of `magit-file-at-point'.
