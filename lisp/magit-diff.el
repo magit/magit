@@ -3611,10 +3611,11 @@ last (visual) lines of the region."
 ;;; Utilities
 
 (defun magit-diff-inside-hunk-body-p ()
-  "Return non-nil if point is inside the body of a hunk."
-  (and (magit-section-match 'hunk)
-       (and-let* ((content (oref (magit-current-section) content)))
-         (> (magit-point) content))))
+  "Return t if point is inside the body of a hunk."
+  (and-let* ((section (magit-current-section))
+             ((cl-typep section 'magit-hunk-section))
+             (content (oref section content)))
+    (> (magit-point) content)))
 
 (defun magit-diff-on-removed-line-p ()
   "Return t if point is on a removed line inside the body of a hunk."
