@@ -1736,17 +1736,16 @@ the Magit-Status buffer for DIRECTORY."
       (magit-status-setup-buffer directory))))
 
 (defun magit-diff-visit-file--setup (buf pos)
-  (if-let ((win (get-buffer-window buf 'visible)))
-      (with-selected-window win
-        (when pos
-          (unless (<= (point-min) pos (point-max))
-            (widen))
-          (goto-char pos))
-        (when (and buffer-file-name
-                   (magit-anything-unmerged-p buffer-file-name))
-          (smerge-start-session))
-        (run-hooks 'magit-diff-visit-file-hook))
-    (error "File buffer is not visible")))
+  (with-selected-window (or (get-buffer-window buf) (selected-window))
+    (with-current-buffer buf
+      (when pos
+        (unless (<= (point-min) pos (point-max))
+          (widen))
+        (goto-char pos))
+      (when (and buffer-file-name
+                 (magit-anything-unmerged-p buffer-file-name))
+        (smerge-start-session))
+      (run-hooks 'magit-diff-visit-file-hook))))
 
 (defun magit-diff-visit-file--noselect (&optional file goto-worktree)
   (unless file
