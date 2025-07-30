@@ -1752,8 +1752,9 @@ the Magit-Status buffer for DIRECTORY."
     (setq file (magit-diff--file-at-point t t)))
   (pcase-let*
       ((hunk (magit-diff-visit--hunk))
-       (goto-from (and hunk
-                       (magit-diff-visit--goto-from-p hunk goto-worktree)))
+       (goto-from
+        (and (not goto-worktree)
+             (magit-diff-on-removed-line-p)))
        (line (and hunk (magit-diff-hunk-line   hunk goto-from)))
        (col  (and hunk (magit-diff-hunk-column hunk goto-from)))
        (spec (magit-diff--dwim))
@@ -1791,8 +1792,7 @@ the Magit-Status buffer for DIRECTORY."
                             (file it)
                             (hunk (oref it parent))))
             (file (or (and (magit-section-match 'hunk)
-                           (magit-diff-visit--goto-from-p
-                            (magit-current-section) nil)
+                           (magit-diff-on-removed-line-p)
                            (oref file-section source))
                       (oref file-section value))))
       (cond ((equal magit-buffer-typearg "--no-index")
@@ -1822,13 +1822,6 @@ the Magit-Status buffer for DIRECTORY."
        ;; mode changes, which we are not interested in here.
        (not (equal (oref section value) '(chmod)))
        section))))
-
-(defun magit-diff-visit--goto-from-p (section in-worktree)
-  (and magit-diff-visit-previous-blob
-       (not in-worktree)
-       (not (oref section combined))
-       (not (< (magit-point) (oref section content)))
-       (= (char-after (line-beginning-position)) ?-)))
 
 (defvar magit-diff-visit-jump-to-change t)
 
@@ -3622,6 +3615,14 @@ last (visual) lines of the region."
   (and (magit-section-match 'hunk)
        (and-let* ((content (oref (magit-current-section) content)))
          (> (magit-point) content))))
+
+(defun magit-diff-on-removed-line-p ()
+  "Return t if point is on a removed line inside the body of a hunk."
+  (let ((section (magit-current-section)))
+    (and (cl-typep section 'magit-hunk-section)
+         (not (oref section combined))
+         (not (< (magit-point) (oref section content)))
+         (= (char-after (pos-bol)) ?-))))
 
 (defun magit-diff--combined-p (section)
   (cl-assert (cl-typep section 'magit-file-section))
