@@ -3621,7 +3621,6 @@ last (visual) lines of the region."
   (let ((section (magit-current-section)))
     (and (cl-typep section 'magit-hunk-section)
          (not (oref section combined))
-         (not (< (magit-point) (oref section content)))
          (= (char-after (pos-bol)) ?-))))
 
 (defun magit-diff--combined-p (section)
