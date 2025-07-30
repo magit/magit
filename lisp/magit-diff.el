@@ -651,6 +651,11 @@ loss of information.  Good properties to set here are `:weight'
 and `:slant'."
   :group 'magit-faces)
 
+(defface magit-diff-conflict-heading-highlight
+  '((t :inherit magit-diff-hunk-heading-highlight))
+  "Face for conflict markers."
+  :group 'magit-faces)
+
 (defface magit-diff-revision-summary
   '((t :inherit magit-diff-hunk-heading))
   "Face for commit message summaries."
@@ -3374,7 +3379,9 @@ actually a `diff' but a `diffstat' section."
                        ('("=" nil) 'magit-diff-their)
                        ('("="   t) 'magit-diff-their-highlight)
                        ('(">" nil) nil)))
-         'magit-diff-conflict-heading)
+         (if highlight
+             'magit-diff-conflict-heading-highlight
+           'magit-diff-conflict-heading))
         ((looking-at (if merging "^\\(\\+\\| \\+\\)" "^\\+"))
          (magit-diff-paint-tab merging tab-width)
          (magit-diff-paint-whitespace merging 'added diff-type)
