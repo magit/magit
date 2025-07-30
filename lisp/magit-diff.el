@@ -1760,15 +1760,16 @@ the Magit-Status buffer for DIRECTORY."
        (rev  (if goto-from
                  (magit-diff-visit--range-from spec)
                (magit-diff-visit--range-to spec)))
-       (buffer (if (or goto-worktree
-                       (equal magit-buffer-typearg "--no-index")
-                       (and (not (stringp rev))
-                            (or magit-diff-visit-avoid-head-blob
-                                (not goto-from))))
-                   (or (get-file-buffer file)
-                       (find-file-noselect file))
-                 (magit-find-file-noselect (if (stringp rev) rev "HEAD")
-                                           file))))
+       (buffer (magit-find-file-noselect
+                (cond ((or goto-worktree
+                           (equal magit-buffer-typearg "--no-index")
+                           (and (not (stringp rev))
+                                (or magit-diff-visit-avoid-head-blob
+                                    (not goto-from))))
+                       "{worktree}")
+                      ((stringp rev) rev)
+                      ("HEAD"))
+                file)))
     (if line
         (with-current-buffer buffer
           (cond ((eq rev 'staged)
