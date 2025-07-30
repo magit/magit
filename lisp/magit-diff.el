@@ -1209,7 +1209,7 @@ If no DWIM context is found, nil is returned."
    ((derived-mode-p 'magit-revision-mode)
     (cons 'commit magit-buffer-revision))
    ((derived-mode-p 'magit-diff-mode)
-    magit-buffer-range)
+    (or magit-buffer-diff-type magit-buffer-range))
    (t
     (magit-section-case
       ([* unstaged] 'unstaged)
