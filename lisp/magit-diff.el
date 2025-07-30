@@ -1823,14 +1823,12 @@ the Magit-Status buffer for DIRECTORY."
        (not (equal (oref section value) '(chmod)))
        section))))
 
-(defvar magit-diff-visit-jump-to-change t)
-
 (defun magit-diff-hunk-line (section goto-from)
   (save-excursion
     (goto-char (line-beginning-position))
     (with-slots (content combined from-ranges from-range to-range) section
       (when (or from-range to-range)
-        (when (and magit-diff-visit-jump-to-change (< (point) content))
+        (when (< (point) content)
           (goto-char content)
           (re-search-forward "^[-+]"))
         (+ (car (if goto-from from-range to-range))
