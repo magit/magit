@@ -1744,12 +1744,12 @@ the Magit-Status buffer for DIRECTORY."
         (smerge-start-session))
       (run-hooks 'magit-diff-visit-file-hook))))
 
-(defun magit-diff-visit-file--noselect (&optional goto-worktree)
+(defun magit-diff-visit-file--noselect (&optional goto-file)
   (pcase-let*
       ((file (magit-diff--file-at-point t t))
        (hunk (magit-diff-visit--hunk))
        (goto-from
-        (and (not goto-worktree)
+        (and (not goto-file)
              (magit-diff-on-removed-line-p)))
        (line (and hunk (magit-diff-hunk-line   hunk goto-from)))
        (col  (and hunk (magit-diff-hunk-column hunk goto-from)))
@@ -1758,7 +1758,7 @@ the Magit-Status buffer for DIRECTORY."
                  (magit-diff-visit--range-from spec)
                (magit-diff-visit--range-to spec)))
        (buffer (magit-find-file-noselect
-                (cond ((or goto-worktree
+                (cond ((or goto-file
                            (equal magit-buffer-typearg "--no-index")
                            (and (not (stringp rev))
                                 (or magit-diff-visit-avoid-head-blob
@@ -1771,7 +1771,7 @@ the Magit-Status buffer for DIRECTORY."
         (with-current-buffer buffer
           (cond ((eq rev 'staged)
                  (setq line (magit-diff-visit--offset file nil line)))
-                ((and goto-worktree
+                ((and goto-file
                       (stringp rev))
                  (setq line (magit-diff-visit--offset file rev line))))
           (list buffer (save-restriction
