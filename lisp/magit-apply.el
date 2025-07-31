@@ -800,7 +800,8 @@ a separate commit.  A typical workflow would be:
 (defun magit-call-smerge (fn)
   (pcase-let* ((file (magit-file-at-point t t))
                (keep (get-file-buffer file))
-               (`(,buf ,pos) (magit-diff-visit-file--noselect file)))
+               (`(,buf ,pos) (magit-diff-visit-file--noselect))
+               (keep (eq keep buf)))
     (with-current-buffer buf
       (save-excursion
         (save-restriction
