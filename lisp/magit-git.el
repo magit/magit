@@ -2515,28 +2515,26 @@ and this option only controls what face is used.")
     (and sep
          (let ((beg (or beg "HEAD"))
                (end (or end "HEAD")))
-           (if (string-equal (match-str 2 range) "...")
+           (if (string-equal sep "...")
                (and-let* ((base (magit-git-string "merge-base" beg end)))
                  (cons base end))
              (cons beg end))))))
 
 (defun magit--split-range-raw (range)
   (and (string-match magit-range-re range)
-       (let ((beg (match-str 1 range))
-             (end (match-str 3 range)))
+       (magit-bind-match-strings (beg sep end) range
          (and (or beg end)
-              (list beg end (match-str 2 range))))))
+              (list beg end sep)))))
 
 (defun magit-hash-range (range)
   (if (string-match magit-range-re range)
-      (let ((beg (match-str 1 range))
-            (end (match-str 3 range)))
+      (magit-bind-match-strings (beg sep end) range
         (and (or beg end)
-             (let ((beg-hash (and beg (magit-rev-hash (match-str 1 range))))
-                   (end-hash (and end (magit-rev-hash (match-str 3 range)))))
+             (let ((beg-hash (and beg (magit-rev-hash beg)))
+                   (end-hash (and end (magit-rev-hash end))))
                (and (or (not beg) beg-hash)
                     (or (not end) end-hash)
-                    (concat beg-hash (match-str 2 range) end-hash)))))
+                    (concat beg-hash sep end-hash)))))
     (magit-rev-hash range)))
 
 (defvar magit-revision-faces
