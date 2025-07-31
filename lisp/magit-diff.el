@@ -213,6 +213,33 @@ keep their distinct foreground colors."
 
 (put 'magit-diff-refine-hunk 'permanent-local t)
 
+(defcustom magit-diff-fontify-hunk nil
+  "Whether to apply syntax highlighting to diff hunks.
+
+`nil'  Never fontify diff hunks.
+`all'  Fontify all diff hunks.
+`t'    Fontify each hunk once it becomes the current section.
+       Keep the fontification when another section is selected.
+       Refreshing the buffer removes all fontification.  This
+       variant is only provided for performance reasons.
+
+If this is enabled, then `magit-diff-specify-hunk-foreground' should
+be disabled.  Also consider enabling `magit-diff-use-indicator-faces'.
+Emacs has to be restarted, after changing the value of the former.
+
+This is considered experimental and is disabled by default, because the
+fontification is done synchronously, and that can lead to a noticable
+delay.  The plan is to make it asynchronous, probably with the help of
+the new `futur' package, which itself still under heavy development."
+  :package-version '(magit . "4.6.0")
+  :group 'magit-diff
+  :safe (##memq % '(nil t all))
+  :type '(choice (const :tag "No fontification" nil)
+                 (const :tag "Immediately fontify all hunks" all)
+                 (const :tag "Fontify each hunk when moving to it" t)))
+
+(put 'magit-diff-fontify-hunk 'permanent-local t)
+
 (defcustom magit-diff-refine-ignore-whitespace smerge-refine-ignore-whitespace
   "Whether to ignore whitespace changes in word-granularity differences."
   :package-version '(magit . "3.0.0")
@@ -1078,6 +1105,7 @@ and `:slant'."
     ("w" "buffer and save defaults" transient-save-and-exit)]
    ["Toggle"
     ("t" "hunk refinement"          magit-diff-toggle-refine-hunk)
+    ("T" "hunk fontification"       magit-diff-toggle-fontify-hunk)
     ("F" "file filter"              magit-diff-toggle-file-filter)
     ("b" "buffer lock"              magit-toggle-buffer-lock
      :if-mode (magit-diff-mode magit-revision-mode magit-stash-mode))]
@@ -1724,6 +1752,28 @@ Customize option `magit-diff-refine-hunk' to change the default method."
                   (if (eq magit-diff-refine-hunk t) 'all t)
                 (if magit-diff-refine-hunk nil 'all)))
   (magit-diff-update-hunk-refinement))
+
+(defun magit-diff-toggle-fontify-hunk (&optional style)
+  "Turn hunk fontification on or off, or switch fontification method.
+
+If hunk fontification is currently on, then turn off hunk fontification.
+If hunk fontification is off, then turn on immediate hunk fontification.
+
+With a prefix argument, an alternative fontification method comes into
+play.  When using that method, mode hunks are not refined immediately,
+instead each hunk is refined once it is selected, and then stays refined
+until the next refresh of the buffer.  If hunk fontification is currently
+on, then toggle between refining all hunks up front or only once they
+are selected.  If hunk fontification is off, then turn on fontification,
+using the eventual fontification method.
+
+Customize option `magit-diff-fontify-hunk' to change the default method."
+  (interactive "P")
+  (setq-local magit-diff-fontify-hunk
+              (if style
+                  (if (eq magit-diff-fontify-hunk t) 'all t)
+                (if magit-diff-fontify-hunk nil 'all)))
+  (magit-diff--update-hunk-syntax))
 
 ;;;; Visit Commands
 ;;;;; Dwim Variants
@@ -3566,6 +3616,8 @@ actually a `diff' but a `diffstat' section."
           (magit--add-face-text-property
            bol (+ bol (if merging 2 1)) sign-face)))
       (forward-line)))
+  (when (eq magit-diff-fontify-hunk 'all)
+    (magit-diff--update-hunk-syntax section))
   (when (eq magit-diff-refine-hunk 'all)
     (magit-diff-update-hunk-refinement section))
   (oset section painted (if highlight 'highlight 'plain)))
@@ -3641,6 +3693,8 @@ actually a `diff' but a `diffstat' section."
 ;;;; Refinement
 
 (cl-defmethod magit-section--refine ((section magit-hunk-section))
+  (when (eq magit-diff-fontify-hunk t)
+    (magit-diff--update-hunk-syntax section))
   (when (eq magit-diff-refine-hunk t)
     (magit-diff-update-hunk-refinement section)))
 
@@ -3672,6 +3726,51 @@ actually a `diff' but a `diffstat' section."
           (magit-diff-update-hunk-refinement section t)
         (dolist (child (oref section children))
           (update child))))))
+
+;;;; Syntax
+
+(defun magit-diff--update-hunk-syntax (&optional hunk)
+  (if hunk
+      (pcase-let (((eieio fontified content end) hunk))
+        (unless fontified
+          (oset hunk fontified t)
+          (save-excursion
+            (goto-char content)
+            (pcase-let*
+                ((`(,old ,new) (magit-diff-visit--sides))
+                 (old (apply #'magit-diff--get-hunk-syntax hunk 'old old))
+                 (new (apply #'magit-diff--get-hunk-syntax hunk 'new new)))
+              (while (< (point) end)
+                (pcase-dolist (`(,b ,e ,face)
+                               (pcase (char-after (point))
+                                 (?-  (pop old))
+                                 (?+  (pop new))
+                                 (?\s (pop old)
+                                      (pop new))))
+                  (let ((o (make-overlay (+ (point) 1 b) (+ (point) 1 e) nil t)))
+                    (overlay-put o 'evaporate t)
+                    (overlay-put o 'face face)))
+                (forward-line 1))))))
+    (named-let update ((section magit-root-section))
+      (if (magit-section-match 'hunk section)
+          (magit-diff--update-hunk-syntax section)
+        (dolist (child (oref section children))
+          (update child))))))
+
+(defun magit-diff--get-hunk-syntax (hunk side rev file)
+  (let ((args (magit-diff--get-hunk-text hunk (eq side 'old))))
+    (with-current-buffer (magit-find-file-noselect rev file t t)
+      (save-excursion
+        (apply #'diff-syntax-fontify-props nil args)))))
+
+(defun magit-diff--get-hunk-text (hunk from)
+  (pcase-let* (((eieio start end from-range to-range) hunk)
+               (`(,line ,lines) (if from from-range to-range)))
+    (with-demoted-errors "Error getting hunk text: %S"
+      (list (string-trim-right
+             (diff-hunk-text (buffer-substring-no-properties start end)
+                             (not from) nil))
+            (list line lines)))))
 
 ;;; Hunk Region
 
