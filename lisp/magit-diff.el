@@ -3602,7 +3602,8 @@ actually a `diff' but a `diffstat' section."
 (defun magit-diff--get-hunk-syntax (hunk side rev file)
   (let ((args (magit-diff--get-hunk-text hunk (eq side 'old))))
     (with-current-buffer (magit-find-file-hidden rev file)
-      (apply #'diff-syntax-fontify-props nil args))))
+      (save-excursion
+        (apply #'diff-syntax-fontify-props nil args)))))
 
 (defun magit-diff--get-hunk-text (hunk from)
   (pcase-let* (((eieio start end from-range to-range) hunk)
