@@ -1183,8 +1183,8 @@ use the commands that allow you to explicitly specify what you need."
 The information can be in three forms:
 1. TYPE
    A symbol describing a type of diff where no additional information
-   is needed to generate the diff.  Currently, this includes `staged',
-   `unstaged' and `unmerged'.
+   is needed to generate the diff.  One of `staged', `unstaged',
+   `unmerged', and `undefined'.
 2. (TYPE . VALUE)
    Like #1 but the diff requires additional information, which is
    given by VALUE.  Currently, this includes `commit' and `stash',
