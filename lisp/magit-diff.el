@@ -1706,7 +1706,7 @@ how the buffer is displayed.  If nil display in the same window, if
 t display in another window, or if a function, use that to display."
   (let ((file (magit-diff--file-at-point t t)))
     (if (file-accessible-directory-p file)
-        (magit-diff-visit-directory file force-worktree)
+        (magit-diff-visit-directory file display)
       (pcase-let ((`(,buf ,pos)
                    (magit-diff-visit-file--noselect force-worktree)))
         (pcase display
