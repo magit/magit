@@ -1753,7 +1753,12 @@ the Magit-Status buffer for DIRECTORY."
        (spec (magit-diff--dwim))
        (rev  (if goto-from
                  (magit-diff-visit--range-from spec)
-               (magit-diff-visit--range-to spec)))
+               (let ((rev (magit-diff-visit--range-to spec)))
+                 (if (and (stringp rev)
+                          magit-diff-visit-avoid-head-blob
+                          (magit-rev-head-p rev))
+                     'unstaged
+                   rev))))
        (buffer (magit-find-file-noselect
                 (cond ((or goto-file
                            (equal magit-buffer-typearg "--no-index")
@@ -1860,15 +1865,11 @@ the Magit-Status buffer for DIRECTORY."
          spec)))
 
 (defun magit-diff-visit--range-to (spec)
-  (if (symbolp spec)
-      spec
-    (let ((rev (if (consp spec)
-                   (cdr spec)
-                 (cdr (magit-split-range spec)))))
-      (if (and magit-diff-visit-avoid-head-blob
-               (magit-rev-head-p rev))
-          'unstaged
-        rev))))
+  (cond ((symbolp spec)
+         spec)
+        ((consp spec)
+         (cdr spec))
+        ((cdr (magit-split-range spec)))))
 
 (defun magit-diff-visit--offset (file rev line)
   (let ((offset 0))
