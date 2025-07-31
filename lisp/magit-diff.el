@@ -554,26 +554,6 @@ from the last revision which still had that line."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diff-visit-avoid-head-blob nil
-  "Whether `magit-diff-visit-file' avoids visiting a blob from `HEAD'.
-
-By default `magit-diff-visit-file' always visits the blob that
-added the current line, while `magit-diff-visit-worktree-file'
-visits the respective file in the working tree.  For the `HEAD'
-commit, the former command used to visit the worktree file too,
-but that made it impossible to visit a blob from `HEAD'.
-
-When point is on a removed line and that change has not been
-committed yet, then `magit-diff-visit-file' now visits the last
-blob that still had that line, which is a blob from `HEAD'.
-Previously this function used to visit the worktree file not
-only for added lines but also for such removed lines.
-
-If you prefer the old behaviors, then set this to t."
-  :package-version '(magit . "3.0.0")
-  :group 'magit-diff
-  :type 'boolean)
-
 ;;; Faces
 
 (defface magit-diff-file-heading
@@ -1742,29 +1722,12 @@ the Magit-Status buffer for DIRECTORY."
 
 (defun magit-diff-visit-file--noselect (&optional goto-file)
   (pcase-let*
-      ((`((,old-rev ,old-file)
-          (,new-rev ,new-file))
-        (magit-diff-visit--sides))
-       (goto-from
-        (and (not goto-file)
-             (magit-diff-on-removed-line-p)))
-       (`(,rev ,file)
-        (cond (goto-from
-               (list old-rev old-file))
-              ((and (not (member new-rev '("{index}" "{worktree}")))
-                    magit-diff-visit-avoid-head-blob
-                    (magit-rev-head-p new-rev))
-               (list "{worktree}" new-file))
-              ((list new-rev new-file))))
-       (buffer (magit-find-file-noselect
-                (cond ((or goto-file
-                           (equal magit-buffer-typearg "--no-index")
-                           (and (member rev '("{index}" "{worktree}"))
-                                (or magit-diff-visit-avoid-head-blob
-                                    (not goto-from))))
-                       "{worktree}")
-                      (rev))
-                file)))
+      ((`(,old ,new)  (magit-diff-visit--sides))
+       (goto-from     (and (not goto-file) (magit-diff-on-removed-line-p)))
+       (goto-file     (or goto-file (equal magit-buffer-typearg "--no-index")))
+       (`(,rev ,file) (if goto-from old new))
+       (buffer        (magit-find-file-noselect (if goto-file "{worktree}" rev)
+                                                file)))
     (list buffer
           (magit-diff-visit--position buffer rev file goto-from goto-file))))
 
