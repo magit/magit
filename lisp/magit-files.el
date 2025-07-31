@@ -189,6 +189,7 @@ See also https://github.com/doomemacs/doomemacs/pull/6309."
 ;;; Find Index
 
 (defvar magit-find-index-hook nil)
+(add-hook 'magit-find-index-hook #'magit-blob-mode)
 
 (defun magit-find-file-index-noselect (file &optional revert)
   "Read FILE from the index into a buffer and return the buffer.
