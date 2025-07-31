@@ -549,11 +549,7 @@ log's file filter is always honored."
 
 When this is t and point is on a removed line in a diff for a
 committed change, then `magit-diff-visit-file' visits the blob
-from the last revision which still had that line.
-
-Currently this is only supported for committed changes, for
-staged and unstaged changes `magit-diff-visit-file' always
-visits the file in the working tree."
+from the last revision which still had that line."
   :package-version '(magit . "2.9.0")
   :group 'magit-diff
   :type 'boolean)
@@ -1781,8 +1777,8 @@ the Magit-Status buffer for DIRECTORY."
                   (`(,(or 'commit 'stash) . ,rev)
                    (cons (magit-rev-abbrev (concat rev "^"))
                          (magit--abbrev-if-hash rev)))
-                  ('staged    (cons "{index}" "{index}"))
-                  ('unstaged  (cons "{worktree}" "{worktree}"))
+                  ('staged    (cons (magit-rev-abbrev "HEAD") "{index}"))
+                  ('unstaged  (cons (magit-rev-abbrev "HEAD") "{worktree}"))
                   ('nil       (cons "{worktree}" "{worktree}"))
                   ('unmerged  (cons "{worktree}" "{worktree}"))
                   ('undefined (cons "{worktree}" "{worktree}")) ;--no-index
