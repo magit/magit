@@ -2515,14 +2515,18 @@ and this option only controls what face is used.")
           "\\(\\.\\.\\.?\\)"            ; range marker
           "\\([^.][^ \t]*\\)?\\'"))     ; revB
 
-(defun magit-split-range (range)
+(defun magit-split-range (range &optional abbrev)
   (pcase-let* ((`(,beg ,end ,sep) (magit--split-range-raw range))
                (beg (or beg "HEAD"))
                (end (or end "HEAD")))
+    (when abbrev
+      (setq beg (magit--abbrev-if-hash beg))
+      (setq end (magit--abbrev-if-hash end)))
     (pcase sep
       (".."  (cons beg end))
       ("..." (and-let* ((base (magit-git-string "merge-base" beg end)))
-               (cons base end))))))
+               (cons (if abbrev (magit-rev-abbrev base) base)
+                     end))))))
 
 (defun magit--split-range-raw (range)
   (and (string-match magit-range-re range)
