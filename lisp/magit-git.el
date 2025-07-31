@@ -2293,6 +2293,11 @@ If `first-parent' is set, traverse only first parents."
 (defun magit-rev-abbrev (rev)
   (magit-rev-parse (magit-abbrev-arg "short") rev))
 
+(defun magit--abbrev-if-hash (rev)
+  (cond ((or (magit-ref-p rev) (member rev '("{index}" "{worktree}"))) rev)
+        ((magit-rev-parse (magit-abbrev-arg "short") rev))
+        (rev)))
+
 (defun magit-commit-children (rev &optional args)
   (seq-keep (lambda (line)
               (pcase-let ((`(,child . ,parents) (split-string line " ")))
