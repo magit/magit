@@ -1775,8 +1775,14 @@ the Magit-Status buffer for DIRECTORY."
 
 (defun magit-diff-visit--sides ()
   (pcase-let* ((spec (magit-diff--dwim))
-               (old-rev (magit-diff-visit--range-from spec))
-               (new-rev (magit-diff-visit--range-to spec))
+               (`(,old-rev . ,new-rev)
+                (pcase-exhaustive spec
+                  ((pred stringp)
+                   (magit-split-range spec))
+                  (`(,(or 'commit 'stash) . ,rev)
+                   (cons (concat rev "^") rev))
+                  ((pred symbolp)
+                   (cons spec spec))))
                (hunk (magit-diff-visit--hunk))
                ((eieio source value) (oref hunk parent))
                (old-file (or source value))
@@ -1870,21 +1876,6 @@ the Magit-Status buffer for DIRECTORY."
       0
     (max 0 (- (+ (current-column) 2)
               (length (oref section value))))))
-
-(defun magit-diff-visit--range-from (spec)
-  (cond ((consp spec)
-         (concat (cdr spec) "^"))
-        ((stringp spec)
-         (car (magit-split-range spec)))
-        (t
-         spec)))
-
-(defun magit-diff-visit--range-to (spec)
-  (cond ((symbolp spec)
-         spec)
-        ((consp spec)
-         (cdr spec))
-        ((cdr (magit-split-range spec)))))
 
 (defun magit-diff-visit--offset (file rev line)
   (let ((offset 0))
