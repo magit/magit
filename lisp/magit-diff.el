@@ -1778,9 +1778,10 @@ the Magit-Status buffer for DIRECTORY."
                (`(,old-rev . ,new-rev)
                 (pcase-exhaustive spec
                   ((pred stringp)
-                   (magit-split-range spec))
+                   (magit-split-range spec t))
                   (`(,(or 'commit 'stash) . ,rev)
-                   (cons (concat rev "^") rev))
+                   (cons (magit-rev-abbrev (concat rev "^"))
+                         (magit--abbrev-if-hash rev)))
                   ((pred symbolp)
                    (cons spec spec))))
                (hunk (magit-diff-visit--hunk))
