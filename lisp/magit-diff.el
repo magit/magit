@@ -680,42 +680,6 @@ side.  That way you don't lose the ability to visit the old side."
   "Face for diff hunk heading when lines are marked."
   :group 'magit-faces)
 
-(defface magit-diff-our-heading
-  `((((class color) (background light))
-     :extend t
-     :background "#aa2222"
-     :foreground "#ffdddd")
-    (((class color) (background dark))
-     :extend t
-     :background "#ffdddd"
-     :foreground "#553333"))
-  "Face."
-  :group 'magit-faces)
-
-(defface magit-diff-base-heading
-  `((((class color) (background light))
-     :extend t
-     :background "#aaaa11"
-     :foreground "#ffffcc")
-    (((class color) (background dark))
-     :extend t
-     :background "#ffffcc"
-     :foreground "#555522"))
-  "Face."
-  :group 'magit-faces)
-
-(defface magit-diff-their-heading
-  `((((class color) (background light))
-     :extend t
-     :background "#22aa22"
-     :foreground "#ddffdd")
-    (((class color) (background dark))
-     :extend t
-     :background "#ddffdd"
-     :foreground "#335533"))
-  "Face."
-  :group 'magit-faces)
-
 ;;;; Lines
 
 (defface magit-diff-context
@@ -3480,12 +3444,9 @@ actually a `diff' but a `diffstat' section."
           (put-text-property (1- eol) eol 'invisible t))
         (cond
           ((looking-at "^\\+\\+?\\([<=|>]\\)\\{7\\}")
-           (setq line-face
-                 (pcase (match-str 1)
-                   ("<" 'magit-diff-our-heading)
-                   ("|" 'magit-diff-base-heading)
-                   ("=" 'magit-diff-their-heading)
-                   (">" 'magit-diff-their-heading)))
+           (setq line-face (if highlight
+                               'magit-diff-conflict-heading-highlight
+                             'magit-diff-conflict-heading))
            (setq sign-face-side
                  (pcase (match-str 1)
                    ("<" 'magit-diff-our-indicator)
