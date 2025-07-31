@@ -1648,10 +1648,7 @@ to the line that point is on in the diff.
 Note that this command only works if point is inside a diff.
 In other cases `magit-find-file' (which see) has to be used."
   (interactive "P")
-  (magit-diff-visit-file--internal nil
-                                   (if other-window
-                                       #'switch-to-buffer-other-window
-                                     #'pop-to-buffer-same-window)))
+  (magit-diff-visit-file--internal nil (and other-window t)))
 
 (defun magit-diff-visit-file-other-window ()
   "From a diff visit a version of the file at point in another window.
@@ -1685,10 +1682,7 @@ to the line that point is on in the diff.  Lines that were added
 or removed in the working tree, the index and other commits in
 between are automatically accounted for."
   (interactive "P")
-  (magit-diff-visit-file--internal t
-                                   (if other-window
-                                       #'switch-to-buffer-other-window
-                                     #'pop-to-buffer-same-window)))
+  (magit-diff-visit-file--internal t (and other-window t)))
 
 (defun magit-diff-visit-worktree-file-other-window ()
   "From a diff visit the file at point in another window.
@@ -1704,17 +1698,21 @@ Like `magit-diff-visit-worktree-file' but display in another frame."
 
 ;;;;; Internal
 
-(defun magit-diff-visit-file--internal (force-worktree fn)
+(defun magit-diff-visit-file--internal (force-worktree display)
   "From a diff visit the appropriate version of FILE.
-If FORCE-WORKTREE is non-nil, then visit the worktree version of
-the file, even if the diff is about a committed change.  Use FN
-to display the buffer in some window."
+If FORCE-WORKTREE is non-nil, then visit the worktree version of the
+file, even if the diff is about a committed change.  DISPLAY controls
+how the buffer is displayed.  If nil display in the same window, if
+t display in another window, or if a function, use that to display."
   (let ((file (magit-diff--file-at-point t t)))
     (if (file-accessible-directory-p file)
         (magit-diff-visit-directory file force-worktree)
       (pcase-let ((`(,buf ,pos)
                    (magit-diff-visit-file--noselect force-worktree)))
-        (funcall fn buf)
+        (pcase display
+          ('nil (pop-to-buffer-same-window buf))
+          ('t   (switch-to-buffer-other-window buf))
+          (_    (funcall display buf)))
         (magit-diff-visit-file--setup buf pos)
         buf))))
 
