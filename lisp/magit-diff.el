@@ -1605,24 +1605,25 @@ instead."
               "--ignore-blank-space")))
 
 (defun magit-diff-toggle-refine-hunk (&optional style)
-  "Turn diff-hunk refining on or off.
+  "Turn hunk refinement on or off, or switch refinement method.
 
-If hunk refining is currently on, then hunk refining is turned off.
-If hunk refining is off, then hunk refining is turned on, in
-`selected' mode (only the currently selected hunk is refined).
+If hunk refinement is currently on, then turn off hunk refinement.
+If hunk refinement is off, then turn on immediate hunk refinement.
 
-With a prefix argument, the \"third choice\" is used instead:
-If hunk refining is currently on, then refining is kept on, but
-the refining mode (`selected' or `all') is switched.
-If hunk refining is off, then hunk refining is turned on, in
-`all' mode (all hunks refined).
+With a prefix argument, an alternative refinement method comes into
+play.  When using that method, mode hunks are not refined immediately,
+instead each hunk is refined once it is selected, and then stays refined
+until the next refresh of the buffer.  If hunk refinement is currently
+on, then toggle between refining all hunks up front or only once they
+are selected.  If hunk refinement is off, then turn on hunk refinement,
+using the eventual refinement method.
 
-Customize variable `magit-diff-refine-hunk' to change the default mode."
+Customize option `magit-diff-refine-hunk' to change the default method."
   (interactive "P")
   (setq-local magit-diff-refine-hunk
               (if style
-                  (if (eq magit-diff-refine-hunk 'all) t 'all)
-                (not magit-diff-refine-hunk)))
+                  (if (eq magit-diff-refine-hunk t) 'all t)
+                (if magit-diff-refine-hunk nil 'all)))
   (magit-diff-update-hunk-refinement))
 
 ;;;; Visit Commands
