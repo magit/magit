@@ -140,6 +140,9 @@ A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
                        'magit-find-file-hook)))
         (current-buffer)))))
 
+(defun magit-find-file-hidden (rev file)
+  (magit-find-file-noselect (or rev "{worktree}") file))
+
 (defun magit-get-revision-buffer-create (rev file)
   (magit-get-revision-buffer rev file t))
 
