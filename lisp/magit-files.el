@@ -108,7 +108,7 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
                               (buffer-local-value 'auto-revert-mode $))
                         (cons "." revert-without-query)
                       revert-without-query)))
-               (find-file-noselect file)))
+               (find-file-noselect file volatile)))
             ((not topdir)
              (error "%s is not inside a Git repository" file))
             ([defdir (file-name-directory file)]
