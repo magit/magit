@@ -1746,19 +1746,20 @@ the Magit-Status buffer for DIRECTORY."
 
 (defun magit-diff-visit-file--noselect (&optional goto-file)
   (pcase-let*
-      ((file (magit-diff--file-at-point t t))
+      ((`((,old-rev ,old-file)
+          (,new-rev ,new-file))
+        (magit-diff-visit--sides))
        (goto-from
         (and (not goto-file)
              (magit-diff-on-removed-line-p)))
-       (spec (magit-diff--dwim))
-       (rev  (if goto-from
-                 (magit-diff-visit--range-from spec)
-               (let ((rev (magit-diff-visit--range-to spec)))
-                 (if (and (stringp rev)
-                          magit-diff-visit-avoid-head-blob
-                          (magit-rev-head-p rev))
-                     'unstaged
-                   rev))))
+       (`(,rev ,file)
+        (cond (goto-from
+               (list old-rev old-file))
+              ((and (stringp new-rev)
+                    magit-diff-visit-avoid-head-blob
+                    (magit-rev-head-p new-rev))
+               (list 'unstaged new-file))
+              ((list new-rev new-file))))
        (buffer (magit-find-file-noselect
                 (cond ((or goto-file
                            (equal magit-buffer-typearg "--no-index")
@@ -1771,6 +1772,20 @@ the Magit-Status buffer for DIRECTORY."
                 file)))
     (list buffer
           (magit-diff-visit--position buffer rev file goto-from goto-file))))
+
+(defun magit-diff-visit--sides ()
+  (pcase-let* ((spec (magit-diff--dwim))
+               (old-rev (magit-diff-visit--range-from spec))
+               (new-rev (magit-diff-visit--range-to spec))
+               (hunk (magit-diff-visit--hunk))
+               ((eieio source value) (oref hunk parent))
+               (old-file (or source value))
+               (new-file value))
+    (when (equal magit-buffer-typearg "--no-index")
+      (setq old-file (concat "/" old-file))
+      (setq new-file (concat "/" new-file)))
+    (list (list old-rev old-file)
+          (list new-rev new-file))))
 
 (defun magit-diff-visit--position (buffer rev file goto-from goto-file)
   (and-let* ((hunk (magit-diff-visit--hunk)))
