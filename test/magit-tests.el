@@ -49,6 +49,10 @@
                 (signal (car err) (cdr err))))
        (delete-directory ,dir t))))
 
+;; KLUDGE Prevent "File file with äöüéλ changed on disk.  Reread from
+;; disk?".  Necessary because showing status visits files to get syntax,
+;; but still does not either closes or "detaches" them.
+(setq magit-diff-fontify-hunk nil)
 (defmacro magit-with-test-repository (&rest body)
   (declare (indent 0) (debug t))
   `(magit-with-test-directory (magit-test-init-repo ".") ,@body))
