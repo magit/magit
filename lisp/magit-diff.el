@@ -195,8 +195,8 @@ keep their distinct foreground colors."
   :group 'magit-diff
   :type 'boolean)
 
-(defcustom magit-diff-refine-hunk nil
-  "Whether to show word-granularity differences within diff hunks.
+(defcustom magit-diff-refine-hunk 'all
+  "Whether to refine hunks to show word-granularity differences.
 
 `nil'  Never show fine differences.
 `all'  Show fine differences for all displayed diff hunks.
