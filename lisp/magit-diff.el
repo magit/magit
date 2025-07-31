@@ -1755,20 +1755,19 @@ the Magit-Status buffer for DIRECTORY."
        (`(,rev ,file)
         (cond (goto-from
                (list old-rev old-file))
-              ((and (stringp new-rev)
+              ((and (not (member new-rev '("{index}" "{worktree}")))
                     magit-diff-visit-avoid-head-blob
                     (magit-rev-head-p new-rev))
-               (list 'unstaged new-file))
+               (list "{worktree}" new-file))
               ((list new-rev new-file))))
        (buffer (magit-find-file-noselect
                 (cond ((or goto-file
                            (equal magit-buffer-typearg "--no-index")
-                           (and (not (stringp rev))
+                           (and (member rev '("{index}" "{worktree}"))
                                 (or magit-diff-visit-avoid-head-blob
                                     (not goto-from))))
                        "{worktree}")
-                      ((stringp rev) rev)
-                      ("HEAD"))
+                      (rev))
                 file)))
     (list buffer
           (magit-diff-visit--position buffer rev file goto-from goto-file))))
@@ -1776,14 +1775,18 @@ the Magit-Status buffer for DIRECTORY."
 (defun magit-diff-visit--sides ()
   (pcase-let* ((spec (magit-diff--dwim))
                (`(,old-rev . ,new-rev)
-                (pcase-exhaustive spec
+                (pcase spec
                   ((pred stringp)
                    (magit-split-range spec t))
                   (`(,(or 'commit 'stash) . ,rev)
                    (cons (magit-rev-abbrev (concat rev "^"))
                          (magit--abbrev-if-hash rev)))
-                  ((pred symbolp)
-                   (cons spec spec))))
+                  ('staged    (cons "{index}" "{index}"))
+                  ('unstaged  (cons "{worktree}" "{worktree}"))
+                  ('nil       (cons "{worktree}" "{worktree}"))
+                  ('unmerged  (cons "{worktree}" "{worktree}"))
+                  ('undefined (cons "{worktree}" "{worktree}")) ;--no-index
+                  (_          (error "BUG: Unexpected diff type %s" spec))))
                (hunk (magit-diff-visit--hunk))
                ((eieio source value) (oref hunk parent))
                (old-file (or source value))
@@ -1799,10 +1802,10 @@ the Magit-Status buffer for DIRECTORY."
     (let* ((line   (magit-diff-hunk-line   hunk goto-from))
            (column (magit-diff-hunk-column hunk goto-from)))
       (with-current-buffer buffer
-        (cond ((eq rev 'staged)
+        (cond ((equal rev "{index}")
                (setq line (magit-diff-visit--offset file nil line)))
-              ((and goto-file
-                    (stringp rev))
+              ((equal rev "{worktree}"))
+              (goto-file
                (setq line (magit-diff-visit--offset file rev line))))
         (save-restriction
           (widen)
