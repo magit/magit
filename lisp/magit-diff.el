@@ -587,6 +587,7 @@ side.  That way you don't lose the ability to visit the old side."
   :type 'boolean)
 
 ;;; Faces
+;;;; Headings
 
 (defface magit-diff-file-heading
   '((t :extend t :weight bold))
@@ -646,17 +647,9 @@ side.  That way you don't lose the ability to visit the old side."
   "Face for selected diff hunk headings."
   :group 'magit-faces)
 
-(defface magit-diff-hunk-region
-  `((t :inherit bold
-       :extend ,(ignore-errors (face-attribute 'region :extend))))
-  "Face used by `magit-diff-highlight-hunk-region-using-face'.
-
-This face is overlaid over text that uses other hunk faces,
-and those normally set the foreground and background colors.
-The `:foreground' and especially the `:background' properties
-should be avoided here.  Setting the latter would cause the
-loss of information.  Good properties to set here are `:weight'
-and `:slant'."
+(defface magit-diff-conflict-heading
+  '((t :inherit magit-diff-hunk-heading))
+  "Face for conflict markers."
   :group 'magit-faces)
 
 (defface magit-diff-conflict-heading-highlight
@@ -687,26 +680,16 @@ and `:slant'."
   "Face for diff hunk heading when lines are marked."
   :group 'magit-faces)
 
-(defface magit-diff-lines-boundary
-  '((t :extend t :inherit magit-diff-lines-heading))
-  "Face for boundary of marked lines in diff hunk."
-  :group 'magit-faces)
+;;;; Lines
 
-(defface magit-diff-conflict-heading
-  '((t :inherit magit-diff-hunk-heading))
-  "Face for conflict markers."
-  :group 'magit-faces)
-
-(defface magit-diff-added
+(defface magit-diff-context
   '((((class color) (background light))
      :extend t
-     :background "#ddffdd"
-     :foreground "#22aa22")
-    (((class color) (background dark))
+     :foreground "grey50")
+    (((class color) (background  dark))
      :extend t
-     :background "#335533"
-     :foreground "#ddffdd"))
-  "Face for lines in a diff that have been added."
+     :foreground "grey70"))
+  "Face for lines in a diff that are unchanged."
   :group 'magit-faces)
 
 (defface magit-diff-removed
@@ -719,6 +702,18 @@ and `:slant'."
      :background "#553333"
      :foreground "#ffdddd"))
   "Face for lines in a diff that have been removed."
+  :group 'magit-faces)
+
+(defface magit-diff-added
+  '((((class color) (background light))
+     :extend t
+     :background "#ddffdd"
+     :foreground "#22aa22")
+    (((class color) (background dark))
+     :extend t
+     :background "#335533"
+     :foreground "#ddffdd"))
+  "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
 (defface magit-diff-our
@@ -743,26 +738,18 @@ and `:slant'."
   "Face for lines in a diff for their side in a conflict."
   :group 'magit-faces)
 
-(defface magit-diff-context
-  '((((class color) (background light))
-     :extend t
-     :foreground "grey50")
-    (((class color) (background  dark))
-     :extend t
-     :foreground "grey70"))
-  "Face for lines in a diff that are unchanged."
-  :group 'magit-faces)
+;;;; Highlights
 
-(defface magit-diff-added-highlight
+(defface magit-diff-context-highlight
   '((((class color) (background light))
      :extend t
-     :background "#cceecc"
-     :foreground "#22aa22")
+     :background "grey95"
+     :foreground "grey50")
     (((class color) (background dark))
      :extend t
-     :background "#336633"
-     :foreground "#cceecc"))
-  "Face for lines in a diff that have been added."
+     :background "grey20"
+     :foreground "grey70"))
+  "Face for lines in the current context in a diff."
   :group 'magit-faces)
 
 (defface magit-diff-removed-highlight
@@ -775,6 +762,18 @@ and `:slant'."
      :background "#663333"
      :foreground "#eecccc"))
   "Face for lines in a diff that have been removed."
+  :group 'magit-faces)
+
+(defface magit-diff-added-highlight
+  '((((class color) (background light))
+     :extend t
+     :background "#cceecc"
+     :foreground "#22aa22")
+    (((class color) (background dark))
+     :extend t
+     :background "#336633"
+     :foreground "#cceecc"))
+  "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
 (defface magit-diff-our-highlight
@@ -799,21 +798,12 @@ and `:slant'."
   "Face for lines in a diff for their side in a conflict."
   :group 'magit-faces)
 
-(defface magit-diff-context-highlight
-  '((((class color) (background light))
-     :extend t
-     :background "grey95"
-     :foreground "grey50")
-    (((class color) (background dark))
-     :extend t
-     :background "grey20"
-     :foreground "grey70"))
-  "Face for lines in the current context in a diff."
-  :group 'magit-faces)
+;;;; Diffstats
 
-(defface magit-diff-whitespace-warning
-  '((t :inherit trailing-whitespace))
-  "Face for highlighting whitespace errors added lines."
+(defface magit-diffstat-removed
+  '((((class color) (background light)) :foreground "#aa2222")
+    (((class color) (background  dark)) :foreground "#aa4444"))
+  "Face for removal indicator in diffstat."
   :group 'magit-faces)
 
 (defface magit-diffstat-added
@@ -822,10 +812,31 @@ and `:slant'."
   "Face for addition indicator in diffstat."
   :group 'magit-faces)
 
-(defface magit-diffstat-removed
-  '((((class color) (background light)) :foreground "#aa2222")
-    (((class color) (background  dark)) :foreground "#aa4444"))
-  "Face for removal indicator in diffstat."
+;;;; Region
+
+(defface magit-diff-lines-boundary
+  '((t :extend t :inherit magit-diff-lines-heading))
+  "Face for boundary of marked lines in diff hunk."
+  :group 'magit-faces)
+
+(defface magit-diff-hunk-region
+  `((t :inherit bold
+       :extend ,(ignore-errors (face-attribute 'region :extend))))
+  "Face used by `magit-diff-highlight-hunk-region-using-face'.
+
+This face is overlaid over text that uses other hunk faces,
+and those normally set the foreground and background colors.
+The `:foreground' and especially the `:background' properties
+should be avoided here.  Setting the latter would cause the
+loss of information.  Good properties to set here are `:weight'
+and `:slant'."
+  :group 'magit-faces)
+
+;;;; Whitespace
+
+(defface magit-diff-whitespace-warning
+  '((t :inherit trailing-whitespace))
+  "Face for highlighting whitespace errors added lines."
   :group 'magit-faces)
 
 ;;; Variables
