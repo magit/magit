@@ -117,7 +117,8 @@ A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
          (absolute (file-name-absolute-p file))
          (file-abs (if absolute file (expand-file-name file topdir)))
          (file-rel (if absolute (file-relative-name file topdir) file))
-         (defdir   (file-name-directory file-abs)))
+         (defdir   (file-name-directory file-abs))
+         (rev      (magit--abbrev-if-hash rev)))
     (if (equal rev "{worktree}")
         (find-file-noselect file-abs)
       (with-current-buffer (magit-get-revision-buffer-create rev file-rel)
@@ -126,10 +127,7 @@ A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
                       (y-or-n-p (format "%s already exists; revert it? "
                                         (buffer-name))))
                   revert)
-          (setq magit-buffer-revision
-                (if (equal rev "{index}")
-                    "{index}"
-                  (magit-rev-format "%H" rev)))
+          (setq magit-buffer-revision rev)
           (setq magit-buffer-refname rev)
           (setq magit-buffer-file-name file-abs)
           (setq default-directory (if (file-exists-p defdir) defdir topdir))
