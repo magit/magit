@@ -226,7 +226,8 @@ then show it in Dired instead."
               "Show status for worktree"
               (cl-delete (directory-file-name (magit-toplevel))
                          (magit-list-worktrees)
-                         :test #'equal :key #'car)))))
+                         :test #'equal :key #'car)
+              nil t))))
   (magit-diff-visit-directory worktree))
 
 (defun magit--expand-worktree (directory)
