@@ -2841,9 +2841,9 @@ out.  Only existing branches can be selected."
       (magit-stash-at-point)
       (magit-get-current-branch)))
 
-(defun magit-read-tag (prompt &optional require-match)
-  (magit-completing-read prompt (magit-list-tags) nil
-                         require-match nil 'magit-revision-history
+(defun magit-read-tag (prompt)
+  (magit-completing-read prompt (magit-list-tags) nil t nil
+                         'magit-revision-history
                          (magit-tag-at-point)))
 
 (defun magit-read-stash (prompt)

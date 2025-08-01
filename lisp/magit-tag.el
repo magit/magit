@@ -66,7 +66,7 @@
   "Create a new tag with the given NAME at COMMIT.
 With a prefix argument annotate the tag.
 \n(git tag [--annotate] NAME REV)"
-  (interactive (list (magit-read-tag "Tag name")
+  (interactive (list (magit-completing-read "Create tag" (magit-list-tags))
                      (magit-read-branch-or-commit "Place tag on")
                      (let ((args (magit-tag-arguments)))
                        (when current-prefix-arg
@@ -84,7 +84,7 @@ defaulting to the tag at point.
   (interactive (list (if-let ((tags (magit-region-values 'tag)))
                          (magit-confirm t nil "Delete %d tags" nil tags)
                        (let ((helm-comp-read-use-marked t))
-                         (magit-read-tag "Delete tag" t)))))
+                         (magit-read-tag "Delete tag")))))
   (magit-run-git "tag" "-d" tags))
 
 ;;;###autoload
