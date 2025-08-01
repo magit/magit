@@ -1152,13 +1152,13 @@ Like `message', except that `message-log-max' is bound to nil."
     (if-let ((pair (car (or
                          (alist-get (or where t) magit-ellipsis)
                          (alist-get t magit-ellipsis)))))
-        (pcase-let ((`(,fancy . ,universal) pair))
-          (let ((ellipsis (if (and fancy (char-displayable-p fancy))
-                              fancy
-                            universal)))
-            (if (characterp ellipsis)
-                (char-to-string ellipsis)
-              ellipsis)))
+        (pcase-let* ((`(,fancy . ,universal) pair)
+                     (ellipsis (if (and fancy (char-displayable-p fancy))
+                                   fancy
+                                 universal)))
+          (if (characterp ellipsis)
+              (char-to-string ellipsis)
+            ellipsis))
       (user-error "Variable magit-ellipsis is invalid"))))
 
 (defun magit--ext-regexp-quote (string)
