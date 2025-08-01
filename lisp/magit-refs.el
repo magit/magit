@@ -642,7 +642,7 @@ line is inserted at all."
 (defun magit-insert-shelved-branches ()
   "Insert sections showing all shelved branches."
   (when-let ((refs (magit-list-refs "refs/shelved/")))
-    (magit-insert-section (shelved nil)
+    (magit-insert-section (shelved nil t)
       (magit-insert-heading t "Shelved branches")
       (dolist (ref (nreverse refs))
         (magit-insert-section (shelved-branch ref t)
