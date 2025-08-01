@@ -2273,8 +2273,8 @@ If `first-parent' is set, traverse only first parents."
       ;; abbreviation.  Actually HEAD's abbreviation might be an
       ;; outlier, so use the shorter of the abbreviations for two
       ;; commits.  See #3034.
-      (if-let ((head (magit-rev-parse "--short" "HEAD"))
-               (head-len (length head)))
+      (if-let* ((head (magit-rev-parse "--short" "HEAD"))
+                (head-len (length head)))
           (min head-len
                (if-let ((rev (magit-rev-parse "--short" "HEAD~")))
                    (length rev)
