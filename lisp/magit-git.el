@@ -2738,7 +2738,7 @@ and this option only controls what face is used.")
                              (magit-get-current-branch))))
 
 (defun magit-read-other-branch
-    (prompt &optional exclude secondary-default no-require-match)
+    (prompt &optional exclude secondary-default)
   (let* ((current (magit-get-current-branch))
          (atpoint (magit-branch-at-point))
          (exclude (or exclude current))
@@ -2747,8 +2747,7 @@ and this option only controls what face is used.")
                       secondary-default
                       (magit-get-previous-branch))))
     (magit-completing-read prompt (delete exclude (magit-list-branch-names))
-                           nil (not no-require-match)
-                           nil 'magit-revision-history default)))
+                           nil t nil 'magit-revision-history default)))
 
 (defun magit-read-other-branch-or-commit
     (prompt &optional exclude secondary-default)
@@ -2768,7 +2767,7 @@ and this option only controls what face is used.")
           (user-error "Nothing selected")))))
 
 (defun magit-read-other-local-branch
-    (prompt &optional exclude secondary-default no-require-match)
+    (prompt &optional exclude secondary-default)
   (let* ((current (magit-get-current-branch))
          (atpoint (magit-local-branch-at-point))
          (exclude (or exclude current))
@@ -2778,8 +2777,7 @@ and this option only controls what face is used.")
                       (magit-get-previous-branch))))
     (magit-completing-read prompt
                            (delete exclude (magit-list-local-branch-names))
-                           nil (not no-require-match)
-                           nil 'magit-revision-history default)))
+                           nil t nil 'magit-revision-history default)))
 
 (defun magit-read-branch-prefer-other (prompt)
   (let* ((current (magit-get-current-branch))
