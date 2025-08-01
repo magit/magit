@@ -163,7 +163,7 @@ Also see `magit-notes-merge'."
 
 ;;; Readers
 
-(defun magit-notes-read-ref (prompt _initial-input history)
+(defun magit-notes-read-ref (prompt &optional _initial-input history)
   (and-let* ((ref (magit-completing-read
                    prompt (magit-list-notes-refnames) nil nil
                    (and-let* ((def (magit-get "core.notesRef")))

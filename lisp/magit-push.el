@@ -258,7 +258,7 @@ branch as default."
 (defun magit-push-notes-ref (ref remote &optional args)
   "Push a notes ref to another repository."
   (interactive
-   (let ((note (magit-notes-read-ref "Push notes" nil nil)))
+   (let ((note (magit-notes-read-ref "Push notes")))
      (list note
            (magit-read-remote (format "Push %s to remote" note) nil t)
            (magit-push-arguments))))
