@@ -1680,7 +1680,8 @@ If FORCE-WORKTREE is non-nil, then visit the worktree version of the
 file, even if the diff is about a committed change.  DISPLAY controls
 how the buffer is displayed.  If nil display in the same window, if
 t display in another window, or if a function, use that to display."
-  (let ((file (magit-diff--file-at-point t t)))
+  (let ((file (or (magit-diff--file)
+                  (user-error "Cannot determine file to visit"))))
     (if (file-accessible-directory-p file)
         (magit-diff-visit-directory file display)
       (pcase-let ((`(,buf ,pos)
@@ -1746,8 +1747,8 @@ the Magit-Status buffer for DIRECTORY."
                   ('unmerged  (cons "{worktree}" "{worktree}"))
                   ('undefined (cons "{worktree}" "{worktree}")) ;--no-index
                   (_          (error "BUG: Unexpected diff type %s" spec))))
-               (hunk (magit-diff-visit--hunk))
-               ((eieio source value) (oref hunk parent))
+               ((eieio source value)
+                (magit-diff--file-section))
                (old-file (or source value))
                (new-file value))
     (when (equal magit-buffer-typearg "--no-index")
@@ -1757,7 +1758,7 @@ the Magit-Status buffer for DIRECTORY."
           (list new-rev new-file))))
 
 (defun magit-diff-visit--position (buffer rev file goto-from goto-file)
-  (and-let* ((hunk (magit-diff-visit--hunk)))
+  (and-let* ((hunk (magit-diff--hunk-section)))
     (let* ((line   (magit-diff-hunk-line   hunk goto-from))
            (column (magit-diff-hunk-column hunk goto-from)))
       (with-current-buffer buffer
@@ -1772,43 +1773,6 @@ the Magit-Status buffer for DIRECTORY."
           (forward-line (1- line))
           (move-to-column column)
           (point))))))
-
-(defun magit-diff--file-at-point (&optional expand assert)
-  ;; This is a variation of `magit-file-at-point'.
-  (if-let* ((file-section (magit-section-case
-                            (file it)
-                            (hunk (oref it parent))))
-            (file (or (and (magit-section-match 'hunk)
-                           (magit-diff-on-removed-line-p)
-                           (oref file-section source))
-                      (oref file-section value))))
-      (cond ((equal magit-buffer-typearg "--no-index")
-             (concat "/" file))
-            (expand (expand-file-name file (magit-toplevel)))
-            (file))
-    (when assert
-      (user-error "No file at point"))))
-
-(defun magit-diff-visit--hunk ()
-  (and-let* ((scope (magit-diff-scope))
-             (section (magit-current-section)))
-    (progn
-      (cl-case scope
-        ((file files)
-         (setq section (car (oref section children))))
-        (list
-         (setq section (car (oref section children)))
-         (when section
-           (setq section (car (oref section children))))))
-      (and
-       ;; Unmerged files appear in the list of staged changes
-       ;; but unlike in the list of unstaged changes no diffs
-       ;; are shown here.  In that case `section' is nil.
-       section
-       ;; Currently the `hunk' type is also abused for file
-       ;; mode changes, which we are not interested in here.
-       (not (equal (oref section value) '(chmod)))
-       section))))
 
 (defun magit-diff-hunk-line (section goto-from)
   (save-excursion
@@ -3188,7 +3152,7 @@ It the SECTION has a different type, then do nothing."
         "diff" "--cached" magit-buffer-diff-args "--no-prefix"
         "--" magit-buffer-diff-files))))
 
-;;; Diff Type
+;;; Diff Information
 
 (defun magit-diff-type (&optional section)
   "Return the diff type of SECTION.
@@ -3308,6 +3272,40 @@ actually a `diff' but a `diffstat' section."
                      ;; some byte-code function.
                      (byte-code-function-p last-command))
                  (eq (region-end) (region-beginning))))))
+
+(defun magit-diff--hunk-section ()
+  (and-let* ((section (magit-current-section))
+             (scope (magit-diff-scope section)))
+    ;; Currently the `hunk' type is also abused for file
+    ;; mode changes, which we are not interested in here.
+    (cl-flet ((first-hunk (file-section)
+                (seq-find (##not (equal (oref % value) '(chmod)))
+                          (oref file-section children))))
+      (pcase scope
+        ('hunk section)
+        ('file (first-hunk section))
+        ('list (and-let* ((first-file (car (oref section children))))
+                 (first-hunk first-file)))
+        ('module nil)))))
+
+(defun magit-diff--file-section ()
+  (and-let* ((section (magit-current-section))
+             (scope (magit-diff-scope section)))
+    (pcase scope
+      ('hunk (oref section parent))
+      ('file section)
+      ('list (car (oref section children)))
+      ('module section))))
+
+(defun magit-diff--file ()
+  (and-let* ((file-section (magit-diff--file-section))
+             (file (or (and (magit-section-match 'hunk)
+                            (magit-diff-on-removed-line-p)
+                            (oref file-section source))
+                       (oref file-section value))))
+    (if (equal magit-buffer-typearg "--no-index")
+        (concat "/" file)
+      (expand-file-name file (magit-toplevel)))))
 
 ;;; Hunk Paint
 ;;;; Paint
