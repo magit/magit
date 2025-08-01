@@ -134,7 +134,7 @@ the upstream."
                                  :test #'equal))
              (upstream (magit-completing-read
                         (format "Set upstream of %s and push there" branch)
-                        branches nil nil nil 'magit-revision-history
+                        branches nil 'any nil 'magit-revision-history
                         (or (car (member (magit-remote-branch-at-point) branches))
                             (car (member "origin/master" branches)))))
              (upstream* (or (magit-get-tracked upstream)
@@ -218,7 +218,7 @@ is used."
          (magit-completing-read-multiple
           "Push refspec,s: "
           (cons "HEAD" (magit-list-local-branch-names))
-          nil nil nil 'magit-push-refspecs-history)
+          nil 'any nil 'magit-push-refspecs-history)
          (magit-push-arguments)))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "push" "-v" args remote refspecs))

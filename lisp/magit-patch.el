@@ -150,9 +150,8 @@ which creates patches for all commits that are reachable from
   :reader #'magit-format-patch-select-base)
 
 (defun magit-format-patch-select-base (prompt initial-input history)
-  (or (magit-completing-read prompt (cons "auto" (magit-list-refnames))
-                             nil nil initial-input history "auto")
-      (user-error "Nothing selected")))
+  (magit-completing-read prompt (cons "auto" (magit-list-refnames))
+                         nil 'any initial-input history "auto"))
 
 (transient-define-argument magit-format-patch:--reroll-count ()
   :description "Reroll count"

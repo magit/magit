@@ -118,11 +118,10 @@
    nil nil initial-input history))
 
 (defun magit-transient-read-revision (prompt initial-input history)
-  (or (magit-completing-read prompt (cons "HEAD" (magit-list-refnames))
-                             nil nil initial-input history
-                             (or (magit-branch-or-commit-at-point)
-                                 (magit-get-current-branch)))
-      (user-error "Nothing selected")))
+  (magit-completing-read prompt (cons "HEAD" (magit-list-refnames))
+                         nil 'any initial-input history
+                         (or (magit-branch-or-commit-at-point)
+                             (magit-get-current-branch))))
 
 ;;;; Set
 

@@ -138,7 +138,7 @@ Rules that are defined in that file affect all local repositories."
         (unless (member default choices)
           (setq default nil))))
     (magit-completing-read "File or pattern to ignore"
-                           choices nil nil nil nil default)))
+                           choices nil 'any nil nil default)))
 
 ;;; Skip Worktree Commands
 

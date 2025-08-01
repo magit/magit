@@ -947,7 +947,7 @@ completion candidates.  The input must have the form \"NAME <EMAIL>\"."
               (sort (delete-dups
                      (magit-git-lines "log" "-n9999" "--format=%aN <%ae>"))
                     #'string<)
-              nil nil nil 'git-commit-read-ident-history)))
+              nil 'any nil 'git-commit-read-ident-history)))
     (save-match-data
       (if (string-match "\\`\\([^<]+\\) *<\\([^>]+\\)>\\'" str)
           (list (save-match-data (string-trim (match-str 1 str)))

@@ -576,6 +576,10 @@ acts similarly to `completing-read', except for the following:
 - If REQUIRE-MATCH is nil and the user exits without a choice,
   then nil is returned instead of an empty string.
 
+- If REQUIRE-MATCH is `any', then do not require a match but
+  do require non-empty input (or non-nil DEFAULT, since that
+  is substituted for empty input).
+
 - If REQUIRE-MATCH is non-nil and the user exits without a
   choice, `user-error' is raised.
 
@@ -614,7 +618,8 @@ acts similarly to `completing-read', except for the following:
           (reply (funcall magit-completing-read-function
                           (magit--format-prompt prompt def)
                           collection predicate
-                          require-match initial-input hist def)))
+                          (if (eq require-match 'any) nil require-match)
+                          initial-input hist def)))
       (setq this-command command)
       ;; Note: Avoid `string=' to support `helm-comp-read-use-marked'.
       (if (equal reply "")

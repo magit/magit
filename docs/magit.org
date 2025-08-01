@@ -1794,7 +1794,11 @@ will also have to install the ~ido-completing-read+~ package and use
   - If REQUIRE-MATCH is ~nil~ and the user exits without a choice, then
     ~nil~ is returned instead of an empty string.
 
-  - If REQUIRE-MATCH is non-nil and the users exits without a choice,
+  - If REQUIRE-MATCH is ~any~, then do not require a match but
+    do require non-empty input (or non-nil DEFAULT, since that
+    is substituted for empty input).
+
+  - If REQUIRE-MATCH is non-~nil~ and the users exits without a choice,
     an user-error is raised.
 
   - FALLBACK specifies a secondary default that is only used if the

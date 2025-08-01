@@ -651,7 +651,7 @@ commits before and half after."
         (split-string (magit-completing-read-multiple
                        "Log rev,s: "
                        (magit-list-refnames nil t)
-                       nil nil nil 'magit-revision-history
+                       nil 'any nil 'magit-revision-history
                        (or (magit-branch-or-commit-at-point)
                            (and (not use-current)
                                 (magit-get-previous-branch)))
@@ -953,14 +953,13 @@ nothing else.
 If invoked outside any log buffer, then display the log buffer
 of the current repository first; creating it if necessary."
   (interactive
-   (list (or (magit-completing-read
-              "In log, jump to"
-              (magit-list-refnames nil t)
-              nil nil nil 'magit-revision-history
-              (or (and-let* ((rev (magit-commit-at-point)))
-                    (magit-rev-fixup-target rev))
-                  (magit-get-current-branch)))
-             (user-error "Nothing selected"))))
+   (list (magit-completing-read
+          "In log, jump to"
+          (magit-list-refnames nil t)
+          nil 'any nil 'magit-revision-history
+          (or (and-let* ((rev (magit-commit-at-point)))
+                (magit-rev-fixup-target rev))
+              (magit-get-current-branch)))))
   (with-current-buffer
       (cond ((derived-mode-p 'magit-log-mode)
              (current-buffer))

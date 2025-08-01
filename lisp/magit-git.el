@@ -2662,10 +2662,9 @@ and this option only controls what face is used.")
     (when (and commit-at-point (not branch-at-point))
       (setq choices (cons commit-at-point choices)))
     (minibuffer-with-setup-hook #'magit--minibuf-default-add-commit
-      (or (magit-completing-read
-           prompt choices nil nil nil 'magit-revision-history
-           (or branch-at-point commit-at-point secondary-default current))
-          (user-error "Nothing selected")))))
+      (magit-completing-read
+       prompt choices nil 'any nil 'magit-revision-history
+       (or branch-at-point commit-at-point secondary-default current)))))
 
 (defun magit-read-range-or-commit (prompt &optional secondary-default)
   (magit-read-range
@@ -2686,7 +2685,7 @@ and this option only controls what face is used.")
     (magit-completing-read-multiple
      (concat prompt ": ")
      (magit-list-refnames)
-     nil nil nil 'magit-revision-history default nil t)))
+     nil 'any nil 'magit-revision-history default nil t)))
 
 (defun magit-read-remote-branch
     (prompt &optional remote default local-branch require-match)
@@ -2699,7 +2698,8 @@ and this option only controls what face is used.")
                                           (magit-list-remotes))))
                            (magit-list-remote-branch-names remote t)
                            :test #'equal)
-                 nil require-match nil 'magit-revision-history default)))
+                 nil (or require-match 'any)
+                 nil 'magit-revision-history default)))
     (if (or remote (string-match "\\`\\([^/]+\\)/\\(.+\\)" choice))
         choice
       (user-error "`%s' doesn't have the form REMOTE/BRANCH" choice))))
@@ -2708,7 +2708,8 @@ and this option only controls what face is used.")
   (magit-completing-read prompt
                          (prog2 (message "Determining available refs...")
                              (magit-remote-list-refs remote)
-                           (message "Determining available refs...done"))))
+                           (message "Determining available refs...done"))
+                         nil 'any))
 
 (defun magit-read-local-branch (prompt &optional secondary-default)
   (magit-completing-read prompt (magit-list-local-branch-names)
@@ -2724,10 +2725,9 @@ and this option only controls what face is used.")
     (when commit
       (push commit choices))
     (minibuffer-with-setup-hook #'magit--minibuf-default-add-commit
-      (or (magit-completing-read prompt choices
-                                 nil nil nil 'magit-revision-history
-                                 (or (magit-local-branch-at-point) commit))
-          (user-error "Nothing selected")))))
+      (magit-completing-read prompt choices
+                             nil 'any nil 'magit-revision-history
+                             (or (magit-local-branch-at-point) commit)))))
 
 (defun magit-read-local-branch-or-ref (prompt &optional secondary-default)
   (magit-completing-read prompt (nconc (magit-list-local-branch-names)
@@ -2762,9 +2762,8 @@ and this option only controls what face is used.")
                       secondary-default
                       (magit-get-previous-branch))))
     (minibuffer-with-setup-hook #'magit--minibuf-default-add-commit
-      (or (magit-completing-read prompt (delete exclude (magit-list-refnames))
-                                 nil nil nil 'magit-revision-history default)
-          (user-error "Nothing selected")))))
+      (magit-completing-read prompt (delete exclude (magit-list-refnames))
+                             nil 'any nil 'magit-revision-history default))))
 
 (defun magit-read-other-local-branch
     (prompt &optional exclude secondary-default)
@@ -2827,7 +2826,7 @@ out.  Only existing branches can be selected."
        (nconc (list "HEAD")
               (magit-list-refnames)
               (directory-files (magit-gitdir) nil "_HEAD\\'"))
-       nil nil nil 'magit-revision-history
+       nil 'any nil 'magit-revision-history
        (or default (magit--default-starting-point)))
       (user-error "Nothing selected")))
 
@@ -2875,7 +2874,7 @@ out.  Only existing branches can be selected."
   (magit-completing-read prompt
                          (nconc (magit-list-remotes)
                                 (list "https://" "git://" "git@"))
-                         nil nil nil nil
+                         nil 'any nil nil
                          (or default
                              (magit-remote-at-point)
                              (magit-get-remote))))

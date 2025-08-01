@@ -2102,7 +2102,12 @@ If REQUIRE-MATCH is @code{nil} and the user exits without a choice, then
 @code{nil} is returned instead of an empty string.
 
 @item
-If REQUIRE-MATCH is non-nil and the users exits without a choice,
+If REQUIRE-MATCH is @code{any}, then do not require a match but
+do require non-empty input (or non-nil DEFAULT, since that
+is substituted for empty input).
+
+@item
+If REQUIRE-MATCH is non-@code{nil} and the users exits without a choice,
 an user-error is raised.
 
 @item
