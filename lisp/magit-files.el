@@ -376,13 +376,14 @@ in a single window."
 (defun magit-blob-next ()
   "Visit the next blob which modified the current file."
   (interactive)
-  (if magit-buffer-file-name
-      (magit-blob-visit (or (magit-blob-successor magit-buffer-revision
-                                                  magit-buffer-file-name)
-                            magit-buffer-file-name))
-    (if (buffer-file-name (buffer-base-buffer))
-        (user-error "You have reached the end of time")
-      (user-error "Buffer isn't visiting a file or blob"))))
+  (cond
+   (magit-buffer-file-name
+    (magit-blob-visit
+     (or (magit-blob-successor magit-buffer-revision magit-buffer-file-name)
+         magit-buffer-file-name)))
+   ((buffer-file-name (buffer-base-buffer))
+    (user-error "You have reached the end of time"))
+   ((user-error "Buffer isn't visiting a file or blob"))))
 
 (defun magit-blob-previous ()
   "Visit the previous blob which modified the current file."
