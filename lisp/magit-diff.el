@@ -1171,9 +1171,8 @@ The information can be in three forms:
 If no DWIM context is found, nil is returned."
   (cond
    ((and-let* ((commits (magit-region-values '(commit branch) t)))
-      (progn
-        (deactivate-mark)
-        (concat (car (last commits)) ".." (car commits)))))
+      (deactivate-mark)
+      (concat (car (last commits)) ".." (car commits))))
    (magit-buffer-refname
     (cons 'commit magit-buffer-refname))
    ((derived-mode-p 'magit-stash-mode)
@@ -1227,24 +1226,23 @@ If no DWIM context is found, nil is returned."
   (and-let* ((commits (magit-region-values '(commit branch) t))
              (revA (car (last commits)))
              (revB (car commits)))
-    (progn
-      (when interactive
-        (deactivate-mark))
-      (if mbase
-          (let ((base (magit-git-string "merge-base" revA revB)))
-            (cond
-             ((string= (magit-rev-parse revA) base)
-              (format "%s..%s" revA revB))
-             ((string= (magit-rev-parse revB) base)
-              (format "%s..%s" revB revA))
-             (interactive
-              (let ((main (magit-completing-read "View changes along"
-                                                 (list revA revB)
-                                                 nil t nil nil revB)))
-                (format "%s...%s"
-                        (if (string= main revB) revA revB) main)))
-             (t "%s...%s" revA revB)))
-        (format "%s..%s" revA revB)))))
+    (when interactive
+      (deactivate-mark))
+    (if mbase
+        (let ((base (magit-git-string "merge-base" revA revB)))
+          (cond
+           ((string= (magit-rev-parse revA) base)
+            (format "%s..%s" revA revB))
+           ((string= (magit-rev-parse revB) base)
+            (format "%s..%s" revB revA))
+           (interactive
+            (let ((main (magit-completing-read "View changes along"
+                                               (list revA revB)
+                                               nil t nil nil revB)))
+              (format "%s...%s"
+                      (if (string= main revB) revA revB) main)))
+           (t "%s...%s" revA revB)))
+      (format "%s..%s" revA revB))))
 
 (defun magit-diff-read-range-or-commit (prompt &optional secondary-default mbase)
   "Read range or revision with special diff range treatment.
