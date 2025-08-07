@@ -2394,7 +2394,7 @@ keymap is the parent of their keymaps."
    ((looking-at "^diff --\
 \\(?:\\(?1:git\\) \\(?:\\(?2:.+?\\) \\2\\)?\
 \\|\\(?:cc\\|combined\\) \\(?3:.+\\)\\)")
-    (let ((status (cond ((equal (match-str 1) "git")        "modified")
+    (let ((status (cond ((equal (match-str 1) "git")           "modified")
                         ((derived-mode-p 'magit-revision-mode) "resolved")
                         (t                                     "unmerged")))
           (orig nil)
