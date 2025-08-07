@@ -155,7 +155,7 @@ variant `magit-wip-after-save-mode'."
 Also see `magit-wip-after-save-mode' which calls this function
 automatically whenever a buffer visiting a tracked file is saved."
   (interactive (list "wip-save %s after save"))
-  (when-let (((not magit--wip-inhibit-autosave))
+  (when-let ((_(not magit--wip-inhibit-autosave))
              (ref (magit-wip-get-ref)))
     (magit-with-toplevel
       (let ((file (file-relative-name buffer-file-name)))

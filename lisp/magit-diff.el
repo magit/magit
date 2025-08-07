@@ -812,7 +812,7 @@ and `:slant'."
 (cl-defmethod transient-init-value ((obj magit-diff-prefix))
   (pcase-let ((`(,args ,files)
                (magit-diff--get-value 'magit-diff-mode 'prefix)))
-    (when-let (((not (eq transient-current-command 'magit-dispatch)))
+    (when-let ((_(not (eq transient-current-command 'magit-dispatch)))
                (file (magit-file-relative-name)))
       (setq files (list file)))
     (oset obj value (if files `(("--" ,@files) ,@args) args))))
@@ -852,7 +852,7 @@ and `:slant'."
            (eq major-mode mode))
       (setq args  magit-buffer-diff-args)
       (setq files magit-buffer-diff-files))
-     ((when-let (((memq use-buffer-args '(always selected)))
+     ((when-let ((_(memq use-buffer-args '(always selected)))
                  (buffer (magit-get-mode-buffer
                           mode nil
                           (eq use-buffer-args 'selected))))
@@ -2915,7 +2915,7 @@ or a ref which is not a branch, then it inserts nothing."
         (magit--insert-related-refs
          magit-buffer-revision "--contains" "Contained"
          (memq magit-revision-insert-related-refs '(all mixed))))
-      (when-let (((magit-revision-insert-related-refs-display-p 'follows))
+      (when-let ((_(magit-revision-insert-related-refs-display-p 'follows))
                  (follows (magit-get-current-tag magit-buffer-revision t)))
         (let ((tag (car  follows))
               (cnt (cadr follows)))
@@ -2925,7 +2925,7 @@ or a ref which is not a branch, then it inserts nothing."
                      (propertize tag 'font-lock-face 'magit-tag)
                      (propertize (number-to-string cnt)
                                  'font-lock-face 'magit-branch-local))))))
-      (when-let (((magit-revision-insert-related-refs-display-p 'precedes))
+      (when-let ((_(magit-revision-insert-related-refs-display-p 'precedes))
                  (precedes (magit-get-next-tag magit-buffer-revision t)))
         (let ((tag (car  precedes))
               (cnt (cadr precedes)))
@@ -2976,7 +2976,7 @@ Refer to user option `magit-revision-insert-related-refs-display-alist'."
 (defun magit-insert-revision-gravatar (beg rev email regexp)
   (save-excursion
     (goto-char beg)
-    (when-let (((re-search-forward regexp nil t))
+    (when-let ((_(re-search-forward regexp nil t))
                (window (get-buffer-window)))
       (let* ((column   (length (match-str 0)))
              (font-obj (query-font (font-at (point) window)))
@@ -3575,7 +3575,7 @@ last (visual) lines of the region."
 (defun magit-diff-inside-hunk-body-p ()
   "Return t if point is inside the body of a hunk."
   (and-let* ((section (magit-current-section))
-             ((cl-typep section 'magit-hunk-section))
+             (_(cl-typep section 'magit-hunk-section))
              (content (oref section content)))
     (> (magit-point) content)))
 

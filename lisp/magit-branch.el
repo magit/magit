@@ -595,7 +595,7 @@ prompt is confusing."
        (setq branches
              (list (magit-read-branch-prefer-other
                     (if force "Force delete branch" "Delete branch")))))
-     (when-let (((not force))
+     (when-let ((_(not force))
                 (unmerged (seq-remove #'magit-branch-merged-p branches)))
        (if (magit-confirm 'delete-unmerged-branch
              "Delete unmerged branch %s"

@@ -1053,8 +1053,8 @@ tracked file."
                          buffer-file-name
                          (and (derived-mode-p 'dired-mode)
                               default-directory)))
-               ((or (not tracked)
-                    (magit-file-tracked-p (file-relative-name file))))
+               (_(or (not tracked)
+                     (magit-file-tracked-p (file-relative-name file))))
                (dir (magit-toplevel
                      (magit--safe-default-directory
                       (directory-file-name (file-name-directory file))))))
@@ -1103,7 +1103,7 @@ See also `magit-untracked-files'."
                     ((or "yes" "on" "true" "1") t)
                     ("all" 'all))
                   magit-status-show-untracked-files))
-       ((not (eq value 'no))))
+       (_(not (eq value 'no))))
     (mapcan (##and (eq (aref % 0) ??)
                    (list (substring % 3)))
             (apply #'magit-git-items "status" "-z" "--porcelain"
@@ -1691,7 +1691,7 @@ The amount of time spent searching is limited by
                            "for-each-ref" "refs/heads"
                            "--format=%(refname:short)\t%(upstream:short)"))))
     (when-let ((old (assoc oldname branches))
-               ((not (assoc newname branches))))
+               (_(not (assoc newname branches))))
       (magit-call-git "branch" "-m" oldname newname)
       (setcar old newname))
     (let ((new (if (magit-branch-p newname)
@@ -2476,9 +2476,9 @@ and this option only controls what face is used.")
        (unwind-protect
            (magit-with-toplevel
              (when-let* ((tree ,tree)
-                         ((not (magit-git-success
-                                "read-tree" ,arg tree
-                                (concat "--index-output=" ,file)))))
+                         (_(not (magit-git-success
+                                 "read-tree" ,arg tree
+                                 (concat "--index-output=" ,file)))))
                (error "Cannot read tree %s" tree))
              (with-environment-variables (("GIT_INDEX_FILE" ,file))
                ,@body))

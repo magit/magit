@@ -901,8 +901,9 @@ then also kill the buffer."
                                      #'previous-single-char-property-change
                                    #'next-single-char-property-change)
                                  pos 'magit-blame-chunk)))
-            (when-let ((o (magit-blame--overlay-at pos))
-                       ((equal (oref (magit-blame-chunk-at pos) orig-rev) rev)))
+            (when-let
+                ((o (magit-blame--overlay-at pos))
+                 (_(equal (oref (magit-blame-chunk-at pos) orig-rev) rev)))
               (setq ov o))))
         (if ov
             (goto-char (overlay-start ov))

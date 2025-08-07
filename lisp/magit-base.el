@@ -595,7 +595,7 @@ acts similarly to `completing-read', except for the following:
   `minibuffer-default-prompt-format' and depending on
   `magit-completing-read-default-prompt-predicate'."
   (setq magit-completing-read--silent-default nil)
-  (if-let ((def)
+  (if-let ((_ def)
            (dwim (seq-some (pcase-lambda (`(,cmd ,re ,dwim))
                              (and (eq cmd this-command)
                                   (or (not re)
@@ -1109,7 +1109,7 @@ See <https://github.com/raxod502/straight.el/issues/520>."
        (build (pcase manager
                 ('straight (bound-and-true-p straight-build-dir))
                 ('elpaca (bound-and-true-p elpaca-builds-directory))))
-       ((string-prefix-p build filename))
+       (_(string-prefix-p build filename))
        (repo (pcase manager
                ('straight
                 (and (bound-and-true-p straight-base-dir)

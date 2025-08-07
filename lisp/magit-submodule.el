@@ -587,7 +587,7 @@ These sections can be expanded to show the respective commits."
 
 (defun magit--insert-modules-logs (heading type range)
   "For internal use, don't add to a hook."
-  (when-let (((not (magit-ignore-submodules-p)))
+  (when-let ((_(not (magit-ignore-submodules-p)))
              (modules (magit-list-module-paths)))
     (magit-insert-section ((eval type) nil t)
       (string-match "\\`\\(.+\\) \\([^ ]+\\)\\'" heading)
@@ -600,11 +600,11 @@ These sections can be expanded to show the respective commits."
         ":")
       (dolist (module modules)
         (when-let* ((default-directory (expand-file-name module))
-                    ((file-exists-p (expand-file-name ".git")))
+                    (_(file-exists-p (expand-file-name ".git")))
                     (lines (magit-git-lines "-c" "push.default=current"
                                             "log" "--oneline" range))
                     (count (length lines))
-                    ((> count 0)))
+                    (_(> count 0)))
           (magit-insert-section
               ( module module t
                 :range range)

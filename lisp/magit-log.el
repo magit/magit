@@ -374,7 +374,7 @@ commits before and half after."
 (cl-defmethod transient-init-value ((obj magit-log-prefix))
   (pcase-let ((`(,args ,files)
                (magit-log--get-value 'magit-log-mode 'prefix)))
-    (when-let (((not (eq transient-current-command 'magit-dispatch)))
+    (when-let ((_(not (eq transient-current-command 'magit-dispatch)))
                (file (magit-file-relative-name)))
       (setq files (list file)))
     (oset obj value (if files `(("--" ,@files) ,@args) args))))
@@ -414,7 +414,7 @@ commits before and half after."
            (eq major-mode mode))
       (setq args  magit-buffer-log-args)
       (setq files magit-buffer-log-files))
-     ((when-let (((memq use-buffer-args '(always selected)))
+     ((when-let ((_(memq use-buffer-args '(always selected)))
                  (buffer (magit-get-mode-buffer
                           mode nil
                           (eq use-buffer-args 'selected))))
@@ -1754,8 +1754,8 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
   (if initial
       (magit-log-goto-commit-section initial)
     (while-let ((rev (magit-section-value-if 'commit))
-                ((string-match-p "\\`\\(squash!\\|fixup!\\|amend!\\)"
-                                 (magit-rev-format "%s" rev)))
+                (_(string-match-p "\\`\\(squash!\\|fixup!\\|amend!\\)"
+                                  (magit-rev-format "%s" rev)))
                 (section (magit-current-section))
                 (next (car (magit-section-siblings section 'next))))
       (magit-section-goto next)))
@@ -1915,7 +1915,7 @@ need an unique value, so we use that string in the pushremote case."
   "Insert commits that haven't been pulled from the push-remote yet."
   (when-let* ((target (magit-get-push-branch))
               (range  (concat ".." target))
-              ((magit--insert-pushremote-log-p)))
+              (_(magit--insert-pushremote-log-p)))
     (magit-insert-section (unpulled range t)
       (magit-insert-heading
         (format (propertize "Unpulled from %s."
@@ -1995,7 +1995,7 @@ Show the last `magit-log-section-commit-count' commits."
   "Insert commits that haven't been pushed to the push-remote yet."
   (when-let* ((target (magit-get-push-branch))
               (range  (concat target ".."))
-              ((magit--insert-pushremote-log-p)))
+              (_(magit--insert-pushremote-log-p)))
     (magit-insert-section (unpushed range t)
       (magit-insert-heading
         (format (propertize "Unpushed to %s."

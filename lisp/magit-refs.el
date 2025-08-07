@@ -508,8 +508,8 @@ Branch %s already exists.
   "<1>" (magit-menu-item "Visit %s"  #'magit-visit-ref))
 
 (defun magit--painted-branch-as-menu-section (section)
-  (and-let* ((branch (and (magit-section-match 'commit)
-                          (magit--painted-branch-at-point))))
+  (and-let* ((_(magit-section-match 'commit))
+             (branch (magit--painted-branch-at-point)))
     (let ((dummy (magit-section :type 'branch :value branch)))
       (oset dummy keymap magit-branch-section-map)
       (dolist (slot '(start content hidden parent children))
@@ -747,7 +747,7 @@ line is inserted at all."
                            (magit--propertize-face
                             push 'magit-branch-remote)
                            " "))
-              (if-let ((magit-refs-show-branch-descriptions)
+              (if-let ((_ magit-refs-show-branch-descriptions)
                        (desc (magit-get "branch" branch "description")))
                   (magit--propertize-face desc 'bold)
                 (and msg (magit-log--wash-summary msg))))))))

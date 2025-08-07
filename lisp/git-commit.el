@@ -502,7 +502,7 @@ the redundant bindings, then set this to nil, before loading
                   (not (file-accessible-directory-p
                         (file-name-directory buffer-file-name)))
                   (magit-expand-git-file-name (substring buffer-file-name 2))))
-       ((file-accessible-directory-p (file-name-directory file)))
+       (_(file-accessible-directory-p (file-name-directory file)))
        (inhibit-read-only t))
     (insert-file-contents file t)
     t))
@@ -748,7 +748,7 @@ With a numeric prefix ARG, go back ARG messages."
       ;; non-empty and newly written comment, because otherwise
       ;; it would be irreversibly lost.
       (when-let* ((message (git-commit-buffer-message))
-                  ((not (ring-member log-edit-comment-ring message))))
+                  (_(not (ring-member log-edit-comment-ring message))))
         (ring-insert log-edit-comment-ring message)
         (cl-incf arg)
         (setq len (ring-length log-edit-comment-ring)))

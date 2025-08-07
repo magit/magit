@@ -764,7 +764,7 @@ argument, prompt for the first commit to potentially squash into."
   (interactive (list current-prefix-arg
                      (magit-rebase-arguments)))
   (magit-rebase-interactive-1
-      (and-let* (((not select))
+      (and-let* ((_(not select))
                  (upstream (magit-get-upstream-branch)))
         (magit-git-string "merge-base" upstream "HEAD"))
       (nconc (list "--autosquash" "--keep-empty") args)

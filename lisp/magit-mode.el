@@ -1238,8 +1238,8 @@ Note that refreshing a Magit buffer is done by re-creating its
 contents from scratch, which can be slow in large repositories.
 If you are not satisfied with Magit's performance, then you
 should obviously not add this function to that hook."
-  (when-let (((and (not magit-inhibit-refresh)
-                   (magit-inside-worktree-p t)))
+  (when-let ((_(not magit-inhibit-refresh))
+             (_(magit-inside-worktree-p t))
              (buf (ignore-errors (magit-get-mode-buffer 'magit-status-mode))))
     (cl-pushnew buf magit-after-save-refresh-buffers)
     (add-hook 'post-command-hook #'magit-after-save-refresh-buffers)))

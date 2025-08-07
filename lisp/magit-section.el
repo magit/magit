@@ -613,9 +613,9 @@ with SECTION, otherwise return a list of section types."
         `(menu-item
           ,(if (oref section hidden) "Expand section" "Collapse section")
           magit-section-toggle))
-      (when-let (((not (oref section hidden)))
+      (when-let ((_(not (oref section hidden)))
                  (children (oref section children))
-                 ((seq-some #'magit-section-content-p children)))
+                 (_(seq-some #'magit-section-content-p children)))
         (when (seq-some (##oref % hidden) children)
           (keymap-set-after menu "<magit-section-show-children>"
             `(menu-item "Expand children"
