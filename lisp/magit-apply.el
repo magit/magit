@@ -449,8 +449,8 @@ ignored) files."
   (magit-wip-commit-after-apply files " after unstage"))
 
 (defun magit-unstage-intent (files)
-  (if-let ((staged (magit-staged-files))
-           (intent (seq-filter (##member % staged) files)))
+  (if-let* ((staged (magit-staged-files))
+            (intent (seq-filter (##member % staged) files)))
       (magit-unstage-1 intent)
     (user-error "Already unstaged")))
 
