@@ -180,7 +180,7 @@ line is affected."
      [remote branchbuf]
      [shelved branchbuf]
      [tags branchbuf]
-     topics issues pullreqs))
+     topics discussions issues pullreqs))
 
 (defun magit-maybe-make-margin-overlay ()
   (when (magit-section-match magit-margin-overlay-conditions
