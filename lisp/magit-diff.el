@@ -809,6 +809,11 @@ and `:slant'."
 
 ;;;; Prefix Methods
 
+(cl-defmethod transient-prefix-value ((obj magit-diff-prefix))
+  (let ((args (cl-call-next-method obj)))
+    (list (seq-filter #'atom args)
+          (cdr (assoc "--" args)))))
+
 (cl-defmethod transient-init-value ((obj magit-diff-prefix))
   (pcase-let ((`(,args ,files)
                (magit-diff--get-value 'magit-diff-mode 'prefix)))
@@ -834,7 +839,7 @@ and `:slant'."
 (defun magit-diff-arguments (&optional mode)
   "Return the current diff arguments."
   (if (memq transient-current-command '(magit-diff magit-diff-refresh))
-      (magit--transient-args-and-files)
+      (transient-args transient-current-command)
     (magit-diff--get-value (or mode 'magit-diff-mode) 'direct)))
 
 (defun magit-diff--get-value (mode &optional use-buffer-args)
@@ -873,7 +878,7 @@ and `:slant'."
   (pcase-let* ((obj  (oref obj prototype))
                (mode (or (oref obj major-mode) major-mode))
                (key  (intern (format "magit-diff:%s" mode)))
-               (`(,args ,files) (magit--transient-args-and-files)))
+               (`(,args ,files) (transient-args obj)))
     (put mode 'magit-diff-current-arguments args)
     (when save
       (setf (alist-get key transient-values) args)

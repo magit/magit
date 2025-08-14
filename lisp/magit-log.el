@@ -371,6 +371,11 @@ commits before and half after."
 
 ;;;; Prefix Methods
 
+(cl-defmethod transient-prefix-value ((obj magit-log-prefix))
+  (let ((args (cl-call-next-method obj)))
+    (list (seq-filter #'atom args)
+          (cdr (assoc "--" args)))))
+
 (cl-defmethod transient-init-value ((obj magit-log-prefix))
   (pcase-let ((`(,args ,files)
                (magit-log--get-value 'magit-log-mode 'prefix)))
@@ -396,7 +401,7 @@ commits before and half after."
 (defun magit-log-arguments (&optional mode)
   "Return the current log arguments."
   (if (memq transient-current-command '(magit-log magit-log-refresh))
-      (magit--transient-args-and-files)
+      (transient-args transient-current-command)
     (magit-log--get-value (or mode 'magit-log-mode) 'direct)))
 
 (defun magit-log--get-value (mode &optional use-buffer-args)
@@ -435,7 +440,7 @@ commits before and half after."
   (pcase-let* ((obj  (oref obj prototype))
                (mode (or (oref obj major-mode) major-mode))
                (key  (intern (format "magit-log:%s" mode)))
-               (`(,args ,files) (magit--transient-args-and-files)))
+               (`(,args ,files) (transient-args obj)))
     (put mode 'magit-log-current-arguments args)
     (when save
       (setf (alist-get key transient-values) args)
