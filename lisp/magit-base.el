@@ -687,6 +687,14 @@ third-party completion frameworks."
                      (equal omit-nulls t))
             (setq input string))
           (funcall split-string string separators omit-nulls trim)))
+       ;; Add the default to the table if absent, which is necessary
+       ;; because we don't add it to the prompt for some frameworks.
+       (table (if (and def
+                       (listp table)
+                       (not (listp (car table)))
+                       (not (member def table)))
+                  (cons def table)
+                table))
        ;; Prevent `BUILT-IN' completion from messing up our existing
        ;; order of the completion candidates. aa5f098ab
        (table (magit--completion-table table))
