@@ -702,8 +702,11 @@ third-party completion frameworks."
        ;; And now, the moment we have all been waiting for...
        (values (completing-read-multiple
                 (magit--format-prompt prompt def)
-                table predicate require-match initial-input
-                hist def inherit-input-method)))
+                table predicate
+                (if (eq require-match 'any) nil require-match)
+                initial-input hist def inherit-input-method)))
+    (when (and require-match (not values))
+      (user-error "Nothing selected"))
     (if no-split input values)))
 
 (defvar-keymap magit-minibuffer-local-ns-map
