@@ -3785,6 +3785,14 @@ which all the other references are compared.
   Showing the prefix is redundant because the name of the remote is
   already shown in the heading preceding the list of its branches.
 
+- User Option: magit-refs-insert-cherry-commits ::
+
+  Whether to insert cherry commits for the branches and tags.
+
+  In repos with a large number of branches and tags, this can take a
+  lot of time. Disabling this option can speed up ~magit-show-refs~ by
+  orders of magnitudes.
+
 - User Option: magit-refs-primary-column-width ::
 
   Width of the primary column in `magit-refs-mode' buffers.  The

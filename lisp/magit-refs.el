@@ -52,6 +52,13 @@
   :group 'magit-refs
   :type 'hook)
 
+(defcustom magit-refs-insert-cherry-commits t
+  "Whether to show cherry commits for the branches and tags.
+
+Saves a lot of time when used on repos with a lot of branches and tags"
+  :group 'magit-refs
+  :type 'boolean)
+
 (defcustom magit-refs-show-commit-count nil
   "Whether to show commit counts in Magit-Refs mode buffers.
 
@@ -562,7 +569,8 @@ line is inserted at all."
                   (and msg (magit-log--wash-summary msg)))
                 (when (and magit-refs-margin-for-tags (magit-buffer-margin-p))
                   (magit-refs--format-margin tag))
-                (magit-refs--insert-cherry-commits tag)))))
+                (if magit-refs-insert-cherry-commits
+                    (magit-refs--insert-cherry-commits tag))))))
         (insert ?\n)
         (magit-make-margin-overlay)))))
 
@@ -617,7 +625,8 @@ line is inserted at all."
                       (and msg (magit-log--wash-summary msg))))
                   (when (magit-buffer-margin-p)
                     (magit-refs--format-margin branch))
-                  (magit-refs--insert-cherry-commits branch))))))))
+                  (if magit-refs-insert-cherry-commits
+                      (magit-refs--insert-cherry-commits branch)))))))))
       (insert ?\n)
       (magit-make-margin-overlay))))
 
@@ -634,7 +643,8 @@ line is inserted at all."
           (apply #'magit-insert-heading strings)
           (when (magit-buffer-margin-p)
             (magit-refs--format-margin branch))
-          (magit-refs--insert-cherry-commits branch))))
+          (if magit-refs-insert-cherry-commits
+              (magit-refs--insert-cherry-commits branch)))))
     (insert ?\n)
     (magit-make-margin-overlay)))
 
@@ -649,7 +659,8 @@ line is inserted at all."
             "  " (magit--propertize-face (substring ref 13) 'magit-refname))
           (when (magit-buffer-margin-p)
             (magit-refs--format-margin ref))
-          (magit-refs--insert-cherry-commits ref)))
+          (if magit-refs-insert-cherry-commits
+              (magit-refs--insert-cherry-commits ref))))
       (insert ?\n)
       (magit-make-margin-overlay))))
 
