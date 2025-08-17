@@ -362,14 +362,14 @@ BATCH is non-nil, in which case nil is returned.  Non-nil
 BATCH also ignores commented lines."
   (save-excursion
     (goto-char (line-beginning-position))
-    (if-let ((re-start (if batch
-                           "^"
-                         (format "^\\(?99:%s\\)? *"
-                                 (regexp-quote comment-start))))
-             (type (seq-some (pcase-lambda (`(,type . ,re))
-                               (let ((case-fold-search nil))
-                                 (and (looking-at (concat re-start re)) type)))
-                             git-rebase-line-regexps)))
+    (if-let* ((re-start (if batch
+                            "^"
+                          (format "^\\(?99:%s\\)? *"
+                                  (regexp-quote comment-start))))
+              (type (seq-some (pcase-lambda (`(,type . ,re))
+                                (let ((case-fold-search nil))
+                                  (and (looking-at (concat re-start re)) type)))
+                              git-rebase-line-regexps)))
         (git-rebase-action
          :action-type    type
          :action         (and-let* ((action (match-str 1)))
