@@ -36,7 +36,7 @@
 This is called with two arguments, the prompt and the branch to be
 checked out.  When not checking out a branch then use nil for the
 second argument."
-  :package-version '(magit . "4.3.9")
+  :package-version '(magit . "4.4.0")
   :group 'magit-commands
   :type `(radio (function-item ,#'magit-read-worktree-directory)
                 (function-item ,#'magit-read-worktree-directory-nested)
@@ -49,7 +49,7 @@ second argument."
   "Base directory used by `magit-read-worktree-directory-offsite'.
 That function is suitable as `magit-read-worktree-directory-function',
 but is not used by default."
-  :package-version '(magit . "4.3.9")
+  :package-version '(magit . "4.4.0")
   :group 'magit-commands
   :type 'directory)
 
@@ -57,7 +57,7 @@ but is not used by default."
   "Like `magit-read-worktree-directory-function' but takes only one argument.")
 (make-obsolete-variable 'magit-worktree-read-directory-name-function
                         'magit-read-worktree-directory-function
-                        "Magit 4.3.9")
+                        "Magit 4.4.0")
 
 ;;; Functions
 

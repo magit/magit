@@ -198,7 +198,7 @@ This controls which refs are returned by `magit-list-refs', which
 is called by functions like `magit-list-branch-names' to generate
 the collection of refs.  Additionally namespaces appear in the same
 order as specified here."
-  :package-version '(magit . "4.3.9")
+  :package-version '(magit . "4.4.0")
   :group 'magit-commands
   :type '(repeat string))
 

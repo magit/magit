@@ -602,7 +602,7 @@ If DEFAULT is non-nil, use this as the default value instead of
   'magit-file-unstage "Magit 4.3.2")
 
 (define-obsolete-function-alias 'magit-find-file-noselect-1
-  'magit-find-file-noselect "Magit 4.3.9")
+  'magit-find-file-noselect "Magit 4.4.0")
 
 (provide 'magit-files)
 ;; Local Variables:
