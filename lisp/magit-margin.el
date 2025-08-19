@@ -59,7 +59,7 @@ does not carry to other options."
 ;;; Commands
 
 (transient-define-prefix magit-margin-settings ()
-  "Change what information is displayed in the margin."
+  "Change what information is displayed in the right margin."
   :info-manual "(magit) Log Margin"
   ["Margin"
    (magit-toggle-margin)
@@ -68,7 +68,7 @@ does not carry to other options."
    (magit-refs-set-show-commit-count)])
 
 (transient-define-suffix magit-toggle-margin ()
-  "Show or hide the Magit margin."
+  "Show or hide the right margin."
   :description "Toggle visibility"
   :key "L"
   :transient t
@@ -82,7 +82,7 @@ does not carry to other options."
   "See https://github.com/magit/magit/pull/4605.")
 
 (transient-define-suffix magit-cycle-margin-style ()
-  "Cycle style used for the Magit margin."
+  "Cycle style used for the right margin."
   :description "Cycle style"
   :key "l"
   :transient t
@@ -101,7 +101,7 @@ does not carry to other options."
   (magit-set-buffer-margin nil t))
 
 (transient-define-suffix magit-toggle-margin-details ()
-  "Show or hide details in the Magit margin."
+  "Show or hide details in the right margin."
   :description "Toggle details"
   :key "d"
   :transient t
@@ -130,34 +130,44 @@ does not carry to other options."
     ('forge-topics-mode        'magit-status-margin)))
 
 (defun magit-set-buffer-margin (&optional reset refresh)
-  (when-let ((option (magit-margin-option)))
-    (let* ((default (symbol-value option))
-           (default-width (nth 2 default)))
-      (when (or reset (not magit-buffer-margin))
-        (setq magit-buffer-margin (copy-sequence default)))
-      (pcase-let ((`(,enable ,style ,_width ,details ,details-width)
-                   magit-buffer-margin))
-        (when (functionp default-width)
-          (setf (nth 2 magit-buffer-margin)
-                (funcall default-width style details details-width)))
+  (let ((lmargin nil)
+        (rmargin nil)
+        (roption (magit-margin-option)))
+    (when (or lmargin roption)
+      (when roption
+        (let* ((default (symbol-value roption))
+               (default-width (nth 2 default)))
+          (when (or reset (not magit-buffer-margin))
+            (setq magit-buffer-margin (copy-sequence default)))
+          (pcase-let ((`(,enable ,style ,_width ,details ,details-width)
+                       magit-buffer-margin))
+            (setq rmargin enable)
+            (when (functionp default-width)
+              (setf (nth 2 magit-buffer-margin)
+                    (funcall default-width style details details-width))))))
+      (let ((enable (or lmargin rmargin)))
         (dolist (window (get-buffer-window-list nil nil 0))
           (with-selected-window window
-            (magit-set-window-margin window)
+            (magit-set-window-margins window)
             (if enable
                 (add-hook  'window-configuration-change-hook
-                           #'magit-set-window-margin nil t)
+                           #'magit-set-window-margins nil t)
               (remove-hook 'window-configuration-change-hook
-                           #'magit-set-window-margin t))))
+                           #'magit-set-window-margins t))))
         (when (and enable (or refresh magit-set-buffer-margin-refresh))
           (magit-refresh-buffer))))))
 
-(defun magit-set-window-margin (&optional window)
+(defun magit-set-window-margins (&optional window)
   (when (or window (setq window (get-buffer-window)))
     (with-selected-window window
       (set-window-margins
-       nil (car (window-margins))
-       (and (magit-buffer-margin-p)
-            (nth 2 magit-buffer-margin))))))
+       nil
+       (if (characterp (car magit-section-visibility-indicator))
+           1
+         left-margin-width)
+       (if (magit-buffer-margin-p)
+           (nth 2 magit-buffer-margin)
+         right-margin-width)))))
 
 (cl-defun magit-make-margin-overlay (&optional string (previous-line nil sline))
   "Display STRING in the margin of the previous (or current) line.

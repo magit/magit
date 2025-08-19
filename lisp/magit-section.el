@@ -195,13 +195,13 @@ entries of this alist."
 
 (defcustom magit-section-visibility-indicator
   (if (window-system)
-      '(magit-fringe-bitmap> . magit-fringe-bitmapv)
-    (cons (if (char-displayable-p ?…) "…" "...")
-          t))
+      ;; '(magit-fringe-bitmap> . magit-fringe-bitmapv)
+      '(?▶ . ?▼)
+    (cons (if (char-displayable-p ?…) "…" "...") t))
   "Whether and how to indicate that a section can be expanded/collapsed.
 
 If nil, then don't show any indicators.
-Otherwise the value has to have one of these two forms:
+Otherwise the value has to have one of these three forms:
 
 \(EXPANDABLE-BITMAP . COLLAPSIBLE-BITMAP)
 
@@ -211,6 +211,10 @@ Otherwise the value has to have one of these two forms:
 
   To provide extra padding around the indicator, set
   `left-fringe-width' in `magit-mode-hook'.
+
+\(CHAR . CHAR)
+
+  TODO Describe using margin.
 
 \(STRING . BOOLEAN)
 
@@ -235,6 +239,9 @@ Otherwise the value has to have one of these two forms:
                  (cons  :tag "Use custom fringe indicators"
                         (variable :tag "Expandable bitmap variable")
                         (variable :tag "Collapsible bitmap variable"))
+                 (cons  :tag "Use margin indicators"
+                        (char :tag "Expandable char" ?▶)
+                        (char :tag "Collapsible char" ?▼))
                  (cons  :tag "Use ellipses at end of headings"
                         (string :tag "Ellipsis" "…")
                         (choice :tag "Use face kludge"
@@ -391,9 +398,10 @@ but that ship has sailed, thus this option."
 (defvar-keymap magit-section-heading-map
   :doc "Keymap used in the heading line of all expandable sections.
 This keymap is used in addition to the section-specific keymap, if any."
-  "<double-down-mouse-1>" #'ignore
-  "<double-mouse-1>" #'magit-mouse-toggle-section
-  "<double-mouse-2>" #'magit-mouse-toggle-section)
+  "<double-down-mouse-1>"   #'ignore
+  "<double-mouse-1>"        #'magit-mouse-toggle-section
+  "<double-mouse-2>"        #'magit-mouse-toggle-section
+  "<left-margin> <mouse-1>" #'magit-mouse-toggle-section)
 
 (defvar-keymap magit-section-mode-map
   :doc "Parent keymap for keymaps of modes derived from `magit-section-mode'."
@@ -1110,6 +1118,7 @@ silently ignored."
   (interactive "e")
   (let* ((pos (event-start event))
          (section (magit-section-at (posn-point pos))))
+    ;; MAYBE Special handling for margin as well?
     (if (eq (posn-area pos) 'left-fringe)
         (when section
           (while (not (magit-section-content-p section))
@@ -1962,31 +1971,37 @@ When `magit-section-preserve-visibility' is nil, return nil."
   (when (and magit-section-visibility-indicator
              (magit-section-content-p section))
     (let* ((beg (oref section start))
-           (eoh (magit--eol-position beg)))
-      (cond
-       ((symbolp (car-safe magit-section-visibility-indicator))
-        (let ((ov (magit--overlay-at beg 'magit-vis-indicator 'fringe)))
+           (eoh (magit--eol-position beg))
+           (indicator (if (oref section hidden)
+                          (car magit-section-visibility-indicator)
+                        (cdr magit-section-visibility-indicator)))
+           (kind (cl-typecase (car magit-section-visibility-indicator)
+                   (symbol    'fringe)
+                   (character 'margin)
+                   (string    'ellipsis))))
+      (pcase kind
+       ((or 'fringe 'margin)
+        (pcase-let ((ov (magit--overlay-at beg 'magit-vis-indicator kind)))
           (unless ov
             (setq ov (make-overlay beg eoh nil t))
             (overlay-put ov 'evaporate t)
-            (overlay-put ov 'magit-vis-indicator 'fringe))
+            (overlay-put ov 'magit-vis-indicator kind))
           (overlay-put
            ov 'before-string
-           (propertize "fringe" 'display
-                       (list 'left-fringe
-                             (if (oref section hidden)
-                                 (car magit-section-visibility-indicator)
-                               (cdr magit-section-visibility-indicator))
-                             'fringe)))))
-       ((stringp (car-safe magit-section-visibility-indicator))
+           (pcase kind
+             ('fringe (propertize "fringe" 'display
+                                  `(left-fringe ,indicator fringe)))
+             ('margin (propertize "margin" 'display
+                                  `((margin left-margin)
+                                    ,(string indicator))))))))
+       ('ellipsis
         (let ((ov (magit--overlay-at (1- eoh) 'magit-vis-indicator 'eoh)))
           (cond ((oref section hidden)
                  (unless ov
                    (setq ov (make-overlay (1- eoh) eoh))
                    (overlay-put ov 'evaporate t)
                    (overlay-put ov 'magit-vis-indicator 'eoh))
-                 (overlay-put ov 'after-string
-                              (car magit-section-visibility-indicator)))
+                 (overlay-put ov 'after-string indicator))
                 (ov
                  (delete-overlay ov)))))))))
 
