@@ -1246,7 +1246,7 @@ If no DWIM context is found, nil is returned."
                                                nil t nil nil revB)))
               (format "%s...%s"
                       (if (string= main revB) revA revB) main)))
-           (t "%s...%s" revA revB)))
+           ((format "%s...%s" revA revB))))
       (format "%s..%s" revA revB))))
 
 (defun magit-diff-read-range-or-commit (prompt &optional secondary-default mbase)
