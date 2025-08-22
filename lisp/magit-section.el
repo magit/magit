@@ -12,6 +12,7 @@
 ;; Package-Requires: (
 ;;     (emacs "28.1")
 ;;     (compat "30.1")
+;;     (cond-let "0.1")
 ;;     (llama "1.0")
 ;;     (seq "2.24"))
 
@@ -44,6 +45,7 @@
 
 (require 'cl-lib)
 (require 'compat)
+(require 'cond-let)
 (require 'eieio)
 (require 'llama)
 (require 'subr-x)

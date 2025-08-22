@@ -21,6 +21,7 @@
 ;; Package-Requires: (
 ;;     (emacs "28.1")
 ;;     (compat "30.1")
+;;     (cond-let "0.1")
 ;;     (llama "1.0")
 ;;     (magit-section "4.3.8")
 ;;     (seq "2.24")

@@ -38,6 +38,7 @@
 
 (require 'cl-lib)
 (require 'compat)
+(require 'cond-let)
 (require 'eieio)
 (require 'llama)
 (require 'subr-x)

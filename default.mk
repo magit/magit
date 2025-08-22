@@ -146,6 +146,13 @@ ifeq "$(COMPAT_DIR)" ""
   COMPAT_DIR = $(TOP)../compat
 endif
 
+COND_LET_DIR ?= $(shell \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/compat-[.0-9]*' 2> /dev/null | \
+  sort | tail -n 1)
+ifeq "$(COND_LET_DIR)" ""
+  COND_LET_DIR = $(TOP)../cond-let
+endif
+
 LLAMA_DIR ?= $(shell \
   find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/llama-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
@@ -192,6 +199,7 @@ LOAD_PATH = -L $(TOP)lisp
 
 ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(COMPAT_DIR))
+  LOAD_PATH += -L $(shell cygpath --mixed $(COND_LET_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(LLAMA_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(SEQ_DIR))
   LOAD_PATH += -L $(shell cygpath --mixed $(TRANSIENT_DIR))
@@ -201,6 +209,7 @@ ifdef CYGPATH
   endif
 else
   LOAD_PATH += -L $(COMPAT_DIR)
+  LOAD_PATH += -L $(COND_LET_DIR)
   LOAD_PATH += -L $(LLAMA_DIR)
   LOAD_PATH += -L $(SEQ_DIR)
   LOAD_PATH += -L $(TRANSIENT_DIR)
@@ -221,6 +230,7 @@ endif
 # This isn't used by make, but is needed for the Compile ci workflow.
 
 DEPS  = compat
+DEPS += cond-let
 DEPS += llama
 DEPS += seq
 DEPS += transient/lisp
