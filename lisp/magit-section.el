@@ -809,25 +809,25 @@ the beginning of the current section."
   "Move to the beginning of the next sibling section.
 If there is no next sibling section, then move to the parent."
   (interactive)
-  (let ((current (magit-current-section)))
-    (cond-let
-      ((not (oref current parent))
-       (magit-section-goto 1))
-      ([next (car (magit-section-siblings current 'next))]
-       (magit-section-goto next))
-      ((magit-section-forward)))))
+  (cond-let
+    [[current (magit-current-section)]]
+    ((not (oref current parent))
+     (magit-section-goto 1))
+    ([next (car (magit-section-siblings current 'next))]
+     (magit-section-goto next))
+    ((magit-section-forward))))
 
 (defun magit-section-backward-sibling ()
   "Move to the beginning of the previous sibling section.
 If there is no previous sibling section, then move to the parent."
   (interactive)
-  (let ((current (magit-current-section)))
-    (cond-let
-      ((not (oref current parent))
-       (magit-section-goto -1))
-      ([previous (car (magit-section-siblings current 'prev))]
-       (magit-section-goto previous))
-      ((magit-section-backward)))))
+  (cond-let
+    [[current (magit-current-section)]]
+    ((not (oref current parent))
+     (magit-section-goto -1))
+    ([previous (car (magit-section-siblings current 'prev))]
+     (magit-section-goto previous))
+    ((magit-section-backward))))
 
 (defun magit-mouse-set-point (event &optional promote-to-region)
   "Like `mouse-set-point' but also call `magit-section-movement-hook'."
@@ -984,35 +984,35 @@ from using this key and instead bind another key to `tab-next'.  Because
 `tab-bar-mode' does not use a mode map but instead manipulates the
 global map, this involves advising `tab-bar--define-keys'."
   (interactive (list (magit-current-section)))
-  (cond
-   ((and (equal (this-command-keys) [C-tab])
-         (eq (global-key-binding [C-tab]) 'tab-next)
-         (fboundp 'tab-bar-switch-to-next-tab))
-    (tab-bar-switch-to-next-tab current-prefix-arg))
-   ((eq section magit-root-section)
-    (magit-section-cycle-global))
-   ((oref section hidden)
-    (magit-section-show section)
-    (magit-section-hide-children section))
-   ((let ((children (oref section children)))
-      (cond ((and (seq-some (##oref % hidden)   children)
-                  (seq-some (##oref % children) children))
-             (magit-section-show-headings section))
-            ((seq-some #'magit-section-hidden-body children)
-             (magit-section-show-children section))
-            ((magit-section-hide section)))))))
+  (cond-let
+    ((and (equal (this-command-keys) [C-tab])
+          (eq (global-key-binding [C-tab]) 'tab-next)
+          (fboundp 'tab-bar-switch-to-next-tab))
+     (tab-bar-switch-to-next-tab current-prefix-arg))
+    ((eq section magit-root-section)
+     (magit-section-cycle-global))
+    ((oref section hidden)
+     (magit-section-show section)
+     (magit-section-hide-children section))
+    [[children (oref section children)]]
+    ((and (seq-some (##oref % hidden)   children)
+          (seq-some (##oref % children) children))
+     (magit-section-show-headings section))
+    ((seq-some #'magit-section-hidden-body children)
+     (magit-section-show-children section))
+    ((magit-section-hide section))))
 
 (defun magit-section-cycle-global ()
   "Cycle visibility of all sections in the current buffer."
   (interactive)
-  (let ((children (oref magit-root-section children)))
-    (cond ((and (seq-some (##oref % hidden)   children)
-                (seq-some (##oref % children) children))
-           (magit-section-show-headings magit-root-section))
-          ((seq-some #'magit-section-hidden-body children)
-           (magit-section-show-children magit-root-section))
-          (t
-           (mapc #'magit-section-hide children)))))
+  (cond-let
+    [[children (oref magit-root-section children)]]
+    ((and (seq-some (##oref % hidden)   children)
+          (seq-some (##oref % children) children))
+     (magit-section-show-headings magit-root-section))
+    ((seq-some #'magit-section-hidden-body children)
+     (magit-section-show-children magit-root-section))
+    ((mapc #'magit-section-hide children))))
 
 (defun magit-section-hidden (section)
   "Return t if SECTION and/or an ancestor is hidden."
@@ -1250,13 +1250,13 @@ of course you want to be that precise."
       (or (magit-section-match-2 (cdr condition) section)
           (and-let ((parent (oref section parent)))
             (magit-section-match-2 condition parent)))
-    (and (let ((c (car condition)))
-           (cond-let
-             ((class-p c)
-              (cl-typep section c))
-             ([class (cdr (assq c magit--section-type-alist))]
-              (cl-typep section class))
-             ((eq (oref section type) c))))
+    (and (cond-let
+           [[c (car condition)]]
+           ((class-p c)
+            (cl-typep section c))
+           ([class (cdr (assq c magit--section-type-alist))]
+            (cl-typep section class))
+           ((eq (oref section type) c)))
          (or (not (setq condition (cdr condition)))
              (and-let ((parent (oref section parent)))
                (magit-section-match-2 condition parent))))))

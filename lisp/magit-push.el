@@ -302,12 +302,12 @@ what this command will do.  To add it use something like:
                      ;; Note: Avoid `magit-get-remote' because it
                      ;; filters out the local repo case (".").
                      (magit-get "branch" branch "remote")
-                     (let ((remotes (magit-list-remotes)))
-                       (cond
-                        ((and (magit-git-version>= "2.27")
-                              (length= remotes 1))
-                         (car remotes))
-                        ((member "origin" remotes) "origin"))))))
+                       (cond-let
+                         [[remotes (magit-list-remotes)]]
+                         ((and (magit-git-version>= "2.27")
+                               (length= remotes 1))
+                          (car remotes))
+                         ((car (member "origin" remotes)))))))
     (if (null remote)
         "nothing (no remote)"
       (let ((refspec (magit-get "remote" remote "push")))

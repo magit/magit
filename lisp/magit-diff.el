@@ -1195,16 +1195,16 @@ If no DWIM context is found, nil is returned."
        (unmerged 'unmerged)
        (unpushed (magit-diff--range-to-endpoints (oref it value)))
        (unpulled (magit-diff--range-to-endpoints (oref it value)))
-       (branch (let ((current (magit-get-current-branch))
-                     (atpoint (oref it value)))
-                 (cond-let
-                   ((not (equal atpoint current))
-                    (format "%s...%s" (or current "HEAD") atpoint))
-                   ([upstream (magit-get-upstream-branch)]
-                    (format "%s...%s" upstream current))
-                   ((magit-anything-modified-p)
-                    current)
-                   ((cons 'commit current)))))
+       (branch (cond-let
+                 [[current (magit-get-current-branch)]
+                  [atpoint (oref it value)]]
+                 ((not (equal atpoint current))
+                  (format "%s...%s" (or current "HEAD") atpoint))
+                 ([upstream (magit-get-upstream-branch)]
+                  (format "%s...%s" upstream current))
+                 ((magit-anything-modified-p)
+                  current)
+                 ((cons 'commit current))))
        (commit (cons 'commit (oref it value)))
        ([file commit] (cons 'commit (oref (oref it parent) value)))
        ([hunk file commit]
@@ -2298,13 +2298,13 @@ keymap is the parent of their keymaps."
         (let (files)
           (while (looking-at "^[-0-9]+\t[-0-9]+\t\\(.+\\)$")
             (push (magit-decode-git-path
-                   (let ((f (match-str 1)))
-                     (cond
-                      ((string-match "{.* => \\(.*\\)}" f)
-                       (replace-match (match-str 1 f) nil t f))
-                      ((string-match " => " f)
-                       (substring f (match-end 0)))
-                      (t f))))
+                   (cond-let
+                     [[file (match-str 1)]]
+                     ((string-match "{.* => \\(.*\\)}" file)
+                      (replace-match (match-str 1 file) nil t file))
+                     ((string-match " => " file)
+                      (substring file (match-end 0)))
+                     (file)))
                   files)
             (magit-delete-line))
           (setq files (nreverse files))

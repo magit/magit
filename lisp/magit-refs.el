@@ -435,47 +435,48 @@ different, but only if you have customized the option
 `magit-visit-ref-behavior' (which see).  When invoked from a
 menu this command always behaves like `magit-show-commit'."
   (interactive)
-  (if (and (derived-mode-p 'magit-refs-mode)
-           (magit-section-match '(branch tag))
-           (not (magit-menu-position)))
-      (let ((ref (oref (magit-current-section) value)))
-        (cond (current-prefix-arg
-               (cond ((memq 'focus-on-ref magit-visit-ref-behavior)
-                      (magit-refs-setup-buffer ref (magit-show-refs-arguments)))
-                     (magit-visit-ref-behavior
-                      ;; Don't prompt for commit to visit.
-                      (let ((current-prefix-arg nil))
-                        (call-interactively #'magit-show-commit)))))
-              ((and (memq 'create-branch magit-visit-ref-behavior)
-                    (magit-section-match [branch remote]))
-               (let ((branch (cdr (magit-split-branch-name ref))))
-                 (if (magit-branch-p branch)
-                     (if (magit-rev-eq branch ref)
-                         (magit-call-git "checkout" branch)
-                       (setq branch (propertize branch 'face 'magit-branch-local))
-                       (setq ref (propertize ref 'face 'magit-branch-remote))
-                       (pcase (prog1 (read-char-choice (format (propertize "\
+  (cond-let
+    ((not (and (derived-mode-p 'magit-refs-mode)
+               (magit-section-match '(branch tag))
+               (not (magit-menu-position))))
+     (call-interactively #'magit-show-commit))
+    [[ref (oref (magit-current-section) value)]]
+    ((and current-prefix-arg
+          (memq 'focus-on-ref magit-visit-ref-behavior))
+     (magit-refs-setup-buffer ref (magit-show-refs-arguments)))
+    ((and current-prefix-arg
+          magit-visit-ref-behavior
+          ;; Don't prompt for commit to visit.
+          (let ((current-prefix-arg nil))
+            (call-interactively #'magit-show-commit))))
+    ((and (memq 'create-branch magit-visit-ref-behavior)
+          (magit-section-match [branch remote]))
+     (let ((branch (cdr (magit-split-branch-name ref))))
+       (if (magit-branch-p branch)
+           (if (magit-rev-eq branch ref)
+               (magit-call-git "checkout" branch)
+             (setq branch (propertize branch 'face 'magit-branch-local))
+             (setq ref (propertize ref 'face 'magit-branch-remote))
+             (pcase (prog1 (read-char-choice (format (propertize "\
 Branch %s already exists.
   [c]heckout %s as-is
   [r]reset %s to %s and checkout %s
   [a]bort " 'face 'minibuffer-prompt) branch branch branch ref branch)
-                                                       '(?c ?r ?a))
-                                (message "")) ; otherwise prompt sticks
-                         (?c (magit-call-git "checkout" branch))
-                         (?r (magit-call-git "checkout" "-B" branch ref))
-                         (?a (user-error "Abort"))))
-                   (magit-call-git "checkout" "-b" branch ref))
-                 (setq magit-buffer-upstream branch)
-                 (magit-refresh)))
-              ((or (memq 'checkout-any magit-visit-ref-behavior)
-                   (and (memq 'checkout-branch magit-visit-ref-behavior)
-                        (magit-section-match [branch local])))
-               (magit-call-git "checkout" ref)
-               (setq magit-buffer-upstream ref)
-               (magit-refresh))
-              (t
-               (call-interactively #'magit-show-commit))))
-    (call-interactively #'magit-show-commit)))
+                                             '(?c ?r ?a))
+                      (message "")) ; otherwise prompt sticks
+               (?c (magit-call-git "checkout" branch))
+               (?r (magit-call-git "checkout" "-B" branch ref))
+               (?a (user-error "Abort"))))
+         (magit-call-git "checkout" "-b" branch ref))
+       (setq magit-buffer-upstream branch)
+       (magit-refresh)))
+    ((or (memq 'checkout-any magit-visit-ref-behavior)
+         (and (memq 'checkout-branch magit-visit-ref-behavior)
+              (magit-section-match [branch local])))
+     (magit-call-git "checkout" ref)
+     (setq magit-buffer-upstream ref)
+     (magit-refresh))
+    ((call-interactively #'magit-show-commit))))
 
 ;;; Sections
 
