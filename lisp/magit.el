@@ -532,8 +532,8 @@ is run in the top-level directory of the current working tree."
                               (fpr (epg-sub-key-fingerprint key))
                               (id  (epg-sub-key-id key))
                               (author
-                               (and-let* ((id-obj
-                                           (car (epg-key-user-id-list cert))))
+                               (and-let ((id-obj
+                                          (car (epg-key-user-id-list cert))))
                                  (let ((id-str (epg-user-id-string id-obj)))
                                    (if (stringp id-str)
                                        id-str

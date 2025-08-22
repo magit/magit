@@ -121,7 +121,7 @@ variant `magit-wip-after-save-mode'."
              (if magit--wip-activation-cache
                  (if-let ((elt (assoc default-directory
                                       magit--wip-activation-cache)))
-                     (and-let* ((top (cadr elt)))
+                     (and-let ((top (cadr elt)))
                        (member (file-relative-name buffer-file-name top)
                                (cddr elt)))
                    (if-let ((top (magit-toplevel)))
@@ -352,8 +352,8 @@ commit message."
 (defun magit--wip-ref (namespace &optional ref)
   (concat magit-wip-namespace namespace
           (or (and ref (string-prefix-p "refs/" ref) ref)
-              (and-let* ((branch (and (not (equal ref "HEAD"))
-                                      (or ref (magit-get-current-branch)))))
+              (and-let ((_(not (equal ref "HEAD")))
+                        (branch (or ref (magit-get-current-branch))))
                 (concat "refs/heads/" branch))
               "HEAD")))
 
@@ -420,7 +420,7 @@ many \"branches\" of each wip ref are shown."
                           args files))
 
 (defun magit-wip-log-get-tips (wipref count)
-  (and-let* ((reflog (magit-git-lines "reflog" wipref)))
+  (and-let ((reflog (magit-git-lines "reflog" wipref)))
     (let (tips)
       (while (and reflog (> count 1))
         ;; "start autosaving ..." is the current message, but it used

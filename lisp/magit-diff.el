@@ -1175,10 +1175,9 @@ The information can be in three forms:
 
 If no DWIM context is found, nil is returned."
   (cond
-   ((and-let* ((commits (magit-region-values '(commit branch) t)))
-      (progn
-        (deactivate-mark)
-        (concat (car (last commits)) ".." (car commits)))))
+   ((and-let ((commits (magit-region-values '(commit branch) t)))
+      (prog1 (concat (car (last commits)) ".." (car commits))
+        (deactivate-mark))))
    (magit-buffer-refname
     (cons 'commit magit-buffer-refname))
    ((derived-mode-p 'magit-stash-mode)
@@ -1763,7 +1762,7 @@ the Magit-Status buffer for DIRECTORY."
           (list new-rev new-file))))
 
 (defun magit-diff-visit--position (buffer rev file goto-from goto-file)
-  (and-let* ((hunk (magit-diff--hunk-section)))
+  (and-let ((hunk (magit-diff--hunk-section)))
     (let* ((line   (magit-diff-hunk-line   hunk goto-from))
            (column (magit-diff-hunk-column hunk goto-from)))
       (with-current-buffer buffer
@@ -2256,7 +2255,7 @@ keymap is the parent of their keymaps."
 
 (defun magit-diff-use-window-width-as-stat-width ()
   "Use the `window-width' as the value of `--stat-width'."
-  (and-let* ((window (get-buffer-window (current-buffer) 'visible)))
+  (and-let ((window (get-buffer-window (current-buffer) 'visible)))
     (list (format "--stat-width=%d" (window-width window)))))
 
 (defun magit-diff-wash-diffs (args &optional limit)
@@ -2894,8 +2893,8 @@ or a ref which is not a branch, then it inserts nothing."
   "Insert headers about the commit into a revision buffer."
   (magit-insert-section (headers)
     (magit-insert-heading nil
-      (and-let* ((string (magit-rev-format "%D" magit-buffer-revision
-                                           "--decorate=full")))
+      (and-let ((string (magit-rev-format "%D" magit-buffer-revision
+                                          "--decorate=full")))
         (concat (magit-format-ref-labels string) " "))
       (propertize
        (magit-rev-parse (magit--rev-dereference magit-buffer-revision))
@@ -3089,9 +3088,9 @@ It the SECTION has a different type, then do nothing."
 (cl-defmethod magit-section-goto-successor ((section magit-hunk-section)
                                             line char &optional arg)
   (or (magit-section-goto-successor--same section line char)
-      (and-let* ((parent (magit-get-section
-                          (magit-section-ident
-                           (oref section parent)))))
+      (and-let ((parent (magit-get-section
+                         (magit-section-ident
+                          (oref section parent)))))
         (let* ((children (oref parent children))
                (siblings (magit-section-siblings section 'prev))
                (previous (nth (length siblings) children)))
@@ -3249,7 +3248,7 @@ actually a `diff' but a `diffstat' section."
     (when (and section
                (or (not strict)
                    (and (not (eq (magit-diff-type section) 'untracked))
-                        (not (eq (and-let* ((parent (oref section parent)))
+                        (not (eq (and-let ((parent (oref section parent)))
                                    (oref parent type))
                                  'diffstat)))))
       (pcase (list (oref section type)
@@ -3289,7 +3288,7 @@ actually a `diff' but a `diffstat' section."
       (pcase scope
         ('hunk section)
         ('file (first-hunk section))
-        ('list (and-let* ((first-file (car (oref section children))))
+        ('list (and-let ((first-file (car (oref section children))))
                  (first-hunk first-file)))
         ('module nil)))))
 
@@ -3380,9 +3379,9 @@ actually a `diff' but a `diffstat' section."
     (cond
      ((not magit-diff-adjust-tab-width)
       tab-width)
-     ((and-let* ((buffer (find-buffer-visiting file)))
+     ((and-let ((buffer (find-buffer-visiting file)))
         (cache (buffer-local-value 'tab-width buffer))))
-     ((and-let* ((elt (assoc file magit-diff--tab-width-cache)))
+     ((and-let ((elt (assoc file magit-diff--tab-width-cache)))
         (or (cdr elt)
             tab-width)))
      ((or (eq magit-diff-adjust-tab-width 'always)

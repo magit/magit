@@ -363,9 +363,9 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
      ((eq major-mode 'magit-refs-mode)
       (setq args magit-buffer-arguments))
      ((and (memq use-buffer-args '(always selected))
-           (and-let* ((buffer (magit-get-mode-buffer
-                               'magit-refs-mode nil
-                               (eq use-buffer-args 'selected))))
+           (and-let ((buffer (magit-get-mode-buffer
+                              'magit-refs-mode nil
+                              (eq use-buffer-args 'selected))))
              (progn
                (setq args (buffer-local-value 'magit-buffer-arguments buffer))
                t))))
@@ -509,8 +509,8 @@ Branch %s already exists.
   "<1>" (magit-menu-item "Visit %s"  #'magit-visit-ref))
 
 (defun magit--painted-branch-as-menu-section (section)
-  (and-let* ((_(magit-section-match 'commit))
-             (branch (magit--painted-branch-at-point)))
+  (and-let ((_(magit-section-match 'commit))
+            (branch (magit--painted-branch-at-point)))
     (let ((dummy (magit-section :type 'branch :value branch)))
       (oset dummy keymap magit-branch-section-map)
       (dolist (slot '(start content hidden parent children))

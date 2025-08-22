@@ -1130,11 +1130,11 @@ The arguments are for internal use."
          (lambda (window)
            (with-selected-window window
              (with-current-buffer buffer
-               (and-let* ((section (magit-section-at)))
+               (and-let ((section (magit-section-at)))
                  `((,window
                     ,section
                     ,@(magit-section-get-relative-position section)
-                    ,@(and-let* ((ws (magit-section-at (window-start))))
+                    ,@(and-let ((ws (magit-section-at (window-start))))
                         (list ws
                               (car (magit-section-get-relative-position ws))
                               (window-start)))))))))
@@ -1142,7 +1142,7 @@ The arguments are for internal use."
          ;; each window displaying the buffer).  The selected window
          ;; comes first in this list, but we want to process it last.
          (nreverse (get-buffer-window-list buffer nil t))))
-      (and-let* ((section (magit-section-at)))
+      (and-let ((section (magit-section-at)))
         `((nil ,section ,@(magit-section-get-relative-position section))))))
 
 (defun magit--refresh-buffer-set-positions (positions)
@@ -1291,9 +1291,9 @@ argument (the prefix) non-nil means save all with no questions."
              ;; a repository, and a let-binding is in effect, which
              ;; places us in another repository, then this binding
              ;; is needed to prevent that file from being saved.
-             (and-let* ((default-directory
-                         (and buffer-file-name
-                              (file-name-directory buffer-file-name))))
+             (and-let ((default-directory
+                        (and buffer-file-name
+                             (file-name-directory buffer-file-name))))
                (and
                 ;; Check whether the repository still exists.
                 (file-exists-p default-directory)
@@ -1467,9 +1467,9 @@ Return a (KEY . VALUE) cons cell.
 The KEY is matched using `equal'.
 
 Unless specified, REPOSITORY is the current buffer's repository."
-  (and-let* ((cache (assoc (or repository
-                               (magit-repository-local-repository))
-                           magit-repository-local-cache)))
+  (and-let ((cache (assoc (or repository
+                              (magit-repository-local-repository))
+                          magit-repository-local-cache)))
     (assoc key (cdr cache))))
 
 (defun magit-repository-local-get (key &optional default repository)

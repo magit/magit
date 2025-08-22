@@ -372,7 +372,7 @@ BATCH also ignores commented lines."
                               git-rebase-line-regexps)))
         (git-rebase-action
          :action-type    type
-         :action         (and-let* ((action (match-str 1)))
+         :action         (and-let ((action (match-str 1)))
                            (or (cdr (assoc action git-rebase-short-options))
                                action))
          :action-options (match-str 2)

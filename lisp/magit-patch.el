@@ -116,7 +116,7 @@ which creates patches for all commits that are reachable from
       (save-match-data
         (find-file
          (expand-file-name
-          (concat (and-let* ((v (transient-arg-value "--reroll-count=" args)))
+          (concat (and-let ((v (transient-arg-value "--reroll-count=" args)))
                     (format "v%s-" v))
                   "0000-cover-letter.patch")
           (let ((topdir (magit-toplevel)))
@@ -250,7 +250,7 @@ which creates patches for all commits that are reachable from
      (list (expand-file-name
             (read-file-name "Apply patch: "
                             default-directory nil nil
-                            (and-let* ((file (magit-file-at-point)))
+                            (and-let ((file (magit-file-at-point)))
                               (file-relative-name file))))
            (transient-args 'magit-patch-apply))))
   (if (not file)

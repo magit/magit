@@ -361,8 +361,8 @@ the process manually."
     (or (file-exists-p (expand-file-name "CHERRY_PICK_HEAD" dir))
         ;; And CHERRY_PICK_HEAD does not exist when a conflict happens
         ;; while picking a series of commits with --no-commit.
-        (and-let* ((line (magit-file-line
-                          (expand-file-name "sequencer/todo" dir))))
+        (and-let ((line (magit-file-line
+                         (expand-file-name "sequencer/todo" dir))))
           (string-prefix-p "pick" line)))))
 
 ;;; Revert
@@ -419,8 +419,8 @@ without prompting."
     (or (file-exists-p (expand-file-name "REVERT_HEAD" dir))
         ;; And REVERT_HEAD does not exist when a conflict happens
         ;; while reverting a series of commits with --no-commit.
-        (and-let* ((line (magit-file-line
-                          (expand-file-name "sequencer/todo" dir))))
+        (and-let ((line (magit-file-line
+                         (expand-file-name "sequencer/todo" dir))))
           (string-prefix-p "revert" line)))))
 
 ;;; Patch
@@ -622,7 +622,7 @@ the upstream."
     (magit-git-rebase upstream args)))
 
 (defun magit-rebase--upstream-description ()
-  (and-let* ((branch (magit-get-current-branch)))
+  (and-let ((branch (magit-get-current-branch)))
     (or (magit-get-upstream-branch branch)
         (let ((remote (magit-get "branch" branch "remote"))
               (merge  (magit-get "branch" branch "merge"))
@@ -764,8 +764,8 @@ argument, prompt for the first commit to potentially squash into."
   (interactive (list current-prefix-arg
                      (magit-rebase-arguments)))
   (magit-rebase-interactive-1
-      (and-let* ((_(not select))
-                 (upstream (magit-get-upstream-branch)))
+      (and-let ((_(not select))
+                (upstream (magit-get-upstream-branch)))
         (magit-git-string "merge-base" upstream "HEAD"))
       (nconc (list "--autosquash" "--keep-empty") args)
     "Type %p on a commit to squash into it and then rebase as necessary,"
@@ -1031,8 +1031,8 @@ status buffer (i.e., the reverse of how they will be applied)."
     (magit-sequence-insert-sequence
      (magit-file-line (expand-file-name "rebase-merge/stopped-sha" dir))
      onto
-     (and-let* ((lines (magit-file-lines
-                        (expand-file-name "rebase-merge/done" dir))))
+     (and-let ((lines (magit-file-lines
+                       (expand-file-name "rebase-merge/done" dir))))
        (cadr (split-string (car (last lines))))))))
 
 (defun magit-rebase-insert-apply-sequence (onto)

@@ -118,7 +118,7 @@ Rules that are defined in that file affect all local repositories."
            (mapcan
             (lambda (file)
               (cons (concat "/" file)
-                    (and-let* ((ext (file-name-extension file)))
+                    (and-let ((ext (file-name-extension file)))
                       (list (concat "/" (file-name-directory file) "*." ext)
                             (concat "*." ext)))))
             (sort (nconc

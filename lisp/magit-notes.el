@@ -164,13 +164,13 @@ Also see `magit-notes-merge'."
 ;;; Readers
 
 (defun magit-notes-read-ref (prompt &optional _initial-input history)
-  (and-let* ((ref (magit-completing-read
-                   prompt (magit-list-notes-refnames) nil t
-                   (and-let* ((def (magit-get "core.notesRef")))
-                     (if (string-prefix-p "refs/notes/" def)
-                         (substring def 11)
-                       def))
-                   history)))
+  (and-let ((ref (magit-completing-read
+                  prompt (magit-list-notes-refnames) nil t
+                  (and-let ((def (magit-get "core.notesRef")))
+                    (if (string-prefix-p "refs/notes/" def)
+                        (substring def 11)
+                      def))
+                  history)))
     (if (string-prefix-p "refs/" ref)
         ref
       (concat "refs/notes/" ref))))
@@ -192,8 +192,8 @@ Also see `magit-notes-merge'."
 
 (defun magit-notes-read-args (prompt)
   (list (magit-read-branch-or-commit prompt (magit-stash-at-point))
-        (and-let* ((str (seq-find (##string-match "^--ref=\\(.+\\)" %)
-                                  (transient-args 'magit-notes))))
+        (and-let ((str (seq-find (##string-match "^--ref=\\(.+\\)" %)
+                                 (transient-args 'magit-notes))))
           (match-str 1 str))))
 
 ;;; _

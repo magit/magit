@@ -707,8 +707,8 @@ an alternative implementation."
     (cond
      ((not
        (and (eq this-command 'magit-diff-while-committing)
-            (and-let* ((buf (magit-get-mode-buffer
-                             'magit-diff-mode nil 'selected)))
+            (and-let ((buf (magit-get-mode-buffer
+                            'magit-diff-mode nil 'selected)))
               (and (equal rev (buffer-local-value 'magit-buffer-range buf))
                    (equal arg (buffer-local-value 'magit-buffer-typearg buf)))))))
      ((eq command 'magit-commit-amend)

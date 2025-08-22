@@ -155,7 +155,7 @@ the upstream."
     (magit-run-git-async "push" "-v" args remote (concat branch ":" merge))))
 
 (defun magit-push--upstream-description ()
-  (and-let* ((branch (magit-get-current-branch)))
+  (and-let ((branch (magit-get-current-branch)))
     (or (magit-get-upstream-branch branch)
         (let ((remote (magit-get "branch" branch "remote"))
               (merge  (magit-get "branch" branch "merge"))

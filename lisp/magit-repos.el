@@ -374,10 +374,10 @@ Usually this is just its basename."
 
 (defun magit-repolist-column-version (_)
   "Insert a description of the repository's `HEAD' revision."
-  (and-let* ((v (or (magit-git-string "describe" "--tags" "--dirty")
-                    ;; If there are no tags, use the date in MELPA format.
-                    (magit-rev-format "%cd-g%h" nil
-                                      "--date=format:%Y%m%d.%H%M"))))
+  (and-let ((v (or (magit-git-string "describe" "--tags" "--dirty")
+                   ;; If there are no tags, use the date in MELPA format.
+                   (magit-rev-format "%cd-g%h" nil
+                                     "--date=format:%Y%m%d.%H%M"))))
     (save-match-data
       (when (string-match magit-repolist-column-version-regexp v)
         (magit--put-face (match-beginning 0) (match-end 0) 'shadow v)
@@ -439,22 +439,22 @@ which only lists the first one found."
 
 (defun magit-repolist-column-unpulled-from-upstream (spec)
   "Insert number of upstream commits not in the current branch."
-  (and-let* ((br (magit-get-upstream-branch)))
+  (and-let ((br (magit-get-upstream-branch)))
     (magit-repolist-insert-count (cadr (magit-rev-diff-count "HEAD" br)) spec)))
 
 (defun magit-repolist-column-unpulled-from-pushremote (spec)
   "Insert number of commits in the push branch but not the current branch."
-  (and-let* ((br (magit-get-push-branch nil t)))
+  (and-let ((br (magit-get-push-branch nil t)))
     (magit-repolist-insert-count (cadr (magit-rev-diff-count "HEAD" br)) spec)))
 
 (defun magit-repolist-column-unpushed-to-upstream (spec)
   "Insert number of commits in the current branch but not its upstream."
-  (and-let* ((br (magit-get-upstream-branch)))
+  (and-let ((br (magit-get-upstream-branch)))
     (magit-repolist-insert-count (car (magit-rev-diff-count "HEAD" br)) spec)))
 
 (defun magit-repolist-column-unpushed-to-pushremote (spec)
   "Insert number of commits in the current branch but not its push branch."
-  (and-let* ((br (magit-get-push-branch nil t)))
+  (and-let ((br (magit-get-push-branch nil t)))
     (magit-repolist-insert-count (car (magit-rev-diff-count "HEAD" br)) spec)))
 
 (defun magit-repolist-column-branches (spec)
