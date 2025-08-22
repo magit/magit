@@ -361,9 +361,8 @@ the process manually."
     (or (file-exists-p (expand-file-name "CHERRY_PICK_HEAD" dir))
         ;; And CHERRY_PICK_HEAD does not exist when a conflict happens
         ;; while picking a series of commits with --no-commit.
-        (and-let ((line (magit-file-line
-                         (expand-file-name "sequencer/todo" dir))))
-          (string-prefix-p "pick" line)))))
+        (and$ (magit-file-line (expand-file-name "sequencer/todo" dir))
+              (string-prefix-p "pick" $)))))
 
 ;;; Revert
 
@@ -419,9 +418,8 @@ without prompting."
     (or (file-exists-p (expand-file-name "REVERT_HEAD" dir))
         ;; And REVERT_HEAD does not exist when a conflict happens
         ;; while reverting a series of commits with --no-commit.
-        (and-let ((line (magit-file-line
-                         (expand-file-name "sequencer/todo" dir))))
-          (string-prefix-p "revert" line)))))
+        (and$ (magit-file-line (expand-file-name "sequencer/todo" dir))
+              (string-prefix-p "revert" $)))))
 
 ;;; Patch
 
@@ -1031,9 +1029,8 @@ status buffer (i.e., the reverse of how they will be applied)."
     (magit-sequence-insert-sequence
      (magit-file-line (expand-file-name "rebase-merge/stopped-sha" dir))
      onto
-     (and-let ((lines (magit-file-lines
-                       (expand-file-name "rebase-merge/done" dir))))
-       (cadr (split-string (car (last lines))))))))
+     (and$ (magit-file-lines (expand-file-name "rebase-merge/done" dir))
+           (cadr (split-string (car (last $))))))))
 
 (defun magit-rebase-insert-apply-sequence (onto)
   (let* ((dir (magit-gitdir))

@@ -2246,8 +2246,8 @@ keymap is the parent of their keymaps."
 
 (defun magit-diff-use-window-width-as-stat-width ()
   "Use the `window-width' as the value of `--stat-width'."
-  (and-let ((window (get-buffer-window (current-buffer) 'visible)))
-    (list (format "--stat-width=%d" (window-width window)))))
+  (and$ (get-buffer-window (current-buffer) 'visible)
+        (list (format "--stat-width=%d" (window-width $)))))
 
 (defun magit-diff-wash-diffs (args &optional limit)
   (run-hooks 'magit-diff-wash-diffs-hook)
@@ -2884,9 +2884,8 @@ or a ref which is not a branch, then it inserts nothing."
   "Insert headers about the commit into a revision buffer."
   (magit-insert-section (headers)
     (magit-insert-heading nil
-      (and-let ((string (magit-rev-format "%D" magit-buffer-revision
-                                          "--decorate=full")))
-        (concat (magit-format-ref-labels string) " "))
+      (and$ (magit-rev-format "%D" magit-buffer-revision "--decorate=full")
+            (concat (magit-format-ref-labels $) " "))
       (propertize
        (magit-rev-parse (magit--rev-dereference magit-buffer-revision))
        'font-lock-face 'magit-hash))
@@ -3240,8 +3239,8 @@ actually a `diff' but a `diffstat' section."
     (when (and section
                (or (not strict)
                    (and (not (eq (magit-diff-type section) 'untracked))
-                        (not (eq (and-let ((parent (oref section parent)))
-                                   (oref parent type))
+                        (not (eq (and$ (oref section parent)
+                                       (oref $ type))
                                  'diffstat)))))
       (pcase (list (oref section type)
                    (and siblings t)
@@ -3280,8 +3279,8 @@ actually a `diff' but a `diffstat' section."
       (pcase scope
         ('hunk section)
         ('file (first-hunk section))
-        ('list (and-let ((first-file (car (oref section children))))
-                 (first-hunk first-file)))
+        ('list (and$ (car (oref section children))
+                     (first-hunk $)))
         ('module nil)))))
 
 (defun magit-diff--file-section ()
@@ -3371,11 +3370,10 @@ actually a `diff' but a `diffstat' section."
     (cond
      ((not magit-diff-adjust-tab-width)
       tab-width)
-     ((and-let ((buffer (find-buffer-visiting file)))
-        (cache (buffer-local-value 'tab-width buffer))))
-     ((and-let ((elt (assoc file magit-diff--tab-width-cache)))
-        (or (cdr elt)
-            tab-width)))
+     ((and$ (find-buffer-visiting file)
+            (buffer-local-value 'tab-width $)))
+     ((and$ (assoc file magit-diff--tab-width-cache)
+            (or (cdr $) tab-width)))
      ((or (eq magit-diff-adjust-tab-width 'always)
           (and (numberp magit-diff-adjust-tab-width)
                (>= magit-diff-adjust-tab-width

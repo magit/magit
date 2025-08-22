@@ -821,10 +821,8 @@ Also see `magit-git-config-p'."
 (defun magit-git-dir (&optional path)
   "Like (expand-file-name PATH (magit-gitdir)) or just (magit-gitdir)."
   (declare (obsolete magit-gitdir "Magit 4.0.0"))
-  (and-let ((dir (magit-gitdir)))
-    (if path
-        (expand-file-name (convert-standard-filename path) dir)
-      dir)))
+  (and$ (magit-gitdir)
+        (if path (expand-file-name (convert-standard-filename path) $) $)))
 
 (defun magit-gitdir (&optional directory)
   "Return the absolute and resolved path of the .git directory.
@@ -1180,8 +1178,8 @@ range.  Otherwise, it can be any revision or range accepted by
 Return nil, if FILE appears neither in REV nor OTHER-REV,
 or if no rename is detected."
   (or (car (member file (magit-revision-files rev)))
-      (and-let ((renamed (magit-renamed-files rev other-rev)))
-        (car (rassoc file renamed)))))
+      (and$ (magit-renamed-files rev other-rev)
+            (car (rassoc file $)))))
 
 (defun magit-file-status (&rest args)
   (magit--with-temp-process-buffer
@@ -1341,10 +1339,10 @@ are considered."
 (defun magit-ignore-submodules-p (&optional return-argument)
   (or (cl-find-if (##string-prefix-p "--ignore-submodules" %)
                   magit-buffer-diff-args)
-      (and-let ((value (magit-get "diff.ignoreSubmodules")))
-        (if return-argument
-            (concat "--ignore-submodules=" value)
-          (concat "diff.ignoreSubmodules=" value)))))
+      (and$ (magit-get "diff.ignoreSubmodules")
+            (if return-argument
+                (concat "--ignore-submodules=" $)
+              (concat "diff.ignoreSubmodules=" $)))))
 
 ;;; Revisions and References
 
@@ -1449,8 +1447,8 @@ Git."
                     rev))
 
 (defun magit-rev-branch (rev)
-  (and-let ((name (magit-rev-name rev "refs/heads/*")))
-    (and (not (string-match-p "[~^]" name)) name)))
+  (and$ (magit-rev-name rev "refs/heads/*")
+        (and (not (string-match-p "[~^]" $)) $)))
 
 (defun magit-rev-fixup-target (rev)
   (let ((msg (magit-rev-format "%s" rev)))
@@ -1480,13 +1478,13 @@ Git."
                    (magit-name-remote-branch rev t)))))
 
 (defun magit-name-local-branch (rev &optional lax)
-  (and-let ((name (magit-rev-name rev "refs/heads/*")))
-    (and (or lax (not (string-match-p "[~^]" name))) name)))
+  (and$ (magit-rev-name rev "refs/heads/*")
+        (and (or lax (not (string-match-p "[~^]" $))) $)))
 
 (defun magit-name-remote-branch (rev &optional lax)
-  (and-let ((name (magit-rev-name rev "refs/remotes/*")))
-    (and (or lax (not (string-match-p "[~^]" name)))
-         (substring name 8))))
+  (and$ (magit-rev-name rev "refs/remotes/*")
+        (and (or lax (not (string-match-p "[~^]" $)))
+             (substring $ 8))))
 
 (defun magit-name-tag (rev &optional lax)
   (and-let ((name (magit-rev-name rev "refs/tags/*")))
@@ -1571,8 +1569,8 @@ to, or to some other symbolic-ref that points to the same ref."
            (memq (get-text-property (magit-point) 'font-lock-face)
                  (list 'magit-branch-local
                        'magit-branch-current))
-           (and-let ((branch (magit-thing-at-point 'git-revision t)))
-             (cdr (magit-split-branch-name branch))))
+           (and$ (magit-thing-at-point 'git-revision t)
+                 (cdr (magit-split-branch-name $))))
       (and (not (eq type 'local))
            (memq (get-text-property (magit-point) 'font-lock-face)
                  (list 'magit-branch-remote
@@ -1731,8 +1729,8 @@ if any, nil otherwise.  If the upstream is not configured, the
 configured remote is an url, or the named branch does not exist,
 then return nil.  I.e.,  return an existing local or
 remote-tracking branch ref."
-  (and-let ((branch (or branch (magit-get-current-branch))))
-    (magit-ref-fullname (concat branch "@{upstream}"))))
+  (and$ (or branch (magit-get-current-branch))
+        (magit-ref-fullname (concat $ "@{upstream}"))))
 
 (defun magit-get-upstream-branch (&optional branch)
   "Return the name of the upstream branch of BRANCH.
@@ -1842,8 +1840,8 @@ according to the branch type."
 
 (defun magit-get-some-remote (&optional branch)
   (or (magit-get-remote branch)
-      (and-let ((main (magit-main-branch)))
-        (magit-get-remote main))
+      (and$ (magit-main-branch)
+            (magit-get-remote $))
       (magit-primary-remote)
       (car (magit-list-remotes))))
 
@@ -2104,11 +2102,10 @@ When nil, use `magit-list-refs-sortby'.  If both are nil, use
             (magit-git-lines "ls-remote" remote)))
 
 (defun magit-remote-head (remote)
-  (and-let ((line (cl-find-if
-                   (##string-match
-                    "\\`ref: refs/heads/\\([^\s\t]+\\)[\s\t]HEAD\\'" %)
-                   (magit-git-lines "ls-remote" "--symref" remote "HEAD"))))
-    (match-str 1 line)))
+  (and$ (cl-find-if (##string-match
+                     "\\`ref: refs/heads/\\([^\s\t]+\\)[\s\t]HEAD\\'" %)
+                    (magit-git-lines "ls-remote" "--symref" remote "HEAD"))
+        (match-str 1 $)))
 
 (defun magit-list-modified-modules ()
   (seq-keep (##and (string-match "\\`\\+\\([^ ]+\\) \\(.+\\) (.+)\\'" %)
@@ -2303,8 +2300,8 @@ If `first-parent' is set, traverse only first parents."
                              "--not" rev)))
 
 (defun magit-commit-parents (rev)
-  (and-let ((str (magit-git-string "rev-list" "-1" "--parents" rev)))
-    (cdr (split-string str))))
+  (and$ (magit-git-string "rev-list" "-1" "--parents" rev)
+        (cdr (split-string $))))
 
 (defun magit-patch-id (rev)
   (with-connection-local-variables
@@ -2520,9 +2517,9 @@ and this option only controls what face is used.")
       (setq end (magit--abbrev-if-hash end)))
     (pcase sep
       (".."  (cons beg end))
-      ("..." (and-let ((base (magit-git-string "merge-base" beg end)))
-               (cons (if abbrev (magit-rev-abbrev base) base)
-                     end))))))
+      ("..." (and$ (magit-git-string "merge-base" beg end)
+                   (cons (if abbrev (magit-rev-abbrev $) $)
+                         end))))))
 
 (defun magit--split-range-raw (range)
   (and (string-match magit-range-re range)

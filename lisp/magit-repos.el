@@ -439,23 +439,27 @@ which only lists the first one found."
 
 (defun magit-repolist-column-unpulled-from-upstream (spec)
   "Insert number of upstream commits not in the current branch."
-  (and-let ((br (magit-get-upstream-branch)))
-    (magit-repolist-insert-count (cadr (magit-rev-diff-count "HEAD" br)) spec)))
+  (and$ (magit-get-upstream-branch)
+        (magit-repolist-insert-count (cadr (magit-rev-diff-count "HEAD" $))
+                                     spec)))
 
 (defun magit-repolist-column-unpulled-from-pushremote (spec)
   "Insert number of commits in the push branch but not the current branch."
-  (and-let ((br (magit-get-push-branch nil t)))
-    (magit-repolist-insert-count (cadr (magit-rev-diff-count "HEAD" br)) spec)))
+  (and$ (magit-get-push-branch nil t)
+        (magit-repolist-insert-count (cadr (magit-rev-diff-count "HEAD" $))
+                                     spec)))
 
 (defun magit-repolist-column-unpushed-to-upstream (spec)
   "Insert number of commits in the current branch but not its upstream."
-  (and-let ((br (magit-get-upstream-branch)))
-    (magit-repolist-insert-count (car (magit-rev-diff-count "HEAD" br)) spec)))
+  (and$ (magit-get-upstream-branch)
+        (magit-repolist-insert-count (car (magit-rev-diff-count "HEAD" $))
+                                     spec)))
 
 (defun magit-repolist-column-unpushed-to-pushremote (spec)
   "Insert number of commits in the current branch but not its push branch."
-  (and-let ((br (magit-get-push-branch nil t)))
-    (magit-repolist-insert-count (car (magit-rev-diff-count "HEAD" br)) spec)))
+  (and$ (magit-get-push-branch nil t)
+        (magit-repolist-insert-count (car (magit-rev-diff-count "HEAD" $))
+                                     spec)))
 
 (defun magit-repolist-column-branches (spec)
   "Insert number of branches."

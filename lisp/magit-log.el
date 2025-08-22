@@ -642,7 +642,7 @@ commits before and half after."
   "SPC" #'self-insert-command)
 
 (defun magit-log-read-revs (&optional use-current)
-  (or (and use-current (and-let ((buf (magit-get-current-branch))) (list buf)))
+  (or (and use-current (and$ (magit-get-current-branch) (list $)))
       (let ((crm-separator "\\(\\.\\.\\.?\\|[, ]\\)")
             (crm-local-completion-map magit-log-read-revs-map))
         (split-string (magit-completing-read-multiple
@@ -900,9 +900,9 @@ limit.  Otherwise set it to 256."
   (magit-refresh))
 
 (defun magit-log-get-commit-limit (&optional args)
-  (and-let ((str (seq-find (##string-match "^-n\\([0-9]+\\)?$" %)
-                           (or args magit-buffer-log-args))))
-    (string-to-number (match-str 1 str))))
+  (and$ (seq-find (##string-match "^-n\\([0-9]+\\)?$" %)
+                  (or args magit-buffer-log-args))
+        (string-to-number (match-str 1 $))))
 
 ;;;; Mode Commands
 
@@ -954,14 +954,14 @@ of the current repository first; creating it if necessary."
           "In log, jump to"
           (magit-list-refnames nil t)
           nil 'any nil 'magit-revision-history
-          (or (and-let ((rev (magit-commit-at-point)))
-                (magit-rev-fixup-target rev))
+          (or (and$ (magit-commit-at-point)
+                    (magit-rev-fixup-target $))
               (magit-get-current-branch)))))
   (with-current-buffer
       (cond ((derived-mode-p 'magit-log-mode)
              (current-buffer))
-            ((and-let ((buf (magit-get-mode-buffer 'magit-log-mode)))
-               (pop-to-buffer-same-window buf)))
+            ((and$ (magit-get-mode-buffer 'magit-log-mode)
+                   (pop-to-buffer-same-window $)))
             (t
              (apply #'magit-log-all-branches (magit-log-arguments))))
     (unless (magit-log-goto-commit-section (magit-rev-abbrev commit))

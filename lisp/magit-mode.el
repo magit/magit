@@ -1144,8 +1144,8 @@ The arguments are for internal use."
          ;; each window displaying the buffer).  The selected window
          ;; comes first in this list, but we want to process it last.
          (nreverse (get-buffer-window-list buffer nil t))))
-      (and-let ((section (magit-section-at)))
-        `((nil ,section ,@(magit-section-get-relative-position section))))))
+      (and$ (magit-section-at)
+            `((nil ,$ ,@(magit-section-get-relative-position $))))))
 
 (defun magit--refresh-buffer-set-positions (positions)
   (pcase-dolist

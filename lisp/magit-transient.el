@@ -192,8 +192,8 @@
          (default  (if (functionp defaultp) (funcall defaultp obj) defaultp))
          (fallback (oref obj fallback))
          (fallback (and fallback
-                        (and-let ((val (magit-get fallback)))
-                          (concat fallback ":" val)))))
+                        (and$ (magit-get fallback)
+                              (concat fallback ":" $)))))
     (if (not globalp)
         (setq value (magit-git-string "config" "--local"  variable))
       (setq value global)

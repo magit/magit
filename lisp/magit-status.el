@@ -454,8 +454,8 @@ Type \\[magit-commit] to create a commit.
          (`(,largs ,lfiles) (magit-log--get-value  'magit-status-mode 'status)))
       (magit-setup-buffer #'magit-status-mode nil
         :initial-section #'magit-status-goto-initial-section
-        :select-section (and-let ((args (magit-status--get-file-position)))
-                          (lambda () (apply #'magit-status--goto-file-position args)))
+        :select-section (and$ (magit-status--get-file-position)
+                              (lambda () (apply #'magit-status--goto-file-position $)))
         (magit-buffer-diff-args  dargs)
         (magit-buffer-diff-files dfiles)
         (magit-buffer-log-args   largs)

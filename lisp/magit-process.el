@@ -1026,9 +1026,9 @@ from the user."
                       magit-process-password-prompt-regexps string)))
     (process-send-string
      process
-     (concat (or (and-let ((key (match-str 99 string)))
-                   (run-hook-with-args-until-success
-                    'magit-process-find-password-functions key))
+     (concat (or (and$ (match-str 99 string)
+                       (run-hook-with-args-until-success
+                        'magit-process-find-password-functions $))
                  (let ((read-passwd-map
                         (magit-process-make-keymap process read-passwd-map)))
                    (read-passwd prompt)))
