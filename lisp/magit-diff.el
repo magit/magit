@@ -1215,7 +1215,7 @@ If no DWIM context is found, nil is returned."
 (defun magit-diff--range-to-endpoints (range)
   (cond ((string-match "\\.\\.\\." range) (replace-match ".."  nil nil range))
         ((string-match "\\.\\."    range) (replace-match "..." nil nil range))
-        (t range)))
+        (range)))
 
 (defun magit-diff--region-range (&optional interactive mbase)
   (and-let* ((commits (magit-region-values '(commit branch) t))
@@ -1504,8 +1504,7 @@ instead."
         (message "No revision buffer")))
      ((local-variable-p 'magit-buffer-diff-files)
       (toggle))
-     (t
-      (user-error "Cannot toggle file filter in this buffer")))))
+     ((user-error "Cannot toggle file filter in this buffer")))))
 
 (defun magit-diff-less-context (&optional count)
   "Decrease the context for diff hunks by COUNT lines."
@@ -1881,8 +1880,7 @@ commit or stash at point, then prompt for a commit."
           (setq rev target)
           (setq cmd #'magit-show-commit)
           (setq buf (magit-get-mode-buffer 'magit-revision-mode)))))
-     (t
-      (magit-section-case
+     ((magit-section-case
         (branch
          (setq rev (magit-ref-maybe-qualify (oref it value)))
          (setq cmd #'magit-show-commit)
@@ -1947,8 +1945,7 @@ commit or stash at point, then prompt for a commit."
                (mapc #'magit-section-show-headings sections))
               ((seq-some #'magit-section-hidden-body children)
                (mapc #'magit-section-show-children sections))
-              (t
-               (mapc #'magit-section-hide sections)))))))
+              ((mapc #'magit-section-hide sections)))))))
 
 ;;;; Jump Commands
 
@@ -2071,7 +2068,7 @@ Staging and applying changes is documented in info node
                      ((and (magit-repository-local-get 'this-commit-command)
                            (not (magit-anything-staged-p)))
                       "Uncommitting changes")
-                     (t "Unstaged changes")))
+                     ("Unstaged changes")))
              (pcase (length magit-buffer-diff-files)
                (0)
                (1 (concat " in file " (car magit-buffer-diff-files)))
@@ -2087,8 +2084,7 @@ Staging and applying changes is documented in info node
                 (delq nil (list magit-buffer-range magit-buffer-typearg)))
                ((equal magit-buffer-typearg "--cached")
                 (list 'staged))
-               (t
-                (list 'unstaged magit-buffer-typearg)))
+               ((list 'unstaged magit-buffer-typearg)))
          (and magit-buffer-diff-files (cons "--" magit-buffer-diff-files))))
 
 (cl-defmethod magit-menu-common-value ((_section magit-diff-section))
@@ -2562,7 +2558,7 @@ function errors."
               " ("
               (cond (rewind "rewind")
                     ((string-search "..." range) "non-ff")
-                    (t "new commits"))
+                    ("new commits"))
               (and (or modified untracked)
                    (concat ", "
                            (and modified "modified")
@@ -3074,7 +3070,7 @@ It the SECTION has a different type, then do nothing."
                           (forward-line -1)
                           (regexp-quote (buffer-substring-no-properties
                                          beg (line-end-position))))
-                         (t t))))))))
+                         (t))))))))
 
 (cl-defmethod magit-section-goto-successor ((section magit-hunk-section)
                                             line char &optional arg)
@@ -3189,7 +3185,7 @@ Do not confuse this with `magit-diff-scope' (which see)."
                     (if (magit-rev-head-p range)
                         'staged
                       'undefined)) ; i.e., committed and staged
-                   (t 'committed))))
+                   ('committed))))
           ((derived-mode-p 'magit-status-mode)
            (let ((stype (oref section type)))
              (if (memq stype '(staged unstaged tracked untracked))
@@ -3211,7 +3207,7 @@ Do not confuse this with `magit-diff-scope' (which see)."
                    (magit-section-match [* file commit] section))
                'committed
              'undefined))
-          (t 'undefined))))
+          ('undefined))))
 
 (cl-defun magit-diff-scope (&optional (section nil ssection) strict)
   "Return the diff scope of SECTION or the selected section(s).

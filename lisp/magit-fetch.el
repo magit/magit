@@ -84,8 +84,7 @@ push-remote."
      ((member remote (magit-list-remotes)) remote)
      (remote
       (format "%s, replacing invalid" v))
-     (t
-      (format "%s, setting that" v)))))
+     ((format "%s, setting that" v)))))
 
 ;;;###autoload (autoload 'magit-fetch-from-upstream "magit-fetch" nil t)
 (transient-define-suffix magit-fetch-from-upstream (remote args)

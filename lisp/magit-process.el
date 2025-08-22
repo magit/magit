@@ -810,8 +810,7 @@ Magit status buffer."
    ((and args (equal program shell-file-name))
     (propertize (cadr args)
                 'font-lock-face 'magit-section-heading))
-   (t
-    (concat (propertize (file-name-nondirectory program)
+   ((concat (propertize (file-name-nondirectory program)
                         'font-lock-face 'magit-section-heading)
             " "
             (propertize (mapconcat #'shell-quote-argument args " ")
@@ -832,8 +831,7 @@ Magit status buffer."
                  (delete-region (oref section start)
                                 (1+ (oref section end)))
                  (cl-decf count))
-                (t
-                 (push section head))))
+                ((push section head))))
         (pop tail))
       (oset magit-root-section children
             (nconc (reverse head) tail)))))

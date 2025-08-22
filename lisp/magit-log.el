@@ -962,8 +962,7 @@ of the current repository first; creating it if necessary."
              (current-buffer))
             ((and$ (magit-get-mode-buffer 'magit-log-mode)
                    (pop-to-buffer-same-window $)))
-            (t
-             (apply #'magit-log-all-branches (magit-log-arguments))))
+            ((apply #'magit-log-all-branches (magit-log-arguments))))
     (unless (magit-log-goto-commit-section (magit-rev-abbrev commit))
       (user-error "%s isn't visible in the current log buffer" commit))))
 

@@ -99,14 +99,12 @@ push-remote."
          (target (magit-get-push-branch branch t))
          (remote (magit-get-push-remote branch))
          (v (magit--push-remote-variable branch t)))
-    (cond
-     (target)
-     ((member remote (magit-list-remotes))
-      (format "%s, replacing non-existent" v))
-     (remote
-      (format "%s, replacing invalid" v))
-     (t
-      (format "%s, setting that" v)))))
+    (cond (target)
+          ((member remote (magit-list-remotes))
+           (format "%s, replacing non-existent" v))
+          (remote
+           (format "%s, replacing invalid" v))
+          ((format "%s, setting that" v)))))
 
 ;;;###autoload (autoload 'magit-pull-from-upstream "magit-pull" nil t)
 (transient-define-suffix magit-pull-from-upstream (args)
@@ -148,8 +146,7 @@ the upstream."
             (concat u ", replacing non-existent"))
            ((or remote merge)
             (concat u ", replacing invalid"))
-           (t
-            (concat u ", setting that")))))))
+           ((concat u ", setting that")))))))
 
 ;;;###autoload
 (defun magit-pull-branch (source args)

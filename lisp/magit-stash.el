@@ -448,7 +448,7 @@ Then apply STASH, dropping it if it applies cleanly."
     (unless noerror
       (user-error "No %s changes to save" (cond ((not index)  "unstaged")
                                                 ((not worktree) "staged")
-                                                (t "local"))))))
+                                                ("local"))))))
 
 (defun magit-stash-store (message ref rev)
   (magit-update-ref ref message rev))

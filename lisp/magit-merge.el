@@ -248,8 +248,7 @@ then also remove the respective remote branch."
             (list file (magit-checkout-read-stage file)))
            ((yes-or-no-p (format "Restore conflicts in %s? " file))
             (list file "--merge"))
-           (t
-            (user-error "Quit")))))
+           ((user-error "Quit")))))
   (pcase (cons arg (cddr (car (magit-file-status file))))
     ((or `("--ours"   ?D ,_)
          '("--ours"   ?U ?A)

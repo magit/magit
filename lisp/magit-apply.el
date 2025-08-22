@@ -733,8 +733,7 @@ so causes the change to be applied to the index as well."
                                  magit-buffer-range)
                                 ((derived-mode-p 'magit-diff-mode)
                                  magit-buffer-range)
-                                (t
-                                 "--cached")))))
+                                ("--cached")))))
                  (magit--separate (##member (oref % value) bs)
                                   sections))))
     (magit-confirm-files 'reverse (mapcar (##oref % value) sections))

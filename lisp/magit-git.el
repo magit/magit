@@ -697,7 +697,7 @@ values of `magit-remote-git-executable' and `exec-path'.\n"))
             ((save-match-data
                (and (string-match magit--git-version-regexp output)
                     (match-str 1 output))))
-            (t output)))))
+            (output)))))
 
 (defun magit-debug-git-executable ()
   "Display a buffer with information about `magit-git-executable'.
@@ -2424,8 +2424,7 @@ and this option only controls what face is used.")
                             (magit--propertize-face
                              name '(magit-branch-upstream
                                     magit-branch-local)))))
-             (t
-              (push (concat push name) combined)))))
+             ((push (concat push name) combined)))))
         (cond-let
           ((or upstream (not target)))
           ((member target remotes)

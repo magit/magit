@@ -374,8 +374,7 @@ when using `magit-branch-and-checkout'."
                   choice))
            ((member choice local)
             (list choice))
-           (t
-            (list choice (magit-read-starting-point "Create" choice))))))
+           ((list choice (magit-read-starting-point "Create" choice))))))
   (cond
    ((not start-point)
     (magit--checkout branch (magit-branch-arguments))
@@ -619,8 +618,7 @@ prompt is confusing."
            (format "%s is" (seq-find #'magit-ref-ambiguous-p branches)))
           ((= len (length refs))
            (format "These %s names are" len))
-          (t
-           (format "%s of these names are" len))))))
+          ((format "%s of these names are" len))))))
     (cond
      ((string-match "^refs/remotes/\\([^/]+\\)" (car refs))
       (let* ((remote (match-str 1 (car refs)))

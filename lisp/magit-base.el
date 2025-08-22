@@ -766,7 +766,7 @@ This is similar to `read-string', but
            (user-error "Need non-empty input"))
           ((and no-whitespace (string-match-p "[\s\t\n]" val))
            (user-error "Input contains whitespace"))
-          (t val))))
+          (val))))
 
 (defun magit-read-string-ns ( prompt &optional initial-input history
                               default-value inherit-input-method)
@@ -985,8 +985,7 @@ Pad the left side of STRING so that it aligns with the text area."
             ;; Delete the percent sign.
             (delete-region (1- (match-beginning 0)) (match-beginning 0)))))
        ;; Signal an error on bogus format strings.
-       (t
-        (error "Invalid format string"))))
+       ((error "Invalid format string"))))
     (buffer-string)))
 
 ;;; Missing from Emacs

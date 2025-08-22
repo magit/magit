@@ -488,8 +488,7 @@ mind at all, then it asks the user for a command to run."
               (magit-ediff-show-stash revB))
              (file
               (funcall command file))
-             (t
-              (call-interactively command)))))))
+             ((call-interactively command)))))))
 
 ;;;###autoload
 (defun magit-ediff-show-staged (file)

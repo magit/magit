@@ -310,7 +310,7 @@ If it contains \"%s\" then the directory is substituted for that."
                                            sort-fn #'identity idx))
                                          (sort-fn sort-fn)
                                          (sort-set nil)
-                                         (t t)))
+                                         (t)))
                              (flatten-tree props))))
                   magit-repolist-columns))))
 
@@ -403,7 +403,7 @@ Usually this is just its basename."
       (setq b (and (string-match re b) (match-str 0 b)))
       (cond ((and a b) (version< a b))
             (b nil)
-            (t t)))))
+            (t)))))
 
 (defun magit-repolist-column-branch (_)
   "Insert the current branch."

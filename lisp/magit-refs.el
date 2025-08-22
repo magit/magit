@@ -769,9 +769,9 @@ line is inserted at all."
               (magit--propertize-face
                (cond ((> ahead  0) (concat "<" (number-to-string ahead)))
                      ((> behind 0) (concat (number-to-string behind) ">"))
-                     (t "="))
+                     ("="))
                'magit-dimmed)))
-           (t "")))))
+           ("")))))
 
 (defun magit-refs--propertize-branch (branch ref &optional head-face)
   (let ((face (cdr (cl-find-if (pcase-lambda (`(,re . ,_))

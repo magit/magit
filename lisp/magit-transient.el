@@ -68,8 +68,7 @@
     (oset obj value
           (cond ((oref obj multi-value)
                  (magit-get-all arg variable))
-                (t
-                 (magit-get arg variable))))))
+                ((magit-get arg variable))))))
 
 (cl-defmethod transient-init-value ((obj magit--git-variable:boolean))
   (let ((variable (format (oref obj variable)
@@ -206,8 +205,7 @@
                                           'transient-inactive-value)
                                          ((member global choices)
                                           'transient-value)
-                                         (t
-                                          'font-lock-warning-face))))
+                                         ('font-lock-warning-face))))
                 (fallback
                  (propertize fallback
                              'face (if value

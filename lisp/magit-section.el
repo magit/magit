@@ -1138,8 +1138,7 @@ or when INTERACTIVE is non-nil, show the section in the echo area."
                              ((and (eieio-object-p val)
                                    (fboundp 'cl-prin1-to-string))
                               (cl-prin1-to-string val))
-                             (t
-                              val)))
+                             (val)))
                      (if ident
                          (magit-section-ident section)
                        (apply #'vector (magit-section-lineage section)))
@@ -2316,7 +2315,7 @@ Configuration'."
                 (message "  %-50s %f %s" entry time
                          (cond ((> time 0.03) "!!")
                                ((> time 0.01) "!")
-                               (t ""))))
+                               (""))))
             (apply entry args)))))))
 
 (cl-defun magit--overlay-at (pos prop &optional (val nil sval) testfn)
@@ -2453,7 +2452,7 @@ This is like moving to POS and then calling `pos-eol'."
                 (oref section value)))
        ((string-match " ([0-9]+)\\'" heading)
         (substring heading 0 (match-beginning 0)))
-       (t heading)))))
+       (heading)))))
 
 (defun magit--imenu-goto-function (_name position &rest _rest)
   "Go to the section at POSITION.

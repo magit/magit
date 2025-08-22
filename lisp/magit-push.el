@@ -107,8 +107,7 @@ argument the push-remote can be changed before pushed to it."
                                       'magit-branch-remote)))
      (remote
       (format "%s, replacing invalid" v))
-     (t
-      (format "%s, setting that" v)))))
+     ((format "%s, setting that" v)))))
 
 ;;;###autoload (autoload 'magit-push-current-to-upstream "magit-push" nil t)
 (transient-define-suffix magit-push-current-to-upstream (args)
@@ -171,8 +170,7 @@ the upstream."
                     (magit--propertize-face merge 'magit-branch-remote)))
            ((or remote merge)
             (concat u ", creating it and replacing invalid"))
-           (t
-            (concat u ", creating it")))))))
+           ((concat u ", creating it")))))))
 
 ;;;###autoload
 (defun magit-push-current (target args)

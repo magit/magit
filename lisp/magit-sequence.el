@@ -349,8 +349,7 @@ the process manually."
                      command))
         ((seq-find (##string-prefix-p "--mainline=" %) args)
          args)
-        (t
-         (cons (format "--mainline=%s"
+        ((cons (format "--mainline=%s"
                        (read-number "Replay merges relative to parent: "))
                args))))
      commits)))
@@ -632,8 +631,7 @@ the upstream."
             (concat u ", replacing non-existent"))
            ((or remote merge)
             (concat u ", replacing invalid"))
-           (t
-            (concat u ", setting that")))))))
+           ((concat u ", setting that")))))))
 
 ;;;###autoload
 (defun magit-rebase-branch (target args)
@@ -940,8 +938,7 @@ If no such sequence is in progress, do nothing."
                 (commit
                  (magit-sequence-insert-commit
                   "pick" commit 'magit-sequence-pick))
-                (t
-                 (magit-sequence-insert-am-patch
+                ((magit-sequence-insert-am-patch
                   "pick" patch 'magit-sequence-pick)))
           (cl-decf i)))
       (magit-sequence-insert-sequence nil "ORIG_HEAD")
@@ -1087,15 +1084,14 @@ status buffer (i.e., the reverse of how they will be applied)."
                      (equal (magit-patch-id unstaged) id))
                  "same")
                 ;; ...and some changes are gone and/or others were added.
-                (t "work")))
+                ("work")))
              stop 'magit-sequence-part))
            ;; The commit is definitely gone...
            ((assoc (##magit-rev-equal % stop) done)
             ;; ...but all of its changes are still in effect.
             (magit-sequence-insert-commit "poof" stop 'magit-sequence-drop))
-           (t
-            ;; ...and some changes are gone and/or other changes were added.
-            (magit-sequence-insert-commit "gone" stop 'magit-sequence-drop)))
+           ;; ...and some changes are gone and/or other changes were added.
+           ((magit-sequence-insert-commit "gone" stop 'magit-sequence-drop)))
           (setq stop nil))))
     (pcase-dolist (`(,rev ,abbrev ,msg) done)
       (apply #'magit-sequence-insert-commit
@@ -1113,8 +1109,7 @@ status buffer (i.e., the reverse of how they will be applied)."
                           abbrev msg))
                    ((equal rev head)
                     (list "done" rev 'magit-sequence-head abbrev msg))
-                   (t
-                    (list "done" rev 'magit-sequence-done abbrev msg)))))
+                   ((list "done" rev 'magit-sequence-done abbrev msg)))))
     (magit-sequence-insert-commit "onto" onto
                                   (if (equal onto head)
                                       'magit-sequence-head

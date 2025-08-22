@@ -645,8 +645,7 @@ arguments are for internal use only."
                   (propertize "does not exist on"
                               'font-lock-face 'magit-branch-warning)
                   (propertize remote 'font-lock-face 'magit-branch-remote))))
-              (t
-               (propertize "invalid upstream configuration"
+              ((propertize "invalid upstream configuration"
                            'font-lock-face 'magit-branch-warning)))))
           (insert ?\n))))))
 

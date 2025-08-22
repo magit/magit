@@ -94,8 +94,7 @@ the line and column corresponding to that location."
        (magit-buffer-revision
         (setq line (magit-diff-visit--offset
                     file (concat magit-buffer-revision ".." rev) line)))
-       (t
-        (setq line (magit-diff-visit--offset file (list "-R" rev) line)))))
+       ((setq line (magit-diff-visit--offset file (list "-R" rev) line)))))
     (funcall fn buf)
     (when line
       (with-current-buffer buf

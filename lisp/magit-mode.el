@@ -790,8 +790,7 @@ split is made vertically or horizontally is determined by
          ((with-current-buffer buffer
             (derived-mode-p 'magit-diff-mode 'magit-process-mode))
           '(magit--display-buffer-topleft))
-         (t
-          '(display-buffer-same-window)))))
+         ('(display-buffer-same-window)))))
 
 (defun magit--display-buffer-fullcolumn (buffer alist)
   (when-let ((window (or (display-buffer-reuse-window buffer alist)
@@ -822,8 +821,7 @@ the mode of the current buffer derives from `magit-log-mode' or
          ((with-current-buffer buffer
             (derived-mode-p 'magit-process-mode))
           nil)
-         (t
-          '(magit--display-buffer-fullcolumn)))))
+         ('(magit--display-buffer-fullcolumn)))))
 
 (defun magit-maybe-set-dedicated ()
   "Mark the selected window as dedicated if appropriate.
