@@ -366,8 +366,9 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
            (and-let* ((buffer (magit-get-mode-buffer
                                'magit-refs-mode nil
                                (eq use-buffer-args 'selected))))
-             (setq args (buffer-local-value 'magit-buffer-arguments buffer))
-             t)))
+             (progn
+               (setq args (buffer-local-value 'magit-buffer-arguments buffer))
+               t))))
      (t
       (setq args (alist-get 'magit-show-refs transient-values))))
     args))

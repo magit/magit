@@ -1494,10 +1494,11 @@ Git."
 
 (defun magit-name-tag (rev &optional lax)
   (and-let* ((name (magit-rev-name rev "refs/tags/*")))
-    (when (string-suffix-p "^0" name)
-      (setq name (substring name 0 -2)))
-    (and (or lax (not (string-match-p "[~^]" name)))
-         (substring name 5))))
+    (progn
+      (when (string-suffix-p "^0" name)
+        (setq name (substring name 0 -2)))
+      (and (or lax (not (string-match-p "[~^]" name)))
+           (substring name 5)))))
 
 (defun magit-ref-abbrev (refname)
   "Return an unambiguous abbreviation of REFNAME."
@@ -2337,8 +2338,9 @@ If `first-parent' is set, traverse only first parents."
 
 (defun magit-format-rev-summary (rev)
   (and-let* ((str (magit-rev-format "%h %s" rev)))
-    (magit--put-face 0 (string-match " " str) 'magit-hash str)
-    str))
+    (progn
+      (magit--put-face 0 (string-match " " str) 'magit-hash str)
+      str)))
 
 (defvar magit-ref-namespaces
   '(("\\`HEAD\\'"                  . magit-head)
@@ -2667,8 +2669,9 @@ and this option only controls what face is used.")
   (magit-read-range
    prompt
    (or (and-let* ((revs (magit-region-values '(commit branch) t)))
-         (deactivate-mark)
-         (concat (car (last revs)) ".." (car revs)))
+         (progn
+           (deactivate-mark)
+           (concat (car (last revs)) ".." (car revs))))
        (magit-branch-or-commit-at-point)
        secondary-default
        (magit-get-current-branch))))
