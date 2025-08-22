@@ -678,14 +678,15 @@ then return nil."
 
 (defun magit-menu-highlight-point-section ()
   (setq magit-section-highlight-force-update t)
-  (if (eq (current-buffer) magit--context-menu-buffer)
-      (setq magit--context-menu-section nil)
-    (if-let ((window (get-buffer-window magit--context-menu-buffer)))
-        (with-selected-window window
-          (setq magit--context-menu-section nil)
-          (magit-section-update-highlight))
-      (with-current-buffer magit--context-menu-buffer
-        (setq magit--context-menu-section nil))))
+  (cond-let
+    ((eq (current-buffer) magit--context-menu-buffer)
+     (setq magit--context-menu-section nil))
+    ([window (get-buffer-window magit--context-menu-buffer)]
+     (with-selected-window window
+       (setq magit--context-menu-section nil)
+       (magit-section-update-highlight)))
+    ((with-current-buffer magit--context-menu-buffer
+       (setq magit--context-menu-section nil))))
   (setq magit--context-menu-buffer nil))
 
 (defvar magit--plural-append-es '(branch))
@@ -809,22 +810,24 @@ the beginning of the current section."
 If there is no next sibling section, then move to the parent."
   (interactive)
   (let ((current (magit-current-section)))
-    (if (oref current parent)
-        (if-let ((next (car (magit-section-siblings current 'next))))
-            (magit-section-goto next)
-          (magit-section-forward))
-      (magit-section-goto 1))))
+    (cond-let
+      ((not (oref current parent))
+       (magit-section-goto 1))
+      ([next (car (magit-section-siblings current 'next))]
+       (magit-section-goto next))
+      ((magit-section-forward)))))
 
 (defun magit-section-backward-sibling ()
   "Move to the beginning of the previous sibling section.
 If there is no previous sibling section, then move to the parent."
   (interactive)
   (let ((current (magit-current-section)))
-    (if (oref current parent)
-        (if-let ((previous (car (magit-section-siblings current 'prev))))
-            (magit-section-goto previous)
-          (magit-section-backward))
-      (magit-section-goto -1))))
+    (cond-let
+      ((not (oref current parent))
+       (magit-section-goto -1))
+      ([previous (car (magit-section-siblings current 'prev))]
+       (magit-section-goto previous))
+      ((magit-section-backward)))))
 
 (defun magit-mouse-set-point (event &optional promote-to-region)
   "Like `mouse-set-point' but also call `magit-section-movement-hook'."
@@ -868,14 +871,15 @@ With a prefix argument also expand it." heading)
                     (cons (cons ',type ,value)
                           (magit-section-ident magit-root-section)))
      (interactive "P")
-     (if-let ((section (magit-get-section
-                        (cons (cons ',type ,value)
-                              (magit-section-ident magit-root-section)))))
-         (progn (goto-char (oref section start))
-                (when expand
-                  (with-local-quit (magit-section-show section))
-                  (recenter 0)))
-       (message ,(format "Section \"%s\" wasn't found" heading)))))
+     (cond-let
+       ([section (magit-get-section
+                  (cons (cons ',type ,value)
+                        (magit-section-ident magit-root-section)))]
+        (goto-char (oref section start))
+        (when expand
+          (with-local-quit (magit-section-show section))
+          (recenter 0)))
+       ((message ,(format "Section \"%s\" wasn't found" heading))))))
 
 ;;;; Visibility
 
@@ -1247,11 +1251,12 @@ of course you want to be that precise."
           (and-let ((parent (oref section parent)))
             (magit-section-match-2 condition parent)))
     (and (let ((c (car condition)))
-           (if (class-p c)
-               (cl-typep section c)
-             (if-let ((class (cdr (assq c magit--section-type-alist))))
-                 (cl-typep section class)
-               (eq (oref section type) c))))
+           (cond-let
+             ((class-p c)
+              (cl-typep section c))
+             ([class (cdr (assq c magit--section-type-alist))]
+              (cl-typep section class))
+             ((eq (oref section type) c))))
          (or (not (setq condition (cdr condition)))
              (and-let ((parent (oref section parent)))
                (magit-section-match-2 condition parent))))))

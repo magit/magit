@@ -496,37 +496,38 @@ from the source branch's upstream, then an error is raised."
              (magit-anything-modified-p))
     (message "Staying on HEAD due to uncommitted changes")
     (setq checkout t))
-  (if-let ((current (magit-get-current-branch)))
-      (let ((tracked (magit-get-upstream-branch current))
-            base)
-        (when from
-          (unless (magit-rev-ancestor-p from current)
-            (user-error "Cannot spin off %s.  %s is not reachable from %s"
-                        branch from current))
-          (when (and tracked
-                     (magit-rev-ancestor-p from tracked))
-            (user-error "Cannot spin off %s.  %s is ancestor of upstream %s"
-                        branch from tracked)))
-        (let ((magit-process-raise-error t))
-          (if checkout
-              (magit-call-git "checkout" "-b" branch current)
-            (magit-call-git "branch" branch current)))
-        (when-let ((upstream (magit-get-indirect-upstream-branch current)))
-          (magit-call-git "branch" "--set-upstream-to" upstream branch))
-        (when (and tracked
-                   (setq base
-                         (if from
-                             (concat from "^")
-                           (magit-git-string "merge-base" current tracked)))
-                   (not (magit-rev-eq base current)))
-          (if checkout
-              (magit-call-git "update-ref" "-m"
-                              (format "reset: moving to %s" base)
-                              (concat "refs/heads/" current) base)
-            (magit-call-git "reset" "--hard" base))))
-    (if checkout
-        (magit-call-git "checkout" "-b" branch)
-      (magit-call-git "branch" branch)))
+  (cond-let
+    ([current (magit-get-current-branch)]
+     (let ((tracked (magit-get-upstream-branch current))
+           base)
+       (when from
+         (unless (magit-rev-ancestor-p from current)
+           (user-error "Cannot spin off %s.  %s is not reachable from %s"
+                       branch from current))
+         (when (and tracked
+                    (magit-rev-ancestor-p from tracked))
+           (user-error "Cannot spin off %s.  %s is ancestor of upstream %s"
+                       branch from tracked)))
+       (let ((magit-process-raise-error t))
+         (if checkout
+             (magit-call-git "checkout" "-b" branch current)
+           (magit-call-git "branch" branch current)))
+       (when-let ((upstream (magit-get-indirect-upstream-branch current)))
+         (magit-call-git "branch" "--set-upstream-to" upstream branch))
+       (when (and tracked
+                  (setq base
+                        (if from
+                            (concat from "^")
+                          (magit-git-string "merge-base" current tracked)))
+                  (not (magit-rev-eq base current)))
+         (if checkout
+             (magit-call-git "update-ref" "-m"
+                             (format "reset: moving to %s" base)
+                             (concat "refs/heads/" current) base)
+           (magit-call-git "reset" "--hard" base)))))
+    (checkout
+     (magit-call-git "checkout" "-b" branch))
+    ((magit-call-git "branch" branch)))
   (magit-refresh))
 
 ;;;###autoload
@@ -728,25 +729,24 @@ prompt is confusing."
   (magit-set nil "branch" branch "pushRemote"))
 
 (defun magit-delete-remote-branch-sentinel (remote refs process event)
-  (when (memq (process-status process) '(exit signal))
-    (if (= (process-exit-status process) 1)
-        (if-let* ((on-remote (mapcar (##concat "refs/remotes/" remote "/" %)
-                                     (magit-remote-list-branches remote)))
-                  (rest (seq-filter (##and (not (member % on-remote))
-                                           (magit-ref-exists-p %))
-                                    refs)))
-            (progn
-              (process-put process 'inhibit-refresh t)
-              (magit-process-sentinel process event)
-              (setq magit-this-error nil)
-              (message "Some remote branches no longer exist.  %s"
-                       "Deleting just the local tracking refs instead...")
-              (dolist (ref rest)
-                (magit-call-git "update-ref" "-d" ref))
-              (magit-refresh)
-              (message "Deleting local remote-tracking refs...done"))
-          (magit-process-sentinel process event))
-      (magit-process-sentinel process event))))
+  (cond-let*
+    ((not (memq (process-status process) '(exit signal))))
+    ([_(= (process-exit-status process) 1)]
+     [on-remote (mapcar (##concat "refs/remotes/" remote "/" %)
+                        (magit-remote-list-branches remote))]
+     [rest (seq-filter (##and (not (member % on-remote))
+                              (magit-ref-exists-p %))
+                       refs)]
+     (process-put process 'inhibit-refresh t)
+     (magit-process-sentinel process event)
+     (setq magit-this-error nil)
+     (message "Some remote branches no longer exist.  %s"
+              "Deleting just the local tracking refs instead...")
+     (dolist (ref rest)
+       (magit-call-git "update-ref" "-d" ref))
+     (magit-refresh)
+     (message "Deleting local remote-tracking refs...done"))
+    ((magit-process-sentinel process event))))
 
 ;;;###autoload
 (defun magit-branch-rename (old new &optional force)

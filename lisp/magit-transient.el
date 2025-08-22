@@ -93,18 +93,19 @@
   (let ((choices (oref obj choices)))
     (when (functionp choices)
       (setq choices (funcall choices)))
-    (if current-prefix-arg
-        (pcase-let*
-            ((`(,fallback . ,choices)
-              (magit--git-variable-list-choices obj))
-             (choice (magit-completing-read
-                      (format "Set `%s' to" (oref obj variable))
-                      (if fallback (nconc choices (list fallback)) choices)
-                      nil t)))
-          (if (equal choice fallback) nil choice))
-      (if-let ((value (oref obj value)))
-          (cadr (member value choices))
-        (car choices)))))
+    (cond-let
+      (current-prefix-arg
+       (pcase-let*
+           ((`(,fallback . ,choices)
+             (magit--git-variable-list-choices obj))
+            (choice (magit-completing-read
+                     (format "Set `%s' to" (oref obj variable))
+                     (if fallback (nconc choices (list fallback)) choices)
+                     nil t)))
+         (if (equal choice fallback) nil choice)))
+      ([value (oref obj value)]
+       (cadr (member value choices)))
+      ((car choices)))))
 
 ;;;; Readers
 
@@ -155,20 +156,21 @@
       (oref obj variable)))
 
 (cl-defmethod transient-format-value ((obj magit--git-variable))
-  (if-let ((value (oref obj value)))
-      (if (oref obj multi-value)
-          (if (cdr value)
-              (mapconcat (##concat "\n     "
-                                   (propertize % 'face 'transient-value))
-                         value "")
-            (propertize (car value) 'face 'transient-value))
-        (propertize (car (split-string value "\n"))
-                    'face 'transient-value))
-    (if-let* ((default (oref obj default))
-              (default (if (functionp default) (funcall default) default)))
-        (concat (propertize "default:" 'face 'transient-inactive-value)
-                (propertize default 'face 'transient-value))
-      (propertize "unset" 'face 'transient-inactive-value))))
+  (cond-let*
+    ([value (oref obj value)]
+     (if (oref obj multi-value)
+         (if (cdr value)
+             (mapconcat (##concat "\n     "
+                                  (propertize % 'face 'transient-value))
+                        value "")
+           (propertize (car value) 'face 'transient-value))
+       (propertize (car (split-string value "\n"))
+                   'face 'transient-value)))
+    ([default (oref obj default)]
+     [default (if (functionp default) (funcall default) default)]
+     (concat (propertize "default:" 'face 'transient-inactive-value)
+             (propertize default 'face 'transient-value)))
+    ((propertize "unset" 'face 'transient-inactive-value))))
 
 (cl-defmethod transient-format-value ((obj magit--git-variable:choices))
   (pcase-let ((`(,fallback . ,choices) (magit--git-variable-list-choices obj)))

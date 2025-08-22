@@ -117,30 +117,33 @@ variant `magit-wip-after-save-mode'."
     (remove-hook 'after-save-hook #'magit-wip-commit-buffer-file t)))
 
 (defun magit-wip-after-save-local-mode-turn-on ()
-  (when (and buffer-file-name
-             (if magit--wip-activation-cache
-                 (if-let ((elt (assoc default-directory
-                                      magit--wip-activation-cache)))
-                     (and-let ((top (cadr elt)))
-                       (member (file-relative-name buffer-file-name top)
-                               (cddr elt)))
-                   (if-let ((top (magit-toplevel)))
-                       (let (files)
-                         (if-let ((elt (assoc top magit--wip-activation-cache)))
-                             (setq files (cddr elt))
-                           (setq files (let ((default-directory top))
-                                         (magit-tracked-files)))
-                           (push `(,top ,top ,@files)
-                                 magit--wip-activation-cache)
-                           (unless (eq default-directory top)
-                             (push `(,default-directory ,top ,@files)
-                                   magit--wip-activation-cache)))
-                         (member (file-relative-name buffer-file-name) files))
-                     (push (list default-directory nil)
-                           magit--wip-activation-cache)
-                     nil))
-               (and (magit-inside-worktree-p t)
-                    (magit-file-tracked-p buffer-file-name))))
+  (when (cond-let
+          ((not buffer-file-name)
+           nil)
+          ((not magit--wip-activation-cache)
+           (and (magit-inside-worktree-p t)
+                (magit-file-tracked-p buffer-file-name)))
+          ([elt (assoc default-directory
+                       magit--wip-activation-cache)]
+           (and-let ((top (cadr elt)))
+             (member (file-relative-name buffer-file-name top)
+                     (cddr elt))))
+          ([top (magit-toplevel)]
+           (let (files)
+             (if-let ((elt (assoc top magit--wip-activation-cache)))
+                 (setq files (cddr elt))
+               (setq files (let ((default-directory top))
+                             (magit-tracked-files)))
+               (push `(,top ,top ,@files)
+                     magit--wip-activation-cache)
+               (unless (eq default-directory top)
+                 (push `(,default-directory ,top ,@files)
+                       magit--wip-activation-cache)))
+             (member (file-relative-name buffer-file-name) files)))
+          (t
+           (push (list default-directory nil)
+                 magit--wip-activation-cache)
+           nil))
     (magit-wip-after-save-local-mode)))
 
 ;;;###autoload
@@ -438,23 +441,23 @@ many \"branches\" of each wip ref are shown."
 (defun magit-wip-purge ()
   "Ask to delete all wip-refs that no longer have a corresponding ref."
   (interactive)
-  (if-let ((wiprefs (thread-last
-                      (cl-set-difference (magit-list-refs "refs/wip/")
-                                         (magit-list-refs)
-                                         :test (##equal (substring %1 15) %2))
-                      (delete "refs/wip/index/HEAD")
-                      (delete "refs/wip/wtree/HEAD"))))
-      (progn
-        (magit-confirm 'purge-dangling-wiprefs
-          "Delete wip-ref %s without corresponding ref"
-          "Delete %d wip-refs without corresponding ref"
-          nil wiprefs)
-        (message "Deleting wip-refs...")
-        (dolist (wipref wiprefs)
-          (magit-call-git "update-ref" "-d" wipref))
-        (message "Deleting wip-refs...done")
-        (magit-refresh))
-    (message "All wip-refs have a corresponding ref")))
+  (cond-let
+    ([wiprefs (thread-last
+                (cl-set-difference (magit-list-refs "refs/wip/")
+                                   (magit-list-refs)
+                                   :test (##equal (substring %1 15) %2))
+                (delete "refs/wip/index/HEAD")
+                (delete "refs/wip/wtree/HEAD"))]
+     (magit-confirm 'purge-dangling-wiprefs
+       "Delete wip-ref %s without corresponding ref"
+       "Delete %d wip-refs without corresponding ref"
+       nil wiprefs)
+     (message "Deleting wip-refs...")
+     (dolist (wipref wiprefs)
+       (magit-call-git "update-ref" "-d" wipref))
+     (message "Deleting wip-refs...done")
+     (magit-refresh))
+    ((message "All wip-refs have a corresponding ref"))))
 
 ;;; _
 (provide 'magit-wip)

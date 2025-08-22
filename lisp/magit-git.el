@@ -883,66 +883,60 @@ returning the truename."
   (magit--with-refresh-cache
       (cons (or directory default-directory) 'magit-toplevel)
     (magit--with-safe-default-directory directory
-      (if-let ((topdir (magit-rev-parse-safe "--show-toplevel")))
-          (let (updir)
-            (setq topdir (magit-expand-git-file-name topdir))
-            (cond
-             ((and
-               ;; Always honor these settings.
-               (not find-file-visit-truename)
-               (not (getenv "GIT_WORK_TREE"))
-               ;; `--show-cdup' is the relative path to the toplevel
-               ;; from `(file-truename default-directory)'.  Here we
-               ;; pretend it is relative to `default-directory', and
-               ;; go to that directory.  Then we check whether
-               ;; `--show-toplevel' still returns the same value and
-               ;; whether `--show-cdup' now is the empty string.  If
-               ;; both is the case, then we are at the toplevel of
-               ;; the same working tree, but also avoided needlessly
-               ;; following any symlinks.
-               (progn
-                 (setq updir (file-name-as-directory
-                              (magit-rev-parse-safe "--show-cdup")))
-                 (setq updir (if (file-name-absolute-p updir)
-                                 (concat (file-remote-p default-directory)
-                                         updir)
-                               (expand-file-name updir)))
-                 (and-let*
-                     ((default-directory updir)
-                      (top (and (string-equal
-                                 (magit-rev-parse-safe "--show-cdup") "")
-                                (magit-rev-parse-safe "--show-toplevel"))))
-                   (string-equal (magit-expand-git-file-name top) topdir))))
-              updir)
-             ((concat (file-remote-p default-directory)
-                      (file-name-as-directory topdir)))))
-        (and-let* ((gitdir (magit-rev-parse-safe "--git-dir"))
-                   (gitdir (file-name-as-directory
-                            (if (file-name-absolute-p gitdir)
-                                ;; We might have followed a symlink.
-                                (concat (file-remote-p default-directory)
-                                        (magit-expand-git-file-name gitdir))
-                              (expand-file-name gitdir)))))
-          (if (magit-bare-repo-p)
-              gitdir
-            (let* ((link (expand-file-name "gitdir" gitdir))
-                   (wtree (and (file-exists-p link)
-                               (magit-file-line link))))
-              (cond
-               ((and wtree
-                     ;; Ignore .git/gitdir files that result from a
-                     ;; Git bug.  See #2364.
-                     (not (equal wtree ".git")))
-                ;; Return the linked working tree.
-                (concat (file-remote-p default-directory)
-                        (file-name-directory wtree)))
-               ;; The working directory may not be the parent
-               ;; directory of .git if it was set up with
-               ;; "git init --separate-git-dir".  See #2955.
-               ((car (rassoc gitdir magit--separated-gitdirs)))
-               (;; Step outside the control directory to enter the
-                ;; working tree.
-                (file-name-directory (directory-file-name gitdir)))))))))))
+      (cond-let*
+        ([topdir (magit-rev-parse-safe "--show-toplevel")]
+         [topdir (magit-expand-git-file-name topdir)]
+         (cond-let*
+           (;; Always honor these settings.
+            [_(not find-file-visit-truename)]
+            [_(not (getenv "GIT_WORK_TREE"))]
+            ;; `--show-cdup' is the relative path to the toplevel
+            ;; from `(file-truename default-directory)'.  Here we
+            ;; pretend it is relative to `default-directory', and
+            ;; go to that directory.  Then we check whether
+            ;; `--show-toplevel' still returns the same value and
+            ;; whether `--show-cdup' now is the empty string.  If
+            ;; both is the case, then we are at the toplevel of
+            ;; the same working tree, but also avoided needlessly
+            ;; following any symlinks.
+            [updir (file-name-as-directory
+                    (magit-rev-parse-safe "--show-cdup"))]
+            [updir (if (file-name-absolute-p updir)
+                       (concat (file-remote-p default-directory) updir)
+                     (expand-file-name updir))]
+            [updir->topdir
+             (let ((default-directory updir))
+               (and (string-equal (magit-rev-parse-safe "--show-cdup") "")
+                    (magit-rev-parse-safe "--show-toplevel")))]
+            [_(string-equal (magit-expand-git-file-name updir->topdir) topdir)]
+            updir)
+           ((concat (file-remote-p default-directory)
+                    (file-name-as-directory topdir)))))
+        ([gitdir (magit-rev-parse-safe "--git-dir")]
+         [gitdir (file-name-as-directory
+                  (if (file-name-absolute-p gitdir)
+                      ;; We might have followed a symlink.
+                      (concat (file-remote-p default-directory)
+                              (magit-expand-git-file-name gitdir))
+                    (expand-file-name gitdir)))]
+         (cond-let*
+           ((magit-bare-repo-p) gitdir)
+           ;; Return the linked working tree, if any.
+           ([link (expand-file-name "gitdir" gitdir)]
+            [wtree (and (file-exists-p link)
+                        (magit-file-line link))]
+            ;; Ignore ".git/gitdir" files that result from a Git bug.
+            ;; This has long been fixed, but old repository may still
+            ;; exist that contain such a file.  See #2364.
+            [_(not (equal wtree ".git"))]
+            (concat (file-remote-p default-directory)
+                    (file-name-directory wtree)))
+           ;; The working directory may not be the parent
+           ;; directory of .git if it was set up with
+           ;; "git init --separate-git-dir".  See #2955.
+           ((car (rassoc gitdir magit--separated-gitdirs)))
+           ;; Step outside the control directory to enter the working tree.
+           ((file-name-directory (directory-file-name gitdir)))))))))
 
 (defun magit--toplevel-safe ()
   (or (magit-toplevel)
@@ -1251,15 +1245,16 @@ Sorted from longest to shortest CYGWIN name."
    Git does not understand.
 2. If it is a remote filename, then remove the remote part.
 3. Deal with an `windows-nt' Emacs vs. Cygwin Git incompatibility."
-  (if (file-name-absolute-p filename)
-      (if-let ((cyg:win (cl-rassoc filename magit-cygwin-mount-points
-                                   :test (##string-prefix-p %2 %1))))
-          (concat (car cyg:win)
-                  (substring filename (length (cdr cyg:win))))
-        (let ((expanded (expand-file-name filename)))
-          (or (file-remote-p expanded 'localname)
-              expanded)))
-    filename))
+  (cond-let
+    ((not (file-name-absolute-p filename))
+     filename)
+    ([cyg:win (cl-rassoc filename magit-cygwin-mount-points
+                         :test (##string-prefix-p %2 %1))]
+     (concat (car cyg:win)
+             (substring filename (length (cdr cyg:win)))))
+    ([expanded (expand-file-name filename)]
+     (or (file-remote-p expanded 'localname)
+         expanded))))
 
 (defun magit-decode-git-path (path)
   (if (eq (aref path 0) ?\")
@@ -1270,14 +1265,15 @@ Sorted from longest to shortest CYGWIN name."
     path))
 
 (defun magit-file-at-point (&optional expand assert)
-  (if-let ((file (magit-section-case
-                   (file (oref it value))
-                   (hunk (magit-section-parent-value it)))))
-      (if expand
-          (expand-file-name file (magit-toplevel))
-        file)
-    (when assert
-      (user-error "No file at point"))))
+  (cond-let
+    ([file (magit-section-case
+             (file (oref it value))
+             (hunk (magit-section-parent-value it)))]
+     (if expand
+         (expand-file-name file (magit-toplevel))
+       file))
+    (assert
+     (user-error "No file at point"))))
 
 (defun magit-current-file ()
   (or (magit-file-relative-name)
@@ -1891,11 +1887,12 @@ as into its upstream."
                                (magit-get-upstream-branch branch))))
            (magit-rev-ancestor-p branch upstream)
          t)
-       (if (eq target t)
-           (delete (magit-name-local-branch branch)
-                   (magit-list-containing-branches branch))
-         (and-let ((target (or target (magit-get-current-branch))))
-           (magit-rev-ancestor-p branch target)))))
+       (cond-let
+         ((eq target t)
+          (delete (magit-name-local-branch branch)
+                  (magit-list-containing-branches branch)))
+         ([target (or target (magit-get-current-branch))]
+          (magit-rev-ancestor-p branch target)))))
 
 (defun magit-get-tracked (refname)
   "Return the remote branch tracked by the remote-tracking branch REFNAME.
@@ -2265,26 +2262,26 @@ If `first-parent' is set, traverse only first parents."
                         "\t")))
 
 (defun magit-abbrev-length ()
-  (let ((abbrev (magit-get "core.abbrev")))
-    (if (and abbrev (not (equal abbrev "auto")))
-        (string-to-number abbrev)
-      ;; Guess the length git will be using based on an example
-      ;; abbreviation.  Actually HEAD's abbreviation might be an
-      ;; outlier, so use the shorter of the abbreviations for two
-      ;; commits.  See #3034.
-      (if-let* ((head (magit-rev-parse "--short" "HEAD"))
-                (head-len (length head)))
-          (min head-len
-               (if-let ((rev (magit-rev-parse "--short" "HEAD~")))
-                   (length rev)
-                 head-len))
-        ;; We're on an unborn branch, but perhaps the repository has
-        ;; other commits.  See #4123.
-        (if-let ((commits (magit-git-lines "rev-list" "-n2" "--all"
-                                           "--abbrev-commit")))
-            (apply #'min (mapcar #'length commits))
-          ;; A commit does not exist.  Fall back to the default of 7.
-          7)))))
+  (cond-let*
+    ([abbrev (magit-get "core.abbrev")]
+     [_(not (equal abbrev "auto"))]
+     (string-to-number abbrev))
+    ;; Guess the length git will be using based on an example
+    ;; abbreviation.  Actually HEAD's abbreviation might be an
+    ;; outlier, so use the shorter of the abbreviations for two
+    ;; commits.  See #3034.
+    ([head (magit-rev-parse "--short" "HEAD")]
+     [head-len (length head)]
+     (min head-len
+          (if-let ((rev (magit-rev-parse "--short" "HEAD~")))
+              (length rev)
+            head-len)))
+    ;; We're on an unborn branch, but perhaps the repository has
+    ;; other commits.  See #4123.
+    ([commits (magit-git-lines "rev-list" "-n2" "--all" "--abbrev-commit")]
+     (apply #'min (mapcar #'length commits)))
+    ;; A commit does not exist.  Fall back to the default of 7.
+    (7)))
 
 (defun magit-abbrev-arg (&optional arg)
   (format "--%s=%d" (or arg "abbrev") (magit-abbrev-length)))
@@ -2432,18 +2429,18 @@ and this option only controls what face is used.")
                                     magit-branch-local)))))
              (t
               (push (concat push name) combined)))))
-        (when (and target (not upstream))
-          (if (member target remotes)
-              (progn
-                (magit--add-face-text-property
-                 0 (length target) 'magit-branch-upstream nil target)
-                (setq upstream target)
-                (setq remotes  (delete target remotes)))
-            (when-let ((target (car (member target combined))))
-              (magit--add-face-text-property
-               0 (length target) 'magit-branch-upstream nil target)
-              (setq upstream target)
-              (setq combined (delete target combined))))))
+        (cond-let
+          ((or upstream (not target)))
+          ((member target remotes)
+           (magit--add-face-text-property
+            0 (length target) 'magit-branch-upstream nil target)
+           (setq upstream target)
+           (setq remotes (delete target remotes)))
+          ([target (car (member target combined))]
+           (magit--add-face-text-property
+            0 (length target) 'magit-branch-upstream nil target)
+           (setq upstream target)
+           (setq combined (delete target combined)))))
       (string-join (flatten-tree `(,state
                                    ,head
                                    ,upstream

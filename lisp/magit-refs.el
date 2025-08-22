@@ -356,22 +356,16 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (defun magit-show-refs-arguments (&optional use-buffer-args)
   (unless use-buffer-args
     (setq use-buffer-args magit-direct-use-buffer-arguments))
-  (let (args)
-    (cond
-     ((eq transient-current-command 'magit-show-refs)
-      (setq args (transient-args 'magit-show-refs)))
-     ((eq major-mode 'magit-refs-mode)
-      (setq args magit-buffer-arguments))
-     ((and (memq use-buffer-args '(always selected))
-           (and-let ((buffer (magit-get-mode-buffer
-                              'magit-refs-mode nil
-                              (eq use-buffer-args 'selected))))
-             (progn
-               (setq args (buffer-local-value 'magit-buffer-arguments buffer))
-               t))))
-     (t
-      (setq args (alist-get 'magit-show-refs transient-values))))
-    args))
+  (cond-let*
+    ((eq transient-current-command 'magit-show-refs)
+     (transient-args 'magit-show-refs))
+    ((eq major-mode 'magit-refs-mode)
+     magit-buffer-arguments)
+    ([_(memq use-buffer-args '(always selected))]
+     [buffer (magit-get-mode-buffer 'magit-refs-mode nil
+                                    (eq use-buffer-args 'selected))]
+     (buffer-local-value 'magit-buffer-arguments buffer))
+    ((alist-get 'magit-show-refs transient-values))))
 
 (transient-define-argument magit-for-each-ref:--contains ()
   :description "Contains"

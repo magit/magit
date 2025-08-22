@@ -445,11 +445,12 @@ Where applicable, other keymaps remap this command to another,
 which actually visits the thing at point."
   (declare (completion ignore))
   (interactive)
-  (if (eq transient-current-command 'magit-dispatch)
-      (call-interactively (key-binding (this-command-keys)))
-    (if-let ((url (thing-at-point 'url t)))
-        (browse-url url)
-      (user-error "There is no thing at point that could be visited"))))
+  (cond-let
+    ((eq transient-current-command 'magit-dispatch)
+     (call-interactively (key-binding (this-command-keys))))
+    ([url (thing-at-point 'url t)]
+     (browse-url url))
+    ((user-error "There is no thing at point that could be visited"))))
 
 (defun magit-edit-thing ()
   "This is a placeholder command, which may signal an error if called.
@@ -956,32 +957,33 @@ and another unlocked buffer already exists for that mode and
 repository, then the former buffer is instead deleted and the
 latter is displayed in its place."
   (interactive)
-  (if magit-buffer-locked-p
-      (if-let ((unlocked (magit-get-mode-buffer major-mode)))
-          (let ((locked (current-buffer)))
-            (switch-to-buffer unlocked nil t)
-            (kill-buffer locked))
-        (setq magit-buffer-locked-p nil)
-        (let ((name (funcall magit-generate-buffer-name-function major-mode))
-              (buffer (current-buffer))
-              (mode major-mode))
-          (rename-buffer (generate-new-buffer-name name))
-          (with-temp-buffer
-            (magit--maybe-uniquify-buffer-names buffer name mode))))
-    (if-let ((value (magit-buffer-value)))
-        (if-let ((locked (magit-get-mode-buffer major-mode value)))
-            (let ((unlocked (current-buffer)))
-              (switch-to-buffer locked nil t)
-              (kill-buffer unlocked))
-          (setq magit-buffer-locked-p t)
-          (let ((name (funcall magit-generate-buffer-name-function
-                               major-mode value))
-                (buffer (current-buffer))
-                (mode major-mode))
-            (rename-buffer (generate-new-buffer-name name))
-            (with-temp-buffer
-              (magit--maybe-uniquify-buffer-names buffer name mode))))
-      (user-error "Buffer has no value it could be locked to"))))
+  (cond-let
+    (magit-buffer-locked-p
+     (if-let ((unlocked (magit-get-mode-buffer major-mode)))
+         (let ((locked (current-buffer)))
+           (switch-to-buffer unlocked nil t)
+           (kill-buffer locked))
+       (setq magit-buffer-locked-p nil)
+       (let ((name (funcall magit-generate-buffer-name-function major-mode))
+             (buffer (current-buffer))
+             (mode major-mode))
+         (rename-buffer (generate-new-buffer-name name))
+         (with-temp-buffer
+           (magit--maybe-uniquify-buffer-names buffer name mode)))))
+    ([value (magit-buffer-value)]
+     (if-let ((locked (magit-get-mode-buffer major-mode value)))
+         (let ((unlocked (current-buffer)))
+           (switch-to-buffer locked nil t)
+           (kill-buffer unlocked))
+       (setq magit-buffer-locked-p t)
+       (let ((name (funcall magit-generate-buffer-name-function
+                            major-mode value))
+             (buffer (current-buffer))
+             (mode major-mode))
+         (rename-buffer (generate-new-buffer-name name))
+         (with-temp-buffer
+           (magit--maybe-uniquify-buffer-names buffer name mode)))))
+    ((user-error "Buffer has no value it could be locked to"))))
 
 ;;; Bury Buffer
 
@@ -1152,17 +1154,17 @@ The arguments are for internal use."
     (if window
         (with-selected-window window
           (magit-section-goto-successor section line char)
-          (cond
-           ((derived-mode-p 'magit-log-mode))
-           ((or (not window-start)
-                (> window-start (point))))
-           ((magit-section-equal ws-section (magit-section-at window-start))
-            (set-window-start window window-start t))
-           ((when-let ((pos (save-excursion
-                              (and (magit-section-goto-successor--same
-                                    ws-section ws-line 0)
-                                   (point)))))
-              (set-window-start window pos t)))))
+          (cond-let
+            ((derived-mode-p 'magit-log-mode))
+            ((or (not window-start)
+                 (> window-start (point))))
+            ((magit-section-equal ws-section (magit-section-at window-start))
+             (set-window-start window window-start t))
+            ([pos (save-excursion
+                    (and (magit-section-goto-successor--same
+                          ws-section ws-line 0)
+                         (point)))]
+             (set-window-start window pos t))))
       ;; We must make sure this does not call `set-window-start',
       ;; which the HUNK METHOD does by calling `magit-section-goto'
       ;; because that runs the `magit-section-goto-successor-hook'
@@ -1490,13 +1492,13 @@ Unless specified, REPOSITORY is the current buffer's repository."
 Unless specified, REPOSITORY is the current buffer's repository.
 If REPOSITORY is `all', then delete the value for KEY for all
 repositories."
-  (if (eq repository 'all)
-      (dolist (cache magit-repository-local-cache)
-        (setf cache (compat-call assoc-delete-all key cache)))
-    (when-let ((cache (assoc (or repository
-                                 (magit-repository-local-repository))
-                             magit-repository-local-cache)))
-      (setf cache (compat-call assoc-delete-all key cache)))))
+  (cond-let
+    ((eq repository 'all)
+     (dolist (cache magit-repository-local-cache)
+       (setf cache (compat-call assoc-delete-all key cache))))
+    ([cache (assoc (or repository (magit-repository-local-repository))
+                   magit-repository-local-cache)]
+     (setf cache (compat-call assoc-delete-all key cache)))))
 
 (defmacro magit--with-repository-local-cache (key &rest body)
   (declare (indent 1) (debug (form body)))

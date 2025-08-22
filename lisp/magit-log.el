@@ -413,28 +413,20 @@ commits before and half after."
           ('nil    magit-direct-use-buffer-arguments)
           ((or 'always 'selected 'current 'never)
            use-buffer-args)))
-  (let (args files)
-    (cond
-     ((and (memq use-buffer-args '(always selected current))
-           (eq major-mode mode))
-      (setq args  magit-buffer-log-args)
-      (setq files magit-buffer-log-files))
-     ((when-let ((_(memq use-buffer-args '(always selected)))
-                 (buffer (magit-get-mode-buffer
-                          mode nil
-                          (eq use-buffer-args 'selected))))
-        (setq args  (buffer-local-value 'magit-buffer-log-args buffer))
-        (setq files (buffer-local-value 'magit-buffer-log-files buffer))
-        t))
-     ((plist-member (symbol-plist mode) 'magit-log-current-arguments)
-      (setq args (get mode 'magit-log-current-arguments)))
-     ((when-let ((elt (assq (intern (format "magit-log:%s" mode))
-                            transient-values)))
-        (setq args (cdr elt))
-        t))
-     (t
-      (setq args (get mode 'magit-log-default-arguments))))
-    (list args files)))
+  (cond-let
+    ((and (memq use-buffer-args '(always selected current))
+          (eq major-mode mode))
+     (list magit-buffer-log-args
+           magit-buffer-log-files))
+    ([_(memq use-buffer-args '(always selected))]
+     [buffer (magit-get-mode-buffer mode nil (eq use-buffer-args 'selected))]
+     (list (buffer-local-value 'magit-buffer-log-args buffer)
+           (buffer-local-value 'magit-buffer-log-files buffer)))
+    ((plist-member (symbol-plist mode) 'magit-log-current-arguments)
+     (list (get mode 'magit-log-current-arguments) nil))
+    ([elt (assq (intern (format "magit-log:%s" mode)) transient-values)]
+     (list (cdr elt) nil))
+    ((list (get mode 'magit-log-default-arguments) nil))))
 
 (defun magit-log--set-value (obj &optional save)
   (pcase-let* ((obj  (oref obj prototype))

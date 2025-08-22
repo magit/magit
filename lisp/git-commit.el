@@ -796,16 +796,16 @@ Save current message first."
 (defun git-commit-save-message ()
   "Save current message to `log-edit-comment-ring'."
   (interactive)
-  (if-let ((message (git-commit-buffer-message)))
-      (progn
-        (when-let ((index (ring-member log-edit-comment-ring message)))
-          (ring-remove log-edit-comment-ring index))
-        (ring-insert log-edit-comment-ring message)
-        (when git-commit-use-local-message-ring
-          (magit-repository-local-set 'log-edit-comment-ring
-                                      log-edit-comment-ring))
-        (message "Message saved"))
-    (message "Only whitespace and/or comments; message not saved")))
+  (cond-let
+    ([message (git-commit-buffer-message)]
+     (when-let ((index (ring-member log-edit-comment-ring message)))
+       (ring-remove log-edit-comment-ring index))
+     (ring-insert log-edit-comment-ring message)
+     (when git-commit-use-local-message-ring
+       (magit-repository-local-set 'log-edit-comment-ring
+                                   log-edit-comment-ring))
+     (message "Message saved"))
+    ((message "Only whitespace and/or comments; message not saved"))))
 
 (defun git-commit-prepare-message-ring ()
   (make-local-variable 'log-edit-comment-ring-index)

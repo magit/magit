@@ -672,42 +672,41 @@ a hunk, then strip the diff marker column and keep only either
 the added or removed lines, depending on the sign of the prefix
 argument."
   (interactive "P")
-  (cond
-   ((and arg
-         (magit-section-internal-region-p)
-         (magit-section-match 'hunk))
-    (kill-new
-     (thread-last (buffer-substring-no-properties
-                   (region-beginning)
-                   (region-end))
-       (replace-regexp-in-string
-        (format "^\\%c.*\n?" (if (< (prefix-numeric-value arg) 0) ?+ ?-))
-        "")
-       (replace-regexp-in-string "^[ +-]" "")))
-    (deactivate-mark))
-   ((use-region-p)
-    (call-interactively #'copy-region-as-kill))
-   (t
-    (when-let* ((section (magit-current-section))
-                (value (oref section value)))
-      (magit-section-case
-        ((branch commit module-commit tag)
-         (let ((default-directory default-directory) ref)
-           (magit-section-case
-             ((branch tag)
-              (setq ref value))
-             (module-commit
-              (setq default-directory
-                    (file-name-as-directory
-                     (expand-file-name (magit-section-parent-value section)
-                                       (magit-toplevel))))))
-           (setq value (magit-rev-parse
-                        (and magit-copy-revision-abbreviated "--short")
-                        value))
-           (push (list value default-directory) magit-revision-stack)
-           (kill-new (message "%s" (or (and current-prefix-arg ref)
-                                       value)))))
-        (t (kill-new (message "%s" value))))))))
+  (cond-let*
+    ((and arg
+          (magit-section-internal-region-p)
+          (magit-section-match 'hunk))
+     (kill-new
+      (thread-last (buffer-substring-no-properties
+                    (region-beginning)
+                    (region-end))
+        (replace-regexp-in-string
+         (format "^\\%c.*\n?" (if (< (prefix-numeric-value arg) 0) ?+ ?-))
+         "")
+        (replace-regexp-in-string "^[ +-]" "")))
+     (deactivate-mark))
+    ((use-region-p)
+     (call-interactively #'copy-region-as-kill))
+    ([section (magit-current-section)]
+     [value (oref section value)]
+     (magit-section-case
+       ((branch commit module-commit tag)
+        (let ((default-directory default-directory) ref)
+          (magit-section-case
+            ((branch tag)
+             (setq ref value))
+            (module-commit
+             (setq default-directory
+                   (file-name-as-directory
+                    (expand-file-name (magit-section-parent-value section)
+                                      (magit-toplevel))))))
+          (setq value (magit-rev-parse
+                       (and magit-copy-revision-abbreviated "--short")
+                       value))
+          (push (list value default-directory) magit-revision-stack)
+          (kill-new (message "%s" (or (and current-prefix-arg ref)
+                                      value)))))
+       (t (kill-new (message "%s" value)))))))
 
 ;;;###autoload
 (defun magit-copy-buffer-revision ()
@@ -736,22 +735,23 @@ When `magit-copy-revision-abbreviated' is non-nil, save the
 abbreviated revision to the `kill-ring' and the
 `magit-revision-stack'."
   (interactive)
-  (if (use-region-p)
-      (call-interactively #'copy-region-as-kill)
-    (when-let ((rev (or magit-buffer-revision
-                        (cl-case major-mode
-                          (magit-diff-mode
-                           (if (string-match "\\.\\.\\.?\\(.+\\)"
-                                             magit-buffer-range)
-                               (match-str 1 magit-buffer-range)
-                             magit-buffer-range))
-                          (magit-status-mode "HEAD")))))
-      (when (magit-commit-p rev)
-        (setq rev (magit-rev-parse
-                   (and magit-copy-revision-abbreviated "--short")
-                   rev))
-        (push (list rev default-directory) magit-revision-stack)
-        (kill-new (message "%s" rev))))))
+  (cond-let*
+    ((use-region-p)
+     (call-interactively #'copy-region-as-kill))
+    ([rev (or magit-buffer-revision
+              (cl-case major-mode
+                (magit-diff-mode
+                 (if (string-match "\\.\\.\\.?\\(.+\\)"
+                                   magit-buffer-range)
+                     (match-str 1 magit-buffer-range)
+                   magit-buffer-range))
+                (magit-status-mode "HEAD")))]
+     [_(magit-commit-p rev)]
+     (setq rev (magit-rev-parse
+                (and magit-copy-revision-abbreviated "--short")
+                rev))
+     (push (list rev default-directory) magit-revision-stack)
+     (kill-new (message "%s" rev)))))
 
 ;;; Buffer Switching
 

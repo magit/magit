@@ -362,15 +362,15 @@ BATCH is non-nil, in which case nil is returned.  Non-nil
 BATCH also ignores commented lines."
   (save-excursion
     (goto-char (line-beginning-position))
-    (if-let* ((re-start (if batch
-                            "^"
-                          (format "^\\(?99:%s\\)? *"
-                                  (regexp-quote comment-start))))
-              (type (seq-some (pcase-lambda (`(,type . ,re))
-                                (let ((case-fold-search nil))
-                                  (and (looking-at (concat re-start re)) type)))
-                              git-rebase-line-regexps)))
-        (git-rebase-action
+    (cond-let*
+      ([re-start (if batch
+                     "^"
+                   (format "^\\(?99:%s\\)? *" (regexp-quote comment-start)))]
+       [type (seq-some (pcase-lambda (`(,type . ,re))
+                         (let ((case-fold-search nil))
+                           (and (looking-at (concat re-start re)) type)))
+                       git-rebase-line-regexps)]
+       (git-rebase-action
          :action-type    type
          :action         (and-let ((action (match-str 1)))
                            (or (cdr (assoc action git-rebase-short-options))
@@ -378,10 +378,10 @@ BATCH also ignores commented lines."
          :action-options (match-str 2)
          :target         (match-str 3)
          :trailer        (match-str 5)
-         :comment-p      (and (match-str 99) t))
-      (and (not batch)
-           ;; Use empty object rather than nil to ease handling.
-           (git-rebase-action)))))
+         :comment-p      (and (match-str 99) t)))
+      ((not batch)
+       ;; Use empty object rather than nil to ease handling.
+       (git-rebase-action)))))
 
 (defun git-rebase-set-action (action)
   "Set action of commit line to ACTION.

@@ -172,21 +172,21 @@ then also remove the respective remote branch."
              (format "Do you really want to merge `%s' into another branch? "
                      branch))
       (user-error "Abort")))
-  (if-let ((target (magit-get-push-branch branch t)))
-      (progn
-        (magit-git-push branch target (list "--force-with-lease"))
-        (set-process-sentinel
-         magit-this-process
-         (lambda (process event)
-           (when (memq (process-status process) '(exit signal))
-             (if (not (zerop (process-exit-status process)))
-                 (magit-process-sentinel process event)
-               (process-put process 'inhibit-refresh t)
-               (magit-process-sentinel process event)
-               (magit--merge-absorb-1 branch args))
-             (when message
-               (message message))))))
-    (magit--merge-absorb-1 branch args)))
+  (cond-let
+    ([target (magit-get-push-branch branch t)]
+     (magit-git-push branch target (list "--force-with-lease"))
+     (set-process-sentinel
+      magit-this-process
+      (lambda (process event)
+        (when (memq (process-status process) '(exit signal))
+          (if (not (zerop (process-exit-status process)))
+              (magit-process-sentinel process event)
+            (process-put process 'inhibit-refresh t)
+            (magit-process-sentinel process event)
+            (magit--merge-absorb-1 branch args))
+          (when message
+            (message message))))))
+    ((magit--merge-absorb-1 branch args))))
 
 (defun magit--merge-absorb-1 (branch args)
   (if-let ((pr (magit-get "branch" branch "pullRequest")))

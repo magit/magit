@@ -498,13 +498,14 @@ or, failing that, the abbreviated HEAD commit hash."
                 (if-let ((branch (magit-get-current-branch)))
                     (propertize branch 'font-lock-face 'magit-branch-local)
                   (propertize "(detached)" 'font-lock-face 'warning))))
-              (if-let ((desc (magit-git-string "describe" "--tags")))
-                  (progn (when (and magit-modules-overview-align-numbers
-                                    (string-match-p "\\`[0-9]" desc))
-                           (insert ?\s))
-                         (insert (propertize desc 'font-lock-face 'magit-tag)))
-                (when-let ((abbrev (magit-rev-format "%h")))
-                  (insert (propertize abbrev 'font-lock-face 'magit-hash)))))
+              (cond-let
+                ([desc (magit-git-string "describe" "--tags")]
+                 (when (and magit-modules-overview-align-numbers
+                            (string-match-p "\\`[0-9]" desc))
+                   (insert ?\s))
+                 (insert (propertize desc 'font-lock-face 'magit-tag)))
+                ([abbrev (magit-rev-format "%h")]
+                 (insert (propertize abbrev 'font-lock-face 'magit-hash)))))
             (insert ?\n))))))
   (insert ?\n))
 
