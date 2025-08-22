@@ -576,7 +576,7 @@ standard output even in case of an error."
         (exit (magit--git-insert (and keep-error 'full) args)))
     (when (stringp exit)
       (goto-char beg)
-      (insert (propertize exit 'face 'error))
+      (insert (magit--propertize-face exit 'error))
       (insert (if (bolp) "\n" "\n\n")))
     (if (= (point) beg)
         (magit-cancel-section)

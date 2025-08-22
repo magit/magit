@@ -2266,13 +2266,13 @@ keymap is the parent of their keymaps."
         (while (looking-at "^gpg: ")
           (cond
            ((looking-at "^gpg: Good signature from")
-            (setq title (propertize
+            (setq title (magit--propertize-face
                          (buffer-substring (point) (line-end-position))
-                         'face 'magit-signature-good)))
+                         'magit-signature-good)))
            ((looking-at "^gpg: Can't check signature")
-            (setq title (propertize
+            (setq title (magit--propertize-face
                          (buffer-substring (point) (line-end-position))
-                         'face '(italic bold)))))
+                         '(italic bold)))))
           (forward-line))
         (setq end (point-marker)))
       (magit-insert-section (signature object title)
@@ -2477,10 +2477,10 @@ keymap is the parent of their keymaps."
              (format " (%s)" (if binary "binary" long-status)))))
     (when modes
       (magit-insert-section (hunk '(chmod))
-        (magit-insert-heading (propertize modes 'face 'default))))
+        (magit-insert-heading (magit--propertize-face modes 'default))))
     (when rename
       (magit-insert-section (hunk '(rename))
-        (magit-insert-heading (propertize rename 'face 'default))))
+        (magit-insert-heading (magit--propertize-face rename 'default))))
     (magit-wash-sequence #'magit-diff-wash-hunk)))
 
 (defun magit-format-file (kind file face &optional status orig)

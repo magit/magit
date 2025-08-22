@@ -784,7 +784,8 @@ Magit status buffer."
                                                       default-directory))))
                        (concat (file-relative-name pwd default-directory) " "))
                   (magit-process--format-arguments program args))))
-        (magit-insert-heading (if face (propertize cmd 'face face) cmd)))
+        (magit-insert-heading
+          (if face (magit--propertize-face cmd face) cmd)))
       (when errlog
         (if (bufferp errlog)
             (insert (with-current-buffer errlog

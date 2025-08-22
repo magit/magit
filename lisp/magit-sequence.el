@@ -1118,9 +1118,9 @@ status buffer (i.e., the reverse of how they will be applied)."
 (defun magit-sequence-insert-commit (type hash face &optional abbrev msg)
   (magit-insert-section (commit hash)
     (magit-insert-heading
-      (propertize type 'font-lock-face face) " "
+      (magit--propertize-face type face) " "
       (if abbrev
-          (concat (propertize abbrev 'face 'magit-hash) " " msg "\n")
+          (concat (magit--propertize-face abbrev 'magit-hash) " " msg "\n")
         (concat (magit-format-rev-summary hash) "\n")))))
 
 (defun magit-sequence-insert-step (type target)
