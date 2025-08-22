@@ -1386,11 +1386,16 @@ Do not add this to a hook variable."
                 ('stash      magit-log-stash-re)
                 ('bisect-vis magit-log-bisect-vis-re)
                 ('bisect-log magit-log-bisect-log-re)))
-  (magit-bind-match-strings
-      (hash msg refs graph author date gpg cherry _ refsub side) nil
-    (setq msg (substring-no-properties msg))
-    (when refs
-      (setq refs (substring-no-properties refs)))
+  (let ((hash   (match-str 1))
+        (msg    (match-str 2))
+        (refs   (match-str 3))
+        (graph  (match-string 4))
+        (author (match-str 5))
+        (date   (match-str 6))
+        (gpg    (match-str 7))
+        (cherry (match-str 8))
+        (refsub (match-str 10))
+        (side   (match-str 11)))
     (let ((align (or (eq style 'cherry)
                      (not (member "--stat" magit-buffer-log-args))))
           (non-graph-re (if (eq style 'bisect-vis)
@@ -1506,7 +1511,7 @@ Do not add this to a hook variable."
               (save-excursion
                 (forward-line -1)
                 (looking-at "[-_/|\\*o<>. ]*"))
-              (setq graph (match-str 0))
+              (setq graph (match-string 0))
               (unless (string-match-p "[/\\.]" graph)
                 (insert graph ?\n))))))))
   t)
