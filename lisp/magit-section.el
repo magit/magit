@@ -428,11 +428,9 @@ Magit-Section is documented in info node `(magit-section)'."
   (buffer-disable-undo)
   (setq truncate-lines t)
   (setq buffer-read-only t)
-  (setq-local line-move-visual t) ; see #1771
-  ;; Turn off syntactic font locking, but not by setting
-  ;; `font-lock-defaults' because that would enable font locking, and
-  ;; not all magit plugins may be ready for that (see #3950).
-  (setq-local font-lock-keywords-only t)
+  (setq-local line-move-visual t) ; See #1771.
+  ;; Turn off syntactic font locking.  See #5420.
+  (setq-local font-lock-defaults '(nil t))
   (setq show-trailing-whitespace nil)
   (setq-local symbol-overlay-inhibit-map t)
   (setq list-buffers-directory (abbreviate-file-name default-directory))
