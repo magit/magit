@@ -1084,7 +1084,7 @@ the following commands.
 
 The section movement commands described here run the hook
 @code{magit-section-movement-hook}.  Note that they explicitly run that hook
-and that aribrary other movement, defined in Emacs and other packages,
+and that arbitrary other movement, defined in Emacs and other packages,
 do not run that hook.  That hook, and hook functions that can be added
 to it, or are part of its default value, are described below.
 
