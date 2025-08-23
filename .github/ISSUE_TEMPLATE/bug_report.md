@@ -42,7 +42,7 @@ to save a shell command to the `kill-ring` and the system's clip-board, which yo
 Finally, if that didn't work and you have installed Magit from Melpa, then run commands similar to the ones above, but use tab completion to replace the various Ns with the correct versions:
 
     $ cd ~/.emacs.d/elpa/magit-N
-    $ emacs -Q --debug-init --eval '(setq debug-on-error t)' -L ../llama-N -L ../seq-N -L ../transient-N -L ../with-editor-N -L . -l magit
+    $ emacs -Q --debug-init --eval '(setq debug-on-error t)' -L ../cond-let-N -L ../llama-N -L ../magit-section -L ../seq-N -L ../transient-N -L ../with-editor-N -L . -l magit
 
 More debugging tools are described in the manual.
 

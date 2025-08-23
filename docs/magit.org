@@ -153,8 +153,8 @@ Now see [[*Post-Installation Tasks]].
 
 ** Installing from the Git Repository
 
-Magit depends on the ~compat~, ~llama~, ~seq~ (the built-in version is
-enough when using Emacs >= 29.1), ~transient~ and ~with-editor~ libraries
+Magit depends on the ~compat~, ~cond-let~, ~llama~, ~seq~ (the built-in version
+is enough when using Emacs >= 29.1), ~transient~ and ~with-editor~ libraries
 which are available from Melpa and Melpa-Stable.  Install them using
 ~M-x package-install RET <package> RET~.  Of course you may also install
 them manually from their repository.
@@ -172,15 +172,16 @@ Then compile the libraries and generate the info manuals:
   $ make
 #+end_src
 
-If you haven't installed ~compat~, ~llama~, ~seq~ (for Emacs < 29.1),
-~transient~ and ~with-editor~ from Melpa, or at
-~/path/to/magit/../<package>~, then you have to tell ~make~ where to
-find them.  To do so create the file ~/path/to/magit/config.mk~
-with the following content before running ~make~:
+If you haven't installed ~compat~, ~cond-let~, ~llama~, ~seq~
+(only for Emacs 28), ~transient~ and ~with-editor~ from Melpa, or at
+~/path/to/magit/../<package>~, then you have to tell ~make~ where to find
+them.  To do so create the file ~/path/to/magit/config.mk~ with the
+following content before running ~make~:
 
 #+begin_src makefile
   LOAD_PATH  = -L ~/.emacs.d/site-lisp/magit/lisp
   LOAD_PATH += -L ~/.emacs.d/site-lisp/compat
+  LOAD_PATH += -L ~/.emacs.d/site-lisp/cond-let
   LOAD_PATH += -L ~/.emacs.d/site-lisp/llama
   LOAD_PATH += -L ~/.emacs.d/site-lisp/seq
   LOAD_PATH += -L ~/.emacs.d/site-lisp/transient/lisp
@@ -203,6 +204,7 @@ you have to tell Emacs about them too, by prefixing the above with:
 
 #+begin_src emacs-lisp
   (add-to-list 'load-path "~/.emacs.d/site-lisp/compat")
+  (add-to-list 'load-path "~/.emacs.d/site-lisp/cond-let")
   (add-to-list 'load-path "~/.emacs.d/site-lisp/llama")
   (add-to-list 'load-path "~/.emacs.d/site-lisp/seq")
   (add-to-list 'load-path "~/.emacs.d/site-lisp/transient/lisp")

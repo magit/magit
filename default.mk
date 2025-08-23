@@ -147,7 +147,7 @@ ifeq "$(COMPAT_DIR)" ""
 endif
 
 COND_LET_DIR ?= $(shell \
-  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/compat-[.0-9]*' 2> /dev/null | \
+  find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/cond-let-[.0-9]*' 2> /dev/null | \
   sort | tail -n 1)
 ifeq "$(COND_LET_DIR)" ""
   COND_LET_DIR = $(TOP)../cond-let
@@ -192,7 +192,7 @@ endif
 
 LOAD_PATH = -L $(TOP)lisp
 
-# When making changes here, then don't forget to adjust "default.mk"
+# When making changes here, then don't forget to adjust DEPS below,
 # ".github/ISSUE_TEMPLATE/bug_report.md", `magit-emacs-Q-command' and
 # the "Installing from the Git Repository" info node accordingly.
 # Also don't forget to "rgrep \b<pkg>\b".
