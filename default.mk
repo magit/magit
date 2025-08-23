@@ -193,9 +193,12 @@ endif
 LOAD_PATH = -L $(TOP)lisp
 
 # When making changes here, then don't forget to adjust DEPS below,
-# ".github/ISSUE_TEMPLATE/bug_report.md", `magit-emacs-Q-command' and
-# the "Installing from the Git Repository" info node accordingly.
-# Also don't forget to "rgrep \b<pkg>\b".
+# ".github/ISSUE_TEMPLATE/bug_report.md", `magit-emacs-Q-command'
+# and the "Installing from the Git Repository" info node accordingly.
+# Also run "rgrep \b<another-package\b", to find other places where
+# a newly added dependency might have to be mentioned as well.  Also
+# remember that DEPS of packages that depend on Magit also have to
+# be updated.
 
 ifdef CYGPATH
   LOAD_PATH += -L $(shell cygpath --mixed $(COMPAT_DIR))
