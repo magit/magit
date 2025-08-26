@@ -49,10 +49,27 @@ does not carry to other options."
   :link '(info-link "(magit)Log Margin")
   :group 'magit-log)
 
+;;; Settings
+
+(defvar-local magit-set-buffer-margin-refresh nil)
+
 (defvar-local magit-buffer-margin nil)
 (put 'magit-buffer-margin 'permanent-local t)
 
-(defvar-local magit-set-buffer-margin-refresh nil)
+(defun magit-buffer-margin-p ()
+  (car magit-buffer-margin))
+
+(defun magit-margin-option ()
+  (pcase major-mode
+    ('magit-cherry-mode        'magit-cherry-margin)
+    ('magit-log-mode           'magit-log-margin)
+    ('magit-log-select-mode    'magit-log-select-margin)
+    ('magit-reflog-mode        'magit-reflog-margin)
+    ('magit-refs-mode          'magit-refs-margin)
+    ('magit-stashes-mode       'magit-stashes-margin)
+    ('magit-status-mode        'magit-status-margin)
+    ('forge-notifications-mode 'magit-status-margin)
+    ('forge-topics-mode        'magit-status-margin)))
 
 ;;; Commands
 
@@ -111,21 +128,6 @@ does not carry to other options."
   (magit-set-buffer-margin nil t))
 
 ;;; Core
-
-(defun magit-buffer-margin-p ()
-  (car magit-buffer-margin))
-
-(defun magit-margin-option ()
-  (pcase major-mode
-    ('magit-cherry-mode        'magit-cherry-margin)
-    ('magit-log-mode           'magit-log-margin)
-    ('magit-log-select-mode    'magit-log-select-margin)
-    ('magit-reflog-mode        'magit-reflog-margin)
-    ('magit-refs-mode          'magit-refs-margin)
-    ('magit-stashes-mode       'magit-stashes-margin)
-    ('magit-status-mode        'magit-status-margin)
-    ('forge-notifications-mode 'magit-status-margin)
-    ('forge-topics-mode        'magit-status-margin)))
 
 (defun magit-set-buffer-margin (&optional reset refresh)
   (when-let ((option (magit-margin-option)))
