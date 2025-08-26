@@ -48,7 +48,7 @@
 (defvar magit-refs-focus-column-width)
 (defvar magit-refs-margin)
 (defvar magit-refs-show-commit-count)
-(defvar magit-buffer-margin)
+(defvar magit--right-margin-config)
 (defvar magit-status-margin)
 (defvar magit-status-sections-hook)
 (defvar magit-status-use-buffer-arguments)
@@ -1461,7 +1461,7 @@ Do not add this to a hook variable."
                           (* (string-to-number (match-str 3 date)) 60))))
           (magit-log-format-margin hash author date))
         (when (and (eq style 'cherry)
-                   (magit-buffer-margin-p))
+                   (magit--right-margin-active))
           (apply #'magit-log-format-margin hash
                  (split-string (magit-rev-format "%aN%x00%ct" hash) "\0")))
         (when (and graph
@@ -1620,15 +1620,15 @@ The shortstat style is experimental and rather slow."
   (magit-set-buffer-margin nil t))
 
 (defun magit-log-format-margin (rev author date)
-  (when (magit-margin-option)
+  (when (magit--right-margin-option)
     (if magit-log-margin-show-shortstat
         (magit-log-format-shortstat-margin rev)
       (magit-log-format-author-margin author date))))
 
 (defun magit-log-format-author-margin (author date)
   (pcase-let ((`(,_ ,style ,width ,details ,details-width)
-               (or magit-buffer-margin
-                   (symbol-value (magit-margin-option))
+               (or magit--right-margin-config
+                   (symbol-value (magit--right-margin-option))
                    (error "No margin format specified for %s" major-mode))))
     (magit-make-margin-overlay
      (concat (and details

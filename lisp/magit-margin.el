@@ -51,15 +51,15 @@ does not carry to other options."
 
 ;;; Settings
 
-(defvar-local magit-set-buffer-margin-refresh nil)
+(defvar-local magit--right-margin-delayed nil)
 
-(defvar-local magit-buffer-margin nil)
-(put 'magit-buffer-margin 'permanent-local t)
+(defvar-local magit--right-margin-config nil)
+(put 'magit--right-margin-config 'permanent-local t)
 
-(defun magit-buffer-margin-p ()
-  (car magit-buffer-margin))
+(defun magit--right-margin-active ()
+  (car magit--right-margin-config))
 
-(defun magit-margin-option ()
+(defun magit--right-margin-option ()
   (pcase major-mode
     ('magit-cherry-mode        'magit-cherry-margin)
     ('magit-log-mode           'magit-log-margin)
@@ -88,9 +88,9 @@ does not carry to other options."
   :key "L"
   :transient t
   (interactive)
-  (unless (magit-margin-option)
+  (unless (magit--right-margin-option)
     (user-error "Magit margin isn't supported in this buffer"))
-  (setcar magit-buffer-margin (not (magit-buffer-margin-p)))
+  (setcar magit--right-margin-config (not (magit--right-margin-active)))
   (magit-set-buffer-margin))
 
 (defvar magit-margin-default-time-format nil
@@ -102,15 +102,15 @@ does not carry to other options."
   :key "l"
   :transient t
   (interactive)
-  (unless (magit-margin-option)
+  (unless (magit--right-margin-option)
     (user-error "Magit margin isn't supported in this buffer"))
   ;; This is only suitable for commit margins (there are not others).
-  (setf (cadr magit-buffer-margin)
-        (pcase (cadr magit-buffer-margin)
+  (setf (cadr magit--right-margin-config)
+        (pcase (cadr magit--right-margin-config)
           ('age 'age-abbreviated)
           ('age-abbreviated
            (let ((default (or magit-margin-default-time-format
-                              (cadr (symbol-value (magit-margin-option))))))
+                              (cadr (symbol-value (magit--right-margin-option))))))
              (if (stringp default) default "%Y-%m-%d %H:%M ")))
           (_ 'age)))
   (magit-set-buffer-margin nil t))
@@ -121,24 +121,24 @@ does not carry to other options."
   :key "d"
   :transient t
   (interactive)
-  (unless (magit-margin-option)
+  (unless (magit--right-margin-option)
     (user-error "Magit margin isn't supported in this buffer"))
-  (setf (nth 3 magit-buffer-margin)
-        (not (nth 3 magit-buffer-margin)))
+  (setf (nth 3 magit--right-margin-config)
+        (not (nth 3 magit--right-margin-config)))
   (magit-set-buffer-margin nil t))
 
 ;;; Core
 
 (defun magit-set-buffer-margin (&optional reset refresh)
-  (when-let ((option (magit-margin-option)))
+  (when-let ((option (magit--right-margin-option)))
     (let* ((default (symbol-value option))
            (default-width (nth 2 default)))
-      (when (or reset (not magit-buffer-margin))
-        (setq magit-buffer-margin (copy-sequence default)))
+      (when (or reset (not magit--right-margin-config))
+        (setq magit--right-margin-config (copy-sequence default)))
       (pcase-let ((`(,enable ,style ,_width ,details ,details-width)
-                   magit-buffer-margin))
+                   magit--right-margin-config))
         (when (functionp default-width)
-          (setf (nth 2 magit-buffer-margin)
+          (setf (nth 2 magit--right-margin-config)
                 (funcall default-width style details details-width)))
         (dolist (window (get-buffer-window-list nil nil 0))
           (with-selected-window window
@@ -148,7 +148,7 @@ does not carry to other options."
                            #'magit-set-window-margin nil t)
               (remove-hook 'window-configuration-change-hook
                            #'magit-set-window-margin t))))
-        (when (and enable (or refresh magit-set-buffer-margin-refresh))
+        (when (and enable (or refresh magit--right-margin-delayed))
           (magit-refresh-buffer))))))
 
 (defun magit-set-window-margin (&optional window)
@@ -156,8 +156,8 @@ does not carry to other options."
     (with-selected-window window
       (set-window-margins
        nil (car (window-margins))
-       (and (magit-buffer-margin-p)
-            (nth 2 magit-buffer-margin))))))
+       (and (magit--right-margin-active)
+            (nth 2 magit--right-margin-config))))))
 
 (cl-defun magit-make-margin-overlay (&optional string (previous-line nil sline))
   "Display STRING in the margin of the previous (or current) line.

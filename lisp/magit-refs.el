@@ -314,7 +314,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     (magit-buffer-arguments args)))
 
 (defun magit-refs-refresh-buffer ()
-  (setq magit-set-buffer-margin-refresh (not (magit-buffer-margin-p)))
+  (setq magit--right-margin-delayed (not (magit--right-margin-active)))
   (unless (magit-rev-verify magit-buffer-upstream)
     (setq magit-refs-show-commit-count nil))
   (magit-set-header-line-format
@@ -797,7 +797,7 @@ line is inserted at all."
         (magit-make-margin-overlay)))))
 
 (defun magit-refs--maybe-format-margin (rev)
-  (when (magit-buffer-margin-p)
+  (when (magit--right-margin-active)
     (if-let ((line (magit-rev-format "%cN%x00%ct" rev)))
         (apply #'magit-log-format-margin rev (split-string line "\0"))
       (magit-make-margin-overlay))))
