@@ -187,10 +187,9 @@ that is not the case, propose a message using a reasonable format."
                  (concat (and (string-match magit-release-tag-regexp ptag)
                               (match-str 1 ptag))
                          ver))
-                (t
-                 (read-string
-                  (format "Create release tag (previous was %s): " ptag)
-                  ptag))))
+                ((read-string (format "Create release tag (previous was %s): "
+                                      ptag)
+                              ptag))))
           (ver (and (string-match magit-release-tag-regexp tag)
                     (match-str 2 tag))))
        (list tag

@@ -412,11 +412,10 @@ of its action type."
                    (delete-region beg (+ beg 2))
                  (insert comment-start " ")))
              (forward-line))
-            (t
-             ;; In the case of --rebase-merges, commit lines may have
-             ;; other lines with other action types, empty lines, and
-             ;; "Branch" comments interspersed.  Move along.
-             (forward-line)))))
+            ;; In the case of --rebase-merges, commit lines may have
+            ;; other lines with other action types, empty lines, and
+            ;; "Branch" comments interspersed.  Move along.
+            ((forward-line)))))
        (goto-char
         (if git-rebase-auto-advance
             end-marker
