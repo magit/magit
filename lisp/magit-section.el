@@ -1962,9 +1962,12 @@ When `magit-section-preserve-visibility' is nil, return nil."
   (when (and magit-section-visibility-indicator
              (magit-section-content-p section))
     (let* ((beg (oref section start))
-           (eoh (magit--eol-position beg)))
+           (eoh (magit--eol-position beg))
+           (indicator (if (oref section hidden)
+                          (car magit-section-visibility-indicator)
+                        (cdr magit-section-visibility-indicator))))
       (cond
-       ((symbolp (car-safe magit-section-visibility-indicator))
+       ((symbolp indicator)
         (let ((ov (magit--overlay-at beg 'magit-vis-indicator 'fringe)))
           (unless ov
             (setq ov (make-overlay beg eoh nil t))
@@ -1973,20 +1976,15 @@ When `magit-section-preserve-visibility' is nil, return nil."
           (overlay-put
            ov 'before-string
            (propertize "fringe" 'display
-                       (list 'left-fringe
-                             (if (oref section hidden)
-                                 (car magit-section-visibility-indicator)
-                               (cdr magit-section-visibility-indicator))
-                             'fringe)))))
-       ((stringp (car-safe magit-section-visibility-indicator))
+                       (list 'left-fringe indicator 'fringe)))))
+       ((stringp indicator)
         (let ((ov (magit--overlay-at (1- eoh) 'magit-vis-indicator 'eoh)))
           (cond ((oref section hidden)
                  (unless ov
                    (setq ov (make-overlay (1- eoh) eoh))
                    (overlay-put ov 'evaporate t)
                    (overlay-put ov 'magit-vis-indicator 'eoh))
-                 (overlay-put ov 'after-string
-                              (car magit-section-visibility-indicator)))
+                 (overlay-put ov 'after-string indicator))
                 (ov
                  (delete-overlay ov)))))))))
 
