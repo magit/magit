@@ -57,7 +57,7 @@ does not carry to other options."
 ;;; Commands
 
 (transient-define-prefix magit-margin-settings ()
-  "Change what information is displayed in the margin."
+  "Change what information is displayed in the right margin."
   :info-manual "(magit) Log Margin"
   ["Margin"
    (magit-toggle-margin)
@@ -66,7 +66,7 @@ does not carry to other options."
    (magit-refs-set-show-commit-count)])
 
 (transient-define-suffix magit-toggle-margin ()
-  "Show or hide the Magit margin."
+  "Show or hide the right margin."
   :description "Toggle visibility"
   :key "L"
   :transient t
@@ -80,7 +80,7 @@ does not carry to other options."
   "See https://github.com/magit/magit/pull/4605.")
 
 (transient-define-suffix magit-cycle-margin-style ()
-  "Cycle style used for the Magit margin."
+  "Cycle style used for the right margin."
   :description "Cycle style"
   :key "l"
   :transient t
@@ -99,7 +99,7 @@ does not carry to other options."
   (magit-set-buffer-margin nil t))
 
 (transient-define-suffix magit-toggle-margin-details ()
-  "Show or hide details in the Magit margin."
+  "Show or hide details in the right margin."
   :description "Toggle details"
   :key "d"
   :transient t
