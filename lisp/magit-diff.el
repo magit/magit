@@ -3366,8 +3366,10 @@ actually a `diff' but a `diffstat' section."
          (and (numberp magit-diff-adjust-tab-width)
               (>= magit-diff-adjust-tab-width
                   (nth 7 (file-attributes file)))))
-     (setf (alist-get file magit-diff--tab-width-cache nil nil #'equal)
-           (buffer-local-value 'tab-width (find-file-noselect file))))
+     (let* ((buf (find-file-noselect file))
+            (val (buffer-local-value 'tab-width buf)))
+       (kill-buffer buf)
+       (setf (alist-get file magit-diff--tab-width-cache nil nil #'equal) val)))
     ((prog1 tab-width
        (setf (alist-get file magit-diff--tab-width-cache nil nil #'equal)
              nil))))) ; The buffer is too large.  Don't check size again.
