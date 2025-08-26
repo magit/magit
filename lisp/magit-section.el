@@ -1965,28 +1965,31 @@ When `magit-section-preserve-visibility' is nil, return nil."
            (eoh (magit--eol-position beg))
            (indicator (if (oref section hidden)
                           (car magit-section-visibility-indicator)
-                        (cdr magit-section-visibility-indicator))))
-      (cond
-       ((symbolp indicator)
-        (let ((ov (magit--overlay-at beg 'magit-vis-indicator 'fringe)))
-          (unless ov
-            (setq ov (make-overlay beg eoh nil t))
-            (overlay-put ov 'evaporate t)
-            (overlay-put ov 'magit-vis-indicator 'fringe))
-          (overlay-put
-           ov 'before-string
-           (propertize "fringe" 'display
-                       (list 'left-fringe indicator 'fringe)))))
-       ((stringp indicator)
-        (let ((ov (magit--overlay-at (1- eoh) 'magit-vis-indicator 'eoh)))
-          (cond ((oref section hidden)
-                 (unless ov
-                   (setq ov (make-overlay (1- eoh) eoh))
-                   (overlay-put ov 'evaporate t)
-                   (overlay-put ov 'magit-vis-indicator 'eoh))
-                 (overlay-put ov 'after-string indicator))
-                (ov
-                 (delete-overlay ov)))))))))
+                        (cdr magit-section-visibility-indicator)))
+           (kind (cl-typecase (car magit-section-visibility-indicator)
+                   (symbol    'fringe)
+                   (string    'ellipsis))))
+      (pcase kind
+        ('fringe
+         (let ((ov (magit--overlay-at beg 'magit-vis-indicator 'fringe)))
+           (unless ov
+             (setq ov (make-overlay beg eoh nil t))
+             (overlay-put ov 'evaporate t)
+             (overlay-put ov 'magit-vis-indicator 'fringe))
+           (overlay-put
+            ov 'before-string
+            (propertize "fringe" 'display
+                        `(left-fringe ,indicator fringe)))))
+        ('ellipsis
+         (let ((ov (magit--overlay-at (1- eoh) 'magit-vis-indicator 'eoh)))
+           (cond ((oref section hidden)
+                  (unless ov
+                    (setq ov (make-overlay (1- eoh) eoh))
+                    (overlay-put ov 'evaporate t)
+                    (overlay-put ov 'magit-vis-indicator 'eoh))
+                  (overlay-put ov 'after-string indicator))
+                 (ov
+                  (delete-overlay ov)))))))))
 
 (defvar-local magit--ellipses-sections nil)
 
