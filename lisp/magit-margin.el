@@ -129,35 +129,43 @@ does not carry to other options."
 
 ;;; Core
 
-(defun magit-set-buffer-margins (&optional reset refresh)
-  (when-let ((option (magit--right-margin-option)))
-    (let* ((default (symbol-value option))
-           (default-width (nth 2 default)))
-      (when (or reset (not magit--right-margin-config))
-        (setq magit--right-margin-config (copy-sequence default)))
-      (pcase-let ((`(,enable ,style ,_width ,details ,details-width)
-                   magit--right-margin-config))
-        (when (functionp default-width)
-          (setf (nth 2 magit--right-margin-config)
-                (funcall default-width style details details-width)))
-        (dolist (window (get-buffer-window-list nil nil 0))
-          (with-selected-window window
-            (magit-set-window-margins window)
-            (if enable
-                (add-hook  'window-configuration-change-hook
-                           #'magit-set-window-margins nil t)
-              (remove-hook 'window-configuration-change-hook
-                           #'magit-set-window-margins t))))
-        (when (and enable (or refresh magit--right-margin-delayed))
-          (magit-refresh-buffer))))))
+(defun magit-set-buffer-margins (&optional reset-right refresh-right)
+  (let ((lmargin nil)
+        (rmargin nil)
+        (roption (magit--right-margin-option)))
+    (when (or lmargin roption)
+      (when roption
+        (let* ((default (symbol-value roption))
+               (default-width (nth 2 default)))
+          (when (or reset-right (not magit--right-margin-config))
+            (setq magit--right-margin-config (copy-sequence default)))
+          (pcase-let ((`(,enable ,style ,_width ,details ,details-width)
+                       magit--right-margin-config))
+            (setq rmargin enable)
+            (when (functionp default-width)
+              (setf (nth 2 magit--right-margin-config)
+                    (funcall default-width style details details-width))))))
+      (dolist (window (get-buffer-window-list nil nil 0))
+        (with-selected-window window
+          (magit-set-window-margins window)
+          (if (or lmargin rmargin)
+              (add-hook  'window-configuration-change-hook
+                         #'magit-set-window-margins nil t)
+            (remove-hook 'window-configuration-change-hook
+                         #'magit-set-window-margins t))))
+      (when (and rmargin (or refresh-right magit--right-margin-delayed))
+        (magit-refresh-buffer)))))
 
 (defun magit-set-window-margins (&optional window)
   (when (or window (setq window (get-buffer-window)))
-    (with-selected-window window
-      (set-window-margins
-       nil (car (window-margins))
-       (and (magit--right-margin-active)
-            (nth 2 magit--right-margin-config))))))
+    (pcase-let ((`(,left . ,right) (window-margins)))
+      (with-selected-window window
+        (set-window-margins
+         nil
+         (if (characterp (car magit-section-visibility-indicator)) 1 left)
+         (if (magit--right-margin-active)
+             (nth 2 magit--right-margin-config)
+           right))))))
 
 (cl-defun magit-make-margin-overlay (&optional string (previous-line nil sline))
   "Display STRING in the margin of the previous (or current) line.

@@ -201,7 +201,7 @@ entries of this alist."
   "Whether and how to indicate that a section can be expanded/collapsed.
 
 If nil, then don't show any indicators.
-Otherwise the value has to have one of these two forms:
+Otherwise the value has to have one of these three forms:
 
 \(EXPANDABLE-BITMAP . COLLAPSIBLE-BITMAP)
 
@@ -211,6 +211,11 @@ Otherwise the value has to have one of these two forms:
 
   To provide extra padding around the indicator, set
   `left-fringe-width' in `magit-mode-hook'.
+
+\(EXPANDABLE-CHAR . COLLAPSIBLE-CHAR)
+
+  In this case every section that can be expanded or collapsed
+  gets an indicator in the left margin.
 
 \(STRING . BOOLEAN)
 
@@ -235,6 +240,9 @@ Otherwise the value has to have one of these two forms:
                  (cons  :tag "Use custom fringe indicators"
                         (variable :tag "Expandable bitmap variable")
                         (variable :tag "Collapsible bitmap variable"))
+                 (cons  :tag "Use margin indicators"
+                        (char :tag "Expandable char" ?+)
+                        (char :tag "Collapsible char" ?-))
                  (cons  :tag "Use ellipses at end of headings"
                         (string :tag "Ellipsis" "…")
                         (choice :tag "Use face kludge"
@@ -360,6 +368,24 @@ but that ship has sailed, thus this option."
   "Face used for child counts at the end of some section headings."
   :group 'magit-section-faces)
 
+(defface magit-left-margin '((t :inherit default))
+  "Face used for the left margin.
+
+Currently this is only used for section visibility indicators, and only
+when `magit-section-visibility-indicator' is configured to show them in
+the margin.
+
+Due to limitations of how the margin works in Emacs, this is only used
+for those parts of the margin that actually display an indicator.  For
+that reason you should probably avoid setting the background color.
+
+Reasonable values include ((t)), which causes the indicator to inherit
+the look of the heading (including section highlighting, if any), and
+\((t :inherit default), which prevents that and causes the margin to
+look like regular un-styled text in the buffer.  Building on that, you
+can make it look different, e.g., ((t :inherit default :weight bold)."
+  :group 'magit-section-faces)
+
 ;;; Classes
 
 (defvar magit--current-section-hook nil
@@ -391,9 +417,10 @@ but that ship has sailed, thus this option."
 (defvar-keymap magit-section-heading-map
   :doc "Keymap used in the heading line of all expandable sections.
 This keymap is used in addition to the section-specific keymap, if any."
-  "<double-down-mouse-1>" #'ignore
-  "<double-mouse-1>" #'magit-mouse-toggle-section
-  "<double-mouse-2>" #'magit-mouse-toggle-section)
+  "<double-down-mouse-1>"   #'ignore
+  "<double-mouse-1>"        #'magit-mouse-toggle-section
+  "<double-mouse-2>"        #'magit-mouse-toggle-section
+  "<left-margin> <mouse-1>" #'magit-mouse-toggle-section)
 
 (defvar-keymap magit-section-mode-map
   :doc "Parent keymap for keymaps of modes derived from `magit-section-mode'."
@@ -1968,18 +1995,26 @@ When `magit-section-preserve-visibility' is nil, return nil."
                         (cdr magit-section-visibility-indicator)))
            (kind (cl-typecase (car magit-section-visibility-indicator)
                    (symbol    'fringe)
+                   (character 'margin)
                    (string    'ellipsis))))
       (pcase kind
-        ('fringe
-         (let ((ov (magit--overlay-at beg 'magit-vis-indicator 'fringe)))
+        ((or 'fringe 'margin)
+         (let ((ov (magit--overlay-at beg 'magit-vis-indicator kind)))
            (unless ov
              (setq ov (make-overlay beg eoh nil t))
              (overlay-put ov 'evaporate t)
-             (overlay-put ov 'magit-vis-indicator 'fringe))
+             (overlay-put ov 'magit-vis-indicator kind))
            (overlay-put
             ov 'before-string
-            (propertize "fringe" 'display
-                        `(left-fringe ,indicator fringe)))))
+            (pcase kind
+              ('fringe
+               (propertize "fringe" 'display
+                           `(left-fringe ,indicator fringe)))
+              ('margin
+               (propertize "margin" 'display
+                           `((margin left-margin)
+                             ,(propertize (string indicator)
+                                          'face 'magit-left-margin))))))))
         ('ellipsis
          (let ((ov (magit--overlay-at (1- eoh) 'magit-vis-indicator 'eoh)))
            (cond ((oref section hidden)
