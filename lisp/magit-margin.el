@@ -54,8 +54,6 @@ does not carry to other options."
 
 (defvar-local magit-set-buffer-margin-refresh nil)
 
-(defvar magit--age-spec)
-
 ;;; Commands
 
 (transient-define-prefix magit-margin-settings ()
