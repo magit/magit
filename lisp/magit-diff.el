@@ -3354,30 +3354,23 @@ actually a `diff' but a `diffstat' section."
 (defvar magit-diff--tab-width-cache nil)
 
 (defun magit-diff-tab-width (file)
-  (cl-flet ((cache (file value)
-              (let ((elt (assoc file magit-diff--tab-width-cache)))
-                (if elt
-                    (setcdr elt value)
-                  (setq magit-diff--tab-width-cache
-                        (cons (cons file value)
-                              magit-diff--tab-width-cache))))
-              value))
-    (cond-let
-      ((not magit-diff-adjust-tab-width)
-       tab-width)
-      [[file (expand-file-name file)]]
-      ((and$ (find-buffer-visiting file)
-             (buffer-local-value 'tab-width $)))
-      ((and$ (assoc file magit-diff--tab-width-cache)
-             (or (cdr $) tab-width)))
-      ((or (eq magit-diff-adjust-tab-width 'always)
-           (and (numberp magit-diff-adjust-tab-width)
-                (>= magit-diff-adjust-tab-width
-                    (nth 7 (file-attributes file)))))
-       (cache file (buffer-local-value 'tab-width (find-file-noselect file))))
-      (t
-       (cache file nil)
-       tab-width))))
+  (cond-let
+    ((not magit-diff-adjust-tab-width)
+     tab-width)
+    [[file (expand-file-name file)]]
+    ((and$ (find-buffer-visiting file)
+           (buffer-local-value 'tab-width $)))
+    ((and$ (assoc file magit-diff--tab-width-cache)
+           (or (cdr $) tab-width)))
+    ((or (eq magit-diff-adjust-tab-width 'always)
+         (and (numberp magit-diff-adjust-tab-width)
+              (>= magit-diff-adjust-tab-width
+                  (nth 7 (file-attributes file)))))
+     (setf (alist-get file magit-diff--tab-width-cache nil nil #'equal)
+           (buffer-local-value 'tab-width (find-file-noselect file))))
+    ((prog1 tab-width
+       (setf (alist-get file magit-diff--tab-width-cache nil nil #'equal)
+             nil))))) ; The buffer is too large.  Don't check size again.
 
 (defun magit-diff-paint-tab (merging width)
   (save-excursion
