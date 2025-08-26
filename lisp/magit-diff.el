@@ -3359,7 +3359,8 @@ actually a `diff' but a `diffstat' section."
      tab-width)
     [[file (expand-file-name file)]]
     ((and$ (find-buffer-visiting file)
-           (buffer-local-value 'tab-width $)))
+           (setf (alist-get file magit-diff--tab-width-cache nil nil #'equal)
+                 (buffer-local-value 'tab-width $))))
     ((and$ (assoc file magit-diff--tab-width-cache)
            (or (cdr $) tab-width)))
     ((or (eq magit-diff-adjust-tab-width 'always)
