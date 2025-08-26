@@ -91,7 +91,7 @@ does not carry to other options."
   (unless (magit--right-margin-option)
     (user-error "Magit margin isn't supported in this buffer"))
   (setcar magit--right-margin-config (not (magit--right-margin-active)))
-  (magit-set-buffer-margin))
+  (magit-set-buffer-margins))
 
 (defvar magit-margin-default-time-format nil
   "See https://github.com/magit/magit/pull/4605.")
@@ -113,7 +113,7 @@ does not carry to other options."
                               (cadr (symbol-value (magit--right-margin-option))))))
              (if (stringp default) default "%Y-%m-%d %H:%M ")))
           (_ 'age)))
-  (magit-set-buffer-margin nil t))
+  (magit-set-buffer-margins nil t))
 
 (transient-define-suffix magit-toggle-margin-details ()
   "Show or hide details in the right margin."
@@ -125,11 +125,11 @@ does not carry to other options."
     (user-error "Magit margin isn't supported in this buffer"))
   (setf (nth 3 magit--right-margin-config)
         (not (nth 3 magit--right-margin-config)))
-  (magit-set-buffer-margin nil t))
+  (magit-set-buffer-margins nil t))
 
 ;;; Core
 
-(defun magit-set-buffer-margin (&optional reset refresh)
+(defun magit-set-buffer-margins (&optional reset refresh)
   (when-let ((option (magit--right-margin-option)))
     (let* ((default (symbol-value option))
            (default-width (nth 2 default)))
@@ -142,16 +142,16 @@ does not carry to other options."
                 (funcall default-width style details details-width)))
         (dolist (window (get-buffer-window-list nil nil 0))
           (with-selected-window window
-            (magit-set-window-margin window)
+            (magit-set-window-margins window)
             (if enable
                 (add-hook  'window-configuration-change-hook
-                           #'magit-set-window-margin nil t)
+                           #'magit-set-window-margins nil t)
               (remove-hook 'window-configuration-change-hook
-                           #'magit-set-window-margin t))))
+                           #'magit-set-window-margins t))))
         (when (and enable (or refresh magit--right-margin-delayed))
           (magit-refresh-buffer))))))
 
-(defun magit-set-window-margin (&optional window)
+(defun magit-set-window-margins (&optional window)
   (when (or window (setq window (get-buffer-window)))
     (with-selected-window window
       (set-window-margins
@@ -195,7 +195,7 @@ line is affected."
   (dolist (buffer (buffer-list))
     (with-current-buffer buffer
       (when (eq major-mode mode)
-        (magit-set-buffer-margin t)
+        (magit-set-buffer-margins t)
         (magit-refresh))))
   (message "Updating margins in %s buffers...done" mode))
 

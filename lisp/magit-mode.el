@@ -64,7 +64,7 @@
 
 (defcustom magit-setup-buffer-hook
   (list #'magit-maybe-save-repository-buffers
-        'magit-set-buffer-margin) ; from magit-margin.el
+        'magit-set-buffer-margins) ; from magit-margin.el
   "Hook run by `magit-setup-buffer'.
 
 This is run right after displaying the buffer and right before
@@ -76,7 +76,7 @@ should be used instead of this one."
   :group 'magit-modes
   :type 'hook
   :options (list #'magit-maybe-save-repository-buffers
-                 'magit-set-buffer-margin))
+                 'magit-set-buffer-margins))
 
 (defcustom magit-pre-refresh-hook
   (list #'magit-maybe-save-repository-buffers)

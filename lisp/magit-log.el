@@ -1617,7 +1617,7 @@ The shortstat style is experimental and rather slow."
   (interactive)
   (setq magit-log-margin-show-shortstat
         (not magit-log-margin-show-shortstat))
-  (magit-set-buffer-margin nil t))
+  (magit-set-buffer-margins nil t))
 
 (defun magit-log-format-margin (rev author date)
   (when (magit--right-margin-option)
