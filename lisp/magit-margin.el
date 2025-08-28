@@ -163,9 +163,8 @@ does not carry to other options."
         (set-window-margins
          nil
          (if (characterp (car magit-section-visibility-indicator)) 1 left)
-         (if (magit--right-margin-active)
-             (nth 2 magit--right-margin-config)
-           right))))))
+         (and (magit--right-margin-active)
+              (nth 2 magit--right-margin-config)))))))
 
 (cl-defun magit-make-margin-overlay (&optional string (previous-line nil sline))
   "Display STRING in the margin of the previous (or current) line.
