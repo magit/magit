@@ -158,13 +158,14 @@ does not carry to other options."
 
 (defun magit-set-window-margins (&optional window)
   (when (or window (setq window (get-buffer-window)))
-    (pcase-let ((`(,left . ,right) (window-margins)))
-      (with-selected-window window
-        (set-window-margins
-         nil
-         (if (characterp (car magit-section-visibility-indicator)) 1 left)
-         (and (magit--right-margin-active)
-              (nth 2 magit--right-margin-config)))))))
+    (with-selected-window window
+      (set-window-margins
+       nil
+       (if (characterp (car magit-section-visibility-indicator))
+           1
+         (car (window-margins)))
+       (and (magit--right-margin-active)
+            (nth 2 magit--right-margin-config))))))
 
 (cl-defun magit-make-margin-overlay (&optional string (previous-line nil sline))
   "Display STRING in the margin of the previous (or current) line.
