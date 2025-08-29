@@ -2045,10 +2045,6 @@ use an alternative completion framework.  For example, if you enable
 @code{ivy-mode}, then Magit will respect that, and if you enable @code{helm-mode},
 then you are done too.
 
-However if you want to use Ido, then @code{ido-mode} won't do the trick.  You
-will also have to install the @code{ido-completing-read+} package and use
-@code{magit-ido-completing-read} as @code{magit-completing-read-function}.
-
 @defopt magit-completing-read-function
 The value of this variable is the low-level function used to perform
 completion by code that uses @code{magit-completing-read} (as opposed to
@@ -2066,17 +2062,6 @@ the same.
 @defun magit-builtin-completing-read prompt choices &optional predicate require-match initial-input hist def
 This function performs completion using the built-in @code{completing-read}
 and does some additional magit-specific work.
-@end defun
-
-@defun magit-ido-completing-read prompt choices &optional predicate require-match initial-input hist def
-This function performs completion using @code{ido-completing-read+} from the
-package by the same name (which you have to explicitly install) and
-does some additional magit-specific work.
-
-We have to use @code{ido-completing-read+} instead of the
-@code{ido-completing-read} that comes with Ido itself, because the latter,
-while intended as a drop-in replacement, cannot serve that purpose
-because it violates too many of the implicit conventions.
 @end defun
 
 @defun magit-completing-read prompt choices &optional predicate require-match initial-input hist def fallback
@@ -2550,30 +2535,6 @@ also immediately refresh it, then type @code{C-x g} followed by @code{g}.
 A possible alternative command is @code{magit-display-repository-buffer}.
 It supports displaying any existing Magit buffer that belongs to the
 current repository; not just the status buffer.
-@end deffn
-
-@deffn Command ido-enter-magit-status
-From an Ido prompt used to open a file, instead drop into
-@code{magit-status}.  This is similar to @code{ido-magic-delete-char}, which,
-despite its name, usually causes a Dired buffer to be created.
-
-To make this command available, use something like:
-
-@lisp
-(add-hook 'ido-setup-hook
-          (lambda ()
-            (define-key ido-completion-map
-              (kbd \"C-x g\") 'ido-enter-magit-status)))
-@end lisp
-
-Starting with Emacs 25.1 the Ido keymaps are defined just once
-instead of every time Ido is invoked, so now you can modify it
-like pretty much every other keymap:
-
-@lisp
-(define-key ido-common-completion-map
-  (kbd \"C-x g\") 'ido-enter-magit-status)
-@end lisp
 @end deffn
 
 @anchor{Status Sections}

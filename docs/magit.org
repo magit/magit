@@ -1740,10 +1740,6 @@ use an alternative completion framework.  For example, if you enable
 ~ivy-mode~, then Magit will respect that, and if you enable ~helm-mode~,
 then you are done too.
 
-However if you want to use Ido, then ~ido-mode~ won't do the trick.  You
-will also have to install the ~ido-completing-read+~ package and use
-~magit-ido-completing-read~ as ~magit-completing-read-function~.
-
 - User Option: magit-completing-read-function ::
 
   The value of this variable is the low-level function used to perform
@@ -1762,17 +1758,6 @@ will also have to install the ~ido-completing-read+~ package and use
 
   This function performs completion using the built-in ~completing-read~
   and does some additional magit-specific work.
-
-- Function: magit-ido-completing-read prompt choices &optional predicate require-match initial-input hist def ::
-
-  This function performs completion using ~ido-completing-read+~ from the
-  package by the same name (which you have to explicitly install) and
-  does some additional magit-specific work.
-
-  We have to use ~ido-completing-read+~ instead of the
-  ~ido-completing-read~ that comes with Ido itself, because the latter,
-  while intended as a drop-in replacement, cannot serve that purpose
-  because it violates too many of the implicit conventions.
 
 - Function: magit-completing-read prompt choices &optional predicate require-match initial-input hist def fallback ::
 
@@ -2169,30 +2154,6 @@ that it should be bound globally.  We recommend using ~C-x g~:
   A possible alternative command is ~magit-display-repository-buffer~.
   It supports displaying any existing Magit buffer that belongs to the
   current repository; not just the status buffer.
-
-- Command: ido-enter-magit-status ::
-
-  From an Ido prompt used to open a file, instead drop into
-  ~magit-status~.  This is similar to ~ido-magic-delete-char~, which,
-  despite its name, usually causes a Dired buffer to be created.
-
-  To make this command available, use something like:
-
-  #+BEGIN_SRC emacs-lisp
-    (add-hook 'ido-setup-hook
-              (lambda ()
-                (define-key ido-completion-map
-                  (kbd \"C-x g\") 'ido-enter-magit-status)))
-  #+END_SRC
-
-  Starting with Emacs 25.1 the Ido keymaps are defined just once
-  instead of every time Ido is invoked, so now you can modify it
-  like pretty much every other keymap:
-
-  #+BEGIN_SRC emacs-lisp
-    (define-key ido-common-completion-map
-      (kbd \"C-x g\") 'ido-enter-magit-status)
-  #+END_SRC
 
 *** Status Sections
 
@@ -9655,7 +9616,7 @@ General Public License for more details.
 
 #  LocalWords:  ARG ARGS CONDITIONs ChangeLog DNS Dired Ediff Ediffing
 #  LocalWords:  Elpa Emacsclient FUNC Flyspell Git Git's Gitk HOOK's
-#  LocalWords:  IDENT Ido Junio LocalWords Magit Magit's Magitian Magitians
+#  LocalWords:  IDENT Junio LocalWords Magit Magit's Magitian Magitians
 #  LocalWords:  Melpa Propertize REF REF's RET Reflog SPC SYM Spacemacs
 #  LocalWords:  Submodules TODO TYPEs Theming Unpulled Unpushed Unstaged
 #  LocalWords:  Untracked WORKTREE Wip ack args async autoloads autosaving
@@ -9663,7 +9624,7 @@ General Public License for more details.
 #  LocalWords:  cdr changelog committer config customizable diff's diffstat
 #  LocalWords:  dwim ediff ediffing editmsg emacsclient filename fixup
 #  LocalWords:  flyspell func git's gitk gitman gitmodule gitmodules goto
-#  LocalWords:  gpg gui ident ido init inserter inserters keymap keymaps
+#  LocalWords:  gpg gui ident init inserter inserters keymap keymaps
 #  LocalWords:  logfile magit maildir manpage manpages minibuffer multi mv
 #  LocalWords:  namespace newbase nocommit notesRef posix prev
 #  LocalWords:  propertize rebase rebased rebasing reflog repo signoff str
