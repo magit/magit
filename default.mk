@@ -57,6 +57,8 @@ HTMLDIRS  = $(PKGSTEXI)
 PDFFILES  = $(addsuffix .pdf,$(PKGSTEXI))
 EPUBFILES = $(addsuffix .epub,$(PKGSTEXI))
 
+# When making changes here, also update "<nongnu.git>/elpa-packages".
+
 ELS  = git-commit.el
 ELS += magit-section.el
 ELS += magit-base.el
