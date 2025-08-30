@@ -2519,13 +2519,15 @@ function errors."
                (if (eq kind 'module)
                    (lambda (_) t)
                  (symbol-function dir-is-submodule))))
-      (propertize (concat (and status (format "%-11s" status))
-                          (if orig
-                              (format "%s %s -> %s %s"
-                                      (icon orig) orig
-                                      (icon file) file)
-                            (format "%s %s" (icon file) file)))
-                  'font-lock-face face))))
+      (if orig
+          (format (magit--propertize-face "%s%s %s -> %s %s" face)
+                  (if status (format "%-11s" status) "")
+                  (icon orig) orig
+                  (icon file) file)
+        (format (magit--propertize-face "%s%s %s" face)
+                (if status (format "%-11s" status) "")
+                (icon file)
+                file)))))
 
 (defun magit-diff-wash-submodule ()
   ;; See `show_submodule_summary' in submodule.c and "this" commit.
