@@ -1644,7 +1644,7 @@ Visit the worktree version of the appropriate file.  The location
 of point inside the diff determines which file is being visited.
 
 Unlike `magit-diff-visit-file' always visits the \"real\" file in
-the working tree, i.e the \"current version\" of the file.
+the working tree, i.e., the \"current version\" of the file.
 
 In the file-visiting buffer also go to the line that corresponds
 to the line that point is on in the diff.  Lines that were added

@@ -4811,13 +4811,13 @@ the working tree.
 @end defopt
 
 @table @asis
-@item @kbd{C-<return>} (@code{magit-diff-visit-file-worktree})
+@item @kbd{C-<return>} (@code{magit-diff-visit-worktree-file})
 @kindex C-<return>
-@findex magit-diff-visit-file-worktree
+@findex magit-diff-visit-worktree-file
 This command visits the worktree version of the appropriate file.
 The location of point inside the diff determines which file is being
 visited.  Unlike @code{magit-diff-visit-file} it always visits the "real"
-file in the working tree, i.e the "current version" of the file.
+file in the working tree, i.e., the "current version" of the file.
 
 In the file-visiting buffer this command goes to the line that
 corresponds to the line that point is on in the diff.  Lines that
