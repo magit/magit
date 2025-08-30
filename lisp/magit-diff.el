@@ -2496,32 +2496,29 @@ keymap is the parent of their keymaps."
   "Show the status, filename and icon (using the `all-the-icons' package).
 You have to explicitly install the `all-the-icons' package, else this
 function errors."
-  (cl-flet ((icon (if (or (eq kind 'module) (string-suffix-p "/" file))
-                      'all-the-icons-icon-for-dir
-                    'all-the-icons-icon-for-file)))
-    (cl-letf (((symbol-function 'all-the-icons-dir-is-submodule)
-               (if (eq kind 'module)
-                   (lambda (_) t)
-                 (symbol-function 'all-the-icons-dir-is-submodule))))
-      (propertize (concat (and status (format "%-11s" status))
-                          (if orig
-                              (format "%s %s -> %s %s"
-                                      (icon orig) orig
-                                      (icon file) file)
-                            (format "%s %s" (icon file) file)))
-                  'font-lock-face face))))
+  (magit--get-file-icon kind file face status orig
+                        'all-the-icons-icon-for-file
+                        'all-the-icons-icon-for-dir
+                        'all-the-icons-dir-is-submodule))
 
 (defun magit-format-file-nerd-icons (kind file face &optional status orig)
   "Show the status, filename and icon (using the `nerd-icons' package).
 You have to explicitly install the `nerd-icons' package, else this
 function errors."
+  (magit--get-file-icon kind file face status orig
+                        'nerd-icons-icon-for-file
+                        'nerd-icons-icon-for-dir
+                        'nerd-icons-dir-is-submodule))
+
+(defun magit--get-file-icon ( kind file face status orig
+                              icon-for-file icon-for-dir dir-is-submodule)
   (cl-flet ((icon (if (or (eq kind 'module) (string-suffix-p "/" file))
-                      'nerd-icons-icon-for-dir
-                    'nerd-icons-icon-for-file)))
-    (cl-letf (((symbol-function 'nerd-icons-dir-is-submodule)
+                      icon-for-dir
+                    icon-for-file)))
+    (cl-letf (((symbol-function dir-is-submodule)
                (if (eq kind 'module)
                    (lambda (_) t)
-                 (symbol-function 'nerd-icons-dir-is-submodule))))
+                 (symbol-function dir-is-submodule))))
       (propertize (concat (and status (format "%-11s" status))
                           (if orig
                               (format "%s %s -> %s %s"
