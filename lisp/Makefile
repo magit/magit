@@ -71,8 +71,9 @@ versionlib: $(PKG)-version.el
 	@$(BATCH) --eval "(progn\
 	(when (file-exists-p \"$@\")\
 	  (delete-file \"$@\"))\
-	(setq with-editor-emacsclient-executable nil\
-	))" \
+	(setq with-editor-emacsclient-executable nil)\
+	(when (< emacs-major-version 30)\
+	  (require 'transient)))"\
 	-f batch-byte-compile $<
 
 $(PKG)-autoloads.el: $(ELS)
