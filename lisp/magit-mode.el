@@ -617,7 +617,7 @@ Magit is documented in info node `(magit)'."
 
 (defun magit-buffer-file-name ()
   "Return `magit-buffer-file-name' or if that is nil `buffer-file-name'.
-In an indirect buffer get get the value for its base buffer."
+In an indirect buffer get the value for its base buffer."
   (or magit-buffer-file-name
       (buffer-file-name (buffer-base-buffer))))
 
