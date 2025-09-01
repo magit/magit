@@ -615,6 +615,21 @@ Magit is documented in info node `(magit)'."
 ;; function does not reinstate this.
 (put 'magit-buffer-diff-files-suspended 'permanent-local t)
 
+(defun magit-buffer-file-name ()
+  "Return `magit-buffer-file-name' or if that is nil `buffer-file-name'.
+In an indirect buffer get get the value for its base buffer."
+  (or magit-buffer-file-name
+      (buffer-file-name (buffer-base-buffer))))
+
+(defun magit-buffer-revision ()
+  "Return `magit-buffer-revision' or if that is nil \"{worktree}\".
+If not visiting a blob or file, or the file isn't being tracked,
+return nil."
+  (or magit-buffer-revision
+      (and buffer-file-name
+           (magit-file-tracked-p buffer-file-name)
+           "{worktree}")))
+
 (cl-defgeneric magit-buffer-value ()
   "Return the value of the current buffer.
 The \"value\" identifies what is being displayed in the buffer.
@@ -1580,7 +1595,7 @@ The additional output can be found in the *Messages* buffer."
 The returned value has the form (BEGINNING-LINE END-LINE).  If
 the region end at the beginning of a line, do not include that
 line.  Avoid including the line after the end of the file."
-  (and (or magit-buffer-file-name buffer-file-name)
+  (and (magit-buffer-file-name)
        (region-active-p)
        (not (= (region-beginning) (region-end) (1+ (buffer-size))))
        (let ((beg (region-beginning))

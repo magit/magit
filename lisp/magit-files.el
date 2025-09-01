@@ -392,8 +392,7 @@ in a single window."
 (defun magit-blob-previous ()
   "Visit the previous blob which modified the current file."
   (interactive)
-  (if-let ((file (or magit-buffer-file-name
-                     (buffer-file-name (buffer-base-buffer)))))
+  (if-let ((file (magit-buffer-file-name)))
       (if-let ((ancestor (magit-blob-ancestor magit-buffer-revision file)))
           (magit-blob-visit ancestor)
         (user-error "You have reached the beginning of time"))

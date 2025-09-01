@@ -38,6 +38,7 @@
 (declare-function magit-maybe-make-margin-overlay "magit-margin" ())
 
 ;; From `magit-mode'.
+(declare-function magit-buffer-file-name "magit-mode" ())
 (declare-function magit-get-mode-buffer "magit-mode"
                   (mode &optional value frame))
 (declare-function magit-refresh "magit-mode" ())
@@ -1041,8 +1042,7 @@ If TRACKED is non-nil, return the path only if it matches a
 tracked file."
   (with-current-buffer (or (buffer-base-buffer) (current-buffer))
     (and-let* ((file (or file
-                         magit-buffer-file-name
-                         buffer-file-name
+                         (magit-buffer-file-name)
                          (and (derived-mode-p 'dired-mode)
                               default-directory)))
                (_(or (not tracked)
