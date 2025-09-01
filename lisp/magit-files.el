@@ -423,7 +423,7 @@ the same location in the respective file in the working tree."
 (defun magit-blob-ancestor (rev file)
   (nth (if rev 1 0)
        (seq-partition (magit-with-toplevel
-                        (magit-git-lines "log" "-2" "--format=%H" "--name-only"
+                        (magit-git-lines "log" "-2" "--format=%h" "--name-only"
                                          "--follow" (or rev "HEAD") "--" file))
                       2)))
 
@@ -431,7 +431,7 @@ the same location in the respective file in the working tree."
   (pcase rev
     ("{worktree}" nil)
     (_ (let ((lines (magit-with-toplevel
-                      (magit-git-lines "log" "--format=%H" "--name-only"
+                      (magit-git-lines "log" "--format=%h" "--name-only"
                                        "--follow" "HEAD" "--" file))))
          (catch 'found
            (while lines
