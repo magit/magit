@@ -380,23 +380,27 @@ in a single window."
 (defun magit-blob-next ()
   "Visit the next blob which modified the current file."
   (interactive)
-  (cond
-   (magit-buffer-file-name
-    (magit-blob-visit
-     (or (magit-blob-successor magit-buffer-revision magit-buffer-file-name)
-         magit-buffer-file-name)))
-   ((buffer-file-name (buffer-base-buffer))
-    (user-error "You have reached the end of time"))
-   ((user-error "Buffer isn't visiting a file or blob"))))
+  (cond-let
+    [[rev  (or magit-buffer-revision "{worktree}")]
+     [file (magit-buffer-file-name)]]
+    ((not file)
+     (user-error "Buffer isn't visiting a file or blob"))
+    (magit-buffer-revision
+     (magit-blob-visit
+      (or (magit-blob-successor rev file) file)))
+    ((user-error "You have reached the end of time"))))
 
 (defun magit-blob-previous ()
   "Visit the previous blob which modified the current file."
   (interactive)
-  (if-let ((file (magit-buffer-file-name)))
-      (if-let ((ancestor (magit-blob-ancestor magit-buffer-revision file)))
-          (magit-blob-visit ancestor)
-        (user-error "You have reached the beginning of time"))
-    (user-error "Buffer isn't visiting a file or blob")))
+  (cond-let
+    [[rev  (or magit-buffer-revision "{worktree}")]
+     [file (magit-buffer-file-name)]]
+    ((not file)
+     (user-error "Buffer isn't visiting a file or blob"))
+    ([prev (magit-blob-ancestor rev file)]
+     (magit-blob-visit prev))
+    ((user-error "You have reached the beginning of time"))))
 
 ;;;###autoload
 (defun magit-blob-visit-file ()
