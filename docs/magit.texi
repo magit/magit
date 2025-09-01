@@ -4796,21 +4796,7 @@ corresponds to the line that point is on in the diff.
 
 The buffer is displayed in the selected window.  With a prefix
 argument the buffer is displayed in another window instead.
-@end table
 
-@defopt magit-diff-visit-previous-blob
-This option controls whether @code{magit-diff-visit-file} may visit the
-previous blob.  When this is @code{t} (the default) and point is on a
-removed line in a diff for a committed change, then
-@code{magit-diff-visit-file} visits the blob from the last revision which
-still had that line.
-
-Currently this is only supported for committed changes, for staged
-and unstaged changes @code{magit-diff-visit-file} always visits the file in
-the working tree.
-@end defopt
-
-@table @asis
 @item @kbd{C-<return>} (@code{magit-diff-visit-worktree-file})
 @kindex C-<return>
 @findex magit-diff-visit-worktree-file
@@ -4844,6 +4830,18 @@ argument.
 These commands behave like the respective commands described above,
 except that they display the blob or file in another window or frame.
 @end deffn
+
+@defopt magit-diff-visit-previous-blob
+This option controls whether @code{magit-diff-visit-file} may visit the
+previous blob.  When this is @code{t} (the default) and point is on a
+removed line in a diff for a committed change, then
+@code{magit-diff-visit-file} visits the blob from the last revision which
+still had that line.
+
+Currently this is only supported for committed changes, for staged
+and unstaged changes @code{magit-diff-visit-file} always visits the file in
+the working tree.
+@end defopt
 
 @node Blaming
 @section Blaming
