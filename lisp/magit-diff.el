@@ -1755,11 +1755,9 @@ the Magit-Status buffer for DIRECTORY."
     (let* ((line   (magit-diff-hunk-line   hunk goto-from))
            (column (magit-diff-hunk-column hunk goto-from)))
       (with-current-buffer buffer
-        (cond ((equal rev "{index}")
-               (setq line (magit-diff-visit--offset file nil line)))
-              ((equal rev "{worktree}"))
-              (goto-file
-               (setq line (magit-diff-visit--offset file rev line))))
+        (when (and goto-file (not (equal rev "{worktree}")))
+          (setq line (magit-diff-visit--offset
+                      file (if (equal rev "{index}") nil rev) line)))
         (save-restriction
           (widen)
           (goto-char (point-min))
