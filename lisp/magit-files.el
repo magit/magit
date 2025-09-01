@@ -419,15 +419,22 @@ the same location in the respective file in the working tree."
            (magit--age (magit-rev-format "%ct" rev)))))
 
 (defun magit-blob-ancestor (rev file)
-  (nth (if rev 1 0)
-       (seq-partition (magit-with-toplevel
-                        (magit-git-lines "log" "-2" "--format=%h" "--name-only"
-                                         "--follow" (or rev "HEAD") "--" file))
-                      2)))
+  (pcase rev
+    ((and "{worktree}" (guard (magit-anything-staged-p nil file)))
+     (list "{index}" file))
+    ((or "{worktree}" "{index}")
+     (list (magit-rev-abbrev "HEAD") file))
+    (_ (nth (if rev 1 0)
+            (magit-with-toplevel
+              (seq-partition
+               (magit-git-lines "log" "-2" "--format=%h" "--name-only"
+                                "--follow" (or rev "HEAD") "--" file)
+               2))))))
 
 (defun magit-blob-successor (rev file)
   (pcase rev
     ("{worktree}" nil)
+    ("{index}" (list "{worktree}" file))
     (_ (let ((lines (magit-with-toplevel
                       (magit-git-lines "log" "--format=%h" "--name-only"
                                        "--follow" "HEAD" "--" file))))
@@ -435,7 +442,9 @@ the same location in the respective file in the working tree."
            (while lines
              (if (equal (nth 2 lines) rev)
                  (throw 'found (list (nth 0 lines) (nth 1 lines)))
-               (setq lines (nthcdr 2 lines)))))))))
+               (setq lines (nthcdr 2 lines))))
+           (list (if (magit-anything-staged-p nil file) "{index}" "{worktree}")
+                 file))))))
 
 ;;; File Commands
 
