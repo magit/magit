@@ -4044,34 +4044,29 @@ change.
 *** Visiting Files and Blobs from a Diff
 
 These commands can only be used when point is inside a diff.
+Elsewhere use ~magit-find-file~.
 
 - Key: RET (magit-diff-visit-file) ::
 
-  This command visits the appropriate version of the file that the
-  diff at point is about. The location of point inside the diff
-  determines which file is being visited. The visited version depends
-  on what changes the diff is about.
+  This command visits the appropriate version of the file at point.
 
-  1. If the diff shows uncommitted changes (i.e., staged or unstaged
-     changes), then visit the file in the working tree (i.e., the
-     same "real" file that ~find-file~ would visit.  In all other
-     cases visit a "blob" (i.e., the version of a file as stored
-     in some commit).
+  Display the buffer in the selected window.  With a prefix argument,
+  OTHER-WINDOW, instead display the buffer in another window.
 
-  2. If point is on a removed line, then visit the blob for the
-     first parent of the commit that removed that line, i.e., the
-     last commit where that line still exists.
+  In the visited file or blob, go to the location corresponding to the
+  location in the diff.
 
-  3. If point is on an added or context line, then visit the blob
-     that adds that line, or if the diff shows from more than a
-     single commit, then visit the blob from the last of these
-     commits.
+  If point is on an added or context line, visit the blob corresponding
+  to our side (i.e., the new/right side).  If point is on a removed line,
+  visit the blob corresponding to their side (i.e., the old/left side).
 
-  In the file-visiting buffer this command goes to the line that
-  corresponds to the line that point is on in the diff.
+  This applies to diffs of staged and unstaged changes as well.  For
+  staged changes the two sides are blobs from the index and the `HEAD'
+  commit.  For unstaged changes the two sides are the actual file in
+  the worktree and the blob from the index.
 
-  The buffer is displayed in the selected window.  With a prefix
-  argument the buffer is displayed in another window instead.
+  To visit the file in the worktree, regardless of what the current
+  diff is about, use ~magit-diff-visit-worktree-file~, described next.
 
 - Key: C-<return> (magit-diff-visit-worktree-file) ::
 
@@ -4104,18 +4099,19 @@ argument.
 
 - User Option: magit-diff-visit-previous-blob ::
 
-  This option controls whether ~magit-diff-visit-file~ may visit the
-  previous blob.
+  This option controls whether ~magit-diff-visit-file~ visits the
+  previous blob when invoked with point on a removed line.
 
   When this is ~t~ (the default) and point is on a removed line, then
   ~magit-diff-visit-file~ visits the blob from the old/left commit,
   which still has that line, instead of going to the new/right blob,
   which removes that line.
 
-  Setting this to ~nil~ is discouraged.  Instead place the cursor on an
-  added or context line, or on the heading, if you want to visit the
-  new/right side.  That way you don't lose the ability to visit the
-  old/left side.
+  Setting this to ~nil~, causes ~magit-diff-visit-file~ to always go to
+  the new/right blob, even when point is on a removed line.  This is
+  very strongly discouraged.  Instead place the cursor anywhere else
+  within the hunk but on a removed line, if you want to visit the new
+  side.  That way you don't lose the ability to visit the old side.
 
 ** Blaming
 

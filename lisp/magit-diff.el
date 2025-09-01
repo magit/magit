@@ -547,9 +547,17 @@ log's file filter is always honored."
 (defcustom magit-diff-visit-previous-blob t
   "Whether `magit-diff-visit-file' may visit the previous blob.
 
-When this is t and point is on a removed line in a diff for a
-committed change, then `magit-diff-visit-file' visits the blob
-from the last revision which still had that line."
+When this is t (the default) and point is on a removed line, then
+`magit-diff-visit-file' visits the blob from the old/left commit,
+which still has that line, instead of going to the new/right blob,
+which removes that line.
+
+Setting this to nil, causes `magit-diff-visit-file' always goes to
+the new/right blob, even when point is on a removed line.  This is
+strongly discouraged.  Instead place the cursor on an added or
+context line, or on the heading, if you want to visit the new/right
+side.  That way you don't lose the ability to visit the old/left
+side."
   :package-version '(magit . "2.9.0")
   :group 'magit-diff
   :type 'boolean)
@@ -1586,36 +1594,41 @@ Customize variable `magit-diff-refine-hunk' to change the default mode."
 ;;;;; Dwim Variants
 
 (defun magit-diff-visit-file (&optional other-window)
-  "From a diff visit a version of the file at point.
+  "From a diff, visit the appropriate version of the file at point.
 
-Display the buffer in the selected window.  With a prefix
-argument OTHER-WINDOW display the buffer in another window
-instead.
+Display the buffer in the selected window.  With a prefix argument,
+OTHER-WINDOW, instead display the buffer in another window.
 
-The location of point inside the diff determines which file is
-being visited.  The visited version depends on what changes the
-diff is about.
+In the visited file or blob, go to the location corresponding to the
+location in the diff.
 
-1. If the diff shows uncommitted changes (i.e., stage or unstaged
-   changes), then visit the file in the working tree (i.e., the
-   same \"real\" file that `find-file' would visit).  In all
-   other cases visit a \"blob\" (i.e., the version of a file as
-   stored in some commit).
+If point is on an added or context line, visit the blob corresponding
+to our side (i.e., the new/right side).  If point is on a removed line,
+visit the blob corresponding to their side (i.e., the old/left side).
 
-2. If point is on a removed line, then visit the blob for the
-   first parent of the commit that removed that line, i.e., the
-   last commit where that line still exists.
+This applies to diffs of staged and unstaged changes as well.  For
+staged changes the two sides are blobs from the index and the `HEAD'
+commit.  For unstaged changes the two sides are the actual file in
+the worktree and the blob from the index.
 
-3. If point is on an added or context line, then visit the blob
-   that adds that line, or if the diff shows from more than a
-   single commit, then visit the blob from the last of these
-   commits.
+To visit the file in the worktree, regardless of what the current diff
+is about, use \
+\\<magit-diff-section-map>\
+\\[magit-diff-visit-worktree-file] \
+(`magit-diff-visit-worktree-file').
 
-In the file-visiting buffer also go to the line that corresponds
-to the line that point is on in the diff.
+In the past \\`<return>' (this command) used to go to the file in the
+worktree, if point is on an added or context line of a diff showing
+staged changes.  Set `magit-diff-visit-avoid-index' to t to restore
+that behavior, but note that doing so makes the behavior inconsistent
+and you would give up on the ability to visit the index blob.  If you
+already use \\[magit-diff-visit-worktree-file] to jump to the live \
+file from committed changes,
+it might be better to retrain muscle memory to do the same from staged
+changes.
 
-Note that this command only works if point is inside a diff.
-In other cases `magit-find-file' (which see) has to be used."
+This command only works when point is inside a diff; elsewhere use
+`magit-find-file'."
   (interactive "P")
   (magit-diff-visit-file--internal nil (and other-window t)))
 
@@ -1636,9 +1649,8 @@ Like `magit-diff-visit-file' but always display in another frame."
 (defun magit-diff-visit-worktree-file (&optional other-window)
   "From a diff visit the worktree version of the file at point.
 
-Display the buffer in the selected window.  With a prefix
-argument OTHER-WINDOW display the buffer in another window
-instead.
+Display the buffer in the selected window.  With a prefix argument,
+OTHER-WINDOW, display the buffer in another window instead.
 
 Visit the worktree version of the appropriate file.  The location
 of point inside the diff determines which file is being visited.
