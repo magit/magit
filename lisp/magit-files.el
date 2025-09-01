@@ -386,7 +386,7 @@ in a single window."
     ((not file)
      (user-error "Buffer isn't visiting a file or blob"))
     ([next (magit-blob-successor rev file)]
-     (magit-blob-visit next))
+     (apply #'magit-blob-visit next))
     ((user-error "You have reached the end of time"))))
 
 (defun magit-blob-previous ()
@@ -398,7 +398,7 @@ in a single window."
     ((not file)
      (user-error "Buffer isn't visiting a file or blob"))
     ([prev (magit-blob-ancestor rev file)]
-     (magit-blob-visit prev))
+     (apply #'magit-blob-visit prev))
     ((user-error "You have reached the beginning of time"))))
 
 ;;;###autoload
@@ -411,14 +411,12 @@ the same location in the respective file in the working tree."
       (magit-find-file--internal "{worktree}" file #'pop-to-buffer-same-window)
     (user-error "Not visiting a blob")))
 
-(defun magit-blob-visit (blob-or-file)
-  (if (stringp blob-or-file)
-      (magit-find-file "{worktree}" blob-or-file)
-    (pcase-let ((`(,rev ,file) blob-or-file))
-      (magit-find-file rev file)
-      (apply #'message "%s (%s %s ago)"
-             (magit-rev-format "%s" rev)
-             (magit--age (magit-rev-format "%ct" rev))))))
+(defun magit-blob-visit (rev file)
+  (magit-find-file rev file)
+  (unless (member rev '("{worktree}" "{index}"))
+    (apply #'message "%s (%s %s ago)"
+           (magit-rev-format "%s" rev)
+           (magit--age (magit-rev-format "%ct" rev)))))
 
 (defun magit-blob-ancestor (rev file)
   (nth (if rev 1 0)

@@ -32,7 +32,7 @@
 (require 'magit-diff)
 
 (declare-function magit--any-wip-mode-enabled-p "magit-wip" ())
-(declare-function magit-blob-visit "magit-files" (blob-or-file))
+(declare-function magit-blob-visit "magit-files" (rev file))
 (declare-function magit-cherry-apply "magit-sequence" (commit &optional args))
 (declare-function magit-insert-head-branch-header "magit-status"
                   (&optional branch))
@@ -1588,9 +1588,9 @@ See also info node `(magit)Section Movement'."
              (with-selected-window (get-buffer-window buf)
                (with-current-buffer buf
                  (save-excursion
-                   (magit-blob-visit (list (magit-rev-parse rev)
-                                           (magit-file-relative-name
-                                            magit-buffer-file-name)))))))))))))
+                   (magit-blob-visit (magit-rev-parse rev)
+                                     (magit-file-relative-name
+                                      magit-buffer-file-name))))))))))))
 
 (defun magit-log-goto-commit-section (rev)
   (let ((abbrev (magit-rev-format "%h" rev)))
