@@ -414,7 +414,7 @@ the same location in the respective file in the working tree."
 
 (defun magit-blob-visit (blob-or-file)
   (if (stringp blob-or-file)
-      (find-file blob-or-file)
+      (magit-find-file "{worktree}" blob-or-file)
     (pcase-let ((`(,rev ,file) blob-or-file))
       (magit-find-file rev file)
       (apply #'message "%s (%s %s ago)"
