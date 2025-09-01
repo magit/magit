@@ -544,6 +544,26 @@ log's file filter is always honored."
 
 ;;;; Visit Commands
 
+(defcustom magit-diff-visit-prefer-worktree nil
+  "Whether `magit-diff-visit-file' prefers visiting the worktree file.
+
+By default `magit-diff-visit-file' does not do that.  Instead it
+behaves for staged and unstaged changes as it does for committed
+changes, by visiting a blob from the old/left or new/right side,
+depending on whether point is on a removed line or not.
+
+Setting this to nil, causes `magit-diff-visit-file' to always go to
+the file in the worktree when invoked from anywhere within a staged
+or unstaged change.
+
+It is strongly recommended that instead of changing the value of
+this option, you use the command `magit-diff-visit-worktree-file',
+which was created for that very purpose.  See the description of
+this option in the manual for an explanation."
+  :package-version '(magit . "4.4.0")
+  :group 'magit-diff
+  :type 'boolean)
+
 (defcustom magit-diff-visit-previous-blob t
   "Whether `magit-diff-visit-file' may visit the previous blob.
 
@@ -552,12 +572,11 @@ When this is t (the default) and point is on a removed line, then
 which still has that line, instead of going to the new/right blob,
 which removes that line.
 
-Setting this to nil, causes `magit-diff-visit-file' always goes to
+Setting this to nil, causes `magit-diff-visit-file' to always go to
 the new/right blob, even when point is on a removed line.  This is
-strongly discouraged.  Instead place the cursor on an added or
-context line, or on the heading, if you want to visit the new/right
-side.  That way you don't lose the ability to visit the old/left
-side."
+very strongly discouraged.  Instead place the cursor anywhere else
+within the hunk but on a removed line, if you want to visit the new
+side.  That way you don't lose the ability to visit the old side."
   :package-version '(magit . "2.9.0")
   :group 'magit-diff
   :type 'boolean)
@@ -1619,7 +1638,7 @@ is about, use \
 
 In the past \\`<return>' (this command) used to go to the file in the
 worktree, if point is on an added or context line of a diff showing
-staged changes.  Set `magit-diff-visit-avoid-index' to t to restore
+staged changes.  Set `magit-diff-visit-prefer-worktree' to t to restore
 that behavior, but note that doing so makes the behavior inconsistent
 and you would give up on the ability to visit the index blob.  If you
 already use \\[magit-diff-visit-worktree-file] to jump to the live \
@@ -1630,19 +1649,28 @@ changes.
 This command only works when point is inside a diff; elsewhere use
 `magit-find-file'."
   (interactive "P")
-  (magit-diff-visit-file--internal nil (and other-window t)))
+  (magit-diff-visit-file--internal
+   (and magit-diff-visit-prefer-worktree
+        (memq (magit-diff--dwim) '(staged unstaged)))
+   (and other-window t)))
 
 (defun magit-diff-visit-file-other-window ()
   "From a diff visit a version of the file at point in another window.
 Like `magit-diff-visit-file' but always display in another window."
   (interactive)
-  (magit-diff-visit-file--internal nil #'switch-to-buffer-other-window))
+  (magit-diff-visit-file--internal
+   (and magit-diff-visit-prefer-worktree
+        (memq (magit-diff--dwim) '(staged unstaged)))
+   #'switch-to-buffer-other-window))
 
 (defun magit-diff-visit-file-other-frame ()
   "From a diff visit a version of the file at point in another frame.
 Like `magit-diff-visit-file' but always display in another frame."
   (interactive)
-  (magit-diff-visit-file--internal nil #'switch-to-buffer-other-frame))
+  (magit-diff-visit-file--internal
+   (and magit-diff-visit-prefer-worktree
+        (memq (magit-diff--dwim) '(staged unstaged)))
+   #'switch-to-buffer-other-frame))
 
 ;;;;; Worktree Variants
 

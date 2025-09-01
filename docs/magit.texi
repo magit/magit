@@ -4821,6 +4821,41 @@ These commands behave like the respective commands described above,
 except that they display the blob or file in another window or frame.
 @end deffn
 
+@defopt magit-diff-visit-prefer-worktree
+This option controls whether @code{magit-diff-visit-file} always visits the
+respective file in the worktree, when invoked anywhere from within a
+hunk of staged or unstaged changes.
+
+By default @code{magit-diff-visit-file} does not do that.  Instead it
+behaves for staged and unstaged changes as it does for committed
+changes, by visiting a blob from the old/left or new/right side,
+depending on whether point is on a removed line or not.
+
+For staged changes the old side is the blob from HEAD and the right
+side is the blog from the index.  For unstaged changes the left side
+is the blob from the index (if there are any changes in the index
+for that file, else the blob from HEAD), and the right side is the
+file in the worktree.
+
+Being able to jump to HEAD or the index from a removed line is very
+useful, because it allows you to, e.g., use blame to investigate why
+some line, which you have already removed, was added in the first
+place.
+
+But if you want to make further changes to already staged changes,
+you of course instead need to go to the respective file in the
+worktree.  The command @code{magit-diff-visit-worktree-file} was created
+for that purpose, and it is strongly recommend that you make use of
+that command, even if you initially find it inconvenient having to
+remember to use @code{C-<return>} instead of @code{RET} in this case.
+
+While discouraged, you can alternatively set this option to @code{t},
+which causes @code{magit-diff-visit-file} itself to go to the file in the
+worktree, even when invoked from within a hunk of staged changes.
+If you do that, you lose the ability to instantly go to lines you
+have already removed.
+@end defopt
+
 @defopt magit-diff-visit-previous-blob
 This option controls whether @code{magit-diff-visit-file} visits the
 previous blob when invoked with point on a removed line.
