@@ -377,8 +377,9 @@ in a single window."
   (interactive)
   (kill-buffer))
 
-(defun magit-blob-next ()
+(transient-define-suffix magit-blob-next ()
   "Visit the next blob which modified the current file."
+  :inapt-if-nil 'magit-buffer-file-name
   (interactive)
   (cond-let
     [[rev  (or magit-buffer-revision "{worktree}")]
@@ -389,8 +390,10 @@ in a single window."
      (apply #'magit-blob-visit next))
     ((user-error "You have reached the end of time"))))
 
-(defun magit-blob-previous ()
+(transient-define-suffix magit-blob-previous ()
   "Visit the previous blob which modified the current file."
+  :inapt-if-not (##and$ (magit-buffer-file-name)
+                        (magit-blob-ancestor (magit-buffer-revision) $))
   (interactive)
   (cond-let
     [[rev  (or magit-buffer-revision "{worktree}")]
