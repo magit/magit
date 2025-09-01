@@ -385,9 +385,8 @@ in a single window."
      [file (magit-buffer-file-name)]]
     ((not file)
      (user-error "Buffer isn't visiting a file or blob"))
-    (magit-buffer-revision
-     (magit-blob-visit
-      (or (magit-blob-successor rev file) file)))
+    ([next (magit-blob-successor rev file)]
+     (magit-blob-visit next))
     ((user-error "You have reached the end of time"))))
 
 (defun magit-blob-previous ()
@@ -429,14 +428,16 @@ the same location in the respective file in the working tree."
                       2)))
 
 (defun magit-blob-successor (rev file)
-  (let ((lines (magit-with-toplevel
-                 (magit-git-lines "log" "--format=%H" "--name-only" "--follow"
-                                  "HEAD" "--" file))))
-    (catch 'found
-      (while lines
-        (if (equal (nth 2 lines) rev)
-            (throw 'found (list (nth 0 lines) (nth 1 lines)))
-          (setq lines (nthcdr 2 lines)))))))
+  (pcase rev
+    ("{worktree}" nil)
+    (_ (let ((lines (magit-with-toplevel
+                      (magit-git-lines "log" "--format=%H" "--name-only"
+                                       "--follow" "HEAD" "--" file))))
+         (catch 'found
+           (while lines
+             (if (equal (nth 2 lines) rev)
+                 (throw 'found (list (nth 0 lines) (nth 1 lines)))
+               (setq lines (nthcdr 2 lines)))))))))
 
 ;;; File Commands
 
