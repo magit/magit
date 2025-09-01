@@ -3567,9 +3567,11 @@ last (visual) lines of the region."
     (> (magit-point) content)))
 
 (defun magit-diff-on-removed-line-p ()
-  "Return t if point is on a removed line inside the body of a hunk."
+  "Return t if point is on a removed line inside the body of a hunk.
+If `magit-diff-visit-previous-blob' is nil, then always return nil."
   (let ((section (magit-current-section)))
-    (and (cl-typep section 'magit-hunk-section)
+    (and magit-diff-visit-previous-blob
+         (cl-typep section 'magit-hunk-section)
          (not (oref section combined))
          (= (char-after (pos-bol)) ?-))))
 

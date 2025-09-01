@@ -4833,14 +4833,17 @@ except that they display the blob or file in another window or frame.
 
 @defopt magit-diff-visit-previous-blob
 This option controls whether @code{magit-diff-visit-file} may visit the
-previous blob.  When this is @code{t} (the default) and point is on a
-removed line in a diff for a committed change, then
-@code{magit-diff-visit-file} visits the blob from the last revision which
-still had that line.
+previous blob.
 
-Currently this is only supported for committed changes, for staged
-and unstaged changes @code{magit-diff-visit-file} always visits the file in
-the working tree.
+When this is @code{t} (the default) and point is on a removed line, then
+@code{magit-diff-visit-file} visits the blob from the old/left commit,
+which still has that line, instead of going to the new/right blob,
+which removes that line.
+
+Setting this to @code{nil} is discouraged.  Instead place the cursor on an
+added or context line, or on the heading, if you want to visit the
+new/right side.  That way you don't lose the ability to visit the
+old/left side.
 @end defopt
 
 @node Blaming
