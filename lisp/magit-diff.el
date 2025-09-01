@@ -1726,7 +1726,11 @@ the Magit-Status buffer for DIRECTORY."
           (magit-diff-visit--position buffer rev file goto-from goto-file))))
 
 (defun magit-diff-visit--sides ()
-  (pcase-let* ((spec (magit-diff--dwim))
+  (pcase-let* (((eieio source value)
+                (magit-diff--file-section))
+               (old-file (or source value))
+               (new-file value)
+               (spec (magit-diff--dwim))
                (`(,old-rev . ,new-rev)
                 (pcase spec
                   ((pred stringp)
@@ -1735,15 +1739,14 @@ the Magit-Status buffer for DIRECTORY."
                    (cons (magit-rev-abbrev (concat rev "^"))
                          (magit--abbrev-if-hash rev)))
                   ('staged    (cons (magit-rev-abbrev "HEAD") "{index}"))
-                  ('unstaged  (cons (magit-rev-abbrev "HEAD") "{worktree}"))
+                  ('unstaged  (cons (if (magit-anything-staged-p nil old-file)
+                                        "{index}"
+                                      (magit-rev-abbrev "HEAD"))
+                                    "{worktree}"))
                   ('nil       (cons "{worktree}" "{worktree}"))
                   ('unmerged  (cons "{worktree}" "{worktree}"))
                   ('undefined (cons "{worktree}" "{worktree}")) ;--no-index
-                  (_          (error "BUG: Unexpected diff type %s" spec))))
-               ((eieio source value)
-                (magit-diff--file-section))
-               (old-file (or source value))
-               (new-file value))
+                  (_          (error "BUG: Unexpected diff type %s" spec)))))
     (when (equal magit-buffer-typearg "--no-index")
       (setq old-file (concat "/" old-file))
       (setq new-file (concat "/" new-file)))
