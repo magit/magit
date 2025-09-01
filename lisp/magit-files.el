@@ -422,10 +422,11 @@ the same location in the respective file in the working tree."
              (magit--age (magit-rev-format "%ct" rev))))))
 
 (defun magit-blob-ancestor (rev file)
-  (let ((lines (magit-with-toplevel
-                 (magit-git-lines "log" "-2" "--format=%H" "--name-only"
-                                  "--follow" (or rev "HEAD") "--" file))))
-    (if rev (cddr lines) (butlast lines 2))))
+  (nth (if rev 1 0)
+       (seq-partition (magit-with-toplevel
+                        (magit-git-lines "log" "-2" "--format=%H" "--name-only"
+                                         "--follow" (or rev "HEAD") "--" file))
+                      2)))
 
 (defun magit-blob-successor (rev file)
   (let ((lines (magit-with-toplevel
