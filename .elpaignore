@@ -1,0 +1,10 @@
+.dir-locals.el
+.elpaignore
+.github
+.mailmap
+LICENSE
+Makefile
+default.mk
+docs
+lisp/Makefile
+test
