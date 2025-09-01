@@ -4111,6 +4111,9 @@ argument.
 - Command: magit-diff-visit-worktree-file-other-window ::
 - Command: magit-diff-visit-worktree-file-other-frame ::
 
+  These commands behave like the respective commands described above,
+  except that they display the blob or file in another window or frame.
+
 ** Blaming
 
 Also see [[man:git-blame]]

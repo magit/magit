@@ -4841,6 +4841,8 @@ argument.
 @deffn Command magit-diff-visit-worktree-file-other-window
 @end deffn
 @deffn Command magit-diff-visit-worktree-file-other-frame
+These commands behave like the respective commands described above,
+except that they display the blob or file in another window or frame.
 @end deffn
 
 @node Blaming
