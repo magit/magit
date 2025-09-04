@@ -73,7 +73,7 @@ versionlib: $(PKG)-version.el
 	  (delete-file \"$@\"))\
 	(setq with-editor-emacsclient-executable nil)\
 	(when (< emacs-major-version 30)\
-	  (require 'transient)))"\
+	  (require 'transient)))" \
 	-f batch-byte-compile $<
 
 $(PKG)-autoloads.el: $(ELS)
