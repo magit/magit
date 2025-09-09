@@ -19,14 +19,14 @@
 
 ;; Package-Version: 4.3.8
 ;; Package-Requires: (
-;;     (emacs "28.1")
-;;     (compat "30.1")
-;;     (cond-let "0.1")
-;;     (llama "1.0")
-;;     (magit-section "4.3.8")
-;;     (seq "2.24")
-;;     (transient "0.9.3")
-;;     (with-editor "3.4.4"))
+;;     (emacs        "28.1")
+;;     (compat       "30.1")
+;;     (cond-let      "0.1")
+;;     (llama         "1.0")
+;;     (magit-section "4.4")
+;;     (seq           "2.24")
+;;     (transient     "0.10")
+;;     (with-editor   "3.4"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
