@@ -416,7 +416,8 @@ modes is toggled, then this mode also gets toggled automatically.
       (magit-blame-mode 1))
     (message "Blaming...")
     (magit-blame-run-process
-     (or magit-buffer-refname magit-buffer-revision)
+     (and$ (or magit-buffer-refname magit-buffer-revision)
+           (and (not (equal $ "{index}")) $))
      (magit-file-relative-name nil (not magit-buffer-file-name))
      (if (memq magit-blame-type '(final removal))
          (cons "--reverse" args)
