@@ -2,8 +2,96 @@
 * v4.4.0    UNRELEASED
 
 - At least Emacs 28.1 is required now.  Emacs 30.1 was released
-  earlier this year, so we do actually continue to support Emacs
-  "oldoldstable".
+  earlier this year, so Emacs "oldoldstable" is still supported.
+
+- Code for tracking a position within a file across versions and
+  diffs, and the commands that build on that to allow jumping to
+  the same location in another version or diff, are undergoing
+  heavy refactoring and improvements.  This is paying of technical
+  dept and prepares for upcoming user-level improvements as well
+  as for new features.  Some changes in behavior already appear in
+  this release, as described below.
+
+- For staged and unstaged changes, ~magit-diff-visit-file~ (~RET~) now
+  always visits the blob actually corresponding to the line at point,
+  as it already did for committed changes.  Previously it failed to
+  visit the index blob from an unstaged removed line when that file
+  has staged changes; and it failed to visit the index blob from a
+  staged added line.
+
+  Visiting the file in the worktree is very useful, but, instead of
+  ~RET~, I recommend using ~C-<return>~ (~magit-diff-visit-worktree-file~).
+  The new option ~magit-diff-visit-prefer-worktree~ allows restoring
+  the old behavior.  See [[https://magit.vc/manual/magit/Visiting-Files-and-Blobs-from-a-Diff.html][Visiting Files and Blobs from a Diff]].
+
+- "Blob navigation" is now aware of index blobs.  It is possible to
+  navigate between such blobs, and the HEAD blob or the file on disk,
+  using the same key bindings used to time travel from one committed
+  blob to another.  See [[https://magit.vc/manual/magit/Minor-Mode-for-Buffers-Visiting-Blobs.html][Minor Mode for Buffers Visiting Blobs]] and
+  [[https://magit.vc/manual/magit/Commands-for-Buffers-Visiting-Files.html][Commands for Buffers Visiting Files]].
+
+- When quitting a blob-visiting buffer with ~q~, it is no longer
+  killed, iff it is being displayed in an additional window.  The
+  behavior can be changed by binding ~q~ in ~magit-blob-mode-map~ to
+  one of the commands ~magit-bury-or-kill-buffer~, ~magit-bury-buffer~,
+  or ~magit-kill-this-buffer~.  The former two are new commands.
+  731642756f
+
+- ~magit-status-here~ now places the cursor within the diff of unstaged
+  changes, if the current line in a file-visiting buffer has unstaged
+  changes.  If it does not, then it falls back to going to the
+  corresponding staged change.  #4814
+
+- Even though ~auto-revert-mode~ is enabled, if that has not yet kicked
+  in and the user visits a file that needs reverting, they used to be
+  asked to confirm the revert.  efaf91d8af
+
+- ~magit-completing-read~ and ~magit-completing-read-multiple~ can now
+  require non-empty input.  If REQUIRE-MATCH is ~any~, then the user
+  can exit with input that does not appear in the collection, but
+  is not allowed to exit with zero input.  #5422
+
+- ~magit-completing-read-multiple~ now adds the default choice to the
+  set of valid choices.  7167f70665
+
+- ~magit-read-branch-or-commit~ can now exclude more than one possible
+  choice from the set of valid choices.  10c366ed52
+
+- Improved minibuffer input for worktree commands, including adding
+  new option ~magit-read-worktree-directory-function~.
+
+- Section visibility indicators can now be displayed in the left
+  margin.  #5424
+
+- References in the ~refs/pullreqs~ namespace are no longer offered
+  as completion candidates.  87ddd8f7c4
+
+- Improved font-lock in ~git-rebase-mode~.  3857b8bce9..9654f5e094
+
+- Added new face ~magit-diff-conflict-heading-highlight~.  2e76ec9337
+
+- Added new command ~magit-revision-jump~, a menu for use in
+  ~magit-revision-mode~, bound to ~j~.  acf71f7eb4
+
+- ~magit-dired-jump~ now supports ~magit-repolist-mode~.  8c4a903886
+
+- Fixed a regression ~magit--refresh-buffer-set-positions~, added in
+  v4.3.7, which messed up the window-start.  406a3094a8
+
+- ~magit-setup-buffer~ and ~magit-refresh-buffer~ take two new keyword
+  arguments INITIAL-SECTION and SELECT-SECTION.  Two arguments of
+  ~magit-setup-buffer-internal~ are now keyword arguments.
+  ced0984540, c4def6d99a
+
+- All text inserted into Magit buffers that previously used ~face~
+  now use ~font-lock-face~ and ~magit-section-mode~ can therefore set
+  ~font-lock-defaults~.  Previously if some third-party packages used
+  ~font-lock-add-keywords~, some of Magit's own fontification would
+  be lost.  Third-party packages that use ~magit-section-mode~, might
+  need to be adjusted accordingly.  7de0f1335f,  b4768acb1f
+
+- Daring to use my new Cond-Let package and other shorthands.
+  08dafc1732..1c48327a06, b377adb68c
 
 * v4.3.8    2025-07-05
 
