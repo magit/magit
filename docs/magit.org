@@ -2236,6 +2236,15 @@ hooks and how to customize them.
   Insert section showing commits that haven't been pulled from the
   push-remote branch yet.
 
+- Function: magit-insert-unpushed-to-upstream-or-recent ::
+
+  Insert section showing unpushed or other recent commits.
+  If an upstream is configured for the current branch and it is
+  behind of the current branch, then show the commits that have
+  not yet been pushed into the upstream branch.  If no upstream is
+  configured or if the upstream is not behind of the current branch,
+  then show the last ~magit-log-section-commit-count~ commits.
+
 - Function: magit-insert-unpushed-to-upstream ::
 
   Insert section showing commits that haven't been pushed to the
