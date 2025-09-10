@@ -2556,6 +2556,12 @@ Some additional functions that can be added to this hook, but are by
 default added to another hooks, are listed in @ref{References Buffer}.
 @end defopt
 
+@defun magit-insert-status-headers
+Insert header sections appropriate for @code{magit-status-mode} buffers.
+The sections are inserted by running the functions on the hook
+@code{magit-status-headers-hook}.  See @ref{Status Header Sections}.
+@end defun
+
 @defun magit-insert-merge-log
 Insert section for the on-going merge.  Display the heads that are
 being merged.  If no merge is in progress, do nothing.

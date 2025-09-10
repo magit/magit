@@ -2173,6 +2173,12 @@ hooks and how to customize them.
   Some additional functions that can be added to this hook, but are by
   default added to another hooks, are listed in [[*References Buffer]].
 
+- Function: magit-insert-status-headers ::
+
+  Insert header sections appropriate for ~magit-status-mode~ buffers.
+  The sections are inserted by running the functions on the hook
+  ~magit-status-headers-hook~.  See [[*Status Header Sections]].
+
 - Function: magit-insert-merge-log ::
 
   Insert section for the on-going merge.  Display the heads that are
