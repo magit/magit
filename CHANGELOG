@@ -7,7 +7,7 @@
 - Code for tracking a position within a file across versions and
   diffs, and the commands that build on that to allow jumping to
   the same location in another version or diff, are undergoing
-  heavy refactoring and improvements.  This is paying of technical
+  heavy refactoring and improvements.  This is paying off technical
   dept and prepares for upcoming user-level improvements as well
   as for new features.  Some changes in behavior already appear in
   this release, as described below.

@@ -2699,7 +2699,7 @@ Insert a list of ignored files.
 Insert a list of skip-worktree files.
 @end defun
 
-@defun magit-insert-assumed-unchanged-files
+@defun magit-insert-assume-unchanged-files
 Insert a list of files that are assumed to be unchanged.
 @end defun
 

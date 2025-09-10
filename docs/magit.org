@@ -2310,7 +2310,7 @@ that you don't do that.
 
   Insert a list of skip-worktree files.
 
-- Function: magit-insert-assumed-unchanged-files ::
+- Function: magit-insert-assume-unchanged-files ::
 
   Insert a list of files that are assumed to be unchanged.
 
