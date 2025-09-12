@@ -1389,21 +1389,22 @@ Do not add this to a hook variable."
                 ('stash      magit-log-stash-re)
                 ('bisect-vis magit-log-bisect-vis-re)
                 ('bisect-log magit-log-bisect-log-re)))
-  (let ((hash   (match-str 1))
-        (msg    (match-str 2))
-        (refs   (match-str 3))
-        (graph  (match-string 4))
-        (author (match-str 5))
-        (date   (match-str 6))
-        (gpg    (match-str 7))
-        (cherry (match-str 8))
-        (refsub (match-str 10))
-        (side   (match-str 11))
-        (align  (or (eq style 'cherry)
-                    (not (member "--stat" magit-buffer-log-args))))
-        (non-graph-re (if (eq style 'bisect-vis)
-                          magit-log-bisect-vis-re
-                        magit-log-heading-re)))
+  (let* ((hash     (match-str 1))
+         (msg      (match-str 2))
+         (refs     (match-str 3))
+         (refs     (and refs (magit-format-ref-labels refs)))
+         (graph    (match-string 4))
+         (author   (match-str 5))
+         (date     (match-str 6))
+         (gpg      (match-str 7))
+         (cherry   (match-str 8))
+         (refsub   (match-str 10))
+         (side     (match-str 11))
+         (align    (or (eq style 'cherry)
+                       (not (member "--stat" magit-buffer-log-args))))
+         (non-graph-re (if (eq style 'bisect-vis)
+                           magit-log-bisect-vis-re
+                         magit-log-heading-re)))
     (magit-delete-line)
     ;; If the reflog entries have been pruned, the output of `git
     ;; reflog show' includes a partial line that refers to the hash
@@ -1451,8 +1452,9 @@ Do not add this to a hook variable."
         (insert graph))
       (unless align
         (insert hash ?\s))
-      (when (and refs (not magit-log-show-refname-after-summary))
-        (insert (magit-format-ref-labels refs) ?\s))
+      (unless magit-log-show-refname-after-summary
+        (when refs
+          (insert refs ?\s)))
       (when (eq style 'reflog)
         (insert (format "%-2s " (1- magit-log-count)))
         (when refsub
@@ -1460,9 +1462,9 @@ Do not add this to a hook variable."
                    (substring refsub 0
                               (if (string-search ":" refsub) -2 -1))))))
       (insert (magit-log--wash-summary msg))
-      (when (and refs magit-log-show-refname-after-summary)
-        (insert ?\s)
-        (insert (magit-format-ref-labels refs)))
+      (when magit-log-show-refname-after-summary
+        (when refs
+          (insert ?\s refs)))
       (insert ?\n)
       (when (memq style '(log reflog stash))
         (goto-char (line-beginning-position))
