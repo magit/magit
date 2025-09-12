@@ -1204,6 +1204,18 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   (declare (obsolete magit--insert-log "Magit 4.0.0"))
   (magit--insert-log nil revs args files))
 
+(defconst magit-log-heading-format
+  ;; See `magit-log-heading-re'.
+  (concat "--format="
+          "%s"         ;  4     graph    --graph
+          "%%h%%x0c"   ;  1 %h  hash
+          "%s%%x0c"    ;  3 %D  refs     --decorate
+          "%s%%x0c"    ;  7 %G? gpg      --show-signature
+          "%%aN%%x0c"  ;  5 %aN author
+          "%s%%x0c"    ;  6 %at date     magit-log-margin-show-committer-date
+          "%%s"        ;  2 %s  msg
+          "%s"))       ; \n ..  headers  magit-log-revision-headers-format
+
 (defun magit--insert-log (keep-error revs &optional args files)
   "Insert a log section.
 Do not add this to a hook variable."
@@ -1213,7 +1225,7 @@ Do not add this to a hook variable."
          (remove "--literal-pathspecs" magit-git-global-arguments)))
     (magit--git-wash (apply-partially #'magit-log-wash-log 'log) keep-error
       "log"
-      (format "--format=%s%%h%%x0c%s%%x0c%s%%x0c%%aN%%x0c%s%%x0c%%s%s"
+      (format magit-log-heading-format
               (if (and (member "--left-right" args)
                        (not (member "--graph" args)))
                   "%m "
