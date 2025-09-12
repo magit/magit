@@ -1398,125 +1398,125 @@ Do not add this to a hook variable."
         (gpg    (match-str 7))
         (cherry (match-str 8))
         (refsub (match-str 10))
-        (side   (match-str 11)))
-    (let ((align (or (eq style 'cherry)
-                     (not (member "--stat" magit-buffer-log-args))))
-          (non-graph-re (if (eq style 'bisect-vis)
-                            magit-log-bisect-vis-re
-                          magit-log-heading-re)))
-      (magit-delete-line)
-      ;; If the reflog entries have been pruned, the output of `git
-      ;; reflog show' includes a partial line that refers to the hash
-      ;; of the youngest expired reflog entry.
-      (when (and (eq style 'reflog) (not date))
-        (cl-return-from magit-log-wash-rev t))
-      (magit-insert-section
-          ((eval (pcase style
-                   ('stash  'stash)
-                   ('module 'module-commit)
-                   (_       'commit)))
-           hash)
-        (setq hash (propertize (if (eq style 'bisect-log)
-                                   (magit-rev-parse "--short" hash)
-                                 hash)
-                               'font-lock-face
-                               (pcase (and gpg (aref gpg 0))
-                                 (?G 'magit-signature-good)
-                                 (?B 'magit-signature-bad)
-                                 (?U 'magit-signature-untrusted)
-                                 (?X 'magit-signature-expired)
-                                 (?Y 'magit-signature-expired-key)
-                                 (?R 'magit-signature-revoked)
-                                 (?E 'magit-signature-error)
-                                 (?N 'magit-hash)
-                                 (_  'magit-hash))))
-        (when cherry
-          (when (and (derived-mode-p 'magit-refs-mode)
-                     magit-refs-show-commit-count)
-            (insert (make-string (1- magit-refs-focus-column-width) ?\s)))
-          (insert (propertize cherry 'font-lock-face
-                              (if (string= cherry "-")
-                                  'magit-cherry-equivalent
-                                'magit-cherry-unmatched)))
-          (insert ?\s))
-        (when side
-          (insert (propertize side 'font-lock-face
-                              (if (string= side "<")
-                                  'magit-cherry-equivalent
-                                'magit-cherry-unmatched)))
-          (insert ?\s))
-        (when align
-          (insert hash ?\s))
-        (when graph
-          (insert graph))
-        (unless align
-          (insert hash ?\s))
-        (when (and refs (not magit-log-show-refname-after-summary))
-          (insert (magit-format-ref-labels refs) ?\s))
-        (when (eq style 'reflog)
-          (insert (format "%-2s " (1- magit-log-count)))
-          (when refsub
-            (insert (magit-reflog-format-subject
-                     (substring refsub 0
-                                (if (string-search ":" refsub) -2 -1))))))
-        (insert (magit-log--wash-summary msg))
-        (when (and refs magit-log-show-refname-after-summary)
-          (insert ?\s)
-          (insert (magit-format-ref-labels refs)))
-        (insert ?\n)
-        (when (memq style '(log reflog stash))
-          (goto-char (line-beginning-position))
-          (when (and refsub
-                     (string-match "\\`\\([^ ]\\) \\+\\(..\\)\\(..\\)" date))
-            (setq date (+ (string-to-number (match-str 1 date))
-                          (* (string-to-number (match-str 2 date)) 60 60)
-                          (* (string-to-number (match-str 3 date)) 60))))
-          (magit-log-format-margin hash author date))
-        (when (and (eq style 'cherry)
-                   (magit--right-margin-active))
-          (apply #'magit-log-format-margin hash
-                 (split-string (magit-rev-format "%aN%x00%ct" hash) "\0")))
-        (when (and graph
-                   (not (eobp))
-                   (not (looking-at non-graph-re)))
-          (when (looking-at "")
+        (side   (match-str 11))
+        (align  (or (eq style 'cherry)
+                    (not (member "--stat" magit-buffer-log-args))))
+        (non-graph-re (if (eq style 'bisect-vis)
+                          magit-log-bisect-vis-re
+                        magit-log-heading-re)))
+    (magit-delete-line)
+    ;; If the reflog entries have been pruned, the output of `git
+    ;; reflog show' includes a partial line that refers to the hash
+    ;; of the youngest expired reflog entry.
+    (when (and (eq style 'reflog) (not date))
+      (cl-return-from magit-log-wash-rev t))
+    (magit-insert-section
+        ((eval (pcase style
+                 ('stash  'stash)
+                 ('module 'module-commit)
+                 (_       'commit)))
+         hash)
+      (setq hash (propertize (if (eq style 'bisect-log)
+                                 (magit-rev-parse "--short" hash)
+                               hash)
+                             'font-lock-face
+                             (pcase (and gpg (aref gpg 0))
+                               (?G 'magit-signature-good)
+                               (?B 'magit-signature-bad)
+                               (?U 'magit-signature-untrusted)
+                               (?X 'magit-signature-expired)
+                               (?Y 'magit-signature-expired-key)
+                               (?R 'magit-signature-revoked)
+                               (?E 'magit-signature-error)
+                               (?N 'magit-hash)
+                               (_  'magit-hash))))
+      (when cherry
+        (when (and (derived-mode-p 'magit-refs-mode)
+                   magit-refs-show-commit-count)
+          (insert (make-string (1- magit-refs-focus-column-width) ?\s)))
+        (insert (propertize cherry 'font-lock-face
+                            (if (string= cherry "-")
+                                'magit-cherry-equivalent
+                              'magit-cherry-unmatched)))
+        (insert ?\s))
+      (when side
+        (insert (propertize side 'font-lock-face
+                            (if (string= side "<")
+                                'magit-cherry-equivalent
+                              'magit-cherry-unmatched)))
+        (insert ?\s))
+      (when align
+        (insert hash ?\s))
+      (when graph
+        (insert graph))
+      (unless align
+        (insert hash ?\s))
+      (when (and refs (not magit-log-show-refname-after-summary))
+        (insert (magit-format-ref-labels refs) ?\s))
+      (when (eq style 'reflog)
+        (insert (format "%-2s " (1- magit-log-count)))
+        (when refsub
+          (insert (magit-reflog-format-subject
+                   (substring refsub 0
+                              (if (string-search ":" refsub) -2 -1))))))
+      (insert (magit-log--wash-summary msg))
+      (when (and refs magit-log-show-refname-after-summary)
+        (insert ?\s)
+        (insert (magit-format-ref-labels refs)))
+      (insert ?\n)
+      (when (memq style '(log reflog stash))
+        (goto-char (line-beginning-position))
+        (when (and refsub
+                   (string-match "\\`\\([^ ]\\) \\+\\(..\\)\\(..\\)" date))
+          (setq date (+ (string-to-number (match-str 1 date))
+                        (* (string-to-number (match-str 2 date)) 60 60)
+                        (* (string-to-number (match-str 3 date)) 60))))
+        (magit-log-format-margin hash author date))
+      (when (and (eq style 'cherry)
+                 (magit--right-margin-active))
+        (apply #'magit-log-format-margin hash
+               (split-string (magit-rev-format "%aN%x00%ct" hash) "\0")))
+      (when (and graph
+                 (not (eobp))
+                 (not (looking-at non-graph-re)))
+        (when (looking-at "")
+          (magit-insert-heading)
+          (delete-char 1)
+          (magit-insert-section (commit-header)
+            (forward-line)
             (magit-insert-heading)
-            (delete-char 1)
-            (magit-insert-section (commit-header)
-              (forward-line)
-              (magit-insert-heading)
-              (re-search-forward "")
-              (delete-char -1)
-              (forward-char)
-              (insert ?\n))
-            (delete-char 1))
-          (if (looking-at "^\\(---\\|\n\s\\|\ndiff\\)")
-              (let ((limit (save-excursion
-                             (and (re-search-forward non-graph-re nil t)
-                                  (match-beginning 0)))))
-                (unless (oref magit-insert-section--current content)
-                  (magit-insert-heading))
-                (delete-char (if (looking-at "\n") 1 4))
-                (magit-diff-wash-diffs (list "--stat") limit))
+            (re-search-forward "")
+            (delete-char -1)
+            (forward-char)
+            (insert ?\n))
+          (delete-char 1))
+        (if (looking-at "^\\(---\\|\n\s\\|\ndiff\\)")
+            (let ((limit (save-excursion
+                           (and (re-search-forward non-graph-re nil t)
+                                (match-beginning 0)))))
+              (unless (oref magit-insert-section--current content)
+                (magit-insert-heading))
+              (delete-char (if (looking-at "\n") 1 4))
+              (magit-diff-wash-diffs (list "--stat") limit))
+          (when align
+            (setq align (make-string (1+ abbrev) ? )))
+          (when (and (not (eobp)) (not (looking-at non-graph-re)))
             (when align
               (setq align (make-string (1+ abbrev) ? )))
-            (when (and (not (eobp)) (not (looking-at non-graph-re)))
+            (while (and (not (eobp)) (not (looking-at non-graph-re)))
               (when align
-                (setq align (make-string (1+ abbrev) ? )))
-              (while (and (not (eobp)) (not (looking-at non-graph-re)))
-                (when align
-                  (save-excursion (insert align)))
-                (forward-line)
-                (magit-make-margin-overlay))
-              ;; When `--format' is used and its value isn't one of the
-              ;; predefined formats, then `git-log' does not insert a
-              ;; separator line.
-              (save-excursion
-                (forward-line -1)
-                (looking-at "[-_/|\\*o<>. ]*"))
-              (setq graph (match-string 0))
-              (unless (string-match-p "[/\\.]" graph)
-                (insert graph ?\n))))))))
+                (save-excursion (insert align)))
+              (forward-line)
+              (magit-make-margin-overlay))
+            ;; When `--format' is used and its value isn't one of the
+            ;; predefined formats, then `git-log' does not insert a
+            ;; separator line.
+            (save-excursion
+              (forward-line -1)
+              (looking-at "[-_/|\\*o<>. ]*"))
+            (setq graph (match-string 0))
+            (unless (string-match-p "[/\\.]" graph)
+              (insert graph ?\n)))))))
   t)
 
 (defun magit-log--wash-summary (summary)
