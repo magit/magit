@@ -171,6 +171,23 @@ want to use the same functions for both hooks."
   :options (list #'magit-highlight-squash-markers
                  #'magit-highlight-bracket-keywords))
 
+(defcustom magit-log-trailer-labels nil
+  "Whether and how to insert labels, derived from commit message trailers.
+
+If non-nil, the value has the form (FUNCTION . OPTIONS).  FUNCTION is
+called with one argument, the trailers as an alist, and should return a
+string, which is then inserted in between the refnames and the message,
+or nil.  OPTIONS specifies additional options for \"%(trailers)\".  You
+should probably use something like \"key=KEY1,key=KEY2,only=true\".
+\"unfold=true,separator=^^,key_value_separator=^_\" is always appended
+to the options specified here.  See the git-log(1) manpage."
+  :package-version '(magit . "4.4.1")
+  :group 'magit-log
+  :type '(choice (const :tag "Ignore trailers" nil)
+                 (cons  :tag "Process trailers"
+                        (function :tag "Formatting function")
+                        (string   :tag "Options for %%(trailers)"))))
+
 (defcustom magit-log-header-line-function #'magit-log-header-line-sentence
   "Function used to generate text shown in header line of log buffers."
   :package-version '(magit . "2.12.0")
@@ -1213,6 +1230,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
           "%s%%x0c"    ;  7 %G? gpg      --show-signature
           "%%aN%%x0c"  ;  5 %aN author
           "%s%%x0c"    ;  6 %at date     magit-log-margin-show-committer-date
+          "%s%%x0c"    ; 12 %() trailers magit-log-trailer-labels
           "%%s"        ;  2 %s  msg
           "%s"))       ; \n ..  headers  magit-log-revision-headers-format
 
@@ -1248,6 +1266,13 @@ Do not add this to a hook variable."
                     "")
                    ("%G?"))))
               (if magit-log-margin-show-committer-date "%ct" "%at")
+              (if magit-log-trailer-labels
+                  (format "%%(trailers:%s%s)"
+                          (if (not (equal (cdr magit-log-trailer-labels) ""))
+                              (concat (cdr magit-log-trailer-labels) ",")
+                            "")
+                          "unfold=true,separator=,key_value_separator=")
+                "")
               (if (member "++header" args)
                   (if (member "--graph" (setq args (remove "++header" args)))
                       (concat "\n" magit-log-revision-headers-format "\n")
@@ -1296,6 +1321,7 @@ Do not add this to a hook variable."
           ;; Note: Date is optional because, prior to Git v2.19.0,
           ;; `git rebase -i --root` corrupts the root's author date.
           "\\(?6:[^\n]*\\)"                    ; date
+          "\\(?12:[^\n]+\\)?"                  ; trailers
           "\\(?2:.*\\)$"))                         ; msg
 
 (defconst magit-log-cherry-re
@@ -1400,6 +1426,11 @@ Do not add this to a hook variable."
          (cherry   (match-str 8))
          (refsub   (match-str 10))
          (side     (match-str 11))
+         (trailers (match-str 12))
+         (trailers (and trailers
+                        (funcall (car magit-log-trailer-labels)
+                                 (mapcar (##split-string % "")
+                                         (split-string trailers "")))))
          (align    (or (eq style 'cherry)
                        (not (member "--stat" magit-buffer-log-args))))
          (non-graph-re (if (eq style 'bisect-vis)
@@ -1454,7 +1485,9 @@ Do not add this to a hook variable."
         (insert hash ?\s))
       (unless magit-log-show-refname-after-summary
         (when refs
-          (insert refs ?\s)))
+          (insert refs ?\s))
+        (when trailers
+          (insert trailers ?\s)))
       (when (eq style 'reflog)
         (insert (format "%-2s " (1- magit-log-count)))
         (when refsub
@@ -1464,7 +1497,9 @@ Do not add this to a hook variable."
       (insert (magit-log--wash-summary msg))
       (when magit-log-show-refname-after-summary
         (when refs
-          (insert ?\s refs)))
+          (insert ?\s refs))
+        (when trailers
+          (insert ?\s trailers)))
       (insert ?\n)
       (when (memq style '(log reflog stash))
         (goto-char (line-beginning-position))
