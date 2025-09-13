@@ -1795,8 +1795,8 @@ the Magit-Status buffer for DIRECTORY."
 
 (defun magit-diff-visit--position (buffer rev file goto-from goto-file)
   (and-let ((hunk (magit-diff--hunk-section)))
-    (let* ((line   (magit-diff-hunk-line   hunk goto-from))
-           (column (magit-diff-hunk-column hunk goto-from)))
+    (let ((line   (magit-diff-hunk-line   hunk goto-from))
+          (column (magit-diff-hunk-column hunk goto-from)))
       (with-current-buffer buffer
         (when (and goto-file (not (equal rev "{worktree}")))
           (setq line (magit-diff-visit--offset

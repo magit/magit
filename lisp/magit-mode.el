@@ -717,8 +717,8 @@ and `magit-post-display-buffer-hook'."
   (let ((window (funcall (or display-function magit-display-buffer-function)
                          buffer)))
     (unless magit-display-buffer-noselect
-      (let* ((old-frame (selected-frame))
-             (new-frame (window-frame window)))
+      (let ((old-frame (selected-frame))
+            (new-frame (window-frame window)))
         (select-window window)
         (unless (eq old-frame new-frame)
           (select-frame-set-input-focus new-frame)))))

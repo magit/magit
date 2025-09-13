@@ -1316,7 +1316,7 @@ matches if no other CONDITION match, even if there is no section
 at point."
   (declare (indent 0)
            (debug (&rest (sexp body))))
-  `(let* ((it (magit-current-section)))
+  `(let ((it (magit-current-section)))
      (cond ,@(mapcar (lambda (clause)
                        `(,(or (eq (car clause) t)
                               `(and it
