@@ -3486,12 +3486,11 @@ actually a `diff' but a `diffstat' section."
            (remove-overlays (oref section start)
                             (oref section end)
                             'diff-mode 'fine))))
-    (cl-labels ((recurse (section)
-                  (if (magit-section-match 'hunk section)
-                      (magit-diff-update-hunk-refinement section t)
-                    (dolist (child (oref section children))
-                      (recurse child)))))
-      (recurse magit-root-section))))
+    (named-let update ((section magit-root-section))
+      (if (magit-section-match 'hunk section)
+          (magit-diff-update-hunk-refinement section t)
+        (dolist (child (oref section children))
+          (update child))))))
 
 ;;; Hunk Region
 
