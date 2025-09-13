@@ -494,6 +494,7 @@ and delay of your graphical environment or operating system."
 (defclass magit-hunk-section (magit-diff-section)
   ((keymap      :initform 'magit-hunk-section-map)
    (painted     :initform nil)
+   (fontified   :initform nil) ;TODO
    (refined     :initform nil)
    (combined    :initform nil :initarg :combined)
    (from-range  :initform nil :initarg :from-range)
