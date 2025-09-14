@@ -942,6 +942,7 @@ and `:slant'."
   ["Actions"
    [("d" "Dwim"          magit-diff-dwim)
     ("r" "Diff range"    magit-diff-range)
+    ("h" "Diff HEAD"     magit-diff-head)
     ("p" "Diff paths"    magit-diff-paths)]
    [("u" "Diff unstaged" magit-diff-unstaged)
     ("s" "Diff staged"   magit-diff-staged)
@@ -1300,6 +1301,12 @@ revisions (i.e., use a \"...\" range)."
                                                       nil current-prefix-arg)
                      (magit-diff-arguments)))
   (magit-diff-setup-buffer rev-or-range nil args files 'committed))
+
+;;;###autoload
+(defun magit-diff-head (n)
+  "Show the diff of HEAD and the previous `n' commits."
+  (interactive "nEnter number of commits: ")
+  (magit-diff-range (format "HEAD~%d" n)))
 
 ;;;###autoload
 (defun magit-diff-working-tree (&optional rev args files)

@@ -3151,6 +3151,11 @@ Also see [[man:git-diff]]
   revisions, choose a revision to view changes along, starting at the
   common ancestor of both revisions (i.e., use a "..."  range).
 
+- Key: d h (magit-diff-head) ::
+
+  Prompt for a number of commits n and show the differences between
+  your current working tree and HEAD~n.
+
 - Key: d w (magit-diff-working-tree) ::
 
   Show changes between the current working tree and the ~HEAD~ commit.
