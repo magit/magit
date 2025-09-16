@@ -69,14 +69,10 @@
 (require 'magit-repos)
 (require 'git-commit)
 
+(require 'epa) ;used in magit-read-gpg-{secret,signing}-key
 (require 'format-spec)
 (require 'package nil t) ; used in `magit-version'
 (require 'with-editor)
-
-;; For `magit:--gpg-sign'
-(declare-function epg-list-keys "epg" (context &optional name mode))
-(declare-function epg-decode-dn "epg" (alist))
-(defvar epa-protocol)
 
 ;;; Options
 

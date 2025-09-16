@@ -28,6 +28,8 @@
 
 (require 'magit)
 
+(require 'dired)
+
 ;; For `magit-do-async-shell-command'.
 (declare-function dired-read-shell-command "dired-aux" (prompt arg files))
 

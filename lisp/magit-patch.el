@@ -28,6 +28,8 @@
 
 (require 'magit)
 
+(declare-function message-goto-body "message" (&optional interactive))
+
 ;;; Options
 
 (defcustom magit-patch-save-arguments '(exclude "--stat")
@@ -314,6 +316,7 @@ is asked to pull.  START has to be reachable from that commit."
    (list (magit-get "remote" (magit-read-remote "Remote") "url")
          (magit-read-branch-or-commit "Start" (magit-get-upstream-branch))
          (magit-read-branch-or-commit "End")))
+  (require 'message)
   (let ((dir default-directory))
     ;; mu4e changes default-directory
     (compose-mail)
