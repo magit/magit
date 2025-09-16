@@ -70,7 +70,8 @@
 (require 'git-commit)
 
 (require 'format-spec)
-(require 'package nil t) ; used in `magit-version'
+(when package-enable-at-startup
+  (require 'package nil t)) ; used in `magit-version'
 (require 'with-editor)
 
 ;; For `magit:--gpg-sign'
