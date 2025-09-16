@@ -71,7 +71,6 @@
 
 (require 'epa) ;used in magit-read-gpg-{secret,signing}-key
 (require 'format-spec)
-(require 'package nil t) ; used in `magit-version'
 (require 'with-editor)
 
 ;;; Options
@@ -634,7 +633,9 @@ the output in the kill ring.
                 (push t debug)
                 (load-file static)
                 magit-version))
-            (when (featurep 'package)
+            (when (and (featurep 'package)
+                       (boundp 'package-alist)
+                       (fboundp 'package-version-join))
               (push 'elpa debug)
               (ignore-errors
                 (when-let ((version (cadr (assq 'magit package-alist))))
