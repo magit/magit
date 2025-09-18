@@ -603,47 +603,45 @@ the minibuffer too."
                default-directory))
      (push (caar magit-revision-stack) magit-revision-history)
      (pop magit-revision-stack)))
-  (if rev
-      (pcase-let ((`(,pnt-format ,eob-format ,idx-format)
-                   magit-pop-revision-stack-format))
-        (let ((default-directory toplevel)
-              (idx (and idx-format
-                        (save-excursion
-                          (if (re-search-backward idx-format nil t)
-                              (number-to-string
-                               (1+ (string-to-number (match-str 1))))
-                            "1"))))
-              pnt-args eob-args)
-          (when (listp pnt-format)
-            (setq pnt-args (cdr pnt-format))
-            (setq pnt-format (car pnt-format)))
-          (when (listp eob-format)
-            (setq eob-args (cdr eob-format))
-            (setq eob-format (car eob-format)))
-          (when pnt-format
-            (when idx-format
-              (setq pnt-format
-                    (string-replace "%N" idx pnt-format)))
-            (magit-rev-insert-format pnt-format rev pnt-args)
-            (delete-char -1))
-          (when eob-format
-            (when idx-format
-              (setq eob-format
-                    (string-replace "%N" idx eob-format)))
-            (save-excursion
-              (goto-char (point-max))
-              (skip-syntax-backward ">-")
-              (beginning-of-line)
-              (if (and comment-start (looking-at comment-start))
-                  (while (looking-at comment-start)
-                    (forward-line -1))
-                (forward-line)
-                (unless (= (current-column) 0)
-                  (insert ?\n)))
-              (insert ?\n)
-              (magit-rev-insert-format eob-format rev eob-args)
-              (delete-char -1)))))
-    (user-error "Revision stack is empty")))
+  (unless rev
+    (user-error "Revision stack is empty"))
+  (pcase-let ((`(,pnt-format ,eob-format ,idx-format)
+               magit-pop-revision-stack-format))
+    (let ((default-directory toplevel)
+          (idx (and idx-format
+                    (if (save-excursion
+                          (re-search-backward idx-format nil t))
+                        (number-to-string (1+ (string-to-number (match-str 1))))
+                      "1")))
+          (pnt-args nil)
+          (eob-args nil))
+      (when (listp pnt-format)
+        (setq pnt-args (cdr pnt-format))
+        (setq pnt-format (car pnt-format)))
+      (when (listp eob-format)
+        (setq eob-args (cdr eob-format))
+        (setq eob-format (car eob-format)))
+      (when pnt-format
+        (when idx-format
+          (setq pnt-format (string-replace "%N" idx pnt-format)))
+        (magit-rev-insert-format pnt-format rev pnt-args)
+        (delete-char -1))
+      (when eob-format
+        (when idx-format
+          (setq eob-format (string-replace "%N" idx eob-format)))
+        (save-excursion
+          (goto-char (point-max))
+          (skip-syntax-backward ">-")
+          (beginning-of-line)
+          (if (and comment-start (looking-at comment-start))
+              (while (looking-at comment-start)
+                (forward-line -1))
+            (forward-line)
+            (unless (= (current-column) 0)
+              (insert ?\n)))
+          (insert ?\n)
+          (magit-rev-insert-format eob-format rev eob-args)
+          (delete-char -1))))))
 
 ;;;###autoload
 (defun magit-copy-section-value (arg)
