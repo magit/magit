@@ -572,7 +572,7 @@ See `magit-commit-autofixup' for an alternative implementation."
     (when commit
       (setq commit (magit-rebase-interactive-assert commit t)))
     (if (and commit (eq phase 'run))
-        (progn (magit-run-git-async "absorb" args "-b" commit) t)
+        (prog1 t (magit-run-git-async "absorb" args "-b" commit))
       (magit-log-select
         (lambda (commit)
           (with-no-warnings ; about non-interactive use
@@ -614,7 +614,7 @@ an alternative implementation."
     (when commit
       (setq commit (magit-rebase-interactive-assert commit t)))
     (if (and commit (eq phase 'run))
-        (progn (magit-run-git-async "autofixup" args commit) t)
+        (prog1 t (magit-run-git-async "autofixup" args commit))
       (magit-log-select
         (lambda (commit)
           (with-no-warnings ; about non-interactive use
