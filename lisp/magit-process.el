@@ -1313,12 +1313,12 @@ Limited by `magit-process-error-tooltip-max-lines'."
             ((> magit-process-popup-time 0)
              (run-with-timer magit-process-popup-time nil
                              (lambda (p)
-                               (when (eq (process-status p) 'run)
-                                 (let ((buf (process-buffer p)))
-                                   (when (buffer-live-p buf)
-                                     (if (minibufferp)
-                                         (switch-to-buffer-other-window buf)
-                                       (pop-to-buffer buf))))))
+                               (when-let* ((_(eq (process-status p) 'run))
+                                           (buf (process-buffer p))
+                                           (_(buffer-live-p buf)))
+                                 (if (minibufferp)
+                                     (switch-to-buffer-other-window buf)
+                                   (pop-to-buffer buf))))
                              process))))))
 
 (defun magit--log-action (summary line list)
