@@ -265,21 +265,22 @@ Also see option `magit-blame-styles'."
                             (magit-file-relative-name
                              nil (not magit-buffer-file-name))))
                  (line (format "%d,+1" (line-number-at-pos))))
-             (cond (file (with-temp-buffer
-                           (magit-with-toplevel
-                             (magit-git-insert
-                              "blame" "--porcelain"
-                              (if (memq magit-blame-type '(final removal))
-                                  (cons "--reverse" (magit-blame-arguments))
-                                (magit-blame-arguments))
-                              "-L" line rev "--" file)
-                             (goto-char (point-min))
-                             (if (eobp)
-                                 (unless noerror
-                                   (error "Cannot get blame chunk at eob"))
-                               (car (magit-blame--parse-chunk type))))))
-                   (noerror nil)
-                   ((error "Buffer does not visit a tracked file")))))))
+             (cond (file
+                    (with-temp-buffer
+                      (magit-with-toplevel
+                        (magit-git-insert
+                         "blame" "--porcelain"
+                         (if (memq magit-blame-type '(final removal))
+                             (cons "--reverse" (magit-blame-arguments))
+                           (magit-blame-arguments))
+                         "-L" line rev "--" file)
+                        (goto-char (point-min))
+                        (cond ((not (eobp))
+                               (car (magit-blame--parse-chunk type)))
+                              ((not noerror)
+                               (error "Cannot get blame chunk at eob"))))))
+                   ((not noerror)
+                    (error "Buffer does not visit a tracked file")))))))
 
 (defun magit-blame-chunk-at (pos)
   (seq-some (##overlay-get % 'magit-blame-chunk)
@@ -459,10 +460,10 @@ modes is toggled, then this mode also gets toggled automatically.
             (message "Blaming...done"))
         (magit-blame-assert-buffer process)
         (with-current-buffer (process-get process 'command-buf)
-          (if magit-blame-mode
-              (progn (magit-blame-mode -1)
-                     (message "Blaming...failed"))
-            (message "Blaming...aborted"))))
+          (cond (magit-blame-mode
+                 (magit-blame-mode -1)
+                 (message "Blaming...failed"))
+                ((message "Blaming...aborted")))))
       (kill-local-variable 'magit-blame-process))))
 
 (defun magit-blame-process-filter (process string)

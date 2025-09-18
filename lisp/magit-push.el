@@ -192,10 +192,10 @@ Both the source and the target are read in the minibuffer."
      (list source
            (magit-read-remote-branch
             (format "Push %s to" source) nil
-            (if (magit-local-branch-p source)
-                (or (magit-get-push-branch source)
-                    (magit-get-upstream-branch source))
-              (and (magit-rev-ancestor-p source "HEAD")
+            (cond ((magit-local-branch-p source)
+                   (or (magit-get-push-branch source)
+                       (magit-get-upstream-branch source)))
+                  ((magit-rev-ancestor-p source "HEAD")
                    (or (magit-get-push-branch)
                        (magit-get-upstream-branch))))
             source 'confirm)

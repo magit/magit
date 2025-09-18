@@ -416,10 +416,9 @@ of its action type."
             ;; other lines with other action types, empty lines, and
             ;; "Branch" comments interspersed.  Move along.
             ((forward-line)))))
-       (goto-char
-        (if git-rebase-auto-advance
-            end-marker
-          (if pt-below-p (1- end-marker) beg)))
+       (goto-char (cond (git-rebase-auto-advance end-marker)
+                        (pt-below-p (1- end-marker))
+                        (beg)))
        (goto-char (line-beginning-position))))
     (_ (ding))))
 

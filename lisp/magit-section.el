@@ -2078,16 +2078,15 @@ When `magit-section-preserve-visibility' is nil, return nil."
     (let ((section (magit-current-section)))
       (while section
         (let ((content (oref section content)))
-          (if (and (magit-section-invisible-p section)
-                   (<= (or content (oref section start))
-                       beg
-                       (oref section end)))
-              (progn
-                (when content
-                  (magit-section-show section)
-                  (push section magit-section--opened-sections))
-                (setq section (oref section parent)))
-            (setq section nil))))))
+          (cond ((and (magit-section-invisible-p section)
+                      (<= (or content (oref section start))
+                          beg
+                          (oref section end)))
+                 (when content
+                   (magit-section-show section)
+                   (push section magit-section--opened-sections))
+                 (setq section (oref section parent)))
+                ((setq section nil)))))))
   (or (eq search-invisible t)
       (not (isearch-range-invisible beg end))))
 

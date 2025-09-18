@@ -1482,31 +1482,29 @@ for a revision."
   "Convert diff range type.
 Change \"revA..revB\" to \"revA...revB\", or vice versa."
   (interactive)
-  (if (and magit-buffer-range
-           (derived-mode-p 'magit-diff-mode)
-           (string-match magit-range-re magit-buffer-range))
-      (setq magit-buffer-range
-            (replace-match (if (string= (match-str 2 magit-buffer-range) "..")
-                               "..."
-                             "..")
-                           t t magit-buffer-range 2))
-    (user-error "No range to change"))
-  (magit-refresh))
+  (cond ((and magit-buffer-range
+              (derived-mode-p 'magit-diff-mode)
+              (string-match magit-range-re magit-buffer-range))
+         (setq magit-buffer-range
+               (replace-match
+                (if (string= (match-str 2 magit-buffer-range) "..") "..." "..")
+                t t magit-buffer-range 2))
+         (magit-refresh))
+        ((user-error "No range to change"))))
 
 (defun magit-diff-flip-revs ()
   "Swap revisions in diff range.
 Change \"revA..revB\" to \"revB..revA\"."
   (interactive)
-  (if (and magit-buffer-range
-           (derived-mode-p 'magit-diff-mode)
-           (string-match magit-range-re magit-buffer-range))
-      (progn
-        (setq magit-buffer-range
-              (concat (match-str 3 magit-buffer-range)
-                      (match-str 2 magit-buffer-range)
-                      (match-str 1 magit-buffer-range)))
-        (magit-refresh))
-    (user-error "No range to swap")))
+  (cond ((and magit-buffer-range
+              (derived-mode-p 'magit-diff-mode)
+              (string-match magit-range-re magit-buffer-range))
+         (setq magit-buffer-range
+               (concat (match-str 3 magit-buffer-range)
+                       (match-str 2 magit-buffer-range)
+                       (match-str 1 magit-buffer-range)))
+         (magit-refresh))
+        ((user-error "No range to swap"))))
 
 (defun magit-diff-toggle-file-filter ()
   "Toggle the file restriction of the current buffer's diffs.

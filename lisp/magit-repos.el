@@ -390,11 +390,12 @@ Usually this is just its basename."
                    (string-match-p magit-repolist-column-version-resume-regexp
                                    (magit-rev-format "%s")))
           (setq v (replace-match (propertize "+" 'face 'shadow) t t v 1))))
-      (if (and v (string-match "\\`[0-9]" v))
-          (concat " " v)
-        (when (and v (string-match "\\`[^0-9]+" v))
-          (magit--put-face 0 (match-end 0) 'shadow v))
-        v))))
+      (cond ((not v) nil)
+            ((string-match "\\`[0-9]" v)
+             (concat " " v))
+            ((string-match "\\`[^0-9]+" v)
+             (magit--put-face 0 (match-end 0) 'shadow v)
+             v)))))
 
 (defun magit-repolist-version< (a b)
   (save-match-data

@@ -266,21 +266,21 @@ and alternative commands."
                            (goto-char (point-min))
                            (unless (re-search-forward "^<<<<<<< " nil t)
                              (magit-stage-files (list file)))))))))
-        (if fileC
-            (magit-ediff-buffers
-             ((magit-get-revision-buffer revA fileA)
-              (magit-find-file-noselect  revA fileA))
-             ((magit-get-revision-buffer revB fileB)
-              (magit-find-file-noselect  revB fileB))
-             ((magit-get-revision-buffer revC fileC)
-              (magit-find-file-noselect  revC fileC))
-             setup quit file)
-          (magit-ediff-buffers
-           ((magit-get-revision-buffer revA fileA)
-            (magit-find-file-noselect  revA fileA))
-           ((magit-get-revision-buffer revB fileB)
-            (magit-find-file-noselect  revB fileB))
-           nil setup quit file))))))
+        (cond (fileC
+               (magit-ediff-buffers
+                ((magit-get-revision-buffer revA fileA)
+                 (magit-find-file-noselect  revA fileA))
+                ((magit-get-revision-buffer revB fileB)
+                 (magit-find-file-noselect  revB fileB))
+                ((magit-get-revision-buffer revC fileC)
+                 (magit-find-file-noselect  revC fileC))
+                setup quit file))
+              ((magit-ediff-buffers
+                ((magit-get-revision-buffer revA fileA)
+                 (magit-find-file-noselect  revA fileA))
+                ((magit-get-revision-buffer revB fileB)
+                 (magit-find-file-noselect  revB fileB))
+                nil setup quit file)))))))
 
 ;;;###autoload
 (defun magit-ediff-resolve-rest (file)

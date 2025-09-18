@@ -654,15 +654,15 @@ START has to be selected from a list of recent commits."
                       (magit-get-upstream-branch))
                      nil
                      (magit-rebase-arguments)))
-  (if start
-      (progn (message "Rebasing...")
-             (magit-run-git-sequencer "rebase" "--onto" newbase start args)
-             (message "Rebasing...done"))
-    (magit-log-select
-      `(lambda (commit)
-         (magit-rebase-subset ,newbase (concat commit "^") (list ,@args)))
-      (concat "Type %p on a commit to rebase it "
-              "and commits above it onto " newbase ","))))
+  (cond (start
+         (message "Rebasing...")
+         (magit-run-git-sequencer "rebase" "--onto" newbase start args)
+         (message "Rebasing...done"))
+        ((magit-log-select
+           `(lambda (commit)
+              (magit-rebase-subset ,newbase (concat commit "^") (list ,@args)))
+           (concat "Type %p on a commit to rebase it "
+                   "and commits above it onto " newbase ",")))))
 
 (defvar magit-rebase-interactive-include-selected t)
 
@@ -818,25 +818,26 @@ argument, prompt for the first commit to potentially squash into."
 In some cases this pops up a commit message buffer for you do
 edit.  With a prefix argument the old message is reused as-is."
   (interactive "P")
-  (if (magit-rebase-in-progress-p)
-      (if (magit-anything-unstaged-p t)
-          (user-error "Cannot continue rebase with unstaged changes")
-        (let ((dir (magit-gitdir)))
-          (when (and (magit-anything-staged-p)
-                     (file-exists-p (expand-file-name "rebase-merge" dir))
-                     (not (member (magit-toplevel)
-                                  magit--rebase-public-edit-confirmed)))
-            (magit-commit-amend-assert
-             (magit-file-line
-              (expand-file-name "rebase-merge/orig-head" dir)))))
-        (if noedit
-            (with-environment-variables (("GIT_EDITOR" "true"))
-              (magit-run-git-async (magit--rebase-resume-command) "--continue")
-              (set-process-sentinel magit-this-process
-                                    #'magit-sequencer-process-sentinel)
-              magit-this-process)
-          (magit-run-git-sequencer (magit--rebase-resume-command) "--continue")))
-    (user-error "No rebase in progress")))
+  (cond
+   ((not (magit-rebase-in-progress-p))
+    (user-error "No rebase in progress"))
+   ((not (magit-anything-unstaged-p t))
+    (user-error "Cannot continue rebase with unstaged changes"))
+   (t
+    (let ((dir (magit-gitdir)))
+      (when (and (magit-anything-staged-p)
+                 (file-exists-p (expand-file-name "rebase-merge" dir))
+                 (not (member (magit-toplevel)
+                              magit--rebase-public-edit-confirmed)))
+        (magit-commit-amend-assert
+         (magit-file-line (expand-file-name "rebase-merge/orig-head" dir)))))
+    (if noedit
+        (with-environment-variables (("GIT_EDITOR" "true"))
+          (magit-run-git-async (magit--rebase-resume-command) "--continue")
+          (set-process-sentinel magit-this-process
+                                #'magit-sequencer-process-sentinel)
+          magit-this-process)
+      (magit-run-git-sequencer (magit--rebase-resume-command) "--continue")))))
 
 ;;;###autoload
 (defun magit-rebase-skip ()

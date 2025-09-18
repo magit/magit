@@ -1355,12 +1355,12 @@ argument (the prefix) non-nil means save all with no questions."
 
 Later, when the buffer is buried, it may be restored by
 `magit-restore-window-configuration'."
-  (if magit-inhibit-save-previous-winconf
-      (when (eq magit-inhibit-save-previous-winconf 'unset)
-        (setq magit-previous-window-configuration nil))
-    (unless (get-buffer-window (current-buffer) (selected-frame))
-      (setq magit-previous-window-configuration
-            (current-window-configuration)))))
+  (cond (magit-inhibit-save-previous-winconf
+         (when (eq magit-inhibit-save-previous-winconf 'unset)
+           (setq magit-previous-window-configuration nil)))
+        ((not (get-buffer-window (current-buffer) (selected-frame)))
+         (setq magit-previous-window-configuration
+               (current-window-configuration)))))
 
 (defun magit-restore-window-configuration (&optional kill-buffer)
   "Bury or kill the current buffer and restore previous window configuration."
