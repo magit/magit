@@ -929,15 +929,15 @@ Like `magit-mode-bury-buffer' (which see) but with a negative
 prefix argument instead bury the revision buffer, provided it
 is displayed in the current frame."
   (interactive "p")
-  (if (< arg 0)
-      (let* ((buf (magit-get-mode-buffer 'magit-revision-mode))
-             (win (and buf (get-buffer-window buf (selected-frame)))))
-        (if win
-            (with-selected-window win
-              (with-current-buffer buf
-                (magit-mode-bury-buffer (> (abs arg) 1))))
-          (user-error "No revision buffer in this frame")))
-    (magit-mode-bury-buffer (> arg 1))))
+  (cond-let*
+    ((>= arg 0)
+     (magit-mode-bury-buffer (> arg 1)))
+    ([buf (magit-get-mode-buffer 'magit-revision-mode)]
+     [win (get-buffer-window buf (selected-frame))]
+     (with-selected-window win
+       (with-current-buffer buf
+         (magit-mode-bury-buffer (> (abs arg) 1)))))
+    ((user-error "No revision buffer in this frame"))))
 
 ;;;###autoload
 (defun magit-log-move-to-parent (&optional n)
