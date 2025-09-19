@@ -1042,30 +1042,29 @@ global map, this involves advising `tab-bar--define-keys'."
     ((mapc #'magit-section-hide children))))
 
 (defun magit-section-hidden (section)
-  "Return t if SECTION and/or an ancestor is hidden."
+  "Return t if the content of SECTION or of any ancestor is hidden.
+Ignore whether the body of any of SECTION's descendants is hidden.
+When the status of descendants is irrelevant but that of ancestors
+matters, instead use `magit-section-hidden-body'."
   (or (oref section hidden)
       (and$ (oref section parent)
             (magit-section-hidden $))))
 
 (defun magit-section-hidden-body (section &optional pred)
-  "Return t if the content of SECTION or of any children is hidden."
+  "Return t if the content of SECTION or of any descendant is hidden.
+Ignore whether the body of any of SECTION's ancestors is hidden;
+if you need that use `magit-section-hidden'."
   (if-let ((children (oref section children)))
       (funcall (or pred #'seq-some) #'magit-section-hidden-body children)
     (and (oref section content)
          (oref section hidden))))
 
+(defalias 'magit-section-invisible-p #'magit-section-hidden)
+
 (defun magit-section-content-p (section)
   "Return non-nil if SECTION has content or an unused washer function."
   (with-slots (content end washer) section
     (and content (or (not (= content end)) washer))))
-
-(defun magit-section-invisible-p (section)
-  "Return t if the SECTION's body is invisible.
-When the body of an ancestor of SECTION is collapsed then
-SECTION's body (and heading) obviously cannot be visible."
-  (or (oref section hidden)
-      (and$ (oref section parent)
-            (magit-section-invisible-p $))))
 
 (defun magit-section-show-level (level)
   "Show surrounding sections up to LEVEL.
@@ -2078,7 +2077,7 @@ When `magit-section-preserve-visibility' is nil, return nil."
     (let ((section (magit-current-section)))
       (while section
         (let ((content (oref section content)))
-          (cond ((and (magit-section-invisible-p section)
+          (cond ((and (magit-section-hidden section)
                       (<= (or content (oref section start))
                           beg
                           (oref section end)))
