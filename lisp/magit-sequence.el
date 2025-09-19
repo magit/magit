@@ -821,7 +821,7 @@ edit.  With a prefix argument the old message is reused as-is."
   (cond
    ((not (magit-rebase-in-progress-p))
     (user-error "No rebase in progress"))
-   ((not (magit-anything-unstaged-p t))
+   ((magit-anything-unstaged-p t)
     (user-error "Cannot continue rebase with unstaged changes"))
    (t
     (let ((dir (magit-gitdir)))
