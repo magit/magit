@@ -885,6 +885,13 @@ https://github.com/mhagger/git-when-merged."
         (user-error "Could not find when %s was merged into %s: %s"
                     commit branch m)))))
 
+;;;###autoload
+(defun magit-delete-shelved-branch (branch)
+  "Delete the shelved BRANCH.
+Delete a ref created by `magit-branch-shelve'."
+  (interactive (list (magit-read-shelved-branch "Log shelved branch")))
+  (magit-run-git "update-ref" "-d" (concat "refs/shelved/" branch)))
+
 ;;;; Limit Commands
 
 (defun magit-log-toggle-commit-limit ()

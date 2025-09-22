@@ -496,6 +496,10 @@ Branch %s already exists.
   "<2>" (magit-menu-item "Delete %m"    #'magit-branch-delete)
   "<1>" (magit-menu-item "Visit commit" #'magit-visit-ref))
 
+(defvar-keymap magit-shelved-branch-section-map
+  :doc "Keymap for `shelved-branch' sections."
+  "<remap> <magit-delete-thing>" #'magit-delete-shelved-branch)
+
 (defvar-keymap magit-tag-section-map
   :doc "Keymap for `tag' sections."
   "<remap> <magit-delete-thing>" #'magit-tag-delete
