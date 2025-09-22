@@ -2851,6 +2851,15 @@ out.  Only existing branches can be selected."
          (string-match "^\\([^ ]+\\) \\(.+\\)" choice)
          (substring-no-properties (match-str 1 choice)))))
 
+(defun magit-read-shelved-branch (prompt)
+  (magit-completing-read
+   prompt
+   (mapcar (##substring % 8)
+           (nreverse (magit-list-refnames "refs/shelved")))
+   nil t nil nil
+   (and$ (magit-section-value-if 'shelved-branch)
+         (substring $ 13))))
+
 (defun magit-read-remote (prompt &optional default use-only)
   (let ((remotes (magit-list-remotes)))
     (if (and use-only (length= remotes 1))

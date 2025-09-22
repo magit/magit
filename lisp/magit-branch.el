@@ -827,12 +827,7 @@ and also rename the respective reflog file."
 Rename \"refs/shelved/BRANCH\" to \"refs/heads/BRANCH\".  If BRANCH
 is prefixed with \"YYYY-MM-DD\", then drop that part of the name.
 Also rename the respective reflog file."
-  (interactive
-   (list (magit-completing-read
-          "Unshelve branch"
-          (mapcar (##substring % 8)
-                  (nreverse (magit-list-refnames "refs/shelved")))
-          nil t)))
+  (interactive (list (magit-read-shelved-branch "Unshelve branch")))
   (let ((old (concat "refs/shelved/" branch))
         (new (concat "refs/heads/"
                      (if (string-match-p
