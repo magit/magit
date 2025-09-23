@@ -1281,7 +1281,7 @@ if you so desire."
   "Save file-visiting buffers belonging to the current repository.
 After any buffer where `buffer-save-without-query' is non-nil
 is saved without asking, the user is asked about each modified
-buffer which visits a file in the current repository.  Optional
+buffer, which visits a file in the current repository.  Optional
 argument (the prefix) non-nil means save all with no questions."
   (interactive "P")
   (when-let ((topdir (magit-rev-parse-safe "--show-toplevel")))
@@ -1296,8 +1296,10 @@ argument (the prefix) non-nil means save all with no questions."
                  "to skip the current buffer and remember choice")
              ,@save-some-buffers-action-alist))
           (topdirs nil)
-          (unwiped nil)
-          (magit--wip-inhibit-autosave t))
+          ;; Create a single wip commit for all saved files, for
+          ;; which `magit-wip-after-save-local-mode' is enabled.
+          (magit--wip-inhibit-autosave t)
+          (saved nil))
       (unwind-protect
           (save-some-buffers
            arg
@@ -1330,18 +1332,17 @@ argument (the prefix) non-nil means save all with no questions."
                 ;; Check whether the file is actually writable.
                 (file-writable-p buffer-file-name)
                 (prog1 t
-                  ;; Schedule for wip commit, if appropriate.
                   (when magit-wip-after-save-local-mode
-                    (push (expand-file-name buffer-file-name) unwiped)))))))
-        (when unwiped
+                    (push (expand-file-name buffer-file-name) saved)))))))
+        (when saved
           (let ((default-directory topdir))
             (magit-wip-commit-worktree
              (magit-wip-get-ref)
-             unwiped
-             (if (cdr unwiped)
-                 (format "autosave %s files after save" (length unwiped))
+             saved
+             (if (cdr saved)
+                 (format "autosave %s files after save" (length saved))
                (format "autosave %s after save"
-                       (file-relative-name (car unwiped)))))))))))
+                       (file-relative-name (car saved)))))))))))
 
 ;;; Restore Window Configuration
 
