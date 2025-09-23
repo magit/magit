@@ -1277,6 +1277,42 @@ if you so desire."
 
 (defvar-local magit-inhibit-refresh-save nil)
 
+(defvar magit-save-repository-buffers-predicate
+  (lambda (topdir)
+    (let ((remote (file-remote-p default-directory))
+          (topdirs nil)
+          ;; If the current file is modified and resides inside
+          ;; a repository, and a let-binding is in effect, which
+          ;; places us in another repository, then this binding
+          ;; is needed to prevent that file from being saved.
+          (default-directory default-directory))
+      (and buffer-file-name
+           (setq default-directory (file-name-directory buffer-file-name))
+           ;; Check whether the repository still exists.
+           (file-exists-p default-directory)
+           ;; Check whether refreshing is disabled.
+           (not magit-inhibit-refresh-save)
+           ;; Check whether the visited file is either on the
+           ;; same remote as the repository, or both are on
+           ;; the local system.
+           (equal (file-remote-p buffer-file-name) remote)
+           ;; Delayed checks that are more expensive for remote
+           ;; repositories, due to the required network access.
+           ;;
+           ;; Check whether the file is inside the repository.
+           (equal (or (cdr (assoc default-directory topdirs))
+                      (let ((top (magit-rev-parse-safe "--show-toplevel")))
+                        (push (cons default-directory top) topdirs)
+                        top))
+                  topdir)
+           ;; Check whether the file is actually writable.
+           (file-writable-p buffer-file-name))))
+  "Predicate for `magit-save-repository-buffers'.
+
+This function is called for each buffer that might need saving with
+one argument, the working tree of the respective repository.  If it
+returns non-nil, the current buffer is saved.")
+
 (defun magit-save-repository-buffers (&optional arg)
   "Save file-visiting buffers belonging to the current repository.
 After any buffer where `buffer-save-without-query' is non-nil
@@ -1285,8 +1321,7 @@ buffer, which visits a file in the current repository.  Optional
 argument (the prefix) non-nil means save all with no questions."
   (interactive "P")
   (when-let ((topdir (magit-rev-parse-safe "--show-toplevel")))
-    (let ((remote (file-remote-p default-directory))
-          (save-some-buffers-action-alist
+    (let ((save-some-buffers-action-alist
            `((?Y ,(##with-current-buffer %
                     (setq buffer-save-without-query t)
                     (save-buffer))
@@ -1295,7 +1330,6 @@ argument (the prefix) non-nil means save all with no questions."
                     (setq magit-inhibit-refresh-save t))
                  "to skip the current buffer and remember choice")
              ,@save-some-buffers-action-alist))
-          (topdirs nil)
           ;; Create a single wip commit for all saved files, for
           ;; which `magit-wip-after-save-local-mode' is enabled.
           (magit--wip-inhibit-autosave t)
@@ -1304,36 +1338,10 @@ argument (the prefix) non-nil means save all with no questions."
           (save-some-buffers
            arg
            (lambda ()
-             ;; If the current file is modified and resides inside
-             ;; a repository, and a let-binding is in effect, which
-             ;; places us in another repository, then this binding
-             ;; is needed to prevent that file from being saved.
-             (and-let ((default-directory
-                        (and buffer-file-name
-                             (file-name-directory buffer-file-name))))
-               (and
-                ;; Check whether the repository still exists.
-                (file-exists-p default-directory)
-                ;; Check whether refreshing is disabled.
-                (not magit-inhibit-refresh-save)
-                ;; Check whether the visited file is either on the
-                ;; same remote as the repository, or both are on
-                ;; the local system.
-                (equal (file-remote-p buffer-file-name) remote)
-                ;; Delayed checks that are more expensive for remote
-                ;; repositories, due to the required network access.
-                ;;
-                ;; Check whether the file is inside the repository.
-                (equal (or (cdr (assoc default-directory topdirs))
-                           (let ((top (magit-rev-parse-safe "--show-toplevel")))
-                             (push (cons default-directory top) topdirs)
-                             top))
-                       topdir)
-                ;; Check whether the file is actually writable.
-                (file-writable-p buffer-file-name)
-                (prog1 t
-                  (when magit-wip-after-save-local-mode
-                    (push (expand-file-name buffer-file-name) saved)))))))
+             (and (funcall magit-save-repository-buffers-predicate topdir)
+                  (prog1 t
+                    (when magit-wip-after-save-local-mode
+                      (push (expand-file-name buffer-file-name) saved))))))
         (when saved
           (let ((default-directory topdir))
             (magit-wip-commit-worktree
