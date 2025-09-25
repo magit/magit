@@ -1073,18 +1073,20 @@ the value in the symbol's `saved-value' property if any, or
 
 ;;;###autoload
 (define-advice Info-follow-nearest-node (:around (fn &optional fork) gitman)
-  (if-let* ((node (Info-get-token
-                   (point) "\\*note[ \n\t]+"
-                   "\\*note[ \n\t]+\\([^:]*\\):\\(:\\|[ \n\t]*(\\)?"))
-            (_(string-match "^(gitman)\\(.+\\)" node)))
-      (pcase magit-view-git-manual-method
-        ('info  (funcall fn fork))
-        ('man   (require 'man)
-                (man (match-str 1 node)))
-        ('woman (require 'woman)
-                (woman (match-str 1 node)))
-        (_ (user-error "Invalid value for `magit-view-git-manual-method'")))
-    (funcall fn fork)))
+  ;; Do not use `if-let*' (aka `cond-let--if-let*') because this is
+  ;; copied to the autoload file, which does not require `cond-let'.
+  (let ((node (Info-get-token
+               (point) "\\*note[ \n\t]+"
+               "\\*note[ \n\t]+\\([^:]*\\):\\(:\\|[ \n\t]*(\\)?")))
+    (if (and node (string-match "^(gitman)\\(.+\\)" node))
+        (pcase magit-view-git-manual-method
+          ('info  (funcall fn fork))
+          ('man   (require 'man)
+                  (man (match-str 1 node)))
+          ('woman (require 'woman)
+                  (woman (match-str 1 node)))
+          (_ (user-error "Invalid value for `magit-view-git-manual-method'")))
+      (funcall fn fork))))
 
 ;; When making changes here, then also adjust the copy in docs/Makefile.
 ;;;###autoload
