@@ -1,4 +1,18 @@
 # -*- mode: org -*-
+* v4.4.1    UNRELEASED
+
+- Added new option ~magit-log-trailer-labels~.  #5432
+
+- Added new command ~magit-delete-shelved-branch~.  31c0ae17d3
+
+- Added new variable ~magit-save-repository-buffers-predicate~.  #5450
+
+- Fixed saving the value of the menus ~magit-diff~, ~magit-log~,
+  ~magit-diff-refresh~ and ~magit-log-refresh~.  c7ba53b4b4
+
+- A form from the ~cond-let~ library made it into the autoloads file,
+  where that library isn't being loaded.  #5451
+
 * v4.4.0    2025-09-09
 
 - At least Emacs 28.1 is required now.  Emacs 30.1 was released
