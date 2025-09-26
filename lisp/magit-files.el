@@ -175,7 +175,10 @@ A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
                              global-diff-hl-mode-enable-in-buffers ; Emacs < 30
                              eglot--maybe-activate-editing-mode)
                            #'eq)))
-      (normal-mode t))
+      ;; We want `normal-mode' to respect nil `enable-local-variables'.
+      ;; The FIND-FILE argument wasn't designed for our use case, so we
+      ;; have to use this strange invocation to achieve that.
+      (normal-mode (not enable-local-variables)))
     (setq buffer-read-only t)
     (set-buffer-modified-p nil)
     (goto-char (point-min))))
