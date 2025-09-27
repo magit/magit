@@ -1999,8 +1999,19 @@ like 'magit-jump-to-diffstat-or-diff'."
 (magit-define-section-jumper magit-jump-to-revision-notes
   "Notes" notes nil magit-insert-revision-notes)
 
-(magit-define-section-jumper magit-jump-to-revision-diffstat
-  "Diffstat" diffstat nil magit-insert-revision-diff)
+(transient-define-suffix magit-jump-to-revision-diffstat (&optional expand)
+  :description "Diffstat"
+  :inapt-if-not (##cl-find-if (##eq (oref % type) 'diffstat)
+                              (oref magit-root-section children))
+  (interactive "P")
+  (cond-let
+    ([section (cl-find-if (##eq (oref % type) 'diffstat)
+                          (oref magit-root-section children))]
+     (goto-char (oref section start))
+     (when expand
+       (with-local-quit (magit-section-show section))
+       (recenter 0)))
+    ((message (format "No diff sections found")))))
 
 (transient-define-suffix magit-jump-to-revision-diff (&optional expand)
   :description "Diff"
