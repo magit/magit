@@ -1862,23 +1862,6 @@ the Magit-Status buffer for DIRECTORY."
               (throw 'found nil))))))
     (+ line offset)))
 
-;;;;; Movement
-
-(defun magit-jump-to-diffstat-or-diff ()
-  "Jump to the diffstat or diff.
-When point is on a file inside the diffstat section, then jump
-to the respective diff section, otherwise jump to the diffstat
-section or a child thereof."
-  (interactive)
-  (if-let ((section (magit-get-section
-                     (append (magit-section-case
-                               ([file diffstat] `((file . ,(oref it value))))
-                               (file `((file . ,(oref it value)) (diffstat)))
-                               (t '((diffstat))))
-                             (magit-section-ident magit-root-section)))))
-      (magit-section-goto section)
-    (user-error "No diffstat in this buffer")))
-
 ;;;; Scroll Commands
 
 (defun magit-diff-show-or-scroll-up ()
@@ -2032,6 +2015,21 @@ like 'magit-jump-to-diffstat-or-diff'."
        (with-local-quit (magit-section-show section))
        (recenter 0)))
     ((message (format "No diff sections found")))))
+
+(defun magit-jump-to-diffstat-or-diff ()
+  "Jump to the diffstat or diff.
+When point is on a file inside the diffstat section, then jump
+to the respective diff section, otherwise jump to the diffstat
+section or a child thereof."
+  (interactive)
+  (if-let ((section (magit-get-section
+                     (append (magit-section-case
+                               ([file diffstat] `((file . ,(oref it value))))
+                               (file `((file . ,(oref it value)) (diffstat)))
+                               (t '((diffstat))))
+                             (magit-section-ident magit-root-section)))))
+      (magit-section-goto section)
+    (user-error "No diffstat in this buffer")))
 
 ;;; Diff Mode
 
