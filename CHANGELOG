@@ -13,6 +13,9 @@
 - A form from the ~cond-let~ library made it into the autoloads file,
   where that library isn't being loaded.  #5451
 
+- Improved commands for jumping to specific sections in revision
+  buffers.  #5442
+
 * v4.4.0    2025-09-09
 
 - At least Emacs 28.1 is required now.  Emacs 30.1 was released

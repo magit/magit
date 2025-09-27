@@ -2005,8 +2005,13 @@ like 'magit-jump-to-diffstat-or-diff'."
                               (oref magit-root-section children))
   (interactive "P")
   (cond-let
-    ([section (cl-find-if (##eq (oref % type) 'diffstat)
-                          (oref magit-root-section children))]
+    ([section (magit-get-section
+               (append (magit-section-case
+                         (file `((file . ,(oref it value)) (diffstat)))
+                         (hunk `((file . ,(magit-section-parent-value it))
+                                 (diffstat)))
+                         (t '((diffstat))))
+                       (magit-section-ident magit-root-section)))]
      (goto-char (oref section start))
      (when expand
        (with-local-quit (magit-section-show section))
@@ -2038,6 +2043,8 @@ section or a child thereof."
                (append (magit-section-case
                          ([file diffstat] `((file . ,(oref it value))))
                          (file `((file . ,(oref it value)) (diffstat)))
+                         (hunk `((file . ,(magit-section-parent-value it))
+                                 (diffstat)))
                          (t '((diffstat))))
                        (magit-section-ident magit-root-section)))]
      (goto-char (oref section start))
