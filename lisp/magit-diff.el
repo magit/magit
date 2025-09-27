@@ -2022,14 +2022,15 @@ When point is on a file inside the diffstat section, then jump
 to the respective diff section, otherwise jump to the diffstat
 section or a child thereof."
   (interactive)
-  (if-let ((section (magit-get-section
-                     (append (magit-section-case
-                               ([file diffstat] `((file . ,(oref it value))))
-                               (file `((file . ,(oref it value)) (diffstat)))
-                               (t '((diffstat))))
-                             (magit-section-ident magit-root-section)))))
-      (magit-section-goto section)
-    (user-error "No diffstat in this buffer")))
+  (cond-let
+    ([section (magit-get-section
+               (append (magit-section-case
+                         ([file diffstat] `((file . ,(oref it value))))
+                         (file `((file . ,(oref it value)) (diffstat)))
+                         (t '((diffstat))))
+                       (magit-section-ident magit-root-section)))]
+     (magit-section-goto section))
+    ((user-error "No diffstat in this buffer"))))
 
 ;;; Diff Mode
 
