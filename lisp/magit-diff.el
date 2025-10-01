@@ -2062,6 +2062,7 @@ section or a child thereof."
   "C-c C-b" #'magit-go-backward
   "C-c C-f" #'magit-go-forward
   "SPC"     #'scroll-up
+  "S-SPC"   #'scroll-down
   "DEL"     #'scroll-down
   "j"       #'magit-jump-to-diffstat-or-diff
   "<remap> <write-file>" #'magit-patch-save)
