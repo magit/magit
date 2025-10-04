@@ -715,7 +715,8 @@ third-party completion frameworks."
                 table predicate
                 (if (eq require-match 'any) nil require-match)
                 initial-input hist def inherit-input-method)))
-    (when (and require-match (not values))
+    (when (and (eq require-match 'any)
+               (not values))
       (user-error "Nothing selected"))
     (if no-split input values)))
 
