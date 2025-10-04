@@ -664,44 +664,44 @@ the output in the kill ring.
                         (magit-git-string "rev-parse" "HEAD"))))))))
     (if (stringp magit-version)
         (when print-dest
-          (let ((str (format
-                      "Magit %s%s, Transient %s,%s Git %s, Emacs %s, %s"
-                      (or magit-version "(unknown)")
-                      (or (and (ignore-errors
+          (let* ((alt (or (and (ignore-errors
                                  (magit--version>= magit-version "2008"))
                                (ignore-errors
                                  (require 'lisp-mnt)
                                  (and (fboundp 'lm-header)
-                                      (format
-                                       " [>= %s]"
-                                       (with-temp-buffer
-                                         (insert-file-contents
-                                          (locate-library "magit.el" t))
-                                         (lm-header "Package-Version"))))))
-                          "")
-                      (or (ignore-errors
-                            (require 'lisp-mnt)
-                            (and (fboundp 'lm-header)
-                                 (with-temp-buffer
-                                   (insert-file-contents
-                                    (locate-library "transient.el" t))
-                                   (lm-header "Package-Version"))))
-                          "(unknown)")
-                      (let ((lib (locate-library "forge.el" t)))
-                        (or (and lib
-                                 (format
-                                  " Forge %s,"
-                                  (or (ignore-errors
-                                        (require 'lisp-mnt)
-                                        (with-temp-buffer
-                                          (insert-file-contents lib)
-                                          (and (fboundp 'lm-header)
-                                               (lm-header "Package-Version"))))
-                                      "(unknown)")))
-                            ""))
-                      (magit--safe-git-version)
-                      emacs-version
-                      system-type)))
+                                      (with-temp-buffer
+                                        (insert-file-contents
+                                         (locate-library "magit.el" t))
+                                        (lm-header "Package-Version")))))))
+                 (str (format
+                       "Magit %s%s, Transient %s,%s Git %s, Emacs %s, %s"
+                       (or magit-version "(unknown)")
+                       (if (and alt (not (equal alt magit-version)))
+                           (format " [>= %s]" alt)
+                         "")
+                       (or (ignore-errors
+                             (require 'lisp-mnt)
+                             (and (fboundp 'lm-header)
+                                  (with-temp-buffer
+                                    (insert-file-contents
+                                     (locate-library "transient.el" t))
+                                    (lm-header "Package-Version"))))
+                           "(unknown)")
+                       (let ((lib (locate-library "forge.el" t)))
+                         (or (and lib
+                                  (format
+                                   " Forge %s,"
+                                   (or (ignore-errors
+                                         (require 'lisp-mnt)
+                                         (with-temp-buffer
+                                           (insert-file-contents lib)
+                                           (and (fboundp 'lm-header)
+                                                (lm-header "Package-Version"))))
+                                       "(unknown)")))
+                             ""))
+                       (magit--safe-git-version)
+                       emacs-version
+                       system-type)))
             (when interactive
               (kill-new str))
             (princ str print-dest)))
