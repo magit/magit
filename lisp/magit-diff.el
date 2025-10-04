@@ -2458,7 +2458,9 @@ keymap is the parent of their keymaps."
           (rename nil)
           (binary nil))
       (magit-delete-line)
-      (while (not (or (eobp) (looking-at magit-diff-headline-re)))
+      (while (not (or (eobp)
+                      (looking-at magit-diff-headline-re)
+                      (looking-at magit-log-heading-re)))
         (cond
          ((looking-at "old mode \\(?:[^\n]+\\)\nnew mode \\(?:[^\n]+\\)\n")
           (setq modes (match-str 0)))
