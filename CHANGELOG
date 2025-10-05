@@ -13,8 +13,19 @@
 - A form from the ~cond-let~ library made it into the autoloads file,
   where that library isn't being loaded.  #5451
 
+- ~magit-revert-rev-file-buffer~ did not respect a value of ~nil~ for
+  ~enable-local-variables~.  5eb31a419a
+
 - Improved commands for jumping to specific sections in revision
   buffers.  #5442
+
+- Improved consistency of scroll command bindings.  #5453
+
+- It is possible again to exit ~magit-completing-read-multiple~ with
+  no input if REQUIRE-MATCH is ~t~.  b5066e5fa4
+
+- Diffs that appear in logs could not be parsed in some edge cases.
+  #5454
 
 * v4.4.0    2025-09-09
 
