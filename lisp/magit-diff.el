@@ -42,6 +42,8 @@
 ;; For `magit-diff-visit-file'
 (declare-function magit-find-file-noselect "magit-files" (rev file &optional revert))
 (declare-function magit-status-setup-buffer "magit-status" (&optional directory))
+;; For `magit-diff-wash-diff'
+(defvar magit-log-heading-re)
 ;; For `magit-diff-while-committing'
 (declare-function magit-commit-diff-1 "magit-commit" ())
 (declare-function magit-commit-message-buffer "magit-commit" ())

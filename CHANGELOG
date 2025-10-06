@@ -1,4 +1,8 @@
 # -*- mode: org -*-
+* v4.4.2    UNRELEASED
+
+- Addressed harmless compiler warning.
+
 * v4.4.1    2025-10-06
 
 - Added new option ~magit-log-trailer-labels~.  #5432
