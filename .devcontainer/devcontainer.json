@@ -1,4 +1,13 @@
 {
   "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "features": {}
+  "features": {},
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y emacs git make gcc && emacs --batch --eval \"(progn (require 'package) (package-initialize) (unless package-archive-contents (package-refresh-contents)) (unless (package-installed-p 'magit) (package-install 'magit)))\"",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "tuttieee.emacs-mcx"
+      ]
+    }
+  }
 }
