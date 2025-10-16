@@ -94,7 +94,6 @@ inside your function."
 (defcustom magit-post-refresh-hook
   ;; Do not function-quote to avoid circular dependencies.
   '(magit-auto-revert-buffers
-    magit-run-post-commit-hook
     magit-run-post-stage-hook
     magit-run-post-unstage-hook)
   "Hook run after refreshing in `magit-refresh'.
@@ -109,7 +108,6 @@ inside your function."
   :group 'magit-refresh
   :type 'hook
   :options '(magit-auto-revert-buffers
-             magit-run-post-commit-hook
              magit-run-post-stage-hook
              magit-run-post-unstage-hook))
 
