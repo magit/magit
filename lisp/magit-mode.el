@@ -53,14 +53,12 @@
 
 ;;; Options
 
-(defcustom magit-mode-hook
-  (list #'magit-load-config-extensions)
+(defcustom magit-mode-hook nil
   "Hook run when entering a mode derived from Magit mode."
-  :package-version '(magit . "3.0.0")
+  :package-version '(magit . "4.4.2")
   :group 'magit-modes
   :type 'hook
-  :options (list #'magit-load-config-extensions
-                 #'bug-reference-mode))
+  :options (list #'bug-reference-mode))
 
 (defcustom magit-setup-buffer-hook
   (list #'magit-maybe-save-repository-buffers
@@ -553,13 +551,6 @@ to the kill ring."
     ["Bury buffer"                magit-mode-bury-buffer t]))
 
 ;;; Mode
-
-(defun magit-load-config-extensions ()
-  "Load Magit extensions that are defined at the Git config layer."
-  (dolist (ext (magit-get-all "magit.extension"))
-    (let ((sym (intern (format "magit-%s-mode" ext))))
-      (when (fboundp sym)
-        (funcall sym 1)))))
 
 (define-derived-mode magit-mode magit-section-mode "Magit"
   "Parent major mode from which Magit major modes inherit.
