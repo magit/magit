@@ -360,11 +360,6 @@ commit message."
                 (concat "refs/heads/" branch))
               "HEAD")))
 
-(defun magit-wip-maybe-add-commit-hook ()
-  (when (and magit-wip-merge-branch
-             (magit--any-wip-mode-enabled-p))
-    (add-hook 'git-commit-post-finish-hook #'magit-wip-commit nil t)))
-
 ;;; Log
 
 (defun magit-wip-log-index (args files)
