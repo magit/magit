@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+hook="$ORIG_HOOKS_PATH/$(basename $0)"
+if [ -x "$hook" ]
+then
+    "$hook" "$@"
+else
+    true
+fi
