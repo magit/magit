@@ -157,6 +157,7 @@ commit message."
                              (magit-read-string "Wip commit message")
                            "wip-save tracked files")))
   (when-let ((ref (magit-wip-get-ref)))
+    ;; (magit--client-message "Updating wip refs for %s" ref)
     (magit-wip-commit-index ref files msg)
     (magit-wip-commit-worktree ref files msg)))
 

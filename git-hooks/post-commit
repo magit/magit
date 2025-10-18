@@ -1,1 +1,12 @@
-fallthrough
+#!/usr/bin/env sh
+
+case "$INSIDE_EMACS" in
+    *magit) $GIT_EDITOR --eval "(magit-run-post-commit-functions 'post-commit)" ;;
+esac
+
+if [ -x "$SHADOWED_GITHOOK_DIRECTORY" ]
+then
+    "$SHADOWED_GITHOOK_DIRECTORY/$(basename $0)" "$@"
+else
+    true
+fi
