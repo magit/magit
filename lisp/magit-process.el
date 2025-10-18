@@ -111,6 +111,14 @@ displays the text of `magit-process-error-summary' instead."
   :type '(choice (const :tag "Use summary line" nil)
                  integer))
 
+(defcustom magit-overriding-githook-directory 'magit
+  "TODO"
+  :package-version '(magit . "4.5.0")
+  :group 'magit-process
+  :type '(choice (const :tag "Do not shadow Git's hook directory" nil)
+                 (const :tag "Use Magit's hook directory" 'magit)
+                 (directory :tag "Custom directory")))
+
 (defcustom magit-credential-cache-daemon-socket
   (seq-some (lambda (line)
               (pcase-let ((`(,prog . ,args) (split-string line)))
@@ -529,12 +537,26 @@ eol conversion."
         (default-process-coding-system (magit--process-coding-system)))
     (apply #'process-file process infile buffer display args)))
 
+(defvar magit--shadowed-githook-directory nil)
+
+(defun magit--shadowed-githook-directory ()
+  (or magit--shadowed-githook-directory
+      (setq magit--shadowed-githook-directory
+            (let ((magit-git-global-arguments nil))
+              (cl-letf (((symbol-function 'magit-process-environment)
+                         (lambda () process-environment)))
+                (or (magit-get "core.hooksPath")
+                    (expand-file-name "hooks" (magit-gitdir))))))))
+
 (defun magit-process-environment ()
   ;; The various w32 hacks are only applicable when running on the local
   ;; machine.  A local binding of process-environment different from the
   ;; top-level value affects the environment used by Tramp.
   (let ((local (not (file-remote-p default-directory))))
     (append magit-git-environment
+            (and magit-overriding-githook-directory
+                 (list (concat "SHADOWED_GITHOOK_DIRECTORY="
+                               (magit--shadowed-githook-directory))))
             (and local
                  (cdr (assoc magit-git-executable magit-git-w32-path-hack)))
             (and local magit-need-cygwin-noglob

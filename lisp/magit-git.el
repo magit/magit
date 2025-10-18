@@ -155,6 +155,15 @@ option."
     "-c" "color.ui=false"
     "-c" "color.diff=false"
     "-c" "diff.noPrefix=false"
+    ;; TODO use setter
+    ,@(cond-let
+        ([_(eq magit-overriding-githook-directory 'magit)]
+         [dir (locate-dominating-file (locate-library "magit.el") "git-hooks")]
+         (list "-c" (format "core.hooksPath=%s" dir)))
+        ((and magit-overriding-githook-directory
+              (file-directory-p magit-overriding-githook-directory))
+         (list "-c" (format "core.hooksPath=%s"
+                            magit-overriding-githook-directory))))
     ,@(and (eq system-type 'windows-nt)
            (list "-c" "i18n.logOutputEncoding=UTF-8")))
   "Global Git arguments.
@@ -169,10 +178,16 @@ to connect to servers with ancient Git versions.  Never remove
 anything that is part of the default value, unless you really
 know what you are doing.  And think very hard before adding
 something; it will be used every time Magit runs Git for any
-purpose."
+purpose.
+
+Set `magit-overriding-githook-directory' *before* loading Magit,
+to add, remove or modify \"-c\" \"core.hooksPath=PATH\".  Doing so
+also updates the value of this option."
   :package-version '(magit . "4.3.2")
   :group 'magit-commands
   :group 'magit-process
+  :initialize #'custom-initialize-delay
+  :set-after '(magit-overriding-githook-directory)
   :type '(repeat string))
 
 (defcustom magit-prefer-remote-upstream nil
