@@ -29,6 +29,7 @@
 (require 'magit-base)
 
 (require 'format-spec)
+(require 'server)
 
 ;; From `magit-branch'.
 (defvar magit-branch-prefer-remote-upstream)
@@ -148,6 +149,14 @@ option."
   :group 'magit-process
   :type 'string)
 
+(defcustom magit-overriding-githook-directory 'magit
+  "TODO"
+  :package-version '(magit . "4.5.0")
+  :group 'magit-process
+  :type '(choice (const :tag "Do not shadow Git's hook directory" nil)
+                 (const :tag "Use Magit's hook directory" magit)
+                 (directory :tag "Custom directory")))
+
 (defcustom magit-git-global-arguments
   `("--no-pager" "--literal-pathspecs"
     "-c" "core.preloadindex=true"
@@ -155,6 +164,17 @@ option."
     "-c" "color.ui=false"
     "-c" "color.diff=false"
     "-c" "diff.noPrefix=false"
+    ;; TODO use setter
+    ,@(cond-let
+        ([_(eq magit-overriding-githook-directory 'magit)]
+         [dir (expand-file-name "git-hooks"
+                                (locate-dominating-file
+                                 (locate-library "magit.el") "git-hooks"))]
+         (list "-c" (format "core.hooksPath=%s" dir)))
+        ((and magit-overriding-githook-directory
+              (file-directory-p magit-overriding-githook-directory))
+         (list "-c" (format "core.hooksPath=%s"
+                            magit-overriding-githook-directory))))
     ,@(and (eq system-type 'windows-nt)
            (list "-c" "i18n.logOutputEncoding=UTF-8")))
   "Global Git arguments.
@@ -169,10 +189,16 @@ to connect to servers with ancient Git versions.  Never remove
 anything that is part of the default value, unless you really
 know what you are doing.  And think very hard before adding
 something; it will be used every time Magit runs Git for any
-purpose."
+purpose.
+
+Set `magit-overriding-githook-directory' *before* loading Magit,
+to add, remove or modify \"-c\" \"core.hooksPath=PATH\".  Doing so
+also updates the value of this option."
   :package-version '(magit . "4.3.2")
   :group 'magit-commands
   :group 'magit-process
+  ;;:initialize #'custom-initialize-delay
+  :set-after '(magit-overriding-githook-directory)
   :type '(repeat string))
 
 (defcustom magit-prefer-remote-upstream nil
@@ -2895,6 +2921,37 @@ out.  Only existing branches can be selected."
     (if (or (length> modules 1) current-prefix-arg)
         (magit-confirm t nil (format "%s %%d modules" verb) nil modules)
       (list (magit-read-module-path (format "%s module" verb) predicate)))))
+
+;;; Git Hooks
+
+;; (add-hook 'magit-common-git-post-commit-functions 'magit-wip-commit)
+
+(defun magit-run-git-hook (githook &rest args)
+  (dolist (githook (ensure-list githook))
+    (let* ((githook (symbol-name githook))
+           (hook (save-match-data
+                   (if (string-match "\\`common-" githook)
+                       (intern (format "magit-common-git-%s-functions"
+                                       (substring githook (match-end 0))))
+                     (intern (format "magit-git-%s-functions" githook))))))
+      (magit--client-message "-- Run git hook %s with %S>>" githook args)
+      (when (and (boundp hook)
+                 (symbol-value hook))
+        (magit--client-message "Running %s..." hook)
+        (apply #'run-hook-with-args hook args)
+        (magit--client-message "Running %s...done" hook))))
+  ;; Emacsclient prints the returned value to stdout.  We cannot prevent
+  ;; that, but we can use something that looks like we actually *wanted*
+  ;; to print (which we don't).
+  '---)
+
+(defun magit--client-message (format-string &rest args)
+  ;; See `server-process-filter'.
+  (let ((msg (format "-print %s\n"
+                     (server-quote-arg
+                      (apply #'format-message format-string args)))))
+    (dolist (client server-clients)
+      (server-send-string client msg))))
 
 ;;; _
 (provide 'magit-git)
