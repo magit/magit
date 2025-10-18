@@ -99,6 +99,31 @@ Also see https://github.com/magit/magit/issues/4132."
   :group 'magit-commands
   :type 'boolean)
 
+;;; Hook
+
+(defvar magit-post-commit-functions nil)
+
+;; (add-hook 'magit-post-commit-functions 'magit-wip-commit)
+
+(defun magit-run-post-commit-functions (githook &optional flag)
+  (magit--client-message "<<%s %s>>" githook flag)
+  (when magit-post-commit-functions
+    (magit--client-message "Running magit-post-commit-functions...")
+    (run-hooks 'magit-post-commit-functions)
+    (magit--client-message "Running magit-post-commit-functions...done"))
+  ;; Emacsclient prints the returned value to stdout.  We cannot
+  ;; prevent that, but we can use something that isn't particularly
+  ;; confusing.
+  '---)
+
+(defun magit--client-message (format-string &rest args)
+  (when server-clients
+    (let ((msg (concat "-print "
+                       (server-quote-arg
+                        (apply #'format-message format-string args)))))
+      (dolist (client server-clients)
+        (server-send-string client msg)))))
+
 ;;; Popup
 
 ;;;###autoload (autoload 'magit-commit "magit-commit" nil t)

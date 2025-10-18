@@ -1,1 +1,8 @@
-fallthrough
+#!/usr/bin/env sh
+
+case "$INSIDE_EMACS" in
+    *magit) $GIT_EDITOR --eval "(magit-run-post-commit-functions 'post-merge '$1)" ;;
+esac
+
+
+[ -x "$ORIG_HOOKS_PATH" ] && "$ORIG_HOOKS_PATH/$(basename $0)" "$@"
