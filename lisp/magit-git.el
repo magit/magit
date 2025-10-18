@@ -155,6 +155,11 @@ option."
     "-c" "color.ui=false"
     "-c" "color.diff=false"
     "-c" "diff.noPrefix=false"
+    "-c" ,(thread-last (locate-library "magit.el")
+            file-name-parent-directory
+            file-name-parent-directory
+            (expand-file-name "git-hooks")
+            (format "core.hooksPath=%s"))
     ,@(and (eq system-type 'windows-nt)
            (list "-c" "i18n.logOutputEncoding=UTF-8")))
   "Global Git arguments.
