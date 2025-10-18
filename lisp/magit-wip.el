@@ -362,16 +362,8 @@ commit message."
 
 (defun magit-wip-maybe-add-commit-hook ()
   (when (and magit-wip-merge-branch
-             (magit-wip-any-enabled-p))
+             (magit--any-wip-mode-enabled-p))
     (add-hook 'git-commit-post-finish-hook #'magit-wip-commit nil t)))
-
-(defun magit-wip-any-enabled-p ()
-  (or magit-wip-mode
-      magit-wip-after-save-local-mode
-      magit-wip-after-save-mode
-      magit-wip-after-apply-mode
-      magit-wip-before-change-mode
-      magit-wip-initial-backup-mode))
 
 ;;; Log
 
