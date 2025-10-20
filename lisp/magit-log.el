@@ -768,10 +768,7 @@ completion candidates."
 (defun magit-log-all (&optional args files)
   "Show log for all references and `HEAD'."
   (interactive (magit-log-arguments))
-  (magit-log-setup-buffer (if (magit-get-current-branch)
-                              (list "--all")
-                            (list "HEAD" "--all"))
-                          args files))
+  (magit-log-setup-buffer (list "--all") args files))
 
 ;;;###autoload
 (defun magit-log-buffer-file (&optional follow beg end)
