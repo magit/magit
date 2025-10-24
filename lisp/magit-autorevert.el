@@ -166,13 +166,16 @@ and code surrounding the definition of this function."
              (format " (%.3fs, %s buffers checked)" elapsed
                      (length (buffer-list)))
            ""))))))
-(if after-init-time
-    ;; Since `after-init-hook' has already been
-    ;; run, turn the mode on or off right now.
-    (magit-auto-revert-mode--init-kludge)
-  ;; By the time the init file has been fully loaded the
-  ;; values of the relevant variables might have changed.
-  (add-hook 'after-init-hook #'magit-auto-revert-mode--init-kludge t))
+;; FIXME Suppressing this for recent 31.0.50 builds is not the
+;; final solution.
+(unless (fboundp 'custom-initialize-after-file-load)
+  (if after-init-time
+      ;; Since `after-init-hook' has already been
+      ;; run, turn the mode on or off right now.
+      (magit-auto-revert-mode--init-kludge)
+    ;; By the time the init file has been fully loaded the
+    ;; values of the relevant variables might have changed.
+    (add-hook 'after-init-hook #'magit-auto-revert-mode--init-kludge t)))
 
 (put 'magit-auto-revert-mode 'function-documentation
      "Toggle Magit Auto Revert mode.
