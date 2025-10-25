@@ -423,6 +423,7 @@ recommended value."
   "C-c C-w" 'magit-copy-thing
   "C-w"     'magit-copy-section-value
   "M-w"     'magit-copy-buffer-revision
+  "<remap> <mouse-set-point>"     'magit-mouse-set-point
   "<remap> <back-to-indentation>" 'magit-back-to-indentation
   "<remap> <previous-line>"       'magit-previous-line
   "<remap> <next-line>"           'magit-next-line
