@@ -234,15 +234,15 @@ Otherwise the value has to have one of these three forms:
                  (cons  :tag "Use >v fringe indicators"
                         (const magit-fringe-bitmap>)
                         (const magit-fringe-bitmapv))
-                 (cons  :tag "Use bold >v fringe indicators)"
+                 (cons  :tag "Use bold >v fringe indicators"
                         (const magit-fringe-bitmap-bold>)
                         (const magit-fringe-bitmap-boldv))
                  (cons  :tag "Use custom fringe indicators"
                         (variable :tag "Expandable bitmap variable")
                         (variable :tag "Collapsible bitmap variable"))
                  (cons  :tag "Use margin indicators"
-                        (char :tag "Expandable char" ?+)
-                        (char :tag "Collapsible char" ?-))
+                        (character :tag "Expandable char" ?+)
+                        (character :tag "Collapsible char" ?-))
                  (cons  :tag "Use ellipses at end of headings"
                         (string :tag "Ellipsis" "…")
                         (choice :tag "Use face kludge"
