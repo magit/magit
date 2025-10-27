@@ -229,14 +229,17 @@ Otherwise the value has to have one of these three forms:
   :group 'magit-section
   :type '(choice (const :tag "No indicators" nil)
                  (cons  :tag "Use +- fringe indicators"
-                        (const magit-fringe-bitmap+)
-                        (const magit-fringe-bitmap-))
+                        :format "%{%t%}%v\n"
+                        (const :format " " magit-fringe-bitmap+)
+                        (const :format " " magit-fringe-bitmap-))
                  (cons  :tag "Use >v fringe indicators"
-                        (const magit-fringe-bitmap>)
-                        (const magit-fringe-bitmapv))
+                        :format "%{%t%}%v\n"
+                        (const :format " " magit-fringe-bitmap>)
+                        (const :format " " magit-fringe-bitmapv))
                  (cons  :tag "Use bold >v fringe indicators"
-                        (const magit-fringe-bitmap-bold>)
-                        (const magit-fringe-bitmap-boldv))
+                        :format "%{%t%}%v\n"
+                        (const :format " " magit-fringe-bitmap-bold>)
+                        (const :format " " magit-fringe-bitmap-boldv))
                  (cons  :tag "Use custom fringe indicators"
                         (variable :tag "Expandable bitmap variable")
                         (variable :tag "Collapsible bitmap variable"))
