@@ -23,15 +23,7 @@
 ;;; Commentary:
 
 ;; This library provides an interface to the `git sparse-checkout'
-;; command.  It's been possible to define sparse checkouts since Git
-;; v1.7.0 by adding patterns to $GIT_DIR/info/sparse-checkout and
-;; calling `git read-tree -mu HEAD' to update the index and working
-;; tree.  However, Git v2.25 introduced the `git sparse-checkout'
-;; command along with "cone mode", which restricts the possible
-;; patterns to directories to provide better performance.
-;;
-;; The goal of this library is to support the `git sparse-checkout'
-;; command operating in cone mode.
+;; command (operating in cone mode).
 
 ;;; Code:
 
