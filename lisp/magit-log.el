@@ -1313,17 +1313,18 @@ Do not add this to a hook variable."
   :parent magit-commit-section-map)
 
 (defconst magit-log-heading-re
-  ;; Note: A form feed instead of a null byte is used as the delimiter
-  ;; because using the latter interferes with the graph prefix when
-  ;; ++header is used.
+  ;; Use a form feed instead of a null byte as the delimiter because using
+  ;; the latter interferes with the graph prefix when ++header is used.
   (concat "^"
           "\\(?4:[-_/|\\*o<>. ]*\\)"               ; graph
           "\\(?1:[0-9a-fA-F]+\\)?"               ; hash
           "\\(?3:[^\n]+\\)?"                   ; refs
           "\\(?7:[BGUXYREN]\\)?"                 ; gpg
           "\\(?5:[^\n]*\\)"                    ; author
-          ;; Note: Date is optional because, prior to Git v2.19.0,
-          ;; `git rebase -i --root` corrupts the root's author date.
+          ;; Prior to Git v2.19.0, "git rebase -i --root" corrupted the
+          ;; root's author date.  Keep date optional because even though
+          ;; we no longer support such old releases, the roots they create
+          ;; may live on.
           "\\(?6:[^\n]*\\)"                    ; date
           "\\(?12:[^\n]+\\)?"                  ; trailers
           "\\(?2:.*\\)$"))                         ; msg
