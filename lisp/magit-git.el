@@ -959,11 +959,9 @@ returning the truename."
            (lambda (err)
              (signal 'magit-corrupt-git-config
                      (format "%s: %s" default-directory err)))))
-      ;; This should always succeed unless there's a corrupt config
-      ;; (or at least a similarly severe failing state).  Note that
-      ;; git-config's --default is avoided because it's not available
-      ;; until Git 2.18.
-      (magit-git-string "config" "--get-color" "" "reset"))
+      ;; This should always succeed unless there is a corrupt
+      ;; config (or possibly a similarly severe failing state).
+      (magit-git-string "config" "--default=_" "core.bare"))
     nil))
 
 (defun magit--not-inside-repository-error ()
