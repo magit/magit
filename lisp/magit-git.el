@@ -983,7 +983,7 @@ is non-nil, in which case return nil."
                ((signal 'magit-outside-git-repo default-directory))))))
 
 (defun magit-inside-worktree-p (&optional noerror)
-  "Return t if `default-directory' is below the working directory.
+  "Return t if `default-directory' is below a working directory.
 If it is below the repository directory, then return nil.
 If it isn't below either, then signal an error unless NOERROR
 is non-nil, in which case return nil."
