@@ -161,7 +161,7 @@ does not carry to other options."
     (with-selected-window window
       (set-window-margins
        nil
-       (if (characterp (car magit-section-visibility-indicator))
+       (if (characterp (car (magit-section-visibility-indicator)))
            1
          (car (window-margins)))
        (and (magit--right-margin-active)
