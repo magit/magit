@@ -1043,9 +1043,8 @@ tracked file."
                          (magit-buffer-file-name)
                          (and (derived-mode-p 'dired-mode)
                               default-directory)))
-               (dir (magit-toplevel
-                     (magit--safe-default-directory
-                      (directory-file-name (file-name-directory file)))))
+               (dir (magit-toplevel (magit--safe-default-directory
+                                     (file-name-parent-directory file))))
                (_(or (not tracked)
                      (magit-file-tracked-p file))))
       (file-relative-name file dir))))
