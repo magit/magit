@@ -1425,19 +1425,10 @@ of REV."
 (defun magit-rev-name (rev &optional pattern not-anchored)
   "Return a symbolic name for REV using `git-name-rev'.
 
-PATTERN can be used to limit the result to a matching ref.
-Unless NOT-ANCHORED is non-nil, the beginning of the ref must
-match PATTERN.
-
-An anchored lookup is done using the arguments
-\"--exclude=*/<PATTERN> --exclude=*/HEAD\" in addition to
-\"--refs=<PATTERN>\", provided at least version v2.13 of Git is
-used.  Older versions did not support the \"--exclude\" argument.
-When \"--exclude\" cannot be used and `git-name-rev' returns a
-ref that should have been excluded, then that is discarded and
-this function returns nil instead.  This is unfortunate because
-there might be other refs that do match.  To fix that, update
-Git."
+PATTERN can be used to limit the result to a matching ref.  Unless
+NOT-ANCHORED is non-nil, the beginning of the ref must match PATTERN.
+An anchored lookup is done using the arguments \"--exclude=*/<PATTERN>\"
+and \"--exclude=*/HEAD\", in addition to \"--refs=<PATTERN>\"."
   (magit-git-string "name-rev" "--name-only" "--no-undefined"
                     (and pattern (concat "--refs=" pattern))
                     (and pattern
