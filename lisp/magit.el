@@ -773,7 +773,7 @@ For X11 something like ~/.xinitrc should work.\n"
   (require 'magit-stash)
   (require 'magit-blame)
   (require 'magit-submodule)
-  (unless (load "magit-autoloads" t t)
+  (unless (require 'magit-autoloads nil t)
     (require 'magit-patch)
     (require 'magit-subtree)
     (require 'magit-ediff)
