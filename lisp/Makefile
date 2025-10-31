@@ -62,8 +62,8 @@ magit-bookmark.elc:        magit.elc
 
 ## Build #############################################################
 
-lisp:       $(ELCS) loaddefs $(LISP_EXTRA_TARGETS)
-loaddefs:   $(PKG)-autoloads.el
+lisp:       $(ELCS) autoloads $(LISP_EXTRA_TARGETS)
+autoloads:   $(PKG)-autoloads.el
 versionlib: $(PKG)-version.el
 
 %.elc: %.el
