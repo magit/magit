@@ -1026,6 +1026,24 @@ setting `imenu--index-alist' to nil before calling that function."
 
 ;;; Kludges for Custom
 
+;;;###autoload
+(progn ; magit-custom-initialize-after-init
+  (defun magit-custom-initialize-after-init (symbol value)
+    (internal--define-uninitialized-variable symbol)
+    (cond ((not after-init-time)
+           (letrec ((f (lambda ()
+                         (remove-hook 'after-init-hook f)
+                         (custom-initialize-set symbol value))))
+             (add-hook 'after-init-hook f)))
+          ((not load-file-name)
+           (custom-initialize-set symbol value))
+          ((let ((thisfile load-file-name))
+             (letrec ((f (lambda (file)
+                           (when (equal file thisfile)
+                             (remove-hook 'after-load-functions f)
+                             (custom-initialize-set symbol value)))))
+               (add-hook 'after-load-functions f)))))))
+
 (defun magit-custom-initialize-reset (symbol exp)
   "Initialize SYMBOL based on EXP.
 Set the value of the variable SYMBOL, using `set-default'

@@ -128,54 +128,8 @@ seconds of user inactivity.  That is not desirable."
   :link '(info-link "(magit)Automatic Reverting of File-Visiting Buffers")
   :group 'magit-auto-revert
   :group 'magit-essentials
-  ;; - When `global-auto-revert-mode' is enabled, then this mode is
-  ;;   redundant.
-  ;; - In all other cases enable the mode because if buffers are not
-  ;;   automatically reverted that would make many very common tasks
-  ;;   much more cumbersome.
-  :init-value (not (or global-auto-revert-mode
-                       noninteractive)))
-;; - Unfortunately `:init-value t' only sets the value of the mode
-;;   variable but does not cause the mode function to be called.
-;; - I don't think it works like this on purpose, but since one usually
-;;   should not enable global modes by default, it is understandable.
-;; - If the user has set the variable `magit-auto-revert-mode' to nil
-;;   after loading magit (instead of doing so before loading magit or
-;;   by using the function), then we should still respect that setting.
-;; - If the user enables `global-auto-revert-mode' after loading magit
-;;   and after `after-init-hook' has run, then `magit-auto-revert-mode'
-;;   remains enabled; and there is nothing we can do about it.
-;; - However if the init file causes `magit-autorevert' to be loaded
-;;   and only later it enables `global-auto-revert-mode', then we can
-;;   and should leave `magit-auto-revert-mode' disabled.
-(defun magit-auto-revert-mode--init-kludge ()
-  "This is an internal kludge to be used on `after-init-hook'.
-Do not use this function elsewhere, and don't remove it from
-the `after-init-hook'.  For more information see the comments
-and code surrounding the definition of this function."
-  (if (or (not magit-auto-revert-mode)
-          (and global-auto-revert-mode (not after-init-time)))
-      (magit-auto-revert-mode -1)
-    (let ((start (current-time)))
-      (magit-message "Turning on magit-auto-revert-mode...")
-      (magit-auto-revert-mode 1)
-      (magit-message
-       "Turning on magit-auto-revert-mode...done%s"
-       (let ((elapsed (float-time (time-since start))))
-         (if (> elapsed 0.2)
-             (format " (%.3fs, %s buffers checked)" elapsed
-                     (length (buffer-list)))
-           ""))))))
-;; FIXME Suppressing this for recent 31.0.50 builds is not the
-;; final solution.
-(unless (fboundp 'custom-initialize-after-file-load)
-  (if after-init-time
-      ;; Since `after-init-hook' has already been
-      ;; run, turn the mode on or off right now.
-      (magit-auto-revert-mode--init-kludge)
-    ;; By the time the init file has been fully loaded the
-    ;; values of the relevant variables might have changed.
-    (add-hook 'after-init-hook #'magit-auto-revert-mode--init-kludge t)))
+  :init-value (not (or global-auto-revert-mode noninteractive))
+  :initialize #'magit-custom-initialize-after-init)
 
 (put 'magit-auto-revert-mode 'function-documentation
      "Toggle Magit Auto Revert mode.
