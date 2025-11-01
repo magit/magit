@@ -773,7 +773,11 @@ For X11 something like ~/.xinitrc should work.\n"
   (require 'magit-stash)
   (require 'magit-blame)
   (require 'magit-submodule)
-  (unless (require 'magit-autoloads nil t)
+  ;; The `provide' form may be missing so we have to
+  ;; try harder to ensure this is loaded exactly once.
+  (unless (or (featurep 'magit-autoloads)
+              (autoloadp (symbol-function 'magit-patch))
+              (load "magit-autoloads" t))
     (require 'magit-patch)
     (require 'magit-subtree)
     (require 'magit-ediff)
