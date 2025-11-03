@@ -128,7 +128,8 @@ part of the default value:
    (margin-body-face . (magit-blame-dimmed)))"
   :package-version '(magit . "2.13.0")
   :group 'magit-blame
-  :type 'string)
+  :type '(alist :key-type symbol
+                :value-type (alist :key-type symbol :value-type sexp)))
 
 (defcustom magit-blame-echo-style 'lines
   "The blame visualization style used by `magit-blame-echo'.
