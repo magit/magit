@@ -133,6 +133,7 @@ seconds of user inactivity.  That is not desirable."
 
 (put 'magit-auto-revert-mode 'function-documentation
      "Toggle Magit Auto Revert mode.
+
 If called interactively, enable Magit Auto Revert mode if ARG is
 positive, and disable it if ARG is zero or negative.  If called
 from Lisp, also enable the mode if ARG is omitted or nil, and
@@ -167,7 +168,9 @@ Like nearly every mode, this mode should be enabled or disabled
 by calling the respective mode function, the reason being that
 changing the state of a mode involves more than merely toggling
 a single switch, so setting the mode variable is not enough.
-Also, you should not use `after-init-hook' to disable this mode.")
+Also, you should not use `after-init-hook' to disable this mode.
+
+\(fn &optional ARG)")
 
 (defun magit-auto-revert-buffers ()
   (when (and magit-auto-revert-immediately
