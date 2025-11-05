@@ -131,6 +131,13 @@ seconds of user inactivity.  That is not desirable."
   :init-value (not (or global-auto-revert-mode noninteractive))
   :initialize #'magit-custom-initialize-after-init)
 
+(defun magit-auto-revert-mode--disable ()
+  "When enabling `global-auto-revert-mode', disable `magit-auto-revert-mode'."
+  (when (and global-auto-revert-mode magit-auto-revert-mode)
+    (magit-auto-revert-mode -1)))
+
+(add-hook 'global-auto-revert-mode-hook #'magit-auto-revert-mode--disable)
+
 (put 'magit-auto-revert-mode 'function-documentation
      "Toggle Magit Auto Revert mode.
 
