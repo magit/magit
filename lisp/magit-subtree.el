@@ -33,7 +33,7 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-subtree "magit-subtree" nil t)
+;;;###autoload(autoload 'magit-subtree "magit-subtree" nil t)
 (transient-define-prefix magit-subtree ()
   "Import or export subtrees."
   :man-page "git-subtree"
@@ -41,7 +41,7 @@
    ("i" "Import" magit-subtree-import)
    ("e" "Export" magit-subtree-export)])
 
-;;;###autoload (autoload 'magit-subtree-import "magit-subtree" nil t)
+;;;###autoload(autoload 'magit-subtree-import "magit-subtree" nil t)
 (transient-define-prefix magit-subtree-import ()
   "Import subtrees."
   :man-page "git-subtree"
@@ -55,7 +55,7 @@
    [("m" "Merge"      magit-subtree-merge)
     ("f" "Pull"       magit-subtree-pull)]])
 
-;;;###autoload (autoload 'magit-subtree-export "magit-subtree" nil t)
+;;;###autoload(autoload 'magit-subtree-export "magit-subtree" nil t)
 (transient-define-prefix magit-subtree-export ()
   "Export subtrees."
   :man-page "git-subtree"

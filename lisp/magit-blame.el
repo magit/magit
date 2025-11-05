@@ -761,7 +761,7 @@ modes is toggled, then this mode also gets toggled automatically.
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-blame-echo "magit-blame" nil t)
+;;;###autoload(autoload 'magit-blame-echo "magit-blame" nil t)
 (transient-define-suffix magit-blame-echo (args)
   "For each line show the revision in which it was added.
 Show the information about the chunk at point in the echo area
@@ -785,7 +785,7 @@ not turn on `read-only-mode'."
     (read-only-mode -1)
     (magit-blame--update-overlays)))
 
-;;;###autoload (autoload 'magit-blame-addition "magit-blame" nil t)
+;;;###autoload(autoload 'magit-blame-addition "magit-blame" nil t)
 (transient-define-suffix magit-blame-addition (args)
   "For each line show the revision in which it was added."
   (interactive (list (magit-blame-arguments)))
@@ -793,7 +793,7 @@ not turn on `read-only-mode'."
   (magit-blame--pre-blame-setup  'addition)
   (magit-blame--run args))
 
-;;;###autoload (autoload 'magit-blame-removal "magit-blame" nil t)
+;;;###autoload(autoload 'magit-blame-removal "magit-blame" nil t)
 (transient-define-suffix magit-blame-removal (args)
   "For each line show the revision in which it was removed."
   :if-nil 'buffer-file-name
@@ -804,7 +804,7 @@ not turn on `read-only-mode'."
   (magit-blame--pre-blame-setup  'removal)
   (magit-blame--run args))
 
-;;;###autoload (autoload 'magit-blame-reverse "magit-blame" nil t)
+;;;###autoload(autoload 'magit-blame-reverse "magit-blame" nil t)
 (transient-define-suffix magit-blame-reverse (args)
   "For each line show the last revision in which it still exists."
   :if-nil 'buffer-file-name
@@ -941,7 +941,7 @@ instead of the hash, like `kill-ring-save' would."
 
 ;;; Popup
 
-;;;###autoload (autoload 'magit-blame "magit-blame" nil t)
+;;;###autoload(autoload 'magit-blame "magit-blame" nil t)
 (transient-define-prefix magit-blame ()
   "Show the commits that added or removed lines in the visited file."
   :man-page "git-blame"

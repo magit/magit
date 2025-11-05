@@ -42,7 +42,7 @@
 ;;; Git Tools
 ;;;; Git-Mergetool
 
-;;;###autoload (autoload 'magit-git-mergetool "magit-extras" nil t)
+;;;###autoload(autoload 'magit-git-mergetool "magit-extras" nil t)
 (transient-define-prefix magit-git-mergetool (file args &optional transient)
   "Resolve conflicts in FILE using \"git mergetool --gui\".
 With a prefix argument allow changing ARGS using a transient

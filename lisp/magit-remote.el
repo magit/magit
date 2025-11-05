@@ -62,7 +62,7 @@ has to be used to view and change remote related variables."
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-remote "magit-remote" nil t)
+;;;###autoload(autoload 'magit-remote "magit-remote" nil t)
 (transient-define-prefix magit-remote (remote)
   "Add, configure or remove a remote."
   :man-page "git-remote"
@@ -253,7 +253,7 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (interactive (list (magit-read-remote "Unset HEAD for remote")))
   (magit-run-git "remote" "set-head" remote "--delete"))
 
-;;;###autoload (autoload 'magit-update-default-branch "magit-remote" nil t)
+;;;###autoload(autoload 'magit-update-default-branch "magit-remote" nil t)
 (transient-define-suffix magit-update-default-branch ()
   "Update name of the default branch after upstream changed it."
   :description "Update default branch"
@@ -305,7 +305,7 @@ refspec."
 
 ;;; Configure
 
-;;;###autoload (autoload 'magit-remote-configure "magit-remote" nil t)
+;;;###autoload(autoload 'magit-remote-configure "magit-remote" nil t)
 (transient-define-prefix magit-remote-configure (remote)
   "Configure a remote."
   :man-page "git-remote"

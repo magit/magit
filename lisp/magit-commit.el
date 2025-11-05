@@ -115,7 +115,7 @@ Also see https://github.com/magit/magit/issues/4132."
 
 ;;; Popup
 
-;;;###autoload (autoload 'magit-commit "magit-commit" nil t)
+;;;###autoload(autoload 'magit-commit "magit-commit" nil t)
 (transient-define-prefix magit-commit ()
   "Create a new commit or replace an existing commit."
   :info-manual "(magit)Initiating a Commit"
@@ -539,7 +539,7 @@ is updated:
           (magit-commit-absorb-modules 'run commit))
         nil nil nil nil commit))))
 
-;;;###autoload (autoload 'magit-commit-absorb "magit-commit" nil t)
+;;;###autoload(autoload 'magit-commit-absorb "magit-commit" nil t)
 (transient-define-prefix magit-commit-absorb (phase commit args)
   "Spread staged changes across recent commits.
 With a prefix argument use a transient command to select infix
@@ -581,7 +581,7 @@ See `magit-commit-autofixup' for an alternative implementation."
 
 (transient-augment-suffix magit-commit-absorb :transient 'transient--do-exit)
 
-;;;###autoload (autoload 'magit-commit-autofixup "magit-commit" nil t)
+;;;###autoload(autoload 'magit-commit-autofixup "magit-commit" nil t)
 (transient-define-prefix magit-commit-autofixup (phase commit args)
   "Spread staged or unstaged changes across recent commits.
 

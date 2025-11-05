@@ -30,7 +30,7 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-notes "magit" nil t)
+;;;###autoload(autoload 'magit-notes "magit" nil t)
 (transient-define-prefix magit-notes ()
   "Edit notes attached to commits."
   :man-page "git-notes"

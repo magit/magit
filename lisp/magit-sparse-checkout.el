@@ -54,7 +54,7 @@ See the `git sparse-checkout' manpage for details about
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-sparse-checkout "magit-sparse-checkout" nil t)
+;;;###autoload(autoload 'magit-sparse-checkout "magit-sparse-checkout" nil t)
 (transient-define-prefix magit-sparse-checkout ()
   "Create and manage sparse checkouts."
   :man-page "git-sparse-checkout"

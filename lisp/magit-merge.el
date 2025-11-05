@@ -33,7 +33,7 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-merge "magit" nil t)
+;;;###autoload(autoload 'magit-merge "magit" nil t)
 (transient-define-prefix magit-merge ()
   "Merge branches."
   :man-page "git-merge"

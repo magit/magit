@@ -30,7 +30,7 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-fetch "magit-fetch" nil t)
+;;;###autoload(autoload 'magit-fetch "magit-fetch" nil t)
 (transient-define-prefix magit-fetch ()
   "Fetch from another repository."
   :man-page "git-fetch"
@@ -58,7 +58,7 @@
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "fetch" remote args))
 
-;;;###autoload (autoload 'magit-fetch-from-pushremote "magit-fetch" nil t)
+;;;###autoload(autoload 'magit-fetch-from-pushremote "magit-fetch" nil t)
 (transient-define-suffix magit-fetch-from-pushremote (args)
   "Fetch from the current push-remote.
 
@@ -86,7 +86,7 @@ push-remote."
       (format "%s, replacing invalid" v))
      ((format "%s, setting that" v)))))
 
-;;;###autoload (autoload 'magit-fetch-from-upstream "magit-fetch" nil t)
+;;;###autoload(autoload 'magit-fetch-from-upstream "magit-fetch" nil t)
 (transient-define-suffix magit-fetch-from-upstream (remote args)
   "Fetch from the \"current\" remote, usually the upstream.
 
@@ -155,7 +155,7 @@ removed on the respective remote."
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "remote" "update"))
 
-;;;###autoload (autoload 'magit-fetch-modules "magit-fetch" nil t)
+;;;###autoload(autoload 'magit-fetch-modules "magit-fetch" nil t)
 (transient-define-prefix magit-fetch-modules (&optional transient args)
   "Fetch all populated submodules.
 

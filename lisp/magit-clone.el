@@ -123,7 +123,7 @@ directory where the repository has been cloned."
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-clone "magit-clone" nil t)
+;;;###autoload(autoload 'magit-clone "magit-clone" nil t)
 (transient-define-prefix magit-clone (&optional transient)
   "Clone a repository."
   :man-page "git-clone"

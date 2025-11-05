@@ -204,7 +204,7 @@ has to be used to view and change branch related variables."
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-branch "magit" nil t)
+;;;###autoload(autoload 'magit-branch "magit" nil t)
 (transient-define-prefix magit-branch (branch)
   "Add, configure or remove a branch."
   :man-page "git-branch"
@@ -848,7 +848,7 @@ Also rename the respective reflog file."
 
 ;;; Configure
 
-;;;###autoload (autoload 'magit-branch-configure "magit-branch" nil t)
+;;;###autoload(autoload 'magit-branch-configure "magit-branch" nil t)
 (transient-define-prefix magit-branch-configure (branch)
   "Configure a branch."
   :man-page "git-branch"

@@ -329,7 +329,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-show-refs "magit-refs" nil t)
+;;;###autoload(autoload 'magit-show-refs "magit-refs" nil t)
 (transient-define-prefix magit-show-refs (&optional transient)
   "List and compare references in a dedicated buffer."
   :man-page "git-branch"

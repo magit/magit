@@ -87,7 +87,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-stash "magit-stash" nil t)
+;;;###autoload(autoload 'magit-stash "magit-stash" nil t)
 (transient-define-prefix magit-stash ()
   "Stash uncommitted changes."
   :man-page "git-stash"
@@ -234,7 +234,7 @@ while two prefix arguments are equivalent to `--all'."
   (magit-stash-save (concat "WIP on " (magit-stash-summary))
                     index worktree untracked refresh t))
 
-;;;###autoload (autoload 'magit-stash-push "magit-stash" nil t)
+;;;###autoload(autoload 'magit-stash-push "magit-stash" nil t)
 (transient-define-prefix magit-stash-push (&optional transient args)
   "Create stash using \"git stash push\".
 

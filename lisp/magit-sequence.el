@@ -131,7 +131,7 @@ This discards all changes made since the sequence started."
 (defvar magit-perl-executable "perl"
   "The Perl executable.")
 
-;;;###autoload (autoload 'magit-cherry-pick "magit-sequence" nil t)
+;;;###autoload(autoload 'magit-cherry-pick "magit-sequence" nil t)
 (transient-define-prefix magit-cherry-pick ()
   "Apply or transplant commits."
   :man-page "git-cherry-pick"
@@ -365,7 +365,7 @@ the process manually."
 
 ;;; Revert
 
-;;;###autoload (autoload 'magit-revert "magit-sequence" nil t)
+;;;###autoload(autoload 'magit-revert "magit-sequence" nil t)
 (transient-define-prefix magit-revert ()
   "Revert existing commits, with or without creating new commits."
   :man-page "git-revert"
@@ -422,7 +422,7 @@ without prompting."
 
 ;;; Patch
 
-;;;###autoload (autoload 'magit-am "magit-sequence" nil t)
+;;;###autoload(autoload 'magit-am "magit-sequence" nil t)
 (transient-define-prefix magit-am ()
   "Apply patches received by email."
   :man-page "git-am"
@@ -516,7 +516,7 @@ This discards all changes made since the sequence started."
 
 ;;; Rebase
 
-;;;###autoload (autoload 'magit-rebase "magit-sequence" nil t)
+;;;###autoload(autoload 'magit-rebase "magit-sequence" nil t)
 (transient-define-prefix magit-rebase ()
   "Transplant commits and/or modify existing commits."
   :man-page "git-rebase"
@@ -584,7 +584,7 @@ This discards all changes made since the sequence started."
 (defun magit-git-rebase (target args)
   (magit-run-git-sequencer "rebase" args target))
 
-;;;###autoload (autoload 'magit-rebase-onto-pushremote "magit-sequence" nil t)
+;;;###autoload(autoload 'magit-rebase-onto-pushremote "magit-sequence" nil t)
 (transient-define-suffix magit-rebase-onto-pushremote (args)
   "Rebase the current branch onto its push-remote branch.
 
@@ -598,7 +598,7 @@ push-remote."
                (magit--select-push-remote "rebase onto that")))
     (magit-git-rebase (concat remote "/" branch) args)))
 
-;;;###autoload (autoload 'magit-rebase-onto-upstream "magit-sequence" nil t)
+;;;###autoload(autoload 'magit-rebase-onto-upstream "magit-sequence" nil t)
 (transient-define-suffix magit-rebase-onto-upstream (args)
   "Rebase the current branch onto its upstream branch.
 

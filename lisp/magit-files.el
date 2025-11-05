@@ -289,7 +289,7 @@ directory, while reading the FILENAME."
 
 ;;; File Dispatch
 
-;;;###autoload (autoload 'magit-file-dispatch "magit" nil t)
+;;;###autoload(autoload 'magit-file-dispatch "magit" nil t)
 (transient-define-prefix magit-file-dispatch ()
   "Invoke a Magit command that acts on the visited file.
 When invoked outside a file-visiting buffer, then fall back

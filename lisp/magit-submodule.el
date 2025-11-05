@@ -158,7 +158,7 @@ and also setting this variable to t will lead to tears."
 
 ;;; Popup
 
-;;;###autoload (autoload 'magit-submodule "magit-submodule" nil t)
+;;;###autoload(autoload 'magit-submodule "magit-submodule" nil t)
 (transient-define-prefix magit-submodule ()
   "Act on a submodule."
   :man-page "git-submodule"
@@ -205,7 +205,7 @@ and also setting this variable to t will lead to tears."
                           (propertize "|" 'face 'transient-inactive-argument))))
      (cl-call-next-method obj))))
 
-;;;###autoload (autoload 'magit-submodule-add "magit-submodule" nil t)
+;;;###autoload(autoload 'magit-submodule-add "magit-submodule" nil t)
 (transient-define-suffix magit-submodule-add (url &optional path name args)
   "Add the repository at URL as a module.
 
@@ -262,7 +262,7 @@ it is nil, then PATH also becomes the name."
                    (magit-git-lines "config" "--list" "-f" ".gitmodules"))
          (if prefer-short name path)))))
 
-;;;###autoload (autoload 'magit-submodule-register "magit-submodule" nil t)
+;;;###autoload(autoload 'magit-submodule-register "magit-submodule" nil t)
 (transient-define-suffix magit-submodule-register (modules)
   "Register MODULES.
 
@@ -281,7 +281,7 @@ single module from the user."
   (magit-with-toplevel
     (magit-run-git-async "submodule" "init" "--" modules)))
 
-;;;###autoload (autoload 'magit-submodule-populate "magit-submodule" nil t)
+;;;###autoload(autoload 'magit-submodule-populate "magit-submodule" nil t)
 (transient-define-suffix magit-submodule-populate (modules args)
   "Create MODULES working directories, checking out the recorded commits.
 
@@ -300,7 +300,7 @@ single module from the user."
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update" "--init" args "--" modules)))
 
-;;;###autoload (autoload 'magit-submodule-update "magit-submodule" nil t)
+;;;###autoload(autoload 'magit-submodule-update "magit-submodule" nil t)
 (transient-define-suffix magit-submodule-update (modules args)
   "Update MODULES by checking out the recorded commits.
 
@@ -323,7 +323,7 @@ single module from the user."
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update" args "--" modules)))
 
-;;;###autoload (autoload 'magit-submodule-synchronize "magit-submodule" nil t)
+;;;###autoload(autoload 'magit-submodule-synchronize "magit-submodule" nil t)
 (transient-define-suffix magit-submodule-synchronize (modules args)
   "Synchronize url configuration of MODULES.
 
@@ -339,7 +339,7 @@ single module from the user."
   (magit-with-toplevel
     (magit-run-git-async "submodule" "sync" args "--" modules)))
 
-;;;###autoload (autoload 'magit-submodule-unpopulate "magit-submodule" nil t)
+;;;###autoload(autoload 'magit-submodule-unpopulate "magit-submodule" nil t)
 (transient-define-suffix magit-submodule-unpopulate (modules args)
   "Remove working directories of MODULES.
 

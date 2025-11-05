@@ -125,7 +125,7 @@ just \"PREFIX_\".  Always forward PROMPT as-is."
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-worktree "magit-worktree" nil t)
+;;;###autoload(autoload 'magit-worktree "magit-worktree" nil t)
 (transient-define-prefix magit-worktree ()
   "Act on a worktree."
   :man-page "git-worktree"

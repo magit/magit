@@ -33,7 +33,7 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-bundle "magit-bundle" nil t)
+;;;###autoload(autoload 'magit-bundle "magit-bundle" nil t)
 (transient-define-prefix magit-bundle ()
   "Create or verify Git bundles."
   :man-page "git-bundle"
@@ -42,7 +42,7 @@
    ("v" "verify"     magit-bundle-verify)
    ("l" "list-heads" magit-bundle-list-heads)])
 
-;;;###autoload (autoload 'magit-bundle-import "magit-bundle" nil t)
+;;;###autoload(autoload 'magit-bundle-import "magit-bundle" nil t)
 (transient-define-prefix magit-bundle-create (&optional file refs args)
   "Create a bundle."
   :man-page "git-bundle"

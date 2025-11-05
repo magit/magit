@@ -30,7 +30,7 @@
 
 ;;; Transient
 
-;;;###autoload (autoload 'magit-gitignore "magit-gitignore" nil t)
+;;;###autoload(autoload 'magit-gitignore "magit-gitignore" nil t)
 (transient-define-prefix magit-gitignore ()
   "Instruct Git to ignore a file or pattern."
   :man-page "gitignore"

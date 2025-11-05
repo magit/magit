@@ -324,7 +324,7 @@ already been run."
 
 ;;; Dispatch Popup
 
-;;;###autoload (autoload 'magit-dispatch "magit" nil t)
+;;;###autoload(autoload 'magit-dispatch "magit" nil t)
 (transient-define-prefix magit-dispatch ()
   "Invoke a Magit command from a list of available commands."
   :info-manual "(magit)Top"
@@ -415,7 +415,7 @@ This affects `magit-git-command', `magit-git-command-topdir',
 
 (defvar magit-git-command-history nil)
 
-;;;###autoload (autoload 'magit-run "magit" nil t)
+;;;###autoload(autoload 'magit-run "magit" nil t)
 (transient-define-prefix magit-run ()
   "Run git or another command, or launch a graphical utility."
   [["Run git subcommand"

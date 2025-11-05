@@ -33,7 +33,7 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-tag "magit" nil t)
+;;;###autoload(autoload 'magit-tag "magit" nil t)
 (transient-define-prefix magit-tag ()
   "Create or delete a tag."
   :man-page "git-tag"

@@ -52,7 +52,7 @@ the prefix argument."
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-patch "magit-patch" nil t)
+;;;###autoload(autoload 'magit-patch "magit-patch" nil t)
 (transient-define-prefix magit-patch ()
   "Create or apply patches."
   ["Actions"
@@ -62,7 +62,7 @@ the prefix argument."
     ("s"  "Save diff as patch" magit-patch-save)]
    [("r"  "Request pull"       magit-request-pull)]])
 
-;;;###autoload (autoload 'magit-patch-create "magit-patch" nil t)
+;;;###autoload(autoload 'magit-patch-create "magit-patch" nil t)
 (transient-define-prefix magit-patch-create (range args files)
   "Create patches for the commits in RANGE.
 When a single commit is given for RANGE, create a patch for the
@@ -236,7 +236,7 @@ which creates patches for all commits that are reachable from
   :argument "--output-directory="
   :reader #'transient-read-existing-directory)
 
-;;;###autoload (autoload 'magit-patch-apply "magit-patch" nil t)
+;;;###autoload(autoload 'magit-patch-apply "magit-patch" nil t)
 (transient-define-prefix magit-patch-apply (file &rest args)
   "Apply the patch file FILE."
   :man-page "git-apply"

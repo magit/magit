@@ -30,7 +30,7 @@
 
 ;;; Commands
 
-;;;###autoload (autoload 'magit-push "magit-push" nil t)
+;;;###autoload(autoload 'magit-push "magit-push" nil t)
 (transient-define-prefix magit-push ()
   "Push to another repository."
   :man-page "git-push"
@@ -73,7 +73,7 @@
     (magit-run-git-async "push" "-v" args remote
                          (format "%s:%s%s" branch namespace target))))
 
-;;;###autoload (autoload 'magit-push-current-to-pushremote "magit-push" nil t)
+;;;###autoload(autoload 'magit-push-current-to-pushremote "magit-push" nil t)
 (transient-define-suffix magit-push-current-to-pushremote (args)
   "Push the current branch to its push-remote.
 
@@ -109,7 +109,7 @@ argument the push-remote can be changed before pushed to it."
       (format "%s, replacing invalid" v))
      ((format "%s, setting that" v)))))
 
-;;;###autoload (autoload 'magit-push-current-to-upstream "magit-push" nil t)
+;;;###autoload(autoload 'magit-push-current-to-upstream "magit-push" nil t)
 (transient-define-suffix magit-push-current-to-upstream (args)
   "Push the current branch to its upstream branch.
 
@@ -263,7 +263,7 @@ branch as default."
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "push" remote ref args))
 
-;;;###autoload (autoload 'magit-push-implicitly "magit-push" nil t)
+;;;###autoload(autoload 'magit-push-implicitly "magit-push" nil t)
 (transient-define-suffix magit-push-implicitly (args)
   "Push somewhere without using an explicit refspec.
 
@@ -341,7 +341,7 @@ what this command will do.  To add it use something like:
             ("matching" (format "all matching to %s"
                                 (magit--propertize-face remote 'bold)))))))))
 
-;;;###autoload (autoload 'magit-push-to-remote "magit-push" nil t)
+;;;###autoload(autoload 'magit-push-to-remote "magit-push" nil t)
 (transient-define-suffix magit-push-to-remote (remote args)
   "Push to REMOTE without using an explicit refspec.
 The REMOTE is read in the minibuffer.
