@@ -151,7 +151,8 @@ seconds of user inactivity.  That is not desirable."
 
 (defun magit-auto-revert-mode--disable ()
   "When enabling `global-auto-revert-mode', disable `magit-auto-revert-mode'."
-  (when (and global-auto-revert-mode magit-auto-revert-mode)
+  (when (and global-auto-revert-mode
+             (bound-and-true-p magit-auto-revert-mode))
     (magit-auto-revert-mode -1)))
 
 (add-hook 'global-auto-revert-mode-hook #'magit-auto-revert-mode--disable)
