@@ -110,7 +110,11 @@ seconds of user inactivity.  That is not desirable."
     (internal--define-uninitialized-variable symbol)
     (cond ((not after-init-time)
            (letrec ((f (lambda ()
-                         (remove-hook 'after-init-hook f)
+                         ;; Straight caches autoloads and fails to use
+                         ;; lexical binding when evaluating the cached
+                         ;; entries.  See #5476.
+                         (ignore-errors
+                           (remove-hook 'after-init-hook f))
                          (custom-initialize-set symbol value))))
              (add-hook 'after-init-hook f)))
           ((not load-file-name)
@@ -118,7 +122,8 @@ seconds of user inactivity.  That is not desirable."
           ((let ((thisfile load-file-name))
              (letrec ((f (lambda (file)
                            (when (equal file thisfile)
-                             (remove-hook 'after-load-functions f)
+                             (ignore-errors
+                               (remove-hook 'after-load-functions f))
                              (custom-initialize-set symbol value)))))
                (add-hook 'after-load-functions f)))))))
 
