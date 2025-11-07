@@ -120,11 +120,13 @@ seconds of user inactivity.  That is not desirable."
           ((not load-file-name)
            (custom-initialize-set symbol value))
           ((let ((thisfile load-file-name))
-             (letrec ((f (lambda (file)
-                           (when (equal file thisfile)
-                             (ignore-errors
-                               (remove-hook 'after-load-functions f))
-                             (custom-initialize-set symbol value)))))
+             (letrec ((f (apply-partially
+                          (lambda (symbol value file)
+                            (when (equal file thisfile)
+                              (ignore-errors
+                                (remove-hook 'after-load-functions f))
+                              (custom-initialize-set symbol value)))
+                          symbol value)))
                (add-hook 'after-load-functions f)))))))
 
 (defun magit-turn-on-auto-revert-mode-if-desired (&optional file)
