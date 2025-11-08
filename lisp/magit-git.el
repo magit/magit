@@ -338,9 +338,9 @@ Magit has many specialized functions for running Git; they all
 pass arguments through this function before handing them to Git,
 to do the following.
 
-* Flatten ARGS, removing nil arguments.
 * Prepend `magit-git-global-arguments' to ARGS.
-* On w32 systems, encode to `w32-ansi-code-page'."
+* Flatten ARGS, removing nil arguments.
+* If `system-type' is `windows-nt', encode ARGS to `w32-ansi-code-page'."
   (setq args (append magit-git-global-arguments (flatten-tree args)))
   (if (and (eq system-type 'windows-nt) (boundp 'w32-ansi-code-page))
       ;; On w32, the process arguments *must* be encoded in the
