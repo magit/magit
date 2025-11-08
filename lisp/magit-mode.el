@@ -47,7 +47,7 @@
 (declare-function elp-restore-all "elp" ())
 
 (defvar magit--wip-inhibit-autosave)
-(defvar magit-wip-after-save-local-mode)
+(defvar magit-wip-after-save-mode)
 (declare-function magit-wip-get-ref "magit-wip" ())
 (declare-function magit-wip-commit-worktree "magit-wip" (ref files msg))
 
@@ -1322,8 +1322,7 @@ argument (the prefix) non-nil means save all with no questions."
                     (setq magit-inhibit-refresh-save t))
                  "to skip the current buffer and remember choice")
              ,@save-some-buffers-action-alist))
-          ;; Create a single wip commit for all saved files, for
-          ;; which `magit-wip-after-save-local-mode' is enabled.
+          ;; Create a single wip commit for all saved files.
           (magit--wip-inhibit-autosave t)
           (saved nil))
       (unwind-protect
@@ -1332,7 +1331,7 @@ argument (the prefix) non-nil means save all with no questions."
            (lambda ()
              (and (funcall magit-save-repository-buffers-predicate topdir)
                   (prog1 t
-                    (when magit-wip-after-save-local-mode
+                    (when magit-wip-after-save-mode
                       (push (expand-file-name buffer-file-name) saved))))))
         (when saved
           (let ((default-directory topdir))

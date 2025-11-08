@@ -74,7 +74,6 @@ is used as `branch-ref'."
 
 ;;; Modes
 
-(defvar magit--wip-activation-cache nil)
 (defvar magit--wip-inhibit-autosave nil)
 
 ;;;###autoload
@@ -93,64 +92,20 @@ but that is discouraged."
   :lighter magit-wip-mode-lighter
   :global t
   (let ((arg (if magit-wip-mode 1 -1)))
-    (let ((magit--wip-activation-cache (list t)))
-      (magit-wip-after-save-mode arg))
+    (magit-wip-after-save-mode arg)
     (magit-wip-after-apply-mode arg)
     (magit-wip-before-change-mode arg)
     (magit-wip-initial-backup-mode arg)))
 
-(define-minor-mode magit-wip-after-save-local-mode
-  "After saving, also commit to a worktree work-in-progress ref.
-
-After saving the current file-visiting buffer this mode also
-commits the changes to the worktree work-in-progress ref for
-the current branch.
-
-This mode should be enabled globally by turning on the globalized
-variant `magit-wip-after-save-mode'."
-  :package-version '(magit . "2.1.0")
-  (if magit-wip-after-save-local-mode
-      (if (and buffer-file-name (magit-inside-worktree-p t))
-          (add-hook 'after-save-hook #'magit-wip-commit-buffer-file t t)
-        (setq magit-wip-after-save-local-mode nil)
-        (user-error "Need a worktree and a file"))
-    (remove-hook 'after-save-hook #'magit-wip-commit-buffer-file t)))
-
-(defun magit-wip-after-save-local-mode-turn-on ()
-  (when (cond-let
-          ((not buffer-file-name)
-           nil)
-          ((not magit--wip-activation-cache)
-           (and (magit-inside-worktree-p t)
-                (magit-file-tracked-p buffer-file-name)))
-          ([elt (assoc default-directory
-                       magit--wip-activation-cache)]
-           (and-let ((top (cadr elt)))
-             (member (file-relative-name buffer-file-name top)
-                     (cddr elt))))
-          ([top (magit-toplevel)]
-           (let (files)
-             (if-let ((elt (assoc top magit--wip-activation-cache)))
-                 (setq files (cddr elt))
-               (setq files (let ((default-directory top))
-                             (magit-tracked-files)))
-               (push `(,top ,top ,@files)
-                     magit--wip-activation-cache)
-               (unless (eq default-directory top)
-                 (push `(,default-directory ,top ,@files)
-                       magit--wip-activation-cache)))
-             (member (file-relative-name buffer-file-name) files)))
-          (t
-           (push (list default-directory nil)
-                 magit--wip-activation-cache)
-           nil))
-    (magit-wip-after-save-local-mode)))
-
 ;;;###autoload
-(define-globalized-minor-mode magit-wip-after-save-mode
-  magit-wip-after-save-local-mode magit-wip-after-save-local-mode-turn-on
+(define-minor-mode magit-wip-after-save-mode
+  "Commit to work-in-progress refs when saving file-visiting buffers."
   :package-version '(magit . "2.1.0")
-  :group 'magit-wip)
+  :group 'magit-wip
+  :global t
+  (if magit-wip-after-save-mode
+      (add-hook  'after-save-hook #'magit-wip-commit-buffer-file 90)
+    (remove-hook 'after-save-hook #'magit-wip-commit-buffer-file)))
 
 (defun magit-wip-commit-buffer-file (&optional msg)
   "Commit visited file to a worktree work-in-progress ref.
@@ -158,7 +113,10 @@ variant `magit-wip-after-save-mode'."
 Also see `magit-wip-after-save-mode' which calls this function
 automatically whenever a buffer visiting a tracked file is saved."
   (interactive (list "wip-save %s after save"))
-  (when-let ((_(not magit--wip-inhibit-autosave))
+  (when-let ((_(and (not magit--wip-inhibit-autosave)
+                    buffer-file-name
+                    (magit-inside-worktree-p t)
+                    (magit-file-tracked-p buffer-file-name)))
              (ref (magit-wip-get-ref)))
     (magit-with-toplevel
       (let ((file (file-relative-name buffer-file-name)))
