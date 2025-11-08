@@ -160,8 +160,7 @@ command which is about to be called are committed."
 
 (defun magit-wip-commit-before-change (&optional files msg)
   (when magit-wip-before-change-mode
-    (magit-with-toplevel
-      (magit-wip-commit files msg))))
+    (magit-wip-commit files msg)))
 
 (define-minor-mode magit-wip-initial-backup-mode
   "Before saving a buffer for the first time, commit to a wip ref."
