@@ -57,10 +57,17 @@ never garbage collected.
 If nil and the current branch has new commits, then the wip ref
 is reset to the tip of the branch before creating a new wip
 commit.  With this setting wip commits are eventually garbage
-collected.  This is currently the default."
+collected.  This is currently the default.
+
+If `immediately', then use `git-commit-post-finish-hook' to
+create the merge commit.  This is discouraged because it can
+lead to a race condition, e.g., during rebases."
   :package-version '(magit . "2.90.0")
   :group 'magit-wip
-  :type 'boolean)
+  :type '(choice
+          (const :tag "Yes (safely, just in time)" t)
+          (const :tag "Yes (immediately, with race condition)" immediately)
+          (const :tag "No" nil)))
 
 (defcustom magit-wip-namespace "refs/wip/"
   "Namespace used for work-in-progress refs.
@@ -132,7 +139,7 @@ is used as `branch-ref'."
     (setq magit-wip-buffer-backed-up t)))
 
 (defun magit-wip-commit-post-editmsg ()
-  (when magit-wip-merge-branch
+  (when (eq magit-wip-merge-branch 'immediately)
     (magit-wip-commit)))
 
 ;;; Core
