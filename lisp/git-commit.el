@@ -216,36 +216,6 @@ Also note that `git-commit-mode' (which see) is not a major-mode.")
              git-commit-propertize-diff
              bug-reference-mode))
 
-(defcustom git-commit-post-finish-hook nil
-  "Hook run after the user finished writing a commit message.
-
-\\<with-editor-mode-map>\
-This hook is only run after pressing \\[with-editor-finish] in a buffer used
-to edit a commit message.  If a commit is created without the
-user typing a message into a buffer, then this hook is not run.
-
-This hook is not run until the new commit has been created.  If
-that takes Git longer than `git-commit-post-finish-hook-timeout'
-seconds, then this hook isn't run at all.  For certain commands
-such as `magit-rebase-continue' this hook is never run because
-doing so would lead to a race condition.
-
-Also see `magit-post-commit-hook'."
-  :group 'git-commit
-  :type 'hook
-  :get #'magit-hook-custom-get)
-
-(defcustom git-commit-post-finish-hook-timeout 2
-  "Time in seconds to wait for git to create a commit.
-
-The hook `git-commit-post-finish-hook' (which see) is run only
-after git is done creating a commit.  If it takes longer than
-`git-commit-post-finish-hook-timeout' seconds to create the
-commit, then the hook is not run at all."
-  :group 'git-commit
-  :safe 'numberp
-  :type 'number)
-
 (defcustom git-commit-finish-query-functions
   (list #'git-commit-check-style-conventions)
   "List of functions called to query before performing commit.
@@ -586,17 +556,7 @@ Used as the local value of `header-line-format', in buffer using
   (when (fboundp 'magit-commit--reset-command)
     (add-hook 'with-editor-post-finish-hook #'magit-commit--reset-command)
     (add-hook 'with-editor-post-cancel-hook #'magit-commit--reset-command))
-  (unless (memq last-command
-                '(magit-sequencer-continue
-                  magit-sequencer-skip
-                  magit-am-continue
-                  magit-am-skip
-                  magit-rebase-continue
-                  magit-rebase-skip))
-    (add-hook 'with-editor-post-finish-hook
-              (apply-partially #'git-commit-run-post-finish-hook
-                               (magit-rev-parse "HEAD"))
-              nil t))
+  (git-commit-add-post-finish-hook)
   (setq with-editor-cancel-message
         #'git-commit-cancel-message)
   (git-commit-setup-font-lock)
@@ -614,17 +574,6 @@ Used as the local value of `header-line-format', in buffer using
   (when git-commit-usage-message
     (setq with-editor-usage-message git-commit-usage-message))
   (with-editor-usage-message))
-
-(defun git-commit-run-post-finish-hook (previous)
-  (when git-commit-post-finish-hook
-    (if (with-timeout (git-commit-post-finish-hook-timeout)
-          (while (equal (magit-rev-parse "HEAD") previous)
-            (sit-for 0.01))
-          t)
-        (run-hooks 'git-commit-post-finish-hook)
-      (message "No commit created after %s second.  Not running %s."
-               git-commit-post-finish-hook-timeout
-               'git-commit-post-finish-hook))))
 
 (define-minor-mode git-commit-mode
   "Auxiliary minor mode used when editing Git commit messages.
@@ -1200,6 +1149,62 @@ Elisp doc-strings, including this one.  Unlike in doc-strings,
   `((,(concat "[`‘]\\(" lisp-mode-symbol-regexp "\\)['’]")
      (1 font-lock-constant-face prepend))
     ("\"[^\"]*\"" (0 font-lock-string-face prepend))))
+
+;;; Post Hook
+
+(defcustom git-commit-post-finish-hook nil
+  "Hook run after the user finished writing a commit message.
+
+\\<with-editor-mode-map>\
+This hook is only run after pressing \\[with-editor-finish] in a buffer used
+to edit a commit message.  If a commit is created without the
+user typing a message into a buffer, then this hook is not run.
+
+This hook is not run until the new commit has been created.  If
+that takes Git longer than `git-commit-post-finish-hook-timeout'
+seconds, then this hook isn't run at all.  For certain commands
+such as `magit-rebase-continue' this hook is never run because
+doing so would lead to a race condition.
+
+Also see `magit-post-commit-hook'."
+  :group 'git-commit
+  :type 'hook
+  :get #'magit-hook-custom-get)
+
+(defcustom git-commit-post-finish-hook-timeout 2
+  "Time in seconds to wait for git to create a commit.
+
+The hook `git-commit-post-finish-hook' (which see) is run only
+after git is done creating a commit.  If it takes longer than
+`git-commit-post-finish-hook-timeout' seconds to create the
+commit, then the hook is not run at all."
+  :group 'git-commit
+  :safe 'numberp
+  :type 'number)
+
+(defun git-commit-add-post-finish-hook ()
+  (unless (memq last-command
+                '(magit-sequencer-continue
+                  magit-sequencer-skip
+                  magit-am-continue
+                  magit-am-skip
+                  magit-rebase-continue
+                  magit-rebase-skip))
+    (add-hook 'with-editor-post-finish-hook
+              (apply-partially #'git-commit-run-post-finish-hook
+                               (magit-rev-parse "HEAD"))
+              nil t)))
+
+(defun git-commit-run-post-finish-hook (previous)
+  (when git-commit-post-finish-hook
+    (if (with-timeout (git-commit-post-finish-hook-timeout)
+          (while (equal (magit-rev-parse "HEAD") previous)
+            (sit-for 0.01))
+          t)
+        (run-hooks 'git-commit-post-finish-hook)
+      (message "No commit created after %s second.  Not running %s."
+               git-commit-post-finish-hook-timeout
+               'git-commit-post-finish-hook))))
 
 ;;; _
 
