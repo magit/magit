@@ -72,46 +72,30 @@ is used as `branch-ref'."
   :group 'magit-wip
   :type 'string)
 
-;;; Modes
+;;; Mode
 
 (defvar magit--wip-inhibit-autosave nil)
 
 ;;;###autoload
 (define-minor-mode magit-wip-mode
-  "Save uncommitted changes to work-in-progress refs.
-
-Whenever appropriate (i.e., when dataloss would be a possibility
-otherwise) this mode causes uncommitted changes to be committed
-to dedicated work-in-progress refs.
-
-For historic reasons this mode is implemented on top of four
-other `magit-wip-*' modes, which can also be used individually,
-if you want finer control over when the wip refs are updated;
-but that is discouraged."
+  "Automatically save uncommitted changes to work-in-progress refs."
   :package-version '(magit . "2.90.0")
   :lighter magit-wip-mode-lighter
   :global t
-  (let ((arg (if magit-wip-mode 1 -1)))
-    (magit-wip-after-save-mode arg)
-    (magit-wip-after-apply-mode arg)
-    (magit-wip-before-change-mode arg)
-    (magit-wip-initial-backup-mode arg)))
-
-;;;###autoload
-(define-minor-mode magit-wip-after-save-mode
-  "Commit to work-in-progress refs when saving file-visiting buffers."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-wip
-  :global t
-  (if magit-wip-after-save-mode
-      (add-hook  'after-save-hook #'magit-wip-commit-buffer-file 90)
-    (remove-hook 'after-save-hook #'magit-wip-commit-buffer-file)))
+  (cond
+   (magit-wip-mode
+    (add-hook 'after-save-hook #'magit-wip-commit-buffer-file)
+    (add-hook 'magit-after-apply-functions #'magit-wip-commit)
+    (add-hook 'magit-before-change-functions #'magit-wip-commit)
+    (add-hook 'before-save-hook #'magit-wip-commit-initial-backup))
+   (t
+    (remove-hook 'after-save-hook #'magit-wip-commit-buffer-file)
+    (remove-hook 'magit-after-apply-functions #'magit-wip-commit)
+    (remove-hook 'magit-before-change-functions #'magit-wip-commit)
+    (remove-hook 'before-save-hook #'magit-wip-commit-initial-backup))))
 
 (defun magit-wip-commit-buffer-file (&optional msg)
-  "Commit visited file to a worktree work-in-progress ref.
-
-Also see `magit-wip-after-save-mode' which calls this function
-automatically whenever a buffer visiting a tracked file is saved."
+  "Commit visited file to a worktree work-in-progress ref."
   (interactive (list "save %s snapshot"))
   (when (and (not magit--wip-inhibit-autosave)
              buffer-file-name
@@ -123,89 +107,20 @@ automatically whenever a buffer visiting a tracked file is saved."
      (format (or msg "autosave %s after save")
              (magit-file-relative-name buffer-file-name)))))
 
-;;;###autoload
-(define-minor-mode magit-wip-after-apply-mode
-  "Commit to work-in-progress refs.
-
-After applying a change using any \"apply variant\"
-command (apply, stage, unstage, discard, and reverse) commit the
-affected files to the current wip refs.  For each branch there
-may be two wip refs; one contains snapshots of the files as found
-in the worktree and the other contains snapshots of the entries
-in the index."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-wip
-  :global t
-  (if magit-wip-after-apply-mode
-      (add-hook  'magit-after-apply-functions #'magit-wip-commit)
-    (remove-hook 'magit-after-apply-functions #'magit-wip-commit)))
-
 (defun magit-run-after-apply-functions (files task)
   (run-hook-with-args 'magit-after-apply-functions
                       (ensure-list files)
                       (format " after %s" task)))
-
-;;;###autoload
-(define-minor-mode magit-wip-before-change-mode
-  "Commit to work-in-progress refs before certain destructive changes.
-
-Before invoking a revert command or an \"apply variant\"
-command (apply, stage, unstage, discard, and reverse) commit the
-affected tracked files to the current wip refs.  For each branch
-there may be two wip refs; one contains snapshots of the files
-as found in the worktree and the other contains snapshots of the
-entries in the index.
-
-Only changes to files which could potentially be affected by the
-command which is about to be called are committed."
-  :package-version '(magit . "2.1.0")
-  :group 'magit-wip
-  :global t
-  (if magit-wip-before-change-mode
-      (add-hook  'magit-before-change-functions #'magit-wip-commit)
-    (remove-hook 'magit-before-change-functions #'magit-wip-commit)))
 
 (defun magit-run-before-change-functions (files task)
   (run-hook-with-args 'magit-before-change-functions
                       (ensure-list files)
                       (format " before %s" task)))
 
-(define-minor-mode magit-wip-initial-backup-mode
-  "Before saving a buffer for the first time, commit to a wip ref."
-  :package-version '(magit . "2.90.0")
-  :group 'magit-wip
-  :global t
-  (if magit-wip-initial-backup-mode
-      (add-hook  'before-save-hook #'magit-wip-commit-initial-backup)
-    (remove-hook 'before-save-hook #'magit-wip-commit-initial-backup)))
-
-(defun magit--any-wip-mode-enabled-p ()
-  "Return non-nil if any global wip mode is enabled."
-  (or magit-wip-mode
-      magit-wip-after-save-mode
-      magit-wip-after-apply-mode
-      magit-wip-before-change-mode
-      magit-wip-initial-backup-mode))
-
 (defvar-local magit-wip-buffer-backed-up nil)
 (put 'magit-wip-buffer-backed-up 'permanent-local t)
 
-;;;###autoload
 (defun magit-wip-commit-initial-backup ()
-  "Before saving, commit current file to a worktree wip ref.
-
-The user has to add this function to `before-save-hook'.
-
-Commit the current state of the visited file before saving the
-current buffer to that file.  This backs up the same version of
-the file as `backup-buffer' would, but stores the backup in the
-worktree wip ref, which is also used by the various Magit Wip
-modes, instead of in a backup file as `backup-buffer' would.
-
-This function ignores the variables that affect `backup-buffer'
-and can be used along-side that function, which is recommended
-because this function only backs up files that are tracked in
-a Git repository."
   (when (and (not magit-wip-buffer-backed-up)
              buffer-file-name
              (magit-inside-worktree-p t)
@@ -325,8 +240,7 @@ commit message."
               "HEAD")))
 
 (defun magit-wip-maybe-add-commit-hook ()
-  (when (and magit-wip-merge-branch
-             (magit--any-wip-mode-enabled-p))
+  (when (and magit-wip-mode magit-wip-merge-branch)
     (add-hook 'git-commit-post-finish-hook #'magit-wip-commit nil t)))
 
 ;;; Log

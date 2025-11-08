@@ -31,7 +31,6 @@
 (require 'magit-core)
 (require 'magit-diff)
 
-(declare-function magit--any-wip-mode-enabled-p "magit-wip" ())
 (declare-function magit-blob-visit "magit-files" (rev file))
 (declare-function magit-cherry-apply "magit-sequence" (commit &optional args))
 (declare-function magit-insert-head-branch-header "magit-status"
@@ -536,7 +535,7 @@ commits before and half after."
     ("r" "current"           magit-reflog-current)
     ("O" "other"             magit-reflog-other)
     ("H" "HEAD"              magit-reflog-head)]
-   [:if magit--any-wip-mode-enabled-p
+   [:if-mode magit-wip-mode
     :description "Wiplog"
     ("i" "index"             magit-wip-log-index)
     ("w" "worktree"          magit-wip-log-worktree)]

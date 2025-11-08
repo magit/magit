@@ -333,11 +333,11 @@ Global settings:
   for confirmation for any of these actions, you are still better
   of adding all of the respective symbols individually.
 
-  When `magit-wip-before-change-mode' is enabled then these actions
-  can fairly easily be undone: `discard', `reverse',
-  `stage-all-changes', and `unstage-all-changes'.  If and only if
-  this mode is enabled, then `safe-with-wip' has the same effect
-  as adding all of these symbols individually."
+  When `magit-wip-mode' is enabled then these actions can fairly
+  easily be undone: `discard', `reverse', `stage-all-changes', and
+  `unstage-all-changes'.  If and only if this mode is enabled, then
+  `safe-with-wip' has the same effect as adding all of these symbols
+  individually."
   :package-version '(magit . "2.1.0")
   :group 'magit-essentials
   :group 'magit-commands
@@ -799,7 +799,7 @@ ACTION is a member of option `magit-slow-confirm'."
     (y-or-n-p prompt)))
 
 (defvar magit--no-confirm-alist
-  '((safe-with-wip magit-wip-before-change-mode
+  '((safe-with-wip magit-wip-mode
                    discard reverse stage-all-changes unstage-all-changes)))
 
 (cl-defun magit-confirm ( action &optional prompt prompt-n noabort

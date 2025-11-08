@@ -47,7 +47,7 @@
 (declare-function elp-restore-all "elp" ())
 
 (defvar magit--wip-inhibit-autosave)
-(defvar magit-wip-after-save-mode)
+(defvar magit-wip-mode)
 (declare-function magit-wip-get-ref "magit-wip" ())
 (declare-function magit-wip-commit-worktree "magit-wip" (ref files msg))
 
@@ -1331,7 +1331,7 @@ argument (the prefix) non-nil means save all with no questions."
            (lambda ()
              (and (funcall magit-save-repository-buffers-predicate topdir)
                   (prog1 t
-                    (when magit-wip-after-save-mode
+                    (when magit-wip-mode
                       (push (expand-file-name buffer-file-name) saved))))))
         (when saved
           (let ((default-directory topdir))

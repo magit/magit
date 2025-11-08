@@ -9244,11 +9244,6 @@ dataloss would be a possibility otherwise).
 
 Setting this variable directly does not take effect; either use the
 Custom interface to do so or call the respective mode function.
-
-For historic reasons this mode is implemented on top of four other
-@code{magit-wip-*} modes, which can also be used individually, if you want
-finer control over when the wip refs are updated; but that is
-discouraged.  See @ref{Legacy Wip Modes}.
 @end defopt
 
 To view the log for a branch and its wip refs use the commands
@@ -9381,74 +9376,6 @@ is being staged.  Likewise just checking out a branch or creating a
 commit does not change the fork-point of the working tree wip ref.  The
 fork-points are not adjusted until there actually is a change that
 should be committed to the respective wip ref.
-
-@anchor{Legacy Wip Modes}
-@subsection Legacy Wip Modes
-
-It is recommended that you use the mode @code{magit-wip-mode} (which see) and
-ignore the existence of the following modes, which are preserved for
-historic reasons.
-
-Setting the following variables directly does not take effect; either
-use the Custom interface to do so or call the respective mode
-functions.
-
-@defopt magit-wip-after-save-mode
-When this mode is enabled, then saving a buffer that visits a file
-tracked in a Git repository causes its current state to be committed
-to the working tree wip ref for the current branch.
-@end defopt
-
-@defopt magit-wip-after-apply-mode
-When this mode is enabled, then applying (i.e., staging, unstaging,
-discarding, reversing, and regularly applying) a change to a file
-tracked in a Git repository causes its current state to be committed
-to the index and/or working tree wip refs for the current branch.
-@end defopt
-
-If you only ever edit files using Emacs and only ever interact with
-Git using Magit, then the above two modes should be enough to protect
-each and every change from accidental loss.  In practice nobody does
-that.  Two additional modes exists that do commit to the wip refs
-before making changes that could cause the loss of earlier changes.
-
-@defopt magit-wip-before-change-mode
-When this mode is enabled, then certain commands commit the existing
-changes to the files they are about to make changes to.
-@end defopt
-
-@defopt magit-wip-initial-backup-mode
-When this mode is enabled, then the current version of a file is
-committed to the worktree wip ref before the buffer visiting that
-file is saved for the first time since the buffer was created.
-
-This backs up the same version of the file that @code{backup-buffer} would
-save.  While @code{backup-buffer} uses a backup file, this mode uses the
-same worktree wip ref as used by the other Magit Wip modes.  Like
-@code{backup-buffer}, it only does this once; unless you kill the buffer
-and visit the file again only one backup will be created per Emacs
-session.
-
-This mode ignores the variables that affect @code{backup-buffer} and can be
-used along-side that function, which is recommended because it only
-backs up files that are tracked in a Git repository.
-@end defopt
-
-@defopt magit-wip-after-save-local-mode-lighter
-Mode-line lighter for @code{magit-wip-after-save-local-mode}.
-@end defopt
-
-@defopt magit-wip-after-apply-mode-lighter
-Mode-line lighter for @code{magit-wip-after-apply-mode}.
-@end defopt
-
-@defopt magit-wip-before-change-mode-lighter
-Mode-line lighter for @code{magit-wip-before-change-mode}.
-@end defopt
-
-@defopt magit-wip-initial-backup-mode-lighter
-Mode-line lighter for @code{magit-wip-initial-backup-mode}.
-@end defopt
 
 @node Commands for Buffers Visiting Files
 @section Commands for Buffers Visiting Files
