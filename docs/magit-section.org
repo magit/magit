@@ -62,7 +62,7 @@ source for suitable examples before asking me for help.  Thanks!
   appropriate package prefix.  This works due to some undocumented
   kludges, which are not available to other packages.
 
-  When optional HIDE is non-nil collapse the section body by
+  When optional HIDE is non-~nil~ collapse the section body by
   default, i.e., when first creating the section, but not when
   refreshing the buffer.  Else expand it by default.  This can be
   overwritten using ~magit-section-set-visibility-hook~.  When a
@@ -98,7 +98,7 @@ source for suitable examples before asking me for help.  Thanks!
   line when this function is used like this.
 
   When called with arguments ARGS, which have to be strings, or
-  nil, then insert those strings at point.  The section should not
+  ~nil~, then insert those strings at point.  The section should not
   contain any text before this happens and afterwards it should
   again only contain a single line.  If the ~face~ property is set
   anywhere inside any of these strings, then insert all of them
@@ -108,7 +108,7 @@ source for suitable examples before asking me for help.  Thanks!
   The ~content~ property of the section object is the end of the
   heading (which lasts from ~start~ to ~content~) and the beginning
   of the the body (which lasts from ~content~ to ~end~).  If the
-  value of ~content~ is nil, then the section has no heading and
+  value of ~content~ is ~nil~, then the section has no heading and
   its body cannot be collapsed.  If a section does have a heading,
   then its height must be exactly one line, including a trailing
   newline character.  This isn't enforced, you are responsible for
@@ -116,10 +116,10 @@ source for suitable examples before asking me for help.  Thanks!
   insert a newline character if necessary.
 
   If provided, optional CHILD-COUNT must evaluate to an integer or
-  boolean.  If t, then the count is determined once the children have been
+  boolean.  If ~t~, then the count is determined once the children have been
   inserted, using ~magit-insert-child-count~ (which see).  For historic
   reasons, if the heading ends with ":", the count is substituted for
-  that, at this time as well.  If ~magit-section-show-child-count~ is nil,
+  that, at this time as well.  If ~magit-section-show-child-count~ is ~nil~,
   no counts are inserted
 
 - Macro: magit-insert-section-body &rest body ::
@@ -175,18 +175,18 @@ source for suitable examples before asking me for help.  Thanks!
 
   Return the section identified by IDENT.
   IDENT has to be a list as returned by ~magit-section-ident~.
-  If optional ROOT is non-nil, then search in that section tree
+  If optional ROOT is non-~nil~, then search in that section tree
   instead of in the one whose root ~magit-root-section~ is.
 
 - Function: magit-section-lineage section &optional raw ::
 
   Return the lineage of SECTION.
-  If optional RAW is non-nil, return a list of section objects,
+  If optional RAW is non-~nil~, return a list of section objects,
   beginning with SECTION, otherwise return a list of section types.
 
 - Function: magit-section-content-p section ::
 
-  Return non-nil if SECTION has content or an unused washer function.
+  Return non-~nil~ if SECTION has content or an unused washer function.
 
 The next two functions are replacements for the Emacs functions that
 have the same name except for the ~magit-~ prefix.  Like
@@ -217,11 +217,11 @@ when appropriate.
 
 - Function: magit-section-match condition &optional (section (magit-current-section)) ::
 
-  Return t if SECTION matches CONDITION.
+  Return ~t~ if SECTION matches CONDITION.
 
   SECTION defaults to the section at point.  If SECTION is not
   specified and there also is no section at point, then return
-  nil.
+  ~nil~.
 
   CONDITION can take the following forms:
 
@@ -253,10 +253,10 @@ when appropriate.
 
   If the section at point matches CONDITION, then return its value.
 
-  If optional SECTION is non-nil then test whether that matches
-  instead.  If there is no section at point and SECTION is nil,
-  then return nil.  If the section does not match, then return
-  nil.
+  If optional SECTION is non-~nil~ then test whether that matches
+  instead.  If there is no section at point and SECTION is ~nil~,
+  then return ~nil~.  If the section does not match, then return
+  ~nil~.
 
   See ~magit-section-match~ for the forms CONDITION can take.
 
@@ -269,10 +269,10 @@ when appropriate.
   first match are evaluated sequentially and the value of the last
   form is returned.  Inside BODY the symbol ~it~ is bound to the
   section at point.  If no clause succeeds or if there is no
-  section at point, return nil.
+  section at point, return ~nil~.
 
   See ~magit-section-match~ for the forms CONDITION can take.
-  Additionally a CONDITION of t is allowed in the final clause, and
+  Additionally a CONDITION of ~t~ is allowed in the final clause, and
   matches if no other CONDITION match, even if there is no section
   at point.
 
