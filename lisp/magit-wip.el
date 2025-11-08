@@ -113,16 +113,15 @@ but that is discouraged."
 Also see `magit-wip-after-save-mode' which calls this function
 automatically whenever a buffer visiting a tracked file is saved."
   (interactive (list "wip-save %s after save"))
-  (when-let ((_(and (not magit--wip-inhibit-autosave)
-                    buffer-file-name
-                    (magit-inside-worktree-p t)
-                    (magit-file-tracked-p buffer-file-name)))
-             (ref (magit-wip-get-ref)))
-    (magit-with-toplevel
-      (let ((file (file-relative-name buffer-file-name)))
-        (magit-wip-commit-worktree
-         ref (list file)
-         (format (or msg "autosave %s after save") file))))))
+  (when (and (not magit--wip-inhibit-autosave)
+             buffer-file-name
+             (magit-inside-worktree-p t)
+             (magit-file-tracked-p buffer-file-name))
+    (magit-wip-commit-worktree
+     (magit-wip-get-ref)
+     (list buffer-file-name)
+     (format (or msg "autosave %s after save")
+             (magit-file-relative-name buffer-file-name)))))
 
 ;;;###autoload
 (define-minor-mode magit-wip-after-apply-mode
