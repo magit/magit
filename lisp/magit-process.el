@@ -810,7 +810,7 @@ Magit status buffer."
 (defun magit-process--format-arguments (program args)
   (cond
    ((and args (equal program (magit-git-executable)))
-    (let ((global (length magit-git-global-arguments)))
+    (let ((global (length magit-git-global-arguments))) 
       (concat
        (propertize (file-name-nondirectory program)
                    'font-lock-face 'magit-section-heading)
@@ -882,7 +882,7 @@ Magit status buffer."
                      `((commit . ,(magit-rev-parse "HEAD"))
                        (,(pcase (car (seq-drop
                                       (process-command process)
-                                      (1+ (length magit-git-global-arguments))))
+                                      (1+ (length magit-git-global-arguments)))) 
                            ((or "rebase" "am") 'rebase-sequence)
                            ((or "cherry-pick" "revert") 'sequence)))
                        (status)))))
@@ -1119,7 +1119,7 @@ as argument."
 (defun magit-process-set-mode-line (program args)
   "Display the git command (sans arguments) in the mode line."
   (when (equal program (magit-git-executable))
-    (setq args (nthcdr (length magit-git-global-arguments) args)))
+    (setq args (nthcdr (length magit-git-global-arguments) args))) 
   (let ((str (concat " " (propertize
                           (concat (file-name-nondirectory program)
                                   (and args (concat " " (car args))))
