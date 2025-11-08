@@ -112,7 +112,7 @@ but that is discouraged."
 
 Also see `magit-wip-after-save-mode' which calls this function
 automatically whenever a buffer visiting a tracked file is saved."
-  (interactive (list "wip-save %s after save"))
+  (interactive (list "save %s snapshot"))
   (when (and (not magit--wip-inhibit-autosave)
              buffer-file-name
              (magit-inside-worktree-p t)
