@@ -135,11 +135,15 @@ in the worktree and the other contains snapshots of the entries
 in the index."
   :package-version '(magit . "2.1.0")
   :group 'magit-wip
-  :global t)
+  :global t
+  (if magit-wip-after-apply-mode
+      (add-hook  'magit-after-apply-functions #'magit-wip-commit)
+    (remove-hook 'magit-after-apply-functions #'magit-wip-commit)))
 
-(defun magit-wip-commit-after-apply (&optional files msg)
-  (when magit-wip-after-apply-mode
-    (magit-wip-commit files msg)))
+(defun magit-run-after-apply-functions (files task)
+  (run-hook-with-args 'magit-after-apply-functions
+                      (ensure-list files)
+                      (format " after %s" task)))
 
 ;;;###autoload
 (define-minor-mode magit-wip-before-change-mode
@@ -156,11 +160,15 @@ Only changes to files which could potentially be affected by the
 command which is about to be called are committed."
   :package-version '(magit . "2.1.0")
   :group 'magit-wip
-  :global t)
+  :global t
+  (if magit-wip-before-change-mode
+      (add-hook  'magit-before-change-functions #'magit-wip-commit)
+    (remove-hook 'magit-before-change-functions #'magit-wip-commit)))
 
-(defun magit-wip-commit-before-change (&optional files msg)
-  (when magit-wip-before-change-mode
-    (magit-wip-commit files msg)))
+(defun magit-run-before-change-functions (files task)
+  (run-hook-with-args 'magit-before-change-functions
+                      (ensure-list files)
+                      (format " before %s" task)))
 
 (define-minor-mode magit-wip-initial-backup-mode
   "Before saving a buffer for the first time, commit to a wip ref."

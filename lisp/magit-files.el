@@ -211,8 +211,7 @@ is done using `magit-find-index-noselect'."
         (let ((index (make-temp-name
                       (expand-file-name "magit-update-index-" (magit-gitdir))))
               (buffer (current-buffer)))
-          (when magit-wip-before-change-mode
-            (magit-wip-commit-before-change (list file) " before un-/stage"))
+          (magit-run-before-change-functions file "un-/stage")
           (unwind-protect
               (progn
                 (let ((coding-system-for-write buffer-file-coding-system))
@@ -229,8 +228,7 @@ is done using `magit-find-index-noselect'."
                    file)))
             (ignore-errors (delete-file index)))
           (set-buffer-modified-p nil)
-          (when magit-wip-after-apply-mode
-            (magit-wip-commit-after-apply (list file) " after un-/stage")))
+          (magit-run-after-apply-functions file "un-/stage"))
       (message "Abort")))
   (when-let ((buffer (magit-get-mode-buffer 'magit-status-mode)))
     (with-current-buffer buffer
