@@ -71,20 +71,6 @@ an error while using those is harder to recover from."
   :group 'magit-commands
   :type 'boolean)
 
-(defcustom magit-post-commit-hook nil
-  "Hook run after creating a commit without the user editing a message.
-
-This hook is run by `magit-refresh' if `this-command' is a member
-of `magit-post-commit-hook-commands'.  This only includes commands
-named `magit-commit-*' that do *not* require that the user edits
-the commit message in a buffer and then finishes by pressing
-\\<with-editor-mode-map>\\[with-editor-finish].
-
-Also see `git-commit-post-finish-hook'."
-  :package-version '(magit . "2.90.0")
-  :group 'magit-commands
-  :type 'hook)
-
 (defcustom magit-commit-diff-inhibit-same-window nil
   "Whether to inhibit use of same window when showing diff while committing.
 
@@ -637,21 +623,6 @@ an alternative implementation."
   :argument "--strict="
   :reader #'transient-read-number-N0)
 
-;;;; Hooks
-
-(defvar magit-post-commit-hook-commands
-  (list #'magit-commit-extend
-        #'magit-commit-fixup
-        #'magit-commit-augment
-        #'magit-commit-instant-fixup
-        #'magit-commit-instant-squash))
-
-;;;###autoload
-(defun magit-run-post-commit-hook ()
-  (when (and (not this-command)
-             (memq last-command magit-post-commit-hook-commands))
-    (run-hooks 'magit-post-commit-hook)))
-
 ;;; Pending Diff
 
 (defun magit-commit-diff ()
@@ -811,6 +782,35 @@ actually insert the entry."
             (while (re-search-forward "^[^\\*\n].*\n" limit t))
             (insert (format "(%s): \n" defun))
             (backward-char)))))))
+
+;;; Post Hook
+
+(defcustom magit-post-commit-hook nil
+  "Hook run after creating a commit without the user editing a message.
+
+This hook is run by `magit-refresh' if `this-command' is a member
+of `magit-post-commit-hook-commands'.  This only includes commands
+named `magit-commit-*' that do *not* require that the user edits
+the commit message in a buffer and then finishes by pressing
+\\<with-editor-mode-map>\\[with-editor-finish].
+
+Also see `git-commit-post-finish-hook'."
+  :package-version '(magit . "2.90.0")
+  :group 'magit-commands
+  :type 'hook)
+
+(defvar magit-post-commit-hook-commands
+  (list #'magit-commit-extend
+        #'magit-commit-fixup
+        #'magit-commit-augment
+        #'magit-commit-instant-fixup
+        #'magit-commit-instant-squash))
+
+;;;###autoload
+(defun magit-run-post-commit-hook ()
+  (when (and (not this-command)
+             (memq last-command magit-post-commit-hook-commands))
+    (run-hooks 'magit-post-commit-hook)))
 
 ;;; _
 (provide 'magit-commit)
