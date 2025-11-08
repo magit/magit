@@ -87,12 +87,14 @@ is used as `branch-ref'."
     (add-hook 'after-save-hook #'magit-wip-commit-buffer-file)
     (add-hook 'magit-after-apply-functions #'magit-wip-commit)
     (add-hook 'magit-before-change-functions #'magit-wip-commit)
-    (add-hook 'before-save-hook #'magit-wip-commit-initial-backup))
+    (add-hook 'before-save-hook #'magit-wip-commit-initial-backup)
+    (add-hook 'git-commit-post-finish-hook #'magit-wip-commit-post-editmsg))
    (t
     (remove-hook 'after-save-hook #'magit-wip-commit-buffer-file)
     (remove-hook 'magit-after-apply-functions #'magit-wip-commit)
     (remove-hook 'magit-before-change-functions #'magit-wip-commit)
-    (remove-hook 'before-save-hook #'magit-wip-commit-initial-backup))))
+    (remove-hook 'before-save-hook #'magit-wip-commit-initial-backup)
+    (remove-hook 'git-commit-post-finish-hook #'magit-wip-commit-post-editmsg))))
 
 (defun magit-wip-commit-buffer-file (&optional msg)
   "Commit visited file to a worktree work-in-progress ref."
@@ -128,6 +130,10 @@ is used as `branch-ref'."
     (let ((magit-save-repository-buffers nil))
       (magit-wip-commit-buffer-file "autosave %s before save"))
     (setq magit-wip-buffer-backed-up t)))
+
+(defun magit-wip-commit-post-editmsg ()
+  (when magit-wip-merge-branch
+    (magit-wip-commit)))
 
 ;;; Core
 
@@ -238,10 +244,6 @@ commit message."
                         (branch (or ref (magit-get-current-branch))))
                 (concat "refs/heads/" branch))
               "HEAD")))
-
-(defun magit-wip-maybe-add-commit-hook ()
-  (when (and magit-wip-mode magit-wip-merge-branch)
-    (add-hook 'git-commit-post-finish-hook #'magit-wip-commit nil t)))
 
 ;;; Log
 

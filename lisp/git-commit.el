@@ -596,9 +596,7 @@ Used as the local value of `header-line-format', in buffer using
     (add-hook 'with-editor-post-finish-hook
               (apply-partially #'git-commit-run-post-finish-hook
                                (magit-rev-parse "HEAD"))
-              nil t)
-    (when (fboundp 'magit-wip-maybe-add-commit-hook)
-      (magit-wip-maybe-add-commit-hook)))
+              nil t))
   (setq with-editor-cancel-message
         #'git-commit-cancel-message)
   (git-commit-setup-font-lock)
