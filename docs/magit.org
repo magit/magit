@@ -1150,13 +1150,17 @@ certain sections can also be overwritten using the hook
   then the buffer is being refreshed and these functions should
   immediately return ~nil~.
 
-- User Option: magit-section-visibility-indicator ::
+- User Option: magit-section-visibility-indicators ::
 
   This option controls whether and how to indicate that a section can
   be expanded/collapsed.
 
-  If ~nil~, then no visibility indicators are shown.  Otherwise the
-  value has to have one of these two forms:
+  If ~nil~, then don't show any indicators.  Otherwise the value has to
+  be a list with two elements.  The first controls the indicators used
+  in graphical frames, the second the indicators in terminal frames.
+  For graphical frames all of the following forms are valid, while
+  terminal frames do not have fringes and thus do not support the first
+  form.
 
   - ~(EXPANDABLE-BITMAP . COLLAPSIBLE-BITMAP)~
 
@@ -1168,9 +1172,14 @@ certain sections can also be overwritten using the hook
     ~left-fringe-width~ in ~magit-mode-hook~, e.g.:
 
     #+BEGIN_SRC emacs-lisp
-      (add-hook 'magit-mode-hook (lambda ()
-                                   (setq left-fringe-width 20)))
+      (add-hook 'magit-mode-hook
+                (lambda () (setq left-fringe-width 20)))
     #+END_SRC
+
+  - ~(EXPANDABLE-CHAR . COLLAPSIBLE-CHAR)~
+
+    In this case every section that can be expanded or collapsed
+    gets an indicator in the left margin.
 
   - ~(STRING . BOOLEAN)~
 

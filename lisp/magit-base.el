@@ -426,7 +426,7 @@ the ellipsis definition.  Currently the only acceptable values
 for WHERE are `margin' or t (representing the default).
 
 Whether collapsed sections are indicated using ellipsis is
-controlled by `magit-section-visibility-indicator'."
+controlled by option `magit-section-visibility-indicators'."
   :package-version '(magit . "4.0.0")
   :group 'magit-miscellaneous
   :type '(repeat (list (symbol :tag "Where")
