@@ -592,13 +592,13 @@ unlike @code{display-buffer}, also selects that window, provided
 @code{magit-display-buffer-noselect} is @code{nil}.  It also runs the hooks
 mentioned below.
 
-If optional DISPLAY-FUNCTION is non-nil, then that is used to
+If optional DISPLAY-FUNCTION is non-@code{nil}, then that is used to
 display the buffer.  Usually that is @code{nil} and the function specified
 by @code{magit-display-buffer-function} is used.
 @end defun
 
 @defvar magit-display-buffer-noselect
-When this is non-nil, then @code{magit-display-buffer} only displays the
+When this is non-@code{nil}, then @code{magit-display-buffer} only displays the
 buffer but forgoes also selecting the window.  This variable should
 not be set globally, it is only intended to be let-bound, by code
 that automatically updates "the other window".  This is used for
@@ -743,18 +743,18 @@ empty string.
 @code{%t}
 
 The top-level directory of the working tree of the repository, or
-if @code{magit-uniquify-buffer-names} is non-nil an abbreviation of that.
+if @code{magit-uniquify-buffer-names} is non-@code{nil} an abbreviation of that.
 
 @item
 @code{%x}
 
-If @code{magit-uniquify-buffer-names} is nil "*", otherwise the empty
+If @code{magit-uniquify-buffer-names} is @code{nil} "*", otherwise the empty
 string.  Due to limitations of the @code{uniquify} package, buffer names
 must end with the path.
 @end itemize
 
 The value should always contain @code{%m} or @code{%M}, @code{%v} or @code{%V}, and @code{%t}.  If
-@code{magit-uniquify-buffer-names} is non-nil, then the value must end with
+@code{magit-uniquify-buffer-names} is non-@code{nil}, then the value must end with
 @code{%t} or @code{%t%x}.  See issue #2841.
 @end defopt
 
@@ -792,7 +792,7 @@ the current buffer.
 The function used to actually bury or kill the current buffer.
 
 @code{magit-mode-bury-buffer} calls this function with one argument.  If
-the argument is non-nil, then the function has to kill the current
+the argument is non-@code{nil}, then the function has to kill the current
 buffer.  Otherwise it has to bury it alive.  The default value
 currently is @code{magit-mode-quit-window}.
 @end defopt
@@ -861,7 +861,7 @@ repository and also reverts all unmodified buffers that visit files
 being tracked in the current repository.
 
 The file-visiting buffers are always reverted, even if
-@code{magit-revert-buffers} is nil.
+@code{magit-revert-buffers} is @code{nil}.
 @end table
 
 @defopt magit-refresh-buffer-hook
@@ -870,11 +870,11 @@ current refresh - normally the current buffer and the status buffer.
 @end defopt
 
 @defopt magit-refresh-status-buffer
-When this option is non-nil, then the status buffer is automatically
+When this option is non-@code{nil}, then the status buffer is automatically
 refreshed after running git for side-effects, in addition to the
 current Magit buffer, which is always refreshed automatically.
 
-Only set this to nil after exhausting all other options to improve
+Only set this to @code{nil} after exhausting all other options to improve
 performance.
 @end defopt
 
@@ -903,7 +903,7 @@ refresh explicitly.
 This option controls whether file-visiting buffers are saved before
 certain events.
 
-If this is non-nil then all modified file-visiting buffers belonging
+If this is non-@code{nil} then all modified file-visiting buffers belonging
 to the current repository may be saved before running commands,
 before creating new Magit buffers, and before explicitly refreshing
 such buffers.  If this is @code{dontask} then this is done without user
@@ -942,14 +942,14 @@ this mode @emph{instead of} @code{magit-auto-revert-mode}.
 @defopt magit-auto-revert-immediately
 This option controls whether Magit reverts buffers immediately.
 
-If this is non-nil and either @code{global-auto-revert-mode} or
+If this is non-@code{nil} and either @code{global-auto-revert-mode} or
 @code{magit-auto-revert-mode} is enabled, then Magit immediately reverts
 buffers by explicitly calling @code{auto-revert-buffers} after running Git
 for side-effects.
 
-If @code{auto-revert-use-notify} is non-nil (and file notifications are
+If @code{auto-revert-use-notify} is non-@code{nil} (and file notifications are
 actually supported), then @code{magit-auto-revert-immediately} does not
-have to be non-nil, because the reverts happen immediately anyway.
+have to be non-@code{nil}, because the reverts happen immediately anyway.
 
 If @code{magit-auto-revert-immediately} and @code{auto-revert-use-notify} are both
 @code{nil}, then reverts happen after @code{auto-revert-interval} seconds of user
@@ -997,7 +997,7 @@ This option is provided by Magit, which also advises
 the local mode @code{auto-revert-mode} themselves, are best served by
 setting the value to @code{magit-auto-revert-repository-buffer-p}.
 
-However the default is nil, so as not to disturb users who do use the
+However the default is @code{nil}, so as not to disturb users who do use the
 local mode directly.  If you experience delays when running Magit
 commands, then you should consider using one of the predicates
 provided by Magit - especially if you also use Tramp.
@@ -1343,7 +1343,7 @@ can be used, see @code{magit-section-match}.
 @defopt magit-section-cache-visibility
 This option controls for which sections the previous visibility
 state should be restored if a section disappears and later appears
-again.  The value is a boolean or a list of section types.  If t,
+again.  The value is a boolean or a list of section types.  If @code{t},
 then the visibility of all sections is cached.  Otherwise this is
 only done for sections whose type matches one of the listed types.
 
@@ -1363,7 +1363,7 @@ buffer is being refreshed, then the visibility is preserved; or if
 the buffer is being created, then the hard coded default is used.
 
 Usually this should only be used to set the initial visibility but
-not during refreshes.  If @code{magit-insert-section--oldroot} is non-nil,
+not during refreshes.  If @code{magit-insert-section--oldroot} is non-@code{nil},
 then the buffer is being refreshed and these functions should
 immediately return @code{nil}.
 @end defvar
@@ -1372,7 +1372,7 @@ immediately return @code{nil}.
 This option controls whether and how to indicate that a section can
 be expanded/collapsed.
 
-If nil, then no visibility indicators are shown.  Otherwise the
+If @code{nil}, then no visibility indicators are shown.  Otherwise the
 value has to have one of these two forms:
 
 @itemize
@@ -1424,22 +1424,22 @@ this manual along with the appropriate "section inserter functions".
 Add the function FUNCTION to the value of section hook HOOK@.
 
 Add FUNCTION at the beginning of the hook list unless optional
-APPEND is non-nil, in which case FUNCTION is added at the end.  If
+APPEND is non-@code{nil}, in which case FUNCTION is added at the end.  If
 FUNCTION already is a member then move it to the new location.
 
-If optional AT is non-nil and a member of the hook list, then add
+If optional AT is non-@code{nil} and a member of the hook list, then add
 FUNCTION next to that instead.  Add before or after AT, or replace
 AT with FUNCTION depending on APPEND@.  If APPEND is the symbol
-@code{replace}, then replace AT with FUNCTION@.  For any other non-nil value
-place FUNCTION right after AT@.  If nil, then place FUNCTION right
+@code{replace}, then replace AT with FUNCTION@.  For any other non-@code{nil} value
+place FUNCTION right after AT@.  If @code{nil}, then place FUNCTION right
 before AT@.  If FUNCTION already is a member of the list but AT is
 not, then leave FUNCTION where ever it already is.
 
-If optional LOCAL is non-nil, then modify the hook's buffer-local
+If optional LOCAL is non-@code{nil}, then modify the hook's buffer-local
 value rather than its global value.  This makes the hook local by
 copying the default value.  That copy is then modified.
 
-HOOK should be a symbol.  If HOOK is void, it is first set to nil.
+HOOK should be a symbol.  If HOOK is void, it is first set to @code{nil}.
 HOOK's value must not be a single hook function.  FUNCTION should
 be a function that takes no arguments and inserts one or multiple
 sections at point, moving point forward.  FUNCTION may choose not
@@ -1938,7 +1938,7 @@ that function.
 @item
 If the command uses @code{magit-completing-read} multiple times, then
 PROMPT can be used to only affect one of these uses.  PROMPT, if
-non-nil, is a regular expression that is used to match against
+non-@code{nil}, is a regular expression that is used to match against
 the PROMPT argument passed to @code{magit-completing-read}.
 
 @item
@@ -2090,7 +2090,7 @@ If REQUIRE-MATCH is @code{nil} and the user exits without a choice, then
 
 @item
 If REQUIRE-MATCH is @code{any}, then do not require a match but
-do require non-empty input (or non-nil DEFAULT, since that
+do require non-empty input (or non-@code{nil} DEFAULT, since that
 is substituted for empty input).
 
 @item
@@ -2604,8 +2604,8 @@ Insert section showing staged changes.
 
 @defun magit-insert-stashes &optional ref heading
 Insert the @code{stashes} section showing reflog for "refs/stash".
-If optional REF is non-nil show reflog for that instead.
-If optional HEADING is non-nil use that as section heading
+If optional REF is non-@code{nil} show reflog for that instead.
+If optional HEADING is non-@code{nil} use that as section heading
 instead of "Stashes:".
 @end defun
 
@@ -2856,8 +2856,8 @@ Hook run by @code{magit-insert-modules}.
 This option controls whether @code{magit-insert-modules} wraps inserted
 sections in an additional section.
 
-If this is non-nil, then only a single top-level section is inserted.
-If it is nil, then all sections listed in @code{magit-module-sections-hook}
+If this is non-@code{nil}, then only a single top-level section is inserted.
+If it is @code{nil}, then all sections listed in @code{magit-module-sections-hook}
 become top-level sections.
 @end defopt
 
@@ -2906,7 +2906,7 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
-If INIT is non-nil, then the margin is shown initially.
+If INIT is non-@code{nil}, then the margin is shown initially.
 @item
 STYLE controls how to format the author or committer date.  It can
 be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
@@ -2949,7 +2949,7 @@ HEADER is the string displayed in the header.  WIDTH is the width
 of the column.  FORMAT is a function that is called with one
 argument, the repository identification (usually its basename),
 and with @code{default-directory} bound to the toplevel of its working
-tree.  It has to return a string to be inserted or nil.  PROPS is
+tree.  It has to return a string to be inserted or @code{nil}.  PROPS is
 an alist that supports the keys @code{:right-align}, @code{:pad-right} and
 @code{:sort}.
 
@@ -3373,7 +3373,7 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
-If INIT is non-nil, then the margin is shown initially.
+If INIT is non-@code{nil}, then the margin is shown initially.
 @item
 STYLE controls how to format the author or committer date.  It can
 be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
@@ -3478,7 +3478,7 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
-If INIT is non-nil, then the margin is shown initially.
+If INIT is non-@code{nil}, then the margin is shown initially.
 @item
 STYLE controls how to format the author or committer date.  It can
 be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
@@ -3542,7 +3542,7 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
-If INIT is non-nil, then the margin is shown initially.
+If INIT is non-@code{nil}, then the margin is shown initially.
 @item
 STYLE controls how to format the author or committer date.  It can
 be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
@@ -3603,7 +3603,7 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
-If INIT is non-nil, then the margin is shown initially.
+If INIT is non-@code{nil}, then the margin is shown initially.
 @item
 STYLE controls how to format the author or committer date.  It can
 be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
@@ -3960,7 +3960,7 @@ Whether to adjust the width of tabs in diffs.
 
 Determining the correct width can be expensive if it requires
 opening large and/or many files, so the widths are cached in the
-variable @code{magit-diff--tab-width-cache}.  Set that to nil to invalidate
+variable @code{magit-diff--tab-width-cache}.  Set that to @code{nil} to invalidate
 the cache.
 
 @itemize
@@ -3988,7 +3988,7 @@ Specify where to highlight whitespace errors.
 
 See @code{magit-diff-highlight-trailing},
 @code{magit-diff-highlight-indentation}.  The symbol @code{t} means in all
-diffs, @code{status} means only in the status buffer, and nil means
+diffs, @code{status} means only in the status buffer, and @code{nil} means
 nowhere.
 
 @itemize
@@ -4018,13 +4018,13 @@ Specify in what kind of lines to highlight whitespace errors.
 
 @defopt magit-diff-highlight-trailing
 Whether to highlight whitespace at the end of a line in diffs.  Used
-only when @code{magit-diff-paint-whitespace} is non-nil.
+only when @code{magit-diff-paint-whitespace} is non-@code{nil}.
 @end defopt
 
 @defopt magit-diff-highlight-indentation
 This option controls whether to highlight the indentation in case it
 used the "wrong" indentation style.  Indentation is only highlighted
-if @code{magit-diff-paint-whitespace} is also non-nil.
+if @code{magit-diff-paint-whitespace} is also non-@code{nil}.
 
 The value is an alist of the form @code{((REGEXP . INDENT)...)}.  The path
 to the current repository is matched against each element in reverse
@@ -4134,13 +4134,13 @@ two regular expressions.  The car specifies where to insert the
 author's image.  The top half of the image is inserted right
 after the matched text, the bottom half on the next line in the
 same column.  The cdr specifies where to insert the committer's
-image, accordingly.  Either the car or the cdr may be nil."
+image, accordingly.  Either the car or the cdr may be @code{nil}."
 @end defopt
 
 @defopt magit-revision-use-hash-sections
 Whether to turn hashes inside the commit message into sections.
 
-If non-nil, then hashes inside the commit message are turned into
+If non-@code{nil}, then hashes inside the commit message are turned into
 @code{commit} sections.  There is a trade off to be made between
 performance and reliability:
 
@@ -4157,7 +4157,7 @@ and which contain at least one number as well as at least one
 letter.
 @end itemize
 
-If nil, then no hashes are turned into sections, but you can still
+If @code{nil}, then no hashes are turned into sections, but you can still
 visit the commit at point using "RET".
 @end defopt
 
@@ -4171,13 +4171,13 @@ restriction as that log buffer (also see the command
 Whether showing a commit from a log buffer honors the log's file
 filter when the log arguments include @code{--follow}.
 
-When this option is nil, displaying a commit from a log ignores the
+When this option is @code{nil}, displaying a commit from a log ignores the
 log's file filter if the log arguments include @code{--follow}.  Doing so
 avoids showing an empty diff in revision buffers for commits before
 a rename event.  In such cases, the @code{--patch} argument of the log
 transient can be used to show the file-restricted diffs inline.
 
-Set this option to non-nil to keep the log's file restriction even
+Set this option to non-@code{nil} to keep the log's file restriction even
 if @code{--follow} is present in the log arguments.
 @end defopt
 
@@ -4319,7 +4319,7 @@ or @code{magit-git-mergetool}; which are all discussed above.
 
 @defopt magit-ediff-dwim-show-on-hunks
 This option controls what command @code{magit-ediff-dwim} calls when
-point is on uncommitted hunks.  When nil, always run
+point is on uncommitted hunks.  When @code{nil}, always run
 @code{magit-ediff-stage}.  Otherwise, use @code{magit-ediff-show-staged} and
 @code{magit-ediff-show-unstaged} to show staged and unstaged changes,
 respectively.
@@ -4408,12 +4408,12 @@ The default is @code{nil} because anything else can be very expensive.
 Whether to pad all commit counts on all sides in Magit-Refs mode
 buffers.
 
-If this is nil, then some commit counts are displayed right next to
+If this is @code{nil}, then some commit counts are displayed right next to
 one of the branches that appear next to the count, without any space
 in between.  This might look bad if the branch name faces look too
 similar to @code{magit-dimmed}.
 
-If this is non-nil, then spaces are placed on both sides of all
+If this is non-@code{nil}, then spaces are placed on both sides of all
 commit counts.
 @end defopt
 
@@ -4460,7 +4460,7 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
-If INIT is non-nil, then the margin is shown initially.
+If INIT is non-@code{nil}, then the margin is shown initially.
 @item
 STYLE controls how to format the author or committer date.  It can
 be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
@@ -4527,7 +4527,7 @@ displayed in @code{magit-refs-mode} buffers.  If it is @code{nil}, then all refs
 are displayed (subject to @code{magit-refs-sections-hook}).
 
 All keys are tried in order until one matches.  Then its value is
-used and subsequent elements are ignored.  If the value is non-nil,
+used and subsequent elements are ignored.  If the value is non-@code{nil},
 then the reference is displayed, otherwise it is not.  If no element
 matches, then the reference is displayed.
 
@@ -5429,7 +5429,7 @@ Visit the @code{HEAD} commit and navigate to the change that should
 not have been included in that commit.
 @item
 Type @code{u} (@code{magit-unstage}) to reverse it in the index.
-This assumes that @code{magit-unstage-committed} is non-nil.
+This assumes that @code{magit-unstage-committed} is non-@code{nil}.
 @item
 Type @code{c e} to extend @code{HEAD} with the staged changes,
 including those that were already staged before.
@@ -5852,7 +5852,7 @@ Also see @uref{https://github.com/magit/magit/issues/4132}.
 
 @defopt magit-commit-squash-confirm
 Whether the commit targeted by squash and fixup has to be confirmed.
-When non-nil then the commit at point (if any) is used as default
+When non-@code{nil} then the commit at point (if any) is used as default
 choice.  Otherwise it has to be confirmed.  This option only affects
 @code{magit-commit-squash} and @code{magit-commit-fixup}.  The "instant" variants
 always require confirmation because making an error while using
@@ -5985,21 +5985,21 @@ inserts a revision into the current buffer.
 
 The entries on the stack have the format @code{(HASH TOPLEVEL)} and this
 option has the format @code{(POINT-FORMAT EOB-FORMAT INDEX-REGEXP)}, all
-of which may be nil or a string (though either one of EOB-FORMAT
+of which may be @code{nil} or a string (though either one of EOB-FORMAT
 or POINT-FORMAT should be a string, and if INDEX-REGEXP is
-non-nil, then the two formats should be too).
+non-@code{nil}, then the two formats should be too).
 
 First INDEX-REGEXP is used to find the previously inserted entry,
 by searching backward from point.  The first submatch must match
 the index number.  That number is incremented by one, and becomes
 the index number of the entry to be inserted.  If you don't want
-to number the inserted revisions, then use nil for INDEX-REGEXP@.
+to number the inserted revisions, then use @code{nil} for INDEX-REGEXP@.
 
-If INDEX-REGEXP is non-nil then both POINT-FORMAT and EOB-FORMAT
+If INDEX-REGEXP is non-@code{nil} then both POINT-FORMAT and EOB-FORMAT
 should contain \"%N\", which is replaced with the number that was
 determined in the previous step.
 
-Both formats, if non-nil and after removing %N, are then expanded
+Both formats, if non-@code{nil} and after removing %N, are then expanded
 using @code{git show --format=FORMAT ...} inside TOPLEVEL@.
 
 The expansion of POINT-FORMAT is inserted at point, and the
@@ -6158,14 +6158,14 @@ preference has been violated.
 List of functions called to query before performing commit.
 
 The commit message buffer is current while the functions are called.
-If any of them returns nil, then the commit is not performed and the
+If any of them returns @code{nil}, then the commit is not performed and the
 buffer is not killed.  The user should then fix the issue and try
 again.
 
-The functions are called with one argument.  If it is non-nil then
+The functions are called with one argument.  If it is non-@code{nil} then
 that indicates that the user used a prefix argument to force
 finishing the session despite issues.  Functions should usually
-honor this wish and return non-nil.
+honor this wish and return non-@code{nil}.
 
 By default the only member is @code{git-commit-check-style-conventions}.
 @end defopt
@@ -6364,9 +6364,9 @@ branch will be used as the starting point as usual, but the upstream
 of the starting-point may be used as the upstream of the new branch,
 instead of the starting-point itself.
 
-If optional FROM is non-nil, then the source branch is reset
+If optional FROM is non-@code{nil}, then the source branch is reset
 to @code{FROM~}, instead of to the last commit it shares with its
-upstream.  Interactively, FROM is only ever non-nil, if the
+upstream.  Interactively, FROM is only ever non-@code{nil}, if the
 region selects some commits, and among those commits, FROM is
 the commit that is the fewest commits ahead of the source
 branch.
@@ -8003,7 +8003,7 @@ The value has the form @code{(INIT STYLE WIDTH AUTHOR AUTHOR-WIDTH)}.
 
 @itemize
 @item
-If INIT is non-nil, then the margin is shown initially.
+If INIT is non-@code{nil}, then the margin is shown initially.
 @item
 STYLE controls how to format the author or committer date.  It can
 be one of @code{age} (to show the age of the commit), @code{age-abbreviated} (to
@@ -8815,7 +8815,7 @@ HEADER is the string displayed in the header.  WIDTH is the width
 of the column.  FORMAT is a function that is called with one
 argument, the repository identification (usually its basename),
 and with @code{default-directory} bound to the toplevel of its working
-tree.  It has to return a string to be inserted or nil.  PROPS is
+tree.  It has to return a string to be inserted or @code{nil}.  PROPS is
 an alist that supports the keys @code{:right-align}, @code{:pad-right} and
 @code{:sort}.
 
@@ -8858,7 +8858,7 @@ suitable modules.
 @findex magit-submodule-add
 This commands adds the repository at URL as a module.  Optional PATH
 is the path to the module relative to the root of the super-project.
-If it is nil then the path is determined based on URL@.
+If it is @code{nil} then the path is determined based on URL@.
 
 @item @kbd{o r} (@code{magit-submodule-register})
 @kindex o r
@@ -9321,12 +9321,12 @@ Mode-line lighter for @code{magit-wip--mode}.
 This option controls whether the current branch is merged into the
 wip refs after a new commit was created on the branch.
 
-If non-nil and the current branch has new commits, then it is
+If non-@code{nil} and the current branch has new commits, then it is
 merged into the wip ref before creating a new wip commit.  This
 makes it easier to inspect wip history and the wip commits are
 never garbage collected.
 
-If nil and the current branch has new commits, then the wip ref
+If @code{nil} and the current branch has new commits, then the wip ref
 is reset to the tip of the branch before creating a new wip
 commit.  With this setting wip commits are eventually garbage
 collected.
@@ -10256,7 +10256,7 @@ Empty lines anywhere in the output are omitted.
 Executes git with ARGS and returns its null-separated output as a
 list.  Empty items anywhere in the output are omitted.
 
-If the value of option @code{magit-git-debug} is non-nil and git exits with
+If the value of option @code{magit-git-debug} is non-@code{nil} and git exits with
 a non-zero exit status, then warn about that in the echo area and
 add a section containing git's standard error in the current
 repository's process buffer.
@@ -10373,7 +10373,7 @@ After Git returns some buffers are refreshed: the buffer that was
 current when this function was called (if it is a Magit buffer and
 still alive), as well as the respective Magit status buffer.
 Unmodified buffers visiting files that are tracked in the current
-repository are reverted if @code{magit-revert-buffers} is non-nil.
+repository are reverted if @code{magit-revert-buffers} is non-@code{nil}.
 @end defun
 
 @defun magit-run-git-with-editor &rest args
@@ -10391,7 +10391,7 @@ still alive), as well as the respective Magit status buffer.
 @defun magit-start-git input &rest args
 Start Git, prepare for refresh, and return the process object.
 
-If INPUT is non-nil, it has to be a buffer or the name of an
+If INPUT is non-@code{nil}, it has to be a buffer or the name of an
 existing buffer.  The buffer content becomes the processes
 standard input.
 
@@ -10404,13 +10404,13 @@ After Git returns, some buffers are refreshed: the buffer that was
 current when this function was called (if it is a Magit buffer and
 still alive), as well as the respective Magit status buffer.
 Unmodified buffers visiting files that are tracked in the current
-repository are reverted if @code{magit-revert-buffers} is non-nil.
+repository are reverted if @code{magit-revert-buffers} is non-@code{nil}.
 @end defun
 
 @defun magit-start-process &rest args
 Start PROGRAM, prepare for refresh, and return the process object.
 
-If optional argument INPUT is non-nil, it has to be a buffer or
+If optional argument INPUT is non-@code{nil}, it has to be a buffer or
 the name of an existing buffer.  The buffer content becomes the
 processes standard input.
 
@@ -10426,7 +10426,7 @@ buffer that was current when @code{magit-start-process} was called (if it
 is a Magit buffer and still alive), as well as the respective Magit
 status buffer.  Unmodified buffers visiting files that are tracked
 in the current repository are reverted if @code{magit-revert-buffers} is
-non-nil.
+non-@code{nil}.
 @end defun
 
 @defvar magit-this-process
@@ -10435,7 +10435,7 @@ change the filter and sentinel.
 @end defvar
 
 @defvar magit-process-raise-error
-When this is non-nil, then @code{magit-process-sentinel} raises an error if
+When this is non-@code{nil}, then @code{magit-process-sentinel} raises an error if
 git exits with a non-zero exit status.  For debugging purposes.
 @end defvar
 
@@ -10458,7 +10458,7 @@ may be overwritten in subsections).  TYPE can also have the form
 Optional VALUE is the value of the section, usually a string that is
 required when acting on the section.
 
-When optional HIDE is non-nil collapse the section body by default,
+When optional HIDE is non-@code{nil} collapse the section body by default,
 i.e., when first creating the section, but not when refreshing the
 buffer.  Otherwise, expand it by default.  This can be overwritten using
 @code{magit-section-set-visibility-hook}.  When a section is recreated
@@ -10500,7 +10500,7 @@ these strings, then insert all of them unchanged.  Otherwise use the
 
 The @code{content} property of the section struct is the end of the heading
 (which lasts from @code{start} to @code{content}) and the beginning of the body
-(which lasts from @code{content} to @code{end}).  If the value of @code{content} is nil,
+(which lasts from @code{content} to @code{end}).  If the value of @code{content} is @code{nil},
 then the section has no heading and its body cannot be collapsed.
 If a section does have a heading then its height must be exactly one
 line, including a trailing newline character.  This isn't enforced;
@@ -10533,10 +10533,10 @@ When the region is active and constitutes a valid section
 selection, then return a list of all selected sections.  This is
 the case when the region begins in the heading of a section and
 ends in the heading of the same section or in that of a sibling
-section.  If optional MULTIPLE is non-nil, then the region cannot
+section.  If optional MULTIPLE is non-@code{nil}, then the region cannot
 begin and end in the same section.
 
-When the selection is not valid, then return nil.  In this case,
+When the selection is not valid, then return @code{nil}.  In this case,
 most commands that can act on the selected sections will instead
 act on the section at point.
 
@@ -10547,9 +10547,9 @@ apply to diffs where things get a bit more complicated, but even
 here if the region looks like it usually does, then that's not
 a valid selection as far as this function is concerned.
 
-If optional CONDITION is non-nil, then the selection not only
+If optional CONDITION is non-@code{nil}, then the selection not only
 has to be valid; all selected sections additionally have to match
-CONDITION, or nil is returned.  See @code{magit-section-match} for the
+CONDITION, or @code{nil} is returned.  See @code{magit-section-match} for the
 forms CONDITION can take.
 @end defun
 
@@ -10631,10 +10631,10 @@ of course you want to be that precise.
 @defun magit-section-value-if condition &optional section
 If the section at point matches CONDITION, then return its value.
 
-If optional SECTION is non-nil then test whether that matches
-instead.  If there is no section at point and SECTION is nil,
-then return nil.  If the section does not match, then return
-nil.
+If optional SECTION is non-@code{nil} then test whether that matches
+instead.  If there is no section at point and SECTION is @code{nil},
+then return @code{nil}.  If the section does not match, then return
+@code{nil}.
 
 See @code{magit-section-match} for the forms CONDITION can take.
 @end defun
@@ -10647,10 +10647,10 @@ section is compared against each CONDITION; the BODY forms of the
 first match are evaluated sequentially and the value of the last
 form is returned.  Inside BODY the symbol @code{it} is bound to the
 section at point.  If no clause succeeds or if there is no
-section at point return nil.
+section at point return @code{nil}.
 
 See @code{magit-section-match} for the forms CONDITION can take.
-Additionally a CONDITION of t is allowed in the final clause and
+Additionally a CONDITION of @code{t} is allowed in the final clause and
 matches if no other CONDITION match, even if there is no section at
 point.
 @end defun
@@ -10671,14 +10671,14 @@ or @code{undefined}.  This type serves a similar purpose as the general
 type common to all sections (which is stored in the @code{type} slot of the
 corresponding @code{magit-section} struct) but takes additional information
 into account.  When the SECTION isn't related to diffs and the
-buffer containing it also isn't a diff-only buffer, then return nil.
+buffer containing it also isn't a diff-only buffer, then return @code{nil}.
 
 Currently the type can also be one of @code{tracked} and @code{untracked}, but
 these values are not handled explicitly in every place they should
-be.  A possible fix could be to just return nil here.
+be.  A possible fix could be to just return @code{nil} here.
 
 The section has to be a @code{diff} or @code{hunk} section, or a section whose
-children are of type @code{diff}.  If optional SECTION is nil, return the
+children are of type @code{diff}.  If optional SECTION is @code{nil}, return the
 diff type for the current section.  In buffers whose major mode is
 @code{magit-diff-mode} SECTION is ignored and the type is determined using
 other means.  In @code{magit-revision-mode} buffers the type is always
@@ -10692,15 +10692,15 @@ A diff's "scope" describes what part of a diff is selected, it is a
 symbol, one of @code{region}, @code{hunk}, @code{hunks}, @code{file}, @code{files}, or @code{list}.  Do not
 confuse this with the diff "type", as returned by @code{magit-diff-type}.
 
-If optional SECTION is non-nil, then return the scope of that,
+If optional SECTION is non-@code{nil}, then return the scope of that,
 ignoring the sections selected by the region.  Otherwise return the
 scope of the current section, or if the region is active and selects
 a valid group of diff related sections, the type of these sections,
 i.e., @code{hunks} or @code{files}.  If SECTION (or if the current section that
-is nil) is a @code{hunk} section and the region starts and ends inside
+is @code{nil}) is a @code{hunk} section and the region starts and ends inside
 the body of a that section, then the type is @code{region}.
 
-If optional STRICT is non-nil then return nil if the diff type of
+If optional STRICT is non-@code{nil} then return @code{nil} if the diff type of
 the section at point is @code{untracked} or the section at point is not
 actually a @code{diff} but a @code{diffstat} section.
 @end defun
