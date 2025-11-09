@@ -766,7 +766,7 @@ argument, prompt for the first commit to potentially squash into."
         (magit-git-string "merge-base" upstream "HEAD"))
       (nconc (list "--autosquash" "--keep-empty") args)
     "Type %p on a commit to squash into it and then rebase as necessary,"
-    "true" nil t))
+    "true" nil t nil t))
 
 ;;;###autoload
 (defun magit-rebase-edit-commit (commit args)
