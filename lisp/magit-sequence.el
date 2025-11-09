@@ -664,18 +664,16 @@ START has to be selected from a list of recent commits."
            (concat "Type %p on a commit to rebase it "
                    "and commits above it onto " newbase ",")))))
 
-(defvar magit-rebase-interactive-include-selected t)
-
 (defun magit-rebase-interactive-1
-    (commit args message &optional editor delay-edit-confirm noassert confirm)
+    ( commit args message
+      &optional editor delay-edit-confirm noassert confirm exact)
   (declare (indent 2))
   (cond ((not commit))
         ((not (magit-rev-ancestor-p commit "HEAD"))
          (user-error "%s isn't an ancestor of HEAD" commit))
         ((not (magit-commit-parents commit))
          (setq args (cons "--root" args)))
-        ((or (not (eq this-command 'magit-rebase-interactive))
-             magit-rebase-interactive-include-selected)
+        ((not exact)
          (setq commit (concat commit "^"))))
   (when (and commit (not noassert))
     (setq commit (magit-rebase-interactive-assert
@@ -742,6 +740,8 @@ START has to be selected from a list of recent commits."
     ;; The "--root" argument is being used.
     since))
 
+(defvar magit-rebase-interactive-include-selected t)
+
 ;;;###autoload
 (defun magit-rebase-interactive (commit args)
   "Start an interactive rebase sequence."
@@ -749,7 +749,8 @@ START has to be selected from a list of recent commits."
                      (magit-rebase-arguments)))
   (magit-rebase-interactive-1 commit args
     "Type %p on a commit to rebase it and all commits above it,"
-    nil t))
+    nil t nil nil
+    (not magit-rebase-interactive-include-selected)))
 
 ;;;###autoload
 (defun magit-rebase-autosquash (select args)
