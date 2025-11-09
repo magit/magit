@@ -669,14 +669,14 @@ START has to be selected from a list of recent commits."
 (defun magit-rebase-interactive-1
     (commit args message &optional editor delay-edit-confirm noassert confirm)
   (declare (indent 2))
-  (when commit
-    (unless (magit-rev-ancestor-p commit "HEAD")
-      (user-error "%s isn't an ancestor of HEAD" commit))
-    (if (magit-commit-parents commit)
-        (when (or (not (eq this-command 'magit-rebase-interactive))
-                  magit-rebase-interactive-include-selected)
-          (setq commit (concat commit "^")))
-      (setq args (cons "--root" args))))
+  (cond ((not commit))
+        ((not (magit-rev-ancestor-p commit "HEAD"))
+         (user-error "%s isn't an ancestor of HEAD" commit))
+        ((not (magit-commit-parents commit))
+         (setq args (cons "--root" args)))
+        ((or (not (eq this-command 'magit-rebase-interactive))
+             magit-rebase-interactive-include-selected)
+         (setq commit (concat commit "^"))))
   (when (and commit (not noassert))
     (setq commit (magit-rebase-interactive-assert
                   commit delay-edit-confirm
