@@ -106,27 +106,23 @@ seconds of user inactivity.  That is not desirable."
 
 ;;;###autoload
 (progn ; magit-custom-initialize-after-init
+  ;; If you get an error about any of these variables being unbound,
+  ;; update `straight'.  See #5476 and radian-software/straight.el#1272.
   (defun magit-custom-initialize-after-init (symbol value)
     (internal--define-uninitialized-variable symbol)
     (cond ((not after-init-time)
-           (letrec ((f (lambda ()
-                         ;; Straight caches autoloads and fails to use
-                         ;; lexical binding when evaluating the cached
-                         ;; entries.  See #5476.
-                         (ignore-errors
-                           (remove-hook 'after-init-hook f))
-                         (custom-initialize-set symbol value))))
-             (add-hook 'after-init-hook f)))
+           (letrec ((fn (lambda ()
+                          (custom-initialize-set symbol value)
+                          (remove-hook 'after-init-hook fn))))
+             (add-hook 'after-init-hook fn)))
           ((not load-file-name)
            (custom-initialize-set symbol value))
-          ((letrec ((f (apply-partially
-                        (lambda (thisfile symbol value file)
+          ((letrec ((thisfile load-file-name)
+                    (fn (lambda (file)
                           (when (equal file thisfile)
-                            (ignore-errors
-                              (remove-hook 'after-load-functions f))
-                            (custom-initialize-set symbol value)))
-                        load-file-name symbol value)))
-             (add-hook 'after-load-functions f))))))
+                            (custom-initialize-set symbol value)
+                            (remove-hook 'after-load-functions fn)))))
+             (add-hook 'after-load-functions fn))))))
 
 (defun magit-turn-on-auto-revert-mode-if-desired (&optional file)
   (cond (file
