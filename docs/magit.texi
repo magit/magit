@@ -1368,12 +1368,16 @@ then the buffer is being refreshed and these functions should
 immediately return @code{nil}.
 @end defvar
 
-@defopt magit-section-visibility-indicator
+@defopt magit-section-visibility-indicators
 This option controls whether and how to indicate that a section can
 be expanded/collapsed.
 
-If @code{nil}, then no visibility indicators are shown.  Otherwise the
-value has to have one of these two forms:
+If @code{nil}, then don't show any indicators.  Otherwise the value has to
+be a list with two elements.  The first controls the indicators used
+in graphical frames, the second the indicators in terminal frames.
+For graphical frames all of the following forms are valid, while
+terminal frames do not have fringes and thus do not support the first
+form.
 
 @itemize
 @item
@@ -1387,9 +1391,15 @@ To provide extra padding around the indicator, set
 @code{left-fringe-width} in @code{magit-mode-hook}, e.g.:
 
 @lisp
-(add-hook 'magit-mode-hook (lambda ()
-                             (setq left-fringe-width 20)))
+(add-hook 'magit-mode-hook
+          (lambda () (setq left-fringe-width 20)))
 @end lisp
+
+@item
+@code{(EXPANDABLE-CHAR . COLLAPSIBLE-CHAR)}
+
+In this case every section that can be expanded or collapsed
+gets an indicator in the left margin.
 
 @item
 @code{(STRING . BOOLEAN)}
