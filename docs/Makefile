@@ -43,13 +43,13 @@ dir: magit.info magit-section.info
 	@printf "Generating dir\n"
 	@echo $^ | xargs -n 1 $(INSTALL_INFO) --dir=$@
 
-HTML_FIXUP_CSS    = '/<link rel="stylesheet" type="text\/css" href="\/assets\/page.css">/a\
-<link rel="icon" href="/assets/magit_alt1.ico">\
-\n<link class="s-css-s--style" rel="stylesheet"           title="Default"               href="/assets/themes/default.css">\
-\n<link class="s-css-s--style" rel="stylesheet alternate" title="Default high contrast" href="/assets/themes/default-high-contrast.css">\
-\n<link class="s-css-s--style" rel="stylesheet alternate" title="Solarized dark xterm"  href="/assets/themes/solarized-dark-xterm.css">\
-\n<link class="s-css-s--style" rel="stylesheet alternate" title="Black on white"        href="/assets/themes/black-on-white.css">\
-\n<script src="/assets/js/simple-css-switch.js"></script>'
+HTML_FIXUP_CSS    = '/<link rel="stylesheet" type="text\/css" href="https:\/\/$(DOMAIN)\/assets\/page.css">/a\
+<link rel="icon" href="https://$(DOMAIN)/assets/magit_alt1.ico">\
+\n<link class="s-css-s--style" rel="stylesheet"           title="Default"               href="https://$(DOMAIN)/assets/themes/default.css">\
+\n<link class="s-css-s--style" rel="stylesheet alternate" title="Default high contrast" href="https://$(DOMAIN)/assets/themes/default-high-contrast.css">\
+\n<link class="s-css-s--style" rel="stylesheet alternate" title="Solarized dark xterm"  href="https://$(DOMAIN)/assets/themes/solarized-dark-xterm.css">\
+\n<link class="s-css-s--style" rel="stylesheet alternate" title="Black on white"        href="https://$(DOMAIN)/assets/themes/black-on-white.css">\
+\n<script src="https://$(DOMAIN)/assets/js/simple-css-switch.js"></script>'
 HTML_FIXUP_ONLOAD = 's/<body lang="en">/<body lang="en" onload="simpleCssSwitch()">/'
 HTML_FIXUP_MENU   = '/<\/body>/i<div id="s-css-s--menu"><\/div>'
 
@@ -119,48 +119,28 @@ AUTHORS.md:
 	@git commit --gpg-sign -m "AUTHORS.md: Update list of contributors" \
 	-o -- $@ ../.mailmap && git show --pretty= -p HEAD || true
 
-PUBLISH_PATH   ?= /manual/
-RELEASE_PATH   ?= /manual/$(VERSION)/
-S3_BUCKET      ?= s3://$(DOMAIN)
-PUBLISH_TARGET  = $(S3_BUCKET)$(PUBLISH_PATH)
-RELEASE_TARGET  = $(S3_BUCKET)$(RELEASE_PATH)
-CFRONT_PATHS    = $(PKG).html $(PKG).pdf $(PKG)/*
-
-comma := ,
-empty :=
-space := $(empty) $(empty)
+DOCS_DOMAIN = docs.$(DOMAIN)
+SNAP_TARGET = $(subst .,_,$(DOCS_DOMAIN)):devel/
+DOCS_TARGET = $(subst .,_,$(DOCS_DOMAIN)):
 
 publish: redo-docs
-	@printf "Uploading snapshot manuals...\n"
-	@aws s3 cp $(PKG).html $(PUBLISH_TARGET)
-	@aws s3 cp $(PKG).pdf  $(PUBLISH_TARGET)
-	@printf "upload: ./$(PKG)/* to $(PUBLISH_TARGET)*\n"
-	@aws s3 sync --delete $(PKG) $(PUBLISH_TARGET)$(PKG)/ > /dev/null
-	@aws s3 cp magit-section.html $(PUBLISH_TARGET)
-	@aws s3 cp magit-section.pdf  $(PUBLISH_TARGET)
-	@printf "upload: ./magit-section/* to $(PUBLISH_TARGET)*\n"
-	@aws s3 sync --delete magit-section $(PUBLISH_TARGET)magit-section/ > /dev/null
-	@printf "Generating CDN invalidation\n"
-	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
-	"$(subst $(space),$(comma),$(addprefix $(PUBLISH_PATH),$(CFRONT_PATHS)))" > /dev/null
+	@printf "Publishing snapshot manual...\n"
+	@cp $(PKG).pdf         $(PKG)/$(PKG).pdf
+	@cp $(PKG)-section.pdf $(PKG)-section/$(PKG)-section.pdf
+	@$(RCLONE) sync $(RCLONE_ARGS) $(PKG)         $(SNAP_TARGET)/$(PKG)/
+	@$(RCLONE) sync $(RCLONE_ARGS) $(PKG)-section $(SNAP_TARGET)/$(PKG)-section/
 
 release: redo-docs
-	@printf "Uploading release manuals...\n"
-	@aws s3 cp $(PKG).html $(RELEASE_TARGET)
-	@aws s3 cp $(PKG).pdf  $(RELEASE_TARGET)
-	@printf "upload: ./$(PKG)/* to $(RELEASE_TARGET)*\n"
-	@aws s3 sync --delete $(PKG) $(RELEASE_TARGET)$(PKG)/ > /dev/null
-	@aws s3 cp magit-section.html $(RELEASE_TARGET)
-	@aws s3 cp magit-section.pdf  $(RELEASE_TARGET)
-	@printf "upload: ./magit-section/* to $(RELEASE_TARGET)*\n"
-	@aws s3 sync --delete magit-section $(RELEASE_TARGET)magit-section/ > /dev/null
-	@aws s3 cp $(PUBLISH_TARGET)dir.html $(RELEASE_TARGET)dir.html
-	@aws s3 cp $(PUBLISH_TARGET)dir/index.html $(RELEASE_TARGET)dir/index.html
-	@printf "Generating CDN invalidation\n"
-	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
-	"$(subst $(space),$(comma),$(addprefix $(RELEASE_PATH),$(CFRONT_PATHS)))" > /dev/null
+	@printf "Publishing release manual...\n"
+	@cp $(PKG).pdf         $(PKG)/$(PKG).pdf
+	@cp $(PKG)-section.pdf $(PKG)-section/$(PKG)-section.pdf
+	@$(RCLONE) sync $(RCLONE_ARGS) $(PKG)         $(DOCS_TARGET)/$(PKG)/
+	@$(RCLONE) sync $(RCLONE_ARGS) $(PKG)-section $(DOCS_TARGET)/$(PKG)-section/
 
 ## Statistics ########################################################
+
+STAT_DOMAIN = stats.$(DOMAIN)
+STAT_TARGET = $(subst .,_,$(STAT_DOMAIN)):$(PKG)/
 
 stats:
 	@printf "Generating statistics\n"
@@ -168,11 +148,7 @@ stats:
 
 stats-upload:
 	@printf "Uploading statistics...\n"
-	@aws s3 sync $(GITSTATS_DIR) $(S3_BUCKET)/stats/$(PKG)
-	@printf "Uploaded to $(S3_BUCKET)/stats/$(PKG)\n"
-	@printf "Generating CDN invalidation\n"
-	@aws cloudfront create-invalidation \
-	--distribution-id $(CFRONT_DIST) --paths "/stats/*" > /dev/null
+	@$(RCLONE) sync $(RCLONE_ARGS) stats $(STAT_TARGET)
 
 ## Lisp ##############################################################
 
@@ -202,7 +178,7 @@ export ORG_MAN_EXPORT
 
 define AUTHORS_HEADER
 The following people have contributed to Magit.
-For statistics see https://magit.vc/stats/magit/authors.html.
+For statistics see https://$(STAT_DOMAIN)/magit/authors.html.
 
 Authors
 -------

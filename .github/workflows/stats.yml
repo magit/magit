@@ -9,5 +9,4 @@ jobs:
     name: Statistics
     uses: emacscollective/workflows/.github/workflows/stats.yml@main
     secrets:
-      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      rclone_config: ${{ secrets.RCLONE_CONFIG }}

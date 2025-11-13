@@ -1,5 +1,7 @@
 TOP := $(dir $(lastword $(MAKEFILE_LIST)))
 
+DOMAIN ?= magit.vc
+
 ## User options ######################################################
 #
 # You can override these settings in "config.mk" or on the command
@@ -35,7 +37,7 @@ LISP_EXTRA_TARGETS ?= check-declare
 
 INSTALL_INFO     ?= $(shell command -v ginstall-info || printf install-info)
 MAKEINFO         ?= makeinfo
-MANUAL_HTML_ARGS ?= --css-ref /assets/page.css
+MANUAL_HTML_ARGS ?= --css-ref https://$(DOMAIN)/assets/page.css
 
 GITSTATS      ?= gitstats
 GITSTATS_DIR  ?= $(TOP)docs/stats
@@ -243,9 +245,9 @@ DEPS += with-editor/lisp
 
 ## Publish ###########################################################
 
-DOMAIN      ?= magit.vc
-CFRONT_DIST ?= E2LUHBKU1FBV02
-
 DOCBOOK_XSL ?= /usr/share/xml/docbook/stylesheet/docbook-xsl/epub/docbook.xsl
 
 EPUBTRASH = epub.xml META-INF OEBPS
+
+RCLONE      ?= rclone
+RCLONE_ARGS ?= -v
