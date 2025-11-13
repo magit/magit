@@ -15,7 +15,7 @@ emacs		mono	${EMACS}/html_mono/emacs.html
 emacs		node	${EMACS}/html_node/emacs/
 
 
-MAGIT = https://magit.vc/manual
+MAGIT = https://docs.magit.vc
 
 forge		mono	${MAGIT}/forge.html
 forge		node	${MAGIT}/forge/

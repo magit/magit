@@ -5,8 +5,8 @@ the appropriate guidelines before getting in contact. &mdash; Thanks!
 - 🪳 [How to report a bug](https://github.com/magit/magit/wiki/How-to-report-a-bug)
 - 💡 [How to suggest a feature](https://github.com/magit/magit/discussions/4631)
 - 🏗️ [Pull request guidelines](https://github.com/magit/magit/wiki/Pull-request-guidelines)
-- ℹ️ [FAQ](https://magit.vc/manual/magit/FAQ.html)
-- ℹ️ [Manual](https://magit.vc/manual/magit)
+- ℹ️ [FAQ](https://docs.magit.vc/magit/FAQ.html)
+- ℹ️ [Manual](https://docs.magit.vc/magit)
 
 TL;DR We now use discussions for feature requests (not issues) and prefer
 if you ask the community for support instead of the overworked maintainers.

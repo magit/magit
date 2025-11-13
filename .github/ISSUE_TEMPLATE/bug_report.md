@@ -46,6 +46,6 @@ Finally, if that didn't work and you have installed Magit from Melpa, then run c
 
 More debugging tools are described in the manual.
 
-    https://magit.vc/manual/magit/Debugging-Tools.html
+    https://docs.magit.vc/magit/Debugging-Tools.html
 
 ---- now delete this line and everything above ----

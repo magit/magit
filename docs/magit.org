@@ -9470,7 +9470,7 @@ as the defaults for future popups.
 When switching to Transient menus, this functionality is now available
 via ~C-x C-s~ instead; the ~C-x~ prefix has other options as well when
 using Transient, which will be displayed when it is typed.  See
-https://magit.vc/manual/transient/Saving-Values.html#Saving-Values for
+https://docs.magit.vc/transient/Saving-Values.html#Saving-Values for
 more details.
 
 * Debugging Tools

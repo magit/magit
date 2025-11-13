@@ -35,7 +35,7 @@ Also see https://emacsair.me/2021/10/04/magit-3.3.
 
 - Added ~-Xignore-space-change~ and ~-Xignore-all-space~ to ~magit-merge~.
   Like most newly added expert arguments they have to be explicitly
-  [[https://magit.vc/manual/transient/Enabling-and-Disabling-Suffixes.html][revealed]].  #4387
+  [[https://docs.magit.vc/transient/Enabling-and-Disabling-Suffixes.html][revealed]].  #4387
 
 - Added new command ~magit-status-quick~, which shows the status buffer
   but avoids refreshing it for performance reasons.  #4259

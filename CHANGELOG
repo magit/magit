@@ -54,13 +54,13 @@
   Visiting the file in the worktree is very useful, but, instead of
   ~RET~, I recommend using ~C-<return>~ (~magit-diff-visit-worktree-file~).
   The new option ~magit-diff-visit-prefer-worktree~ allows restoring
-  the old behavior.  See [[https://magit.vc/manual/magit/Visiting-Files-and-Blobs-from-a-Diff.html][Visiting Files and Blobs from a Diff]].
+  the old behavior.  See [[https://docs.magit.vc/magit/Visiting-Files-and-Blobs-from-a-Diff.html][Visiting Files and Blobs from a Diff]].
 
 - "Blob navigation" is now aware of index blobs.  It is possible to
   navigate between such blobs, and the HEAD blob or the file on disk,
   using the same key bindings used to time travel from one committed
-  blob to another.  See [[https://magit.vc/manual/magit/Minor-Mode-for-Buffers-Visiting-Blobs.html][Minor Mode for Buffers Visiting Blobs]] and
-  [[https://magit.vc/manual/magit/Commands-for-Buffers-Visiting-Files.html][Commands for Buffers Visiting Files]].
+  blob to another.  See [[https://docs.magit.vc/magit/Minor-Mode-for-Buffers-Visiting-Blobs.html][Minor Mode for Buffers Visiting Blobs]] and
+  [[https://docs.magit.vc/magit/Commands-for-Buffers-Visiting-Files.html][Commands for Buffers Visiting Files]].
 
 - When quitting a blob-visiting buffer with ~q~, it is no longer
   killed, iff it is being displayed in an additional window.  The
@@ -388,7 +388,7 @@ Bugfixes:
 
 - Argument ~--signoff~ is now available in all menus that create commits.
   However, it is no longer shown in any menu by default.  See the end
-  of [[https://magit.vc/manual/transient/Enabling-and-Disabling-Suffixes.html][Enabling and Disabling Suffixes]] to learn how to enable it in all
+  of [[https://docs.magit.vc/transient/Enabling-and-Disabling-Suffixes.html][Enabling and Disabling Suffixes]] to learn how to enable it in all
   menus at once in a single action.  #5297
 
 - Began using the ~##~ macro from the ~llama~ package.  0a64982100

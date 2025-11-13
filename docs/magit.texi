@@ -11237,7 +11237,7 @@ as the defaults for future popups.
 When switching to Transient menus, this functionality is now available
 via @code{C-x C-s} instead; the @code{C-x} prefix has other options as well when
 using Transient, which will be displayed when it is typed.  See
-@uref{https://magit.vc/manual/transient/Saving-Values.html#Saving-Values} for
+@uref{https://docs.magit.vc/transient/Saving-Values.html#Saving-Values} for
 more details.
 
 @node Debugging Tools
