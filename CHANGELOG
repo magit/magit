@@ -1,4 +1,32 @@
 # -*- mode: org -*-
+* v4.4.3    UNRELEASED
+
+- Removed support for loading Magit extensions from ".git/config".
+  Please [[https://github.com/magit/magit/commit/d662ec107e74a05a0348ca75c89ebd127d658656][use ~.dir-locals.el~ instead]].  d662ec107e
+
+- Reworked how the global ~magit-auto-revert-mode~ is, or is not,
+  enabled at startup.  Enabling ~global-auto-revert-mode~ now disables
+  this mode.  38a916f555..de766d2968
+
+- Simplified ~magit-wip-mode~.  This involves removing all other wip
+  modes (which allowed using only a subset of the protection offered
+  by ~magit-wip-mode~) and using the new ~magit-before-change-functions~
+  and ~magit-after-apply-functions~ hooks.  98ef107037..fa629ad5b5
+
+- Replaced option ~magit-section-visibility-indicator~ (singluar) with
+  new option ~magit-section-visibility-indicators~ (plurarl) to better
+  support emacs sessions that have both terminal and gui frames.
+  2d8f43e681
+
+- ~mouse-set-point~ is now remapped to Magit's variant.  fa5906621a
+
+- ~magit-autoloads~ is now loaded exactly once.  3d1a008f18
+
+- Fixed custom type of ~magit-blame-styles~.  84c5c8c8c6
+
+- Fixes regression in ~magit-rebase-autosquash~.  It no longer excluded
+  the merge-base.  54e460a701
+
 * v4.4.2    2025-10-06
 
 - Addressed harmless compiler warning.
