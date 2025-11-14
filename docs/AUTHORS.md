@@ -1,5 +1,5 @@
 The following people have contributed to Magit.
-For statistics see https://magit.vc/stats/magit/authors.html.
+For statistics see https://stats.magit.vc/magit/authors.html.
 
 Authors
 -------
@@ -238,6 +238,7 @@ All Contributors
 - Lluís Vilanova
 - Loic Dachary
 - Louis Roché
+- Lucius Chen
 - Luís Oliveira
 - Luke Amdor
 - Magnar Sveen
