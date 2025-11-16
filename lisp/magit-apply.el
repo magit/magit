@@ -396,6 +396,7 @@ ignored) files."
         #'magit-stage-modified
         'magit-file-stage))
 
+;;;###autoload
 (defun magit-run-post-stage-hook ()
   (when (memq this-command magit-post-stage-hook-commands)
     (magit-run-hook-with-benchmark 'magit-post-stage-hook)))
@@ -473,6 +474,7 @@ ignored) files."
         #'magit-unstage-all
         'magit-file-unstage))
 
+;;;###autoload
 (defun magit-run-post-unstage-hook ()
   (when (memq this-command magit-post-unstage-hook-commands)
     (magit-run-hook-with-benchmark 'magit-post-unstage-hook)))

@@ -204,6 +204,7 @@ Also, you should not use `after-init-hook' to disable this mode.
 
 \(fn &optional ARG)")
 
+;;;###autoload
 (defun magit-auto-revert-buffers ()
   (when (and magit-auto-revert-immediately
              (or global-auto-revert-mode

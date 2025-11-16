@@ -646,6 +646,7 @@ an alternative implementation."
         #'magit-commit-instant-fixup
         #'magit-commit-instant-squash))
 
+;;;###autoload
 (defun magit-run-post-commit-hook ()
   (when (and (not this-command)
              (memq last-command magit-post-commit-hook-commands))

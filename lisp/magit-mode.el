@@ -93,6 +93,7 @@ inside your function."
 
 (defcustom magit-post-refresh-hook
   ;; Do not function-quote to avoid circular dependencies.
+  ;; Functions added here have to be autoloaded.
   '(magit-auto-revert-buffers
     magit-run-post-commit-hook
     magit-run-post-stage-hook
