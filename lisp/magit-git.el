@@ -1093,12 +1093,12 @@ See also `magit-untracked-files'."
                     ("all" 'all))
                   magit-status-show-untracked-files))
        (_(not (eq value 'no))))
-    (mapcan (##and (eq (aref % 0) ??)
-                   (list (substring % 3)))
-            (apply #'magit-git-items "status" "-z" "--porcelain"
-                   (format "--untracked-files=%s"
-                           (if (eq value 'all) "all" "normal"))
-                   "--" files))))
+    (seq-keep (##and (eq (aref % 0) ??)
+                     (substring % 3))
+              (apply #'magit-git-items "status" "-z" "--porcelain"
+                     (format "--untracked-files=%s"
+                             (if (eq value 'all) "all" "normal"))
+                     "--" files))))
 
 (defun magit-ignored-files (&rest args)
   (magit-list-files "--others" "--ignored" "--exclude-standard" args))
@@ -1122,11 +1122,11 @@ See also `magit-untracked-files'."
                    (magit-headish) "--" files))
 
 (defun magit-binary-files (&rest args)
-  (mapcan (##and (string-match "^-\t-\t\\(.+\\)" %)
-                 (list (match-str 1 %)))
-          (apply #'magit-git-items
-                 "diff" "-z" "--numstat" "--ignore-submodules"
-                 args)))
+  (seq-keep (##and (string-match "^-\t-\t\\(.+\\)" %)
+                   (match-str 1 %))
+            (apply #'magit-git-items
+                   "diff" "-z" "--numstat" "--ignore-submodules"
+                   args)))
 
 (defun magit-unmerged-files ()
   (magit-git-items "diff-files" "-z" "--name-only" "--diff-filter=U"))
@@ -2043,9 +2043,9 @@ When nil, use `magit-list-refs-sortby'.  If both are nil, use
 (defun magit-list-remote-branch-names (&optional remote relative)
   (if (and remote relative)
       (let ((regexp (format "^refs/remotes/%s/\\(.+\\)" remote)))
-        (mapcan (##when (string-match regexp %)
-                  (list (match-str 1 %)))
-                (magit-list-remote-branches remote)))
+        (seq-keep (##and (string-match regexp %)
+                         (match-str 1 %))
+                  (magit-list-remote-branches remote)))
     (magit-list-refnames (concat "refs/remotes/" remote))))
 
 (defun magit-format-refs (format &rest args)
@@ -2102,9 +2102,9 @@ When nil, use `magit-list-refs-sortby'.  If both are nil, use
 
 (defun magit-list-module-paths ()
   (magit-with-toplevel
-    (mapcan (##and (string-match "^160000 [0-9a-z]\\{40,\\} 0\t\\(.+\\)$" %)
-                   (list (match-str 1 %)))
-            (magit-git-items "ls-files" "-z" "--stage"))))
+    (seq-keep (##and (string-match "^160000 [0-9a-z]\\{40,\\} 0\t\\(.+\\)$" %)
+                     (match-str 1 %))
+              (magit-git-items "ls-files" "-z" "--stage"))))
 
 (defun magit-list-module-names ()
   (mapcar #'magit-get-submodule-name (magit-list-module-paths)))

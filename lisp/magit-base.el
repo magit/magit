@@ -880,10 +880,10 @@ See info node `(magit)Debugging Tools' for more information."
                 ,@(mapcan
                    (##list "-L" %)
                    (delete-dups
-                    (mapcan
+                    (seq-keep
                      (lambda (lib)
                        (if-let ((path (locate-library lib)))
-                           (list (file-name-directory path))
+                           (file-name-directory path)
                          (error "Cannot find mandatory dependency %s" lib)))
                      '(;; Like `LOAD_PATH' in `default.mk'.
                        "compat"

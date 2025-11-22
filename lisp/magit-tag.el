@@ -225,7 +225,7 @@ a tag qualifies as a release tag."
     (mapcar
      #'cdr
      (nreverse
-      (cl-sort (mapcan
+      (cl-sort (seq-keep
                 (lambda (line)
                   (and (string-match " +" line)
                        (let ((tag (substring line 0 (match-beginning 0)))
@@ -234,8 +234,7 @@ a tag qualifies as a release tag."
                               (let ((ver (match-str 2 tag))
                                     (version-regexp-alist
                                      magit-tag-version-regexp-alist))
-                                (list (list (version-to-list ver)
-                                            ver tag msg)))))))
+                                (list (version-to-list ver) ver tag msg)))))))
                 ;; Cannot rely on "--sort=-version:refname" because
                 ;; that gets confused if the version prefix has changed.
                 (magit-git-lines "tag" "-n"))
