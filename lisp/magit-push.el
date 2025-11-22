@@ -181,7 +181,12 @@ the upstream."
                                        nil nil current 'confirm)
              (magit-push-arguments))
      (user-error "No branch is checked out")))
-  (magit-git-push (magit-get-current-branch) target args))
+  (let ((current-branch (magit-get-current-branch))
+	(remote-branch (substring target (1+ (string-match "/" target)))))
+    (if (or (string= current-branch remote-branch)
+	    (y-or-n-p (format "Current branch is '%s' but destination branch is '%s'.  Proceed? "
+			      current-branch remote-branch)))
+	(magit-git-push (magit-get-current-branch) target args))))
 
 ;;;###autoload
 (defun magit-push-other (source target args)
