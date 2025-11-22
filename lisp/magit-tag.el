@@ -227,14 +227,14 @@ a tag qualifies as a release tag."
      (nreverse
       (cl-sort (seq-keep
                 (lambda (line)
-                  (and (string-match " +" line)
-                       (let ((tag (substring line 0 (match-beginning 0)))
-                             (msg (substring line (match-end 0))))
-                         (and (string-match magit-release-tag-regexp tag)
-                              (let ((ver (match-str 2 tag))
-                                    (version-regexp-alist
-                                     magit-tag-version-regexp-alist))
-                                (list (version-to-list ver) ver tag msg)))))))
+                  (and-let*
+                      ((_(string-match " +" line))
+                       (tag (substring line 0 (match-beginning 0)))
+                       (msg (substring line (match-end 0)))
+                       (_(string-match magit-release-tag-regexp tag))
+                       (ver (match-str 2 tag))
+                       (version-regexp-alist magit-tag-version-regexp-alist))
+                    (list (version-to-list ver) ver tag msg)))
                 ;; Cannot rely on "--sort=-version:refname" because
                 ;; that gets confused if the version prefix has changed.
                 (magit-git-lines "tag" "-n"))
