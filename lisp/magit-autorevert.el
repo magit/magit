@@ -113,11 +113,11 @@ seconds of user inactivity.  That is not desirable."
     (internal--define-uninitialized-variable symbol)
     (cond ((not after-init-time)
            (letrec ((f (apply-partially
-                        (lambda (symbol)
+                        (lambda (symbol value)
                           (ignore-errors
                             (remove-hook 'after-init-hook f))
                           (custom-initialize-set symbol value))
-                        symbol)))
+                        symbol value)))
              (add-hook 'after-init-hook f)))
           ((not load-file-name)
            (custom-initialize-set symbol value))
