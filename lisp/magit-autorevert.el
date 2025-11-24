@@ -107,15 +107,17 @@ seconds of user inactivity.  That is not desirable."
 ;;;###autoload
 (progn ; magit-custom-initialize-after-init
   (defun magit-custom-initialize-after-init (symbol value)
+    ;; Use `apply-partially' instead of the wonders of lexical bindings,
+    ;; because of bugs in the autoload handling of package managers, which
+    ;; cause these variables to be treated as dynamic.  See #5476 and #5485.
     (internal--define-uninitialized-variable symbol)
     (cond ((not after-init-time)
-           (letrec ((f (lambda ()
-                         ;; Straight caches autoloads and fails to use
-                         ;; lexical binding when evaluating the cached
-                         ;; entries.  See #5476.
-                         (ignore-errors
-                           (remove-hook 'after-init-hook f))
-                         (custom-initialize-set symbol value))))
+           (letrec ((f (apply-partially
+                        (lambda (symbol)
+                          (ignore-errors
+                            (remove-hook 'after-init-hook f))
+                          (custom-initialize-set symbol value))
+                        symbol)))
              (add-hook 'after-init-hook f)))
           ((not load-file-name)
            (custom-initialize-set symbol value))
