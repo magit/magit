@@ -1169,6 +1169,11 @@ Added to `font-lock-extend-region-functions'."
                 (delete-region (point) (point-max)))))
            (let ((diff-default-read-only nil))
              (diff-mode))
+           ;; These won't survive copying to another buffer,
+           ;; so let's not waste any time.  See #5483.
+           (setq-local diff-refine nil)
+           (setq-local diff-font-lock-syntax nil)
+           (setq-local diff-font-lock-prettify nil)
            (let ((font-lock-verbose nil)
                  (font-lock-support-mode nil))
              (font-lock-ensure))
