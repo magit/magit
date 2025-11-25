@@ -1990,10 +1990,9 @@ When `magit-section-preserve-visibility' is nil, return nil."
 (cl-defun magit-section-cache-visibility
     (&optional (section magit-insert-section--current))
   "Cache SECTION's current visibility."
-  (setf (compat-call alist-get
-                     (magit-section-ident section)
-                     magit-section-visibility-cache
-                     nil nil #'equal)
+  (setf (alist-get (magit-section-ident section)
+                   magit-section-visibility-cache
+                   nil nil #'equal)
         (if (oref section hidden) 'hide 'show)))
 
 (cl-defun magit-section-maybe-cache-visibility

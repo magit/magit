@@ -141,7 +141,7 @@ seconds of user inactivity.  That is not desirable."
               (or auto-revert-remote-files  ; see #5422
                   (not (file-remote-p buffer-file-name)))
               (file-readable-p buffer-file-name)
-              (compat-call executable-find (magit-git-executable) t)
+              (executable-find (magit-git-executable) t)
               (magit-toplevel)
               (or (not magit-auto-revert-tracked-only)
                   (magit-file-tracked-p buffer-file-name)))

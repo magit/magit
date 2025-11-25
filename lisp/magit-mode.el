@@ -1509,10 +1509,10 @@ repositories."
   (cond-let
     ((eq repository 'all)
      (dolist (cache magit-repository-local-cache)
-       (setf cache (compat-call assoc-delete-all key cache))))
+       (setf cache (assoc-delete-all key cache))))
     ([cache (assoc (or repository (magit-repository-local-repository))
                    magit-repository-local-cache)]
-     (setf cache (compat-call assoc-delete-all key cache)))))
+     (setf cache (assoc-delete-all key cache)))))
 
 (defmacro magit--with-repository-local-cache (key &rest body)
   (declare (indent 1) (debug (form body)))
