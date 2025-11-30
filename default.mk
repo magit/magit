@@ -28,9 +28,7 @@ TAR      ?= tar
 SED      ?= sed
 
 EMACS      ?= emacs
-EMACS_ARGS ?= --eval "(progn \
-  (put 'if-let 'byte-obsolete-info nil) \
-  (put 'when-let 'byte-obsolete-info nil))"
+EMACS_ARGS ?=
 BATCH       = $(EMACS) -Q --batch $(EMACS_ARGS) $(LOAD_PATH)
 
 LISP_EXTRA_TARGETS ?= check-declare
