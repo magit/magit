@@ -68,7 +68,7 @@ versionlib: $(PKG)-version.el
 
 %.elc: %.el
 	@printf "Compiling $<\n"
-	@$(BATCH) --eval "(progn\
+	@$(EMACS_BATCH) --eval "(progn\
 	(when (file-exists-p \"$@\")\
 	  (delete-file \"$@\"))\
 	(setq with-editor-emacsclient-executable nil)\
@@ -78,7 +78,7 @@ versionlib: $(PKG)-version.el
 
 $(PKG)-autoloads.el: $(ELS)
 	@printf " Creating $@\n"
-	@$(EMACS) -Q --batch -l autoload --eval "\
+	@$(EMACS_BATCH) --load autoload --eval "\
 (let* ((file (expand-file-name \"$@\"))\
        (generated-autoload-file file)\
        (coding-system-for-write 'utf-8-emacs-unix)\
@@ -95,7 +95,7 @@ $(PKG)-version.el:
 
 check-declare:
 	@printf "Checking function declarations\n"
-	@$(BATCH) -L $(TOP)../borg -L $(TOP)../forge/lisp \
+	@$(EMACS_BATCH) -L $(TOP)../borg -L $(TOP)../forge/lisp \
 	--eval "(check-declare-directory default-directory)"
 
 ## Install ###########################################################

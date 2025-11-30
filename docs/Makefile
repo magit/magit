@@ -14,8 +14,7 @@ html-dir: $(HTMLTOPS)
 pdf:      $(PDFFILES)
 epub:     $(EPUBFILES)
 
-ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH) -l ol-man
-ORG_EVAL += --eval "(progn $$ORG_MAN_EXPORT)"
+ORG_EVAL += --load ol-man --eval "(progn $$ORG_MAN_EXPORT)"
 ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
 ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
 ORG_EVAL += --eval "\
@@ -33,7 +32,7 @@ _    := $(shell test "$(REVDESC)" = "$$(cat .revdesc 2> /dev/null)" ||\
 
 %.texi: %.org .orgconfig .revdesc
 	@printf "Generating $@\n"
-	@$(EMACS) $(ORG_ARGS) $< $(ORG_EVAL)
+	@$(EMACS_ORG) $< $(ORG_EVAL)
 
 %.info: %.texi
 	@printf "Generating $@\n"

@@ -30,9 +30,12 @@ RMDIR    ?= rm -rf
 TAR      ?= tar
 SED      ?= sed
 
-EMACS      ?= emacs
-EMACS_ARGS ?=
-BATCH       = $(EMACS) -Q --batch $(EMACS_ARGS) $(LOAD_PATH)
+EMACS       ?= emacs
+EMACS_ARGS  ?=
+EMACS_Q_ARG ?= -Q
+EMACS_BATCH ?= $(EMACS) $(EMACS_Q_ARG) --batch $(EMACS_ARGS) $(LOAD_PATH)
+EMACS_ORG   ?= $(EMACS) $(EMACS_Q_ARG) --batch $(EMACS_ARGS) $(ORG_LOAD_PATH)
+EMACS_INTR  ?= $(EMACS) $(EMACS_Q_ARG) $(EMACS_ARGS) $(LOAD_PATH)
 
 LISP_EXTRA_TARGETS ?= check-declare
 
@@ -116,9 +119,9 @@ REVDESC := $(shell test -e $(TOP).git && git describe --tags)
 
 EMACS_VERSION = 28.1
 
-EMACSOLD := $(shell $(BATCH) --eval \
+EMACS_OLD := $(shell $(EMACS_BATCH) --eval \
   "(and (version< emacs-version \"$(EMACS_VERSION)\") (princ \"true\"))")
-ifeq "$(EMACSOLD)" "true"
+ifeq "$(EMACS_OLD)" "true"
   $(error At least version $(EMACS_VERSION) of Emacs is required)
 endif
 
@@ -223,9 +226,7 @@ endif
 
 endif # ifndef LOAD_PATH
 
-ifndef ORG_LOAD_PATH
-ORG_LOAD_PATH = -L ../../org/lisp
-endif
+ORG_LOAD_PATH ?= -L ../../org/lisp
 
 ## Dependencies ######################################################
 

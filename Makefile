@@ -123,7 +123,7 @@ test-interactive:
 
 emacs-Q: clean-lisp
 	@$(MAKE) -C lisp autoloads
-	@$(EMACS) -Q $(LOAD_PATH) --debug-init --eval "(progn\
+	@$(EMACS_INTR) --debug-init --eval "(progn\
 	(setq debug-on-error t)\
 	(require 'magit-autoloads)\
 	(global-set-key \"\\C-xg\" 'magit-status))"
