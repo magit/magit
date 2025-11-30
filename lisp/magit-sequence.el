@@ -32,7 +32,8 @@
 
 ;; For `magit-rebase--todo'.
 (declare-function git-rebase-current-line "git-rebase" (&optional batch))
-(eval-and-compile
+
+(eval-and-compile ;declare slot names
   (cl-pushnew 'abbrev eieio--known-slot-names)
   (cl-pushnew 'action eieio--known-slot-names)
   (cl-pushnew 'action-options eieio--known-slot-names)
