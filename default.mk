@@ -2,6 +2,9 @@ TOP := $(dir $(lastword $(MAKEFILE_LIST)))
 
 DOMAIN ?= magit.vc
 
+PKG  = magit
+PKGS = magit magit-section
+
 ## User options ######################################################
 #
 # You can override these settings in "config.mk" or on the command
@@ -44,18 +47,14 @@ GITSTATS_ARGS ?= -c style=https://magit.vc/assets/stats.css \
 
 ## Files #############################################################
 
-PKG       = magit
-PKGSTEXI  = magit magit-section
-PACKAGES  = magit magit-section git-commit
-
-ORGPAGES  = $(addsuffix .org,$(PKGSTEXI))
-TEXIPAGES = $(addsuffix .texi,$(PKGSTEXI))
-INFOPAGES = $(addsuffix .info,$(PKGSTEXI))
-HTMLFILES = $(addsuffix .html,$(PKGSTEXI))
-HTMLTOPS  = $(addsuffix /index.html,$(PKGSTEXI))
-HTMLDIRS  = $(PKGSTEXI)
-PDFFILES  = $(addsuffix .pdf,$(PKGSTEXI))
-EPUBFILES = $(addsuffix .epub,$(PKGSTEXI))
+ORGPAGES  = $(addsuffix .org,$(PKGS))
+TEXIPAGES = $(addsuffix .texi,$(PKGS))
+INFOPAGES = $(addsuffix .info,$(PKGS))
+HTMLFILES = $(addsuffix .html,$(PKGS))
+HTMLTOPS  = $(addsuffix /index.html,$(PKGS))
+HTMLDIRS  = $(PKGS)
+PDFFILES  = $(addsuffix .pdf,$(PKGS))
+EPUBFILES = $(addsuffix .epub,$(PKGS))
 
 # When making changes here, also update "<nongnu.git>/elpa-packages".
 
@@ -107,8 +106,6 @@ ELS += magit-dired.el
 ELS += git-rebase.el
 ELS += magit-bookmark.el
 ELCS = $(ELS:.el=.elc)
-ELMS = magit.el $(filter-out $(addsuffix .el,$(PACKAGES)),$(ELS))
-ELGS = magit-autoloads.el magit-version.el
 
 ## Versions ##########################################################
 
