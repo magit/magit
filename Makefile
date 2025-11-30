@@ -115,7 +115,7 @@ install-info: info
 
 ## Test ##############################################################
 
-test:
+test: lisp
 	@$(MAKE) -C test test
 
 test-interactive:
@@ -133,13 +133,16 @@ check-declare:
 
 ## Clean #############################################################
 
-clean: clean-lisp clean-docs clean-archives
+clean: clean-lisp clean-docs clean-test clean-archives
 
 clean-lisp:
 	@$(MAKE) -C lisp clean
 
 clean-docs:
 	@$(MAKE) -C docs clean
+
+clean-test:
+	@$(MAKE) -C test clean
 
 clean-archives:
 	@$(RM) *.tar.gz *.tar lisp/magit-version.el
