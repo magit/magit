@@ -28,6 +28,8 @@
 
 (require 'magit)
 
+(declare-function magit-dired-jump "magit-dired" (&optional other-window))
+
 ;;; Options
 
 (defgroup magit-status nil
