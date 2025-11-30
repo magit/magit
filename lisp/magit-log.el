@@ -535,7 +535,7 @@ commits before and half after."
     ("r" "current"           magit-reflog-current)
     ("O" "other"             magit-reflog-other)
     ("H" "HEAD"              magit-reflog-head)]
-   [:if-mode magit-wip-mode
+   [:if-non-nil magit-wip-mode
     :description "Wiplog"
     ("i" "index"             magit-wip-log-index)
     ("w" "worktree"          magit-wip-log-worktree)]
