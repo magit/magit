@@ -776,7 +776,7 @@ For X11 something like ~/.xinitrc should work.\n"
   ;; try harder to ensure this is loaded exactly once.
   (unless (or (featurep 'magit-autoloads)
               (autoloadp (symbol-function 'magit-patch))
-              (load "magit-autoloads" t))
+              (load "magit-autoloads" t t))
     (require 'magit-patch)
     (require 'magit-subtree)
     (require 'magit-ediff)
