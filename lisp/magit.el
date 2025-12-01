@@ -773,7 +773,7 @@ For X11 something like ~/.xinitrc should work.\n"
   (require 'magit-blame)
   (require 'magit-submodule)
   (unless (or noninteractive
-              ;; The `provide' form may be missing so we have to
+              ;; The `provide' form may be missing, so we have to
               ;; try harder to ensure this is loaded exactly once.
               (featurep 'magit-autoloads)
               (autoloadp (symbol-function 'magit-patch))
