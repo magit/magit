@@ -192,7 +192,7 @@ ifeq ($(SYSTYPE), windows-nt)
   CYGPATH := $(shell cygpath --version 2>/dev/null)
 endif
 
-LOAD_PATH = -L $(TOP)lisp
+LOAD_PATH = -L .
 
 # When making changes here, then don't forget to adjust DEPS below,
 # ".github/ISSUE_TEMPLATE/bug_report.md", `magit-emacs-Q-command'
