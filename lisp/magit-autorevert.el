@@ -29,9 +29,11 @@
 
 ;;; Code:
 
-(require 'magit-process)
-
 (require 'autorevert)
+
+(declare-function magit-file-tracked-p "magit-git" (file))
+(declare-function magit-toplevel "magit-git" (&optional directory))
+(declare-function magit-git-executable "magit-git" ())
 
 ;;; Options
 
@@ -132,15 +134,17 @@ seconds of user inactivity.  That is not desirable."
 
 (defun magit-turn-on-auto-revert-mode-if-desired (&optional file)
   (cond (file
-         (when-let ((buffer (find-buffer-visiting file)))
-           (with-current-buffer buffer
-             (magit-turn-on-auto-revert-mode-if-desired))))
+         (let ((buffer (find-buffer-visiting file)))
+           (when buffer
+             (with-current-buffer buffer
+               (magit-turn-on-auto-revert-mode-if-desired)))))
         ((and (not auto-revert-mode)        ; see #3014
               (not global-auto-revert-mode) ; see #3460
               buffer-file-name
               (or auto-revert-remote-files  ; see #5422
                   (not (file-remote-p buffer-file-name)))
               (file-readable-p buffer-file-name)
+              (require 'magit-process)
               (executable-find (magit-git-executable) t)
               (magit-toplevel)
               (or (not magit-auto-revert-tracked-only)
@@ -236,6 +240,7 @@ defaults to nil) for any BUFFER."
   (unless (and magit-auto-revert-toplevel
                (= (cdr magit-auto-revert-toplevel)
                   magit-auto-revert-counter))
+    (require 'magit-process)
     (setq magit-auto-revert-toplevel
           (cons (or (magit-toplevel) 'no-repo)
                 magit-auto-revert-counter)))
@@ -263,15 +268,5 @@ defaults to nil) for any BUFFER."
 
 ;;; _
 (provide 'magit-autorevert)
-;; Local Variables:
-;; read-symbol-shorthands: (
-;;   ("and$"         . "cond-let--and$")
-;;   ("and>"         . "cond-let--and>")
-;;   ("and-let"      . "cond-let--and-let")
-;;   ("if-let"       . "cond-let--if-let")
-;;   ("when-let"     . "cond-let--when-let")
-;;   ("while-let"    . "cond-let--while-let")
-;;   ("match-string" . "match-string")
-;;   ("match-str"    . "match-string-no-properties"))
-;; End:
+;; `cond-let' intentionally not used.
 ;;; magit-autorevert.el ends here
