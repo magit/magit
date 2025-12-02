@@ -154,7 +154,7 @@ option."
 
 (defcustom magit-git-global-arguments
   `("--no-pager" "--literal-pathspecs"
-    "-c" "core.preloadindex=true"
+    "-c" "core.preloadIndex=true"
     "-c" "log.showSignature=false"
     "-c" "color.ui=false"
     "-c" "color.diff=false"
