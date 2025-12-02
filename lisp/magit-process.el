@@ -119,13 +119,8 @@ displays the text of `magit-process-error-summary' instead."
                       "\\`\\(?:\\(?:/.*/\\)?git-credential-\\)?cache\\'" prog)
                      (or (cadr (member "--socket" args))
                          (expand-file-name "~/.git-credential-cache/socket")))))
-            ;; Note: `magit-process-file' is not yet defined when
-            ;; evaluating this form, so we use `process-lines'.
-            (ignore-errors
-              (let ((process-environment
-                     (append magit-git-environment process-environment)))
-                (process-lines magit-git-executable
-                               "config" "--get-all" "credential.helper"))))
+            (magit--early-process-lines
+             magit-git-executable "config" "--get-all" "credential.helper"))
   "If non-nil, start a credential cache daemon using this socket.
 
 When using Git's cache credential helper in the normal way, Emacs

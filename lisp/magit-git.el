@@ -94,6 +94,12 @@ this."
   :type '(choice (coding-system :tag "Coding system to decode Git output")
                  (const :tag "Use system default" nil)))
 
+(defun magit--early-process-lines (program &rest args)
+  "Only used to initialize custom options."
+  (let ((process-environment
+         (append magit-git-environment process-environment)))
+    (apply #'process-lines-ignore-status program args)))
+
 (defvar magit-git-w32-path-hack nil
   "Alist of (EXE . (PATHENTRY)).
 This specifies what additional PATH setting needs to be added to
@@ -105,31 +111,29 @@ successfully.")
            ;; Avoid the wrappers "cmd/git.exe" and "cmd/git.cmd",
            ;; which are much slower than using "bin/git.exe" directly.
            (and-let ((exec (executable-find "git")))
-             (ignore-errors
-               ;; Git for Windows 2.x provides cygpath so we can
-               ;; ask it for native paths.
-               (let* ((core-exe
-                       (car
-                        (process-lines
-                         exec "-c"
-                         "alias.X=!x() { which \"$1\" | cygpath -mf -; }; x"
-                         "X" "git")))
-                      (hack-entry (assoc core-exe magit-git-w32-path-hack))
-                      ;; Running the libexec/git-core executable
-                      ;; requires some extra PATH entries.
-                      (path-hack
-                       (list (concat "PATH="
-                                     (car (process-lines
-                                           exec "-c"
-                                           "alias.P=!cygpath -wp \"$PATH\""
-                                           "P"))))))
-                 ;; The defcustom STANDARD expression can be
-                 ;; evaluated many times, so make sure it is
-                 ;; idempotent.
-                 (if hack-entry
-                     (setcdr hack-entry path-hack)
-                   (push (cons core-exe path-hack) magit-git-w32-path-hack))
-                 core-exe))))
+             ;; Git for Windows 2.x provides cygpath so we can
+             ;; ask it for native paths.
+             (let* ((core-exe
+                     (car (magit--early-process-lines
+                           exec "-c"
+                           "alias.X=!x() { which \"$1\" | cygpath -mf -; }; x"
+                           "X" "git")))
+                    (hack-entry (assoc core-exe magit-git-w32-path-hack))
+                    ;; Running the libexec/git-core executable
+                    ;; requires some extra PATH entries.
+                    (path-hack
+                     (list (concat "PATH="
+                                   (car (magit--early-process-lines
+                                         exec "-c"
+                                         "alias.P=!cygpath -wp \"$PATH\""
+                                         "P"))))))
+               ;; The defcustom STANDARD expression can be
+               ;; evaluated many times, so make sure it is
+               ;; idempotent.
+               (if hack-entry
+                   (setcdr hack-entry path-hack)
+                 (push (cons core-exe path-hack) magit-git-w32-path-hack))
+               core-exe)))
       (and (eq system-type 'darwin)
            (executable-find "git"))
       "git")
@@ -1208,14 +1212,11 @@ or if no rename is detected."
                             "Failed to parse Cygwin mount: %S" mount)))
                  ;; If --exec-path is not a native Windows path,
                  ;; then we probably have a cygwin git.
-                 (let ((process-environment
-                        (append magit-git-environment
-                                process-environment)))
-                   (and (not (string-match-p
-                              "\\`[a-zA-Z]:"
-                              (car (process-lines
-                                    magit-git-executable "--exec-path"))))
-                        (ignore-errors (process-lines "mount")))))
+                 (and (not (string-match-p
+                            "\\`[a-zA-Z]:"
+                            (car (magit--early-process-lines
+                                  magit-git-executable "--exec-path"))))
+                      (magit--early-process-lines "mount")))
                 #'> :key (pcase-lambda (`(,cyg . ,_win)) (length cyg))))
   "Alist of (CYGWIN . WIN32) directory names.
 Sorted from longest to shortest CYGWIN name."
