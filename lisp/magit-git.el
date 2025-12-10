@@ -98,7 +98,8 @@ this."
   "Only used to initialize custom options."
   (let ((process-environment
          (append magit-git-environment process-environment)))
-    (apply #'process-lines-ignore-status program args)))
+    (ignore-error 'file-missing
+      (apply #'process-lines-ignore-status program args))))
 
 (defvar magit-git-w32-path-hack nil
   "Alist of (EXE . (PATHENTRY)).
