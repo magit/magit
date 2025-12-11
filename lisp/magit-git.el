@@ -98,7 +98,7 @@ this."
   "Only used to initialize custom options."
   (let ((process-environment
          (append magit-git-environment process-environment)))
-    (ignore-error 'file-missing
+    (ignore-error file-missing
       (apply #'process-lines-ignore-status program args))))
 
 (defvar magit-git-w32-path-hack nil
