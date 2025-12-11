@@ -1794,19 +1794,19 @@ the Magit-Status buffer for DIRECTORY."
           (list new-rev new-file))))
 
 (defun magit-diff-visit--position (buffer rev file goto-from goto-file)
-  (and-let ((hunk (magit-diff--hunk-section)))
-    (let ((line   (magit-diff-hunk-line   hunk goto-from))
-          (column (magit-diff-hunk-column hunk goto-from)))
-      (with-current-buffer buffer
-        (when (and goto-file (not (equal rev "{worktree}")))
-          (setq line (magit-diff-visit--offset
-                      file (if (equal rev "{index}") nil rev) line)))
-        (save-restriction
-          (widen)
-          (goto-char (point-min))
-          (forward-line (1- line))
-          (move-to-column column)
-          (point))))))
+  (and-let* ((hunk   (magit-diff--hunk-section))
+             (line   (magit-diff-hunk-line   hunk goto-from))
+             (column (magit-diff-hunk-column hunk goto-from)))
+    (with-current-buffer buffer
+      (when (and goto-file (not (equal rev "{worktree}")))
+        (setq line (magit-diff-visit--offset
+                    file (if (equal rev "{index}") nil rev) line)))
+      (save-restriction
+        (widen)
+        (goto-char (point-min))
+        (forward-line (1- line))
+        (move-to-column column)
+        (point)))))
 
 (defun magit-diff-hunk-line (section goto-from)
   (save-excursion
