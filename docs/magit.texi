@@ -9053,6 +9053,11 @@ If the worktree at point is the one whose status is already being
 displayed in the current buffer, then show it in Dired instead.
 @end table
 
+If you want the status buffer to list worktrees, add the function
+@code{magit-insert-worktrees} to @code{magit-status-sections-hook} as described
+in @ref{Status Sections}.  If there is only one worktree, this function
+inserts nothing.
+
 @node Sparse checkouts
 @section Sparse checkouts
 

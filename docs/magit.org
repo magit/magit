@@ -7519,6 +7519,11 @@ Also see [[man:git-worktree]]
   If the worktree at point is the one whose status is already being
   displayed in the current buffer, then show it in Dired instead.
 
+If you want the status buffer to list worktrees, add the function
+~magit-insert-worktrees~ to ~magit-status-sections-hook~ as described
+in [[*Status Sections]].  If there is only one worktree, this function
+inserts nothing.
+
 ** Sparse checkouts
 
 Sparse checkouts provide a way to restrict the working tree to a
