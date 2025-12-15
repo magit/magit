@@ -169,6 +169,7 @@ All Contributors
 - Hannu Koivisto
 - Hans-Peter Deifel
 - hokomo
+- Huon Wilson
 - Hussein Ait-Lahcen
 - Ian Eure
 - Ian Milligan
