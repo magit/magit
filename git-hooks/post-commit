@@ -1,1 +1,13 @@
-fallthrough
+#!/usr/bin/env bash
+
+if [[ "$INSIDE_EMACS" == *magit ]]
+then
+    for arg in "$@"; do args+="\"$arg\""; done
+    $GIT_EDITOR --eval \
+      "(magit-run-git-hook '(common-post-commit post-commit) ${args[@]})"
+fi
+
+if [[ -x "$SHADOWED_GITHOOK_DIRECTORY" ]]
+then
+    "$SHADOWED_GITHOOK_DIRECTORY/$(basename $0)" "$@"
+fi

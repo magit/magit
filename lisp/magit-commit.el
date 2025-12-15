@@ -99,6 +99,44 @@ Also see https://github.com/magit/magit/issues/4132."
   :group 'magit-commands
   :type 'boolean)
 
+(defvar magit-common-git-post-commit-functions nil
+  "Hook run by Git hooks `post-commit', `post-merge' and `post-rewrite'.
+
+This hook is run if `magit-overriding-githook-directory' is non-nil.
+The functions are called with the same arguments as the Git hook.
+
+This hook is still experimental.")
+
+(defvar magit-git-post-commit-functions nil
+  "Hook run by Git hook `post-commit'.
+
+This hook is run if `magit-overriding-githook-directory' is non-nil.
+The functions are called with the same arguments as the Git hook.
+
+See also `magit-common-git-post-commit-functions'.
+
+This hook is still experimental.")
+
+(defvar magit-git-post-merge-functions nil
+  "Hook run by Git hook `post-merge'.
+
+This hook is run if `magit-overriding-githook-directory' is non-nil.
+The functions are called with the same arguments as the Git hook.
+
+See also `magit-common-git-post-commit-functions'.
+
+This hook is still experimental.")
+
+(defvar magit-git-post-rewrite-functions nil
+  "Hook run by Git hook `post-rewrite'.
+
+This hook is run if `magit-overriding-githook-directory' is non-nil.
+The functions are called with the same arguments as the Git hook.
+
+See also `magit-common-git-post-commit-functions'.
+
+This hook is still experimental.")
+
 ;;; Popup
 
 ;;;###autoload(autoload 'magit-commit "magit-commit" nil t)

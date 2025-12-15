@@ -13,7 +13,10 @@
   by ~magit-wip-mode~) and using the new ~magit-before-change-functions~
   and ~magit-after-apply-functions~ hooks.  98ef107037..fa629ad5b5
 
-- Added experimental support for calling Lisp hooks from Git hooks.
+- Added experimental support for calling Lisp hooks from Git hooks,
+  and added a few such hooks: ~magit-common-git-post-commit-functions~,
+  ~magit-git-post-commit-functions~, ~magit-git-post-merge-functions~
+  and ~magit-git-post-rewrite-functions~.
 
 - Replaced option ~magit-section-visibility-indicator~ (singluar) with
   new option ~magit-section-visibility-indicators~ (plurarl) to better

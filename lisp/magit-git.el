@@ -172,7 +172,14 @@ with Magit.  To counteract Git's limited granularity, Magit provides a
 script for every Git hook, most of which only run the respective script
 located in `$GIT_DIR/hooks', provided it exists and is executable.
 
-A few Git hooks additionally run Lisp hooks: TODO
+A few Git hooks additionally run Lisp hooks:
+
+- `post-commit'  runs `magit-git-post-commit-functions'
+- `post-merge'   runs `magit-git-post-merge-functions'
+- `post-rewrite' runs `magit-git-post-rewrite-functions'
+
+All of these hooks also run `magit-common-git-post-rewrite-functions'.
+For many uses this hook variable is more useful than the three above.
 
 If you want to teach additional Git hooks to run Lisp hooks, you have to
 copy Magit's hook script directory elsewhere, modify the hook scripts in
