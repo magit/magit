@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+hook="$SHADOWED_GITHOOK_DIRECTORY/$(basename $0)"
+
+if [[ -x "$hook" ]]
+then
+    "$hook" "$@"
+fi

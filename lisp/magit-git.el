@@ -29,6 +29,7 @@
 (require 'magit-base)
 
 (require 'format-spec)
+(require 'server)
 
 ;; From `magit-branch'.
 (defvar magit-branch-prefer-remote-upstream)
@@ -152,6 +153,42 @@ option."
   :package-version '(magit . "3.2.0")
   :group 'magit-process
   :type 'string)
+
+(defvar magit--overriding-githook-directory nil)
+
+(defcustom magit-overriding-githook-directory nil
+  "Directory containing the Git hook scripts used by Magit.
+
+No Magit-specific Git hook scripts are used if this is nil, which it
+is the default.  This feature is still experimental.
+
+Git does not allow overriding just an individual hook.  It is only
+possible to point Git at an alternative directory containing hook
+scripts, using the Git variable `core.hooksPath'.  When doing that,
+the hooks located in `$GIT_DIR/hooks' are ignored.
+
+If `magit', use the directory containing Git hook scripts distributed
+with Magit.  To counteract Git's limited granularity, Magit provides a
+script for every Git hook, most of which only run the respective script
+located in `$GIT_DIR/hooks', provided it exists and is executable.
+
+A few Git hooks additionally run Lisp hooks: TODO
+
+If you want to teach additional Git hooks to run Lisp hooks, you have to
+copy Magit's hook script directory elsewhere, modify the hook scripts in
+question, and point this variable at the used directory.
+
+Magit only sets `core.hooksPath' when calling Git asynchronously.  Doing
+the same when calling Git synchronously would cause Git and Magit to wait
+on one another."
+  :package-version '(magit . "4.5.0")
+  :group 'magit-process
+  :set (lambda (symbol value)
+         (set-default-toplevel-value symbol value)
+         (setq magit--overriding-githook-directory nil))
+  :type '(choice (const :tag "Do not shadow Git's hook directory" nil)
+                 (const :tag "Use Magit's hook directory" magit)
+                 (directory :tag "Custom directory")))
 
 (defcustom magit-git-global-arguments
   `("--no-pager" "--literal-pathspecs"
@@ -336,7 +373,11 @@ is remote."
       magit-remote-git-executable
     magit-git-executable))
 
-(defun magit-process-git-arguments (args)
+(defun magit-process-git-arguments--length ()
+  (+ (length magit-git-global-arguments)
+     (if magit--overriding-githook-directory 2 0)))
+
+(defun magit-process-git-arguments (args &optional async)
   "Prepare ARGS for a function that invokes Git.
 
 Magit has many specialized functions for running Git; they all
@@ -344,9 +385,27 @@ pass arguments through this function before handing them to Git,
 to do the following.
 
 * Prepend `magit-git-global-arguments' to ARGS.
+* If ASYNC is non-nil and `magit-overriding-githook-directory' is non-nil
+  and valid, set `core.hooksPath' by adding additional aguments to ARGS.
 * Flatten ARGS, removing nil arguments.
 * If `system-type' is `windows-nt', encode ARGS to `w32-ansi-code-page'."
-  (setq args (append magit-git-global-arguments (flatten-tree args)))
+  (cond ((not async))
+        (magit--overriding-githook-directory)
+        ((eq magit-overriding-githook-directory 'magit)
+         (setq magit--overriding-githook-directory
+               (expand-file-name "git-hooks"
+                                 (locate-dominating-file
+                                  (locate-library "magit.el") "git-hooks"))))
+        ((and magit-overriding-githook-directory
+              (file-directory-p magit-overriding-githook-directory))
+         (setq magit--overriding-githook-directory
+               magit-overriding-githook-directory)))
+  (setq args
+        (append magit-git-global-arguments
+                (and magit--overriding-githook-directory
+                     (list "-c" (format "core.hooksPath=%s"
+                                        magit--overriding-githook-directory)))
+                (flatten-tree args)))
   (if (and (eq system-type 'windows-nt) (boundp 'w32-ansi-code-page))
       ;; On w32, the process arguments *must* be encoded in the
       ;; current code-page (see #3250).
@@ -2897,6 +2956,34 @@ out.  Only existing branches can be selected."
     (if (or (length> modules 1) current-prefix-arg)
         (magit-confirm t nil (format "%s %%d modules" verb) nil modules)
       (list (magit-read-module-path (format "%s module" verb) predicate)))))
+
+;;; Git Hooks
+
+(defun magit-run-git-hook (githook &rest args)
+  (dolist (githook (ensure-list githook))
+    (let* ((githook (symbol-name githook))
+           (hook (save-match-data
+                   (if (string-match "\\`common-" githook)
+                       (intern (format "magit-common-git-%s-functions"
+                                       (substring githook (match-end 0))))
+                     (intern (format "magit-git-%s-functions" githook))))))
+      (when (and (boundp hook)
+                 (symbol-value hook))
+        (magit--client-message "Running %s..." hook)
+        (apply #'run-hook-with-args hook args)
+        (magit--client-message "Running %s...done" hook))))
+  ;; Emacsclient prints the returned value to stdout.  We cannot prevent
+  ;; that, but we can use something that looks like we actually *wanted*
+  ;; to print (which we don't).
+  '---)
+
+(defun magit--client-message (format-string &rest args)
+  ;; See `server-process-filter'.
+  (let ((msg (format "-print %s\n"
+                     (server-quote-arg
+                      (apply #'format-message format-string args)))))
+    (dolist (client server-clients)
+      (server-send-string client msg))))
 
 ;;; _
 (provide 'magit-git)
