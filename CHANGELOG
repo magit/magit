@@ -6,7 +6,7 @@
 
 - Reworked how the global ~magit-auto-revert-mode~ is, or is not,
   enabled at startup.  Enabling ~global-auto-revert-mode~ now disables
-  this mode.  38a916f555..de766d2968
+  this mode.  38a916f555..de766d2968 et al.
 
 - Simplified ~magit-wip-mode~.  This involves removing all other wip
   modes (which allowed using only a subset of the protection offered
@@ -26,6 +26,14 @@
 
 - Fixes regression in ~magit-rebase-autosquash~.  It no longer excluded
   the merge-base.  54e460a701
+
+- A few hook functions were not autoloaded.  #5464
+
+- Some refinements were calculated for the diff in the commit
+  message buffer, despite not actually being displayed.  #5483
+
+- Commands for showing logs for wip branches were no longer displayed
+  in the log menu, despite ~magit-wip-mode~ being enabled.  #5488
 
 * v4.4.2    2025-10-06
 
