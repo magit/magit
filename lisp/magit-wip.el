@@ -61,12 +61,19 @@ collected.  This is currently the default.
 
 If `immediately', then use `git-commit-post-finish-hook' to
 create the merge commit.  This is discouraged because it can
-lead to a race condition, e.g., during rebases."
+lead to a race condition, e.g., during rebases.
+
+If `githook', then use `magit-common-git-post-commit-hook' to
+create the merge commit.  This uses the experimental support for
+calling Lisp hooks from Git hooks, which is disabled by default,
+Customize `magit-overriding-githook-directory' to enable use of
+Git hooks."
   :package-version '(magit . "2.90.0")
   :group 'magit-wip
   :type '(choice
           (const :tag "Yes (safely, just in time)" t)
           (const :tag "Yes (immediately, with race condition)" immediately)
+          (const :tag "Yes (using experimental Git hook support)" githook)
           (const :tag "No" nil)))
 
 (defcustom magit-wip-namespace "refs/wip/"
@@ -95,12 +102,14 @@ is used as `branch-ref'."
     (add-hook 'magit-after-apply-functions #'magit-wip-commit)
     (add-hook 'magit-before-change-functions #'magit-wip-commit)
     (add-hook 'before-save-hook #'magit-wip-commit-initial-backup)
+    (add-hook 'magit-common-git-post-commit-functions #'magit-wip-post-commit)
     (add-hook 'git-commit-post-finish-hook #'magit-wip-commit-post-editmsg))
    (t
     (remove-hook 'after-save-hook #'magit-wip-commit-buffer-file)
     (remove-hook 'magit-after-apply-functions #'magit-wip-commit)
     (remove-hook 'magit-before-change-functions #'magit-wip-commit)
     (remove-hook 'before-save-hook #'magit-wip-commit-initial-backup)
+    (remove-hook 'magit-common-git-post-commit-functions #'magit-wip-post-commit)
     (remove-hook 'git-commit-post-finish-hook #'magit-wip-commit-post-editmsg))))
 
 (defun magit-wip-commit-buffer-file (&optional msg)
@@ -137,6 +146,10 @@ is used as `branch-ref'."
     (let ((magit-save-repository-buffers nil))
       (magit-wip-commit-buffer-file "autosave %s before save"))
     (setq magit-wip-buffer-backed-up t)))
+
+(defun magit-wip-post-commit (&rest _)
+  (when (eq magit-wip-merge-branch 'githook)
+    (magit-wip-commit)))
 
 (defun magit-wip-commit-post-editmsg ()
   (when (eq magit-wip-merge-branch 'immediately)
