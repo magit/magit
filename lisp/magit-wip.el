@@ -86,6 +86,14 @@ is used as `branch-ref'."
   :group 'magit-wip
   :type 'string)
 
+(defcustom magit-wip-debug nil
+  "Whether to record commands used to update wip refs.
+If non-nil, log the used commands and their output in the process
+buffer."
+  :package-version '(magit . "4.5.0")
+  :group 'magit-wip
+  :type 'boolean)
+
 ;;; Mode
 
 (defvar magit--wip-inhibit-autosave nil)
@@ -192,13 +200,23 @@ commit message."
                        ;; Note: `update-index' is used instead of `add'
                        ;; because `add' will fail if a file is already
                        ;; deleted in the temporary index.
-                       (magit-call-git "update-index" "--add" "--remove"
+                       (magit-wip--git "update-index" "--add" "--remove"
                                        "--ignore-skip-worktree-entries"
                                        "--" files)
                      (magit-with-toplevel
-                       (magit-call-git "add" "-u" ".")))
+                       (magit-wip--git "add" "-u" ".")))
                    (magit-git-string "write-tree"))))
       (magit-wip-update-wipref ref wipref tree parent files msg "worktree"))))
+
+(defun magit-wip--git (&rest args)
+  (if magit-wip-debug
+      (let ((default-process-coding-system (magit--process-coding-system)))
+        (apply #'magit-call-process
+               (magit-git-executable)
+               (magit-process-git-arguments args)))
+    (apply #'magit-process-file
+           (magit-git-executable) nil nil nil
+           (magit-process-git-arguments args))))
 
 (defun magit-wip-update-wipref (ref wipref tree parent files msg start-msg)
   (cond
@@ -241,7 +259,7 @@ commit message."
 
 (defun magit-wip--update-ref (ref message rev)
   (let ((magit--refresh-cache nil))
-    (unless (zerop (magit-call-git "update-ref" "--create-reflog"
+    (unless (zerop (magit-wip--git "update-ref" "--create-reflog"
                                    "-m" message ref rev))
       (error "Cannot update %s with %s" ref rev))))
 
