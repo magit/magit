@@ -206,10 +206,10 @@ commit message."
          (or (not magit-wip-merge-branch)
              (not (magit-rev-verify wipref))))
     (setq start-msg (concat "start autosaving " start-msg))
-    (magit-update-ref wipref start-msg
-                      (magit-git-string "commit-tree" "--no-gpg-sign"
-                                        "-p" parent "-m" start-msg
-                                        (concat parent "^{tree}")))
+    (magit-wip--update-ref wipref start-msg
+                           (magit-git-string "commit-tree" "--no-gpg-sign"
+                                             "-p" parent "-m" start-msg
+                                             (concat parent "^{tree}")))
     (setq parent wipref))
    ((and magit-wip-merge-branch
          (or (not (magit-rev-ancestor-p ref wipref))
@@ -219,11 +219,11 @@ commit message."
                            "^2")
                    ref))))
     (setq start-msg (format "merge %s into %s" ref start-msg))
-    (magit-update-ref wipref start-msg
-                      (magit-git-string "commit-tree" "--no-gpg-sign"
-                                        "-p" wipref "-p" ref
-                                        "-m" start-msg
-                                        (concat ref "^{tree}")))
+    (magit-wip--update-ref wipref start-msg
+                           (magit-git-string "commit-tree" "--no-gpg-sign"
+                                             "-p" wipref "-p" ref
+                                             "-m" start-msg
+                                             (concat ref "^{tree}")))
     (setq parent wipref)))
   (when (magit-git-failure "diff-tree" "--quiet" parent tree "--" files)
     (unless (and msg (not (= (aref msg 0) ?\s)))
@@ -235,9 +235,15 @@ commit message."
                                   (file-relative-name (car files)
                                                       (magit-toplevel)))))
                    msg))))
-    (magit-update-ref wipref msg
-                      (magit-git-string "commit-tree" "--no-gpg-sign"
-                                        "-p" parent "-m" msg tree))))
+    (magit-wip--update-ref wipref msg
+                           (magit-git-string "commit-tree" "--no-gpg-sign"
+                                             "-p" parent "-m" msg tree))))
+
+(defun magit-wip--update-ref (ref message rev)
+  (let ((magit--refresh-cache nil))
+    (unless (zerop (magit-call-git "update-ref" "--create-reflog"
+                                   "-m" message ref rev))
+      (error "Cannot update %s with %s" ref rev))))
 
 (defun magit-wip-get-ref ()
   (let ((ref (or (magit-git-string "symbolic-ref" "HEAD") "HEAD")))
