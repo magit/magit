@@ -104,7 +104,7 @@ similar defect.")
 (define-obsolete-variable-alias 'magit-keep-region-overlay
   'magit-section-keep-region-overlay "Magit-Section 4.0.0")
 
-(define-obsolete-variable-alias 'magit-section-visibility-indicator
+(make-obsolete-variable 'magit-section-visibility-indicator
   'magit-section-visibility-indicators "Magit-Section 4.5.0")
 
 ;;; Hooks
