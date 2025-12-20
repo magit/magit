@@ -391,7 +391,7 @@ but that ship has sailed, thus this option."
   "Face used for the left margin.
 
 Currently this is only used for section visibility indicators, and only
-when `magit-section-visibility-indicator' is configured to show them in
+when `magit-section-visibility-indicators' is configured to show them in
 the margin.
 
 Due to limitations of how the margin works in Emacs, this is only used
