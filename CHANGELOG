@@ -40,6 +40,10 @@
 - Commands for showing logs for wip branches were no longer displayed
   in the log menu, despite ~magit-wip-mode~ being enabled.  #5488
 
+- Added new option ~magit-wip-debug~.  655bc502a3
+
+- Various build improvements.
+
 * v4.4.2    2025-10-06
 
 - Addressed harmless compiler warning.
