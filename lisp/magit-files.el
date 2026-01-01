@@ -122,7 +122,7 @@ A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
                          (buffer-local-value 'auto-revert-mode $))
                    (cons "." revert-without-query)
                  revert-without-query)))
-            (find-file-noselect file-abs))
+          (find-file-noselect file-abs))
       (with-current-buffer (magit-get-revision-buffer-create rev file-rel)
         (when (or (not magit-buffer-file-name)
                   (if (eq revert 'ask-revert)

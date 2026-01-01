@@ -105,7 +105,8 @@ similar defect.")
   'magit-section-keep-region-overlay "Magit-Section 4.0.0")
 
 (make-obsolete-variable 'magit-section-visibility-indicator
-  'magit-section-visibility-indicators "Magit-Section 4.5.0")
+                        'magit-section-visibility-indicators
+                        "Magit-Section 4.5.0")
 
 ;;; Hooks
 
@@ -1939,7 +1940,7 @@ to nil." (bound-and-true-p long-line-threshold)) :warning)))))
               ('unstaged 'staged)
               ('unpushed 'unpulled)
               ('unpulled 'unpushed))
-           (magit-get-section `((,$) (status))))
+            (magit-get-section `((,$) (status))))
       (and$ (magit-section-siblings section 'next)
             (magit-get-section (magit-section-ident (car $))))
       (and$ (magit-section-siblings section 'prev)

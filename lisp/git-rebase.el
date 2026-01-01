@@ -371,14 +371,14 @@ BATCH also ignores commented lines."
                            (and (looking-at (concat re-start re)) type)))
                        git-rebase-line-regexps)]
        (git-rebase-action
-         :action-type    type
-         :action         (and-let ((action (match-str 1)))
-                           (or (cdr (assoc action git-rebase-short-options))
-                               action))
-         :action-options (match-str 2)
-         :target         (match-str 3)
-         :trailer        (match-str 5)
-         :comment-p      (and (match-str 99) t)))
+        :action-type    type
+        :action         (and-let ((action (match-str 1)))
+                          (or (cdr (assoc action git-rebase-short-options))
+                              action))
+        :action-options (match-str 2)
+        :target         (match-str 3)
+        :trailer        (match-str 5)
+        :comment-p      (and (match-str 99) t)))
       ((not batch)
        ;; Use empty object rather than nil to ease handling.
        (git-rebase-action)))))
