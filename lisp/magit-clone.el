@@ -337,12 +337,12 @@ Then show the status buffer for the new repository."
        url-format
        `((?h . ,host)
          (?n . ,(cond
-                 ((string-search "/" repo) repo)
-                 ((string-search "." user)
-                  (if-let ((user (magit-get user)))
-                      (concat user "/" repo)
-                    (user-error "Set %S or specify owner explicitly" user)))
-                 ((concat user "/" repo))))))
+                  ((string-search "/" repo) repo)
+                  ((string-search "." user)
+                   (if-let ((user (magit-get user)))
+                       (concat user "/" repo)
+                     (user-error "Set %S or specify owner explicitly" user)))
+                  ((concat user "/" repo))))))
     (user-error
      "Bogus `magit-clone-url-format' (bad type or missing default)")))
 

@@ -539,20 +539,20 @@ With a prefix argument, visit in another window."
   (magit-with-toplevel
     (let ((path (expand-file-name module)))
       (cond
-       ((file-exists-p (expand-file-name ".git" module))
-        (magit-diff-visit-directory path other-window))
-       ((y-or-n-p (format "Initialize submodule '%s' first?" module))
-        (magit-run-git-async "submodule" "update" "--init" "--" module)
-        (set-process-sentinel
-         magit-this-process
-         (lambda (process event)
-           (let ((magit-process-raise-error t))
-             (magit-process-sentinel process event))
-           (when (and (eq (process-status      process) 'exit)
-                      (=  (process-exit-status process) 0))
-             (magit-diff-visit-directory path other-window)))))
-       ((file-exists-p path)
-        (dired-jump other-window (concat path "/.")))))))
+        ((file-exists-p (expand-file-name ".git" module))
+         (magit-diff-visit-directory path other-window))
+        ((y-or-n-p (format "Initialize submodule '%s' first?" module))
+         (magit-run-git-async "submodule" "update" "--init" "--" module)
+         (set-process-sentinel
+          magit-this-process
+          (lambda (process event)
+            (let ((magit-process-raise-error t))
+              (magit-process-sentinel process event))
+            (when (and (eq (process-status      process) 'exit)
+                       (=  (process-exit-status process) 0))
+              (magit-diff-visit-directory path other-window)))))
+        ((file-exists-p path)
+         (dired-jump other-window (concat path "/.")))))))
 
 ;;;###autoload
 (defun magit-insert-modules-unpulled-from-upstream ()

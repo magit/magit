@@ -256,16 +256,16 @@ If there is only one worktree, then insert nothing."
                  (lambda (config)
                    (pcase-let ((`(,_ ,commit ,branch ,bare) config))
                      (cons (cond
-                            (branch
-                             (propertize
-                              branch 'font-lock-face
-                              (if (equal branch (magit-get-current-branch))
-                                  'magit-branch-current
-                                'magit-branch-local)))
-                            (commit
-                             (propertize (magit-rev-abbrev commit)
-                                         'font-lock-face 'magit-hash))
-                            (bare "(bare)"))
+                             (branch
+                              (propertize
+                               branch 'font-lock-face
+                               (if (equal branch (magit-get-current-branch))
+                                   'magit-branch-current
+                                 'magit-branch-local)))
+                             (commit
+                              (propertize (magit-rev-abbrev commit)
+                                          'font-lock-face 'magit-hash))
+                             (bare "(bare)"))
                            config)))
                  worktrees))
                (align (1+ (apply #'max (mapcar (##string-width (car %)) cols)))))

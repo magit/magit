@@ -587,36 +587,36 @@ line is inserted at all."
                                       (split-string line "\0")
                                       :test #'equal)))
             (cond
-             (head-branch
-              ;; Note: Use `ref' instead of `branch' for the check
-              ;; below because 'refname:short' shortens the remote
-              ;; HEAD to '<remote>' instead of '<remote>/HEAD' as of
-              ;; Git v2.40.0.
-              (cl-assert
-               (equal ref (concat "refs/remotes/" remote "/HEAD")))
-              (setq head head-branch))
-             ((not (equal ref (concat "refs/remotes/" remote "/HEAD")))
-              ;; ^ Skip mis-configured remotes where HEAD is not a
-              ;; symref.  See #5092.
-              (when (magit-refs--insert-refname-p branch)
-                (magit-insert-section (branch branch t)
-                  (let ((headp (equal branch head))
-                        (abbrev (if magit-refs-show-remote-prefix
-                                    branch
-                                  (substring branch (1+ (length remote))))))
-                    (magit-insert-heading
-                      (magit-refs--format-focus-column branch)
-                      (magit-refs--propertize-branch
-                       abbrev ref (and headp 'magit-branch-remote-head))
-                      (make-string
-                       (max 1 (- (if (consp magit-refs-primary-column-width)
-                                     (car magit-refs-primary-column-width)
-                                   magit-refs-primary-column-width)
-                                 (length abbrev)))
-                       ?\s)
-                      (and msg (magit-log--wash-summary msg))))
-                  (magit-refs--maybe-format-margin branch)
-                  (magit-refs--insert-cherry-commits branch))))))))
+              (head-branch
+               ;; Note: Use `ref' instead of `branch' for the check
+               ;; below because 'refname:short' shortens the remote
+               ;; HEAD to '<remote>' instead of '<remote>/HEAD' as of
+               ;; Git v2.40.0.
+               (cl-assert
+                (equal ref (concat "refs/remotes/" remote "/HEAD")))
+               (setq head head-branch))
+              ((not (equal ref (concat "refs/remotes/" remote "/HEAD")))
+               ;; ^ Skip mis-configured remotes where HEAD is not a
+               ;; symref.  See #5092.
+               (when (magit-refs--insert-refname-p branch)
+                 (magit-insert-section (branch branch t)
+                   (let ((headp (equal branch head))
+                         (abbrev (if magit-refs-show-remote-prefix
+                                     branch
+                                   (substring branch (1+ (length remote))))))
+                     (magit-insert-heading
+                       (magit-refs--format-focus-column branch)
+                       (magit-refs--propertize-branch
+                        abbrev ref (and headp 'magit-branch-remote-head))
+                       (make-string
+                        (max 1 (- (if (consp magit-refs-primary-column-width)
+                                      (car magit-refs-primary-column-width)
+                                    magit-refs-primary-column-width)
+                                  (length abbrev)))
+                        ?\s)
+                       (and msg (magit-log--wash-summary msg))))
+                   (magit-refs--maybe-format-margin branch)
+                   (magit-refs--insert-cherry-commits branch))))))))
       (insert ?\n)
       (magit-make-margin-overlay))))
 

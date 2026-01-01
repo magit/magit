@@ -376,26 +376,26 @@ when using `magit-branch-and-checkout'."
             (list choice))
            ((list choice (magit-read-starting-point "Create" choice))))))
   (cond
-   ((not start-point)
-    (magit--checkout branch (magit-branch-arguments))
-    (magit-refresh))
-   (t
-    (when (magit-anything-modified-p t)
-      (user-error "Cannot checkout when there are uncommitted changes"))
-    (magit-run-git-async "checkout" (magit-branch-arguments)
-                         "-b" branch start-point)
-    (set-process-sentinel
-     magit-this-process
-     (lambda (process event)
-       (when (memq (process-status process) '(exit signal))
-         (magit-branch-maybe-adjust-upstream branch start-point)
-         (when (magit-remote-branch-p start-point)
-           (pcase-let ((`(,remote . ,remote-branch)
-                        (magit-split-branch-name start-point)))
-             (when (and (equal branch remote-branch)
-                        (not (equal remote (magit-get "remote.pushDefault"))))
-               (magit-set remote "branch" branch "pushRemote"))))
-         (magit-process-sentinel process event)))))))
+    ((not start-point)
+     (magit--checkout branch (magit-branch-arguments))
+     (magit-refresh))
+    (t
+     (when (magit-anything-modified-p t)
+       (user-error "Cannot checkout when there are uncommitted changes"))
+     (magit-run-git-async "checkout" (magit-branch-arguments)
+                          "-b" branch start-point)
+     (set-process-sentinel
+      magit-this-process
+      (lambda (process event)
+        (when (memq (process-status process) '(exit signal))
+          (magit-branch-maybe-adjust-upstream branch start-point)
+          (when (magit-remote-branch-p start-point)
+            (pcase-let ((`(,remote . ,remote-branch)
+                         (magit-split-branch-name start-point)))
+              (when (and (equal branch remote-branch)
+                         (not (equal remote (magit-get "remote.pushDefault"))))
+                (magit-set remote "branch" branch "pushRemote"))))
+          (magit-process-sentinel process event)))))))
 
 (defun magit-branch-maybe-adjust-upstream (branch start-point)
   (when-let ((upstream
@@ -423,20 +423,20 @@ when using `magit-branch-and-checkout'."
   (if magit-branch-read-upstream-first
       (let ((choice (magit-read-starting-point prompt nil default-start)))
         (cond
-         ((magit-rev-verify choice)
-          (list (magit-read-string-ns
-                 (if magit-completing-read--silent-default
-                     (format "%s (starting at `%s')" prompt choice)
-                   "Name for new branch")
-                 (let ((def (string-join (cdr (split-string choice "/")) "/")))
-                   (and (member choice (magit-list-remote-branch-names))
-                        (not (member def (magit-list-local-branch-names)))
-                        def)))
-                choice))
-         ((eq magit-branch-read-upstream-first 'fallback)
-          (list choice
-                (magit-read-starting-point prompt choice default-start)))
-         ((user-error "Not a valid starting-point: %s" choice))))
+          ((magit-rev-verify choice)
+           (list (magit-read-string-ns
+                  (if magit-completing-read--silent-default
+                      (format "%s (starting at `%s')" prompt choice)
+                    "Name for new branch")
+                  (let ((def (string-join (cdr (split-string choice "/")) "/")))
+                    (and (member choice (magit-list-remote-branch-names))
+                         (not (member def (magit-list-local-branch-names)))
+                         def)))
+                 choice))
+          ((eq magit-branch-read-upstream-first 'fallback)
+           (list choice
+                 (magit-read-starting-point prompt choice default-start)))
+          ((user-error "Not a valid starting-point: %s" choice))))
     (let ((branch (magit-read-string-ns (concat prompt " named"))))
       (if (magit-branch-p branch)
           (magit-branch-read-args
@@ -614,86 +614,86 @@ prompt is confusing."
        "%s ambiguous; please cleanup using git directly"
        (let ((len (length ambiguous)))
          (cond
-          ((= len 1)
-           (format "%s is" (seq-find #'magit-ref-ambiguous-p branches)))
-          ((= len (length refs))
-           (format "These %s names are" len))
-          ((format "%s of these names are" len))))))
+           ((= len 1)
+            (format "%s is" (seq-find #'magit-ref-ambiguous-p branches)))
+           ((= len (length refs))
+            (format "These %s names are" len))
+           ((format "%s of these names are" len))))))
     (cond
-     ((string-match "^refs/remotes/\\([^/]+\\)" (car refs))
-      (let* ((remote (match-str 1 (car refs)))
-             (offset (1+ (length remote))))
-        (cond
-         ((magit-confirm 'delete-branch-on-remote
-            (list "Deleting local %s.  Also delete on %s"
-                  (magit-ref-fullname (car branches))
-                  remote)
-            (list "Deleting %d local refs.  Also delete on %s"
-                  (length refs)
-                  remote)
-            'noabort refs)
-          ;; The ref may actually point at another rev on the remote,
-          ;; but this is better than nothing.
-          (dolist (ref refs)
-            (message "Delete %s (was %s)" ref
-                     (magit-rev-parse "--short" ref)))
-          ;; Assume the branches actually still exist on the remote.
-          (magit-run-git-async
-           "push"
-           (and (or force magit-branch-delete-never-verify) "--no-verify")
-           remote
-           (mapcar (##concat ":" (substring % offset)) branches))
-          ;; If that is not the case, then this deletes the tracking branches.
-          (set-process-sentinel
-           magit-this-process
-           (apply-partially #'magit-delete-remote-branch-sentinel remote refs)))
-         (t
-          (dolist (ref refs)
-            (message "Delete %s (was %s)" ref
-                     (magit-rev-parse "--short" ref))
-            (magit-call-git "update-ref" "-d" ref))
-          (magit-refresh)))))
-     ((length> branches 1)
-      (setq branches (delete (magit-get-current-branch) branches))
-      (mapc #'magit-branch-maybe-delete-pr-remote branches)
-      (mapc #'magit-branch-unset-pushRemote branches)
-      (magit-run-git "branch" (if force "-D" "-d") branches))
-     (t ; And now for something completely different.
-      (let* ((branch (car branches))
-             (prompt (format "Branch %s is checked out.  " branch))
-             (target (magit-get-indirect-upstream-branch branch t)))
-        (when (equal branch (magit-get-current-branch))
-          (when (or (equal branch target)
-                    (not target))
-            (setq target (magit-main-branch)))
-          (pcase (if (or (equal branch target)
-                         (not target))
-                     (magit-read-char-case prompt nil
-                       (?d "[d]etach HEAD & delete" 'detach)
-                       (?a "[a]bort"                'abort))
-                   (magit-read-char-case prompt nil
-                     (?d "[d]etach HEAD & delete" 'detach)
-                     (?c (format "[c]heckout %s & delete" target) 'target)
-                     (?a "[a]bort" 'abort)))
-            (`detach (unless (or (equal force '(4))
-                                 (member branch force)
-                                 (magit-branch-merged-p branch t))
-                       (magit-confirm 'delete-unmerged-branch
-                         "Delete unmerged branch %s" ""
-                         nil (list branch)))
-                     (magit-call-git "checkout" "--detach"))
-            (`target (unless (or (equal force '(4))
-                                 (member branch force)
-                                 (magit-branch-merged-p branch target))
-                       (magit-confirm 'delete-unmerged-branch
-                         "Delete unmerged branch %s" ""
-                         nil (list branch)))
-                     (magit-call-git "checkout" target))
-            (`abort  (user-error "Abort")))
-          (setq force t))
-        (magit-branch-maybe-delete-pr-remote branch)
-        (magit-branch-unset-pushRemote branch)
-        (magit-run-git "branch" (if force "-D" "-d") branch))))))
+      ((string-match "^refs/remotes/\\([^/]+\\)" (car refs))
+       (let* ((remote (match-str 1 (car refs)))
+              (offset (1+ (length remote))))
+         (cond
+           ((magit-confirm 'delete-branch-on-remote
+              (list "Deleting local %s.  Also delete on %s"
+                    (magit-ref-fullname (car branches))
+                    remote)
+              (list "Deleting %d local refs.  Also delete on %s"
+                    (length refs)
+                    remote)
+              'noabort refs)
+            ;; The ref may actually point at another rev on the remote,
+            ;; but this is better than nothing.
+            (dolist (ref refs)
+              (message "Delete %s (was %s)" ref
+                       (magit-rev-parse "--short" ref)))
+            ;; Assume the branches actually still exist on the remote.
+            (magit-run-git-async
+             "push"
+             (and (or force magit-branch-delete-never-verify) "--no-verify")
+             remote
+             (mapcar (##concat ":" (substring % offset)) branches))
+            ;; If that is not the case, then this deletes the tracking branches.
+            (set-process-sentinel
+             magit-this-process
+             (apply-partially #'magit-delete-remote-branch-sentinel remote refs)))
+           (t
+            (dolist (ref refs)
+              (message "Delete %s (was %s)" ref
+                       (magit-rev-parse "--short" ref))
+              (magit-call-git "update-ref" "-d" ref))
+            (magit-refresh)))))
+      ((length> branches 1)
+       (setq branches (delete (magit-get-current-branch) branches))
+       (mapc #'magit-branch-maybe-delete-pr-remote branches)
+       (mapc #'magit-branch-unset-pushRemote branches)
+       (magit-run-git "branch" (if force "-D" "-d") branches))
+      (t ; And now for something completely different.
+       (let* ((branch (car branches))
+              (prompt (format "Branch %s is checked out.  " branch))
+              (target (magit-get-indirect-upstream-branch branch t)))
+         (when (equal branch (magit-get-current-branch))
+           (when (or (equal branch target)
+                     (not target))
+             (setq target (magit-main-branch)))
+           (pcase (if (or (equal branch target)
+                          (not target))
+                      (magit-read-char-case prompt nil
+                        (?d "[d]etach HEAD & delete" 'detach)
+                        (?a "[a]bort"                'abort))
+                    (magit-read-char-case prompt nil
+                      (?d "[d]etach HEAD & delete" 'detach)
+                      (?c (format "[c]heckout %s & delete" target) 'target)
+                      (?a "[a]bort" 'abort)))
+             (`detach (unless (or (equal force '(4))
+                                  (member branch force)
+                                  (magit-branch-merged-p branch t))
+                        (magit-confirm 'delete-unmerged-branch
+                          "Delete unmerged branch %s" ""
+                          nil (list branch)))
+                      (magit-call-git "checkout" "--detach"))
+             (`target (unless (or (equal force '(4))
+                                  (member branch force)
+                                  (magit-branch-merged-p branch target))
+                        (magit-confirm 'delete-unmerged-branch
+                          "Delete unmerged branch %s" ""
+                          nil (list branch)))
+                      (magit-call-git "checkout" target))
+             (`abort  (user-error "Abort")))
+           (setq force t))
+         (magit-branch-maybe-delete-pr-remote branch)
+         (magit-branch-unset-pushRemote branch)
+         (magit-run-git "branch" (if force "-D" "-d") branch))))))
 
 (put 'magit-branch-delete 'interactive-only t)
 

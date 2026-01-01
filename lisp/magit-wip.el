@@ -105,20 +105,20 @@ buffer."
   :lighter magit-wip-mode-lighter
   :global t
   (cond
-   (magit-wip-mode
-    (add-hook 'after-save-hook #'magit-wip-commit-buffer-file)
-    (add-hook 'magit-after-apply-functions #'magit-wip-commit)
-    (add-hook 'magit-before-change-functions #'magit-wip-commit)
-    (add-hook 'before-save-hook #'magit-wip-commit-initial-backup)
-    (add-hook 'magit-common-git-post-commit-functions #'magit-wip-post-commit)
-    (add-hook 'git-commit-post-finish-hook #'magit-wip-commit-post-editmsg))
-   (t
-    (remove-hook 'after-save-hook #'magit-wip-commit-buffer-file)
-    (remove-hook 'magit-after-apply-functions #'magit-wip-commit)
-    (remove-hook 'magit-before-change-functions #'magit-wip-commit)
-    (remove-hook 'before-save-hook #'magit-wip-commit-initial-backup)
-    (remove-hook 'magit-common-git-post-commit-functions #'magit-wip-post-commit)
-    (remove-hook 'git-commit-post-finish-hook #'magit-wip-commit-post-editmsg))))
+    (magit-wip-mode
+     (add-hook 'after-save-hook #'magit-wip-commit-buffer-file)
+     (add-hook 'magit-after-apply-functions #'magit-wip-commit)
+     (add-hook 'magit-before-change-functions #'magit-wip-commit)
+     (add-hook 'before-save-hook #'magit-wip-commit-initial-backup)
+     (add-hook 'magit-common-git-post-commit-functions #'magit-wip-post-commit)
+     (add-hook 'git-commit-post-finish-hook #'magit-wip-commit-post-editmsg))
+    (t
+     (remove-hook 'after-save-hook #'magit-wip-commit-buffer-file)
+     (remove-hook 'magit-after-apply-functions #'magit-wip-commit)
+     (remove-hook 'magit-before-change-functions #'magit-wip-commit)
+     (remove-hook 'before-save-hook #'magit-wip-commit-initial-backup)
+     (remove-hook 'magit-common-git-post-commit-functions #'magit-wip-post-commit)
+     (remove-hook 'git-commit-post-finish-hook #'magit-wip-commit-post-editmsg))))
 
 (defun magit-wip-commit-buffer-file (&optional msg)
   "Commit visited file to a worktree work-in-progress ref."
@@ -220,29 +220,29 @@ commit message."
 
 (defun magit-wip-update-wipref (ref wipref tree parent files msg start-msg)
   (cond
-   ((and (not (equal parent wipref))
-         (or (not magit-wip-merge-branch)
-             (not (magit-rev-verify wipref))))
-    (setq start-msg (concat "start autosaving " start-msg))
-    (magit-wip--update-ref wipref start-msg
-                           (magit-git-string "commit-tree" "--no-gpg-sign"
-                                             "-p" parent "-m" start-msg
-                                             (concat parent "^{tree}")))
-    (setq parent wipref))
-   ((and magit-wip-merge-branch
-         (or (not (magit-rev-ancestor-p ref wipref))
-             (not (magit-rev-ancestor-p
-                   (concat (magit-git-string "log" "--format=%H"
-                                             "-1" "--merges" wipref)
-                           "^2")
-                   ref))))
-    (setq start-msg (format "merge %s into %s" ref start-msg))
-    (magit-wip--update-ref wipref start-msg
-                           (magit-git-string "commit-tree" "--no-gpg-sign"
-                                             "-p" wipref "-p" ref
-                                             "-m" start-msg
-                                             (concat ref "^{tree}")))
-    (setq parent wipref)))
+    ((and (not (equal parent wipref))
+          (or (not magit-wip-merge-branch)
+              (not (magit-rev-verify wipref))))
+     (setq start-msg (concat "start autosaving " start-msg))
+     (magit-wip--update-ref wipref start-msg
+                            (magit-git-string "commit-tree" "--no-gpg-sign"
+                                              "-p" parent "-m" start-msg
+                                              (concat parent "^{tree}")))
+     (setq parent wipref))
+    ((and magit-wip-merge-branch
+          (or (not (magit-rev-ancestor-p ref wipref))
+              (not (magit-rev-ancestor-p
+                    (concat (magit-git-string "log" "--format=%H"
+                                              "-1" "--merges" wipref)
+                            "^2")
+                    ref))))
+     (setq start-msg (format "merge %s into %s" ref start-msg))
+     (magit-wip--update-ref wipref start-msg
+                            (magit-git-string "commit-tree" "--no-gpg-sign"
+                                              "-p" wipref "-p" ref
+                                              "-m" start-msg
+                                              (concat ref "^{tree}")))
+     (setq parent wipref)))
   (when (magit-git-failure "diff-tree" "--quiet" parent tree "--" files)
     (unless (and msg (not (= (aref msg 0) ?\s)))
       (let ((len (length files)))

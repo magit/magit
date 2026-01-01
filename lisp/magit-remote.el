@@ -262,28 +262,28 @@ Delete the symbolic-ref \"refs/remotes/<remote>/HEAD\"."
   (pcase-let ((`(,_remote ,oldname) (magit--get-default-branch))
               (`( ,remote ,newname) (magit--get-default-branch t)))
     (cond
-     ((equal oldname newname)
-      (setq oldname
-            (read-string
-             (format
-              "Name of default branch is still `%s', %s\n%s `%s': " oldname
-              "but the upstreams of some local branches might need updating."
-              "Name of upstream branches to replace with" newname)))
-      (magit--set-default-branch newname oldname)
-      (magit-refresh))
-     (t
-      (unless oldname
-        (setq oldname
-              (magit-read-other-local-branch
-               (format "Name of old default branch to be renamed to `%s'"
-                       newname)
-               newname "master")))
-      (cond
-       ((y-or-n-p (format "Default branch changed from `%s' to `%s' on %s.%s?"
-                          oldname newname remote "  Do the same locally"))
-        (magit--set-default-branch newname oldname)
-        (magit-refresh))
-       ((user-error "Abort")))))))
+      ((equal oldname newname)
+       (setq oldname
+             (read-string
+              (format
+               "Name of default branch is still `%s', %s\n%s `%s': " oldname
+               "but the upstreams of some local branches might need updating."
+               "Name of upstream branches to replace with" newname)))
+       (magit--set-default-branch newname oldname)
+       (magit-refresh))
+      (t
+       (unless oldname
+         (setq oldname
+               (magit-read-other-local-branch
+                (format "Name of old default branch to be renamed to `%s'"
+                        newname)
+                newname "master")))
+       (cond
+         ((y-or-n-p (format "Default branch changed from `%s' to `%s' on %s.%s?"
+                            oldname newname remote "  Do the same locally"))
+          (magit--set-default-branch newname oldname)
+          (magit-refresh))
+         ((user-error "Abort")))))))
 
 ;;;###autoload
 (defun magit-remote-unshallow (remote)

@@ -569,19 +569,19 @@ commits before and half after."
     ("b" "buffer lock"              magit-toggle-buffer-lock)]]
   (interactive)
   (cond
-   ((not (eq transient-current-command 'magit-log-refresh))
-    (pcase major-mode
-      ('magit-reflog-mode
-       (user-error "Cannot change log arguments in reflog buffers"))
-      ('magit-cherry-mode
-       (user-error "Cannot change log arguments in cherry buffers")))
-    (transient-setup 'magit-log-refresh))
-   (t
-    (pcase-let ((`(,args ,files) (magit-log-arguments)))
-      (setq magit-buffer-log-args args)
-      (unless (derived-mode-p 'magit-log-select-mode)
-        (setq magit-buffer-log-files files)))
-    (magit-refresh))))
+    ((not (eq transient-current-command 'magit-log-refresh))
+     (pcase major-mode
+       ('magit-reflog-mode
+        (user-error "Cannot change log arguments in reflog buffers"))
+       ('magit-cherry-mode
+        (user-error "Cannot change log arguments in cherry buffers")))
+     (transient-setup 'magit-log-refresh))
+    (t
+     (pcase-let ((`(,args ,files) (magit-log-arguments)))
+       (setq magit-buffer-log-args args)
+       (unless (derived-mode-p 'magit-log-select-mode)
+         (setq magit-buffer-log-files files)))
+     (magit-refresh))))
 
 ;;;; Infix Commands
 
@@ -1257,17 +1257,17 @@ Do not add this to a hook variable."
                 (setq args (remove "--show-signature" args))
                 (let ((limit (magit-log-get-commit-limit args)))
                   (cond
-                   ((not limit)
-                    (message
-                     "Dropping --show-signature because -n isn't set (see %s)"
-                     'magit-log-show-signatures-limit)
-                    "")
-                   ((> limit magit-log-show-signatures-limit)
-                    (message
-                     "Dropping --show-signature because -n is larger than %s"
-                     'magit-log-show-signatures-limit)
-                    "")
-                   ("%G?"))))
+                    ((not limit)
+                     (message
+                      "Dropping --show-signature because -n isn't set (see %s)"
+                      'magit-log-show-signatures-limit)
+                     "")
+                    ((> limit magit-log-show-signatures-limit)
+                     (message
+                      "Dropping --show-signature because -n is larger than %s"
+                      'magit-log-show-signatures-limit)
+                     "")
+                    ("%G?"))))
               (if magit-log-margin-show-committer-date "%ct" "%at")
               (if magit-log-trailer-labels
                   (format "%%(trailers:%s%s)"

@@ -399,23 +399,23 @@ of its action type."
          (with-slots (action-type target trailer comment-p)
              (git-rebase-current-line)
            (cond
-            ((and action (eq action-type 'commit))
-             (let ((inhibit-read-only t))
-               (magit-delete-line)
-               (insert (concat action " " target " "))
-               (when (magit-git-version>= "2.50.0")
-                 (insert "# "))
-               (insert (concat trailer "\n"))))
-            ((and (not action) action-type)
-             (let ((inhibit-read-only t))
-               (if comment-p
-                   (delete-region beg (+ beg 2))
-                 (insert comment-start " ")))
-             (forward-line))
-            ;; In the case of --rebase-merges, commit lines may have
-            ;; other lines with other action types, empty lines, and
-            ;; "Branch" comments interspersed.  Move along.
-            ((forward-line)))))
+             ((and action (eq action-type 'commit))
+              (let ((inhibit-read-only t))
+                (magit-delete-line)
+                (insert (concat action " " target " "))
+                (when (magit-git-version>= "2.50.0")
+                  (insert "# "))
+                (insert (concat trailer "\n"))))
+             ((and (not action) action-type)
+              (let ((inhibit-read-only t))
+                (if comment-p
+                    (delete-region beg (+ beg 2))
+                  (insert comment-start " ")))
+              (forward-line))
+             ;; In the case of --rebase-merges, commit lines may have
+             ;; other lines with other action types, empty lines, and
+             ;; "Branch" comments interspersed.  Move along.
+             ((forward-line)))))
        (goto-char (cond (git-rebase-auto-advance end-marker)
                         (pt-below-p (1- end-marker))
                         (beg)))
@@ -435,15 +435,15 @@ point or mark.  If the region isn't active and FALLBACK is
 non-nil, return the beginning and end of the current rebase line,
 if any."
   (cond
-   ((use-region-p)
-    (let ((beg (magit--bol-position (region-beginning)))
-          (end (magit--eol-position (region-end))))
-      (and (git-rebase-line-p beg)
-           (git-rebase-line-p end)
-           (list beg (1+ end)))))
-   ((and fallback (git-rebase-line-p))
-    (list (line-beginning-position)
-          (1+ (line-end-position))))))
+    ((use-region-p)
+     (let ((beg (magit--bol-position (region-beginning)))
+           (end (magit--eol-position (region-end))))
+       (and (git-rebase-line-p beg)
+            (git-rebase-line-p end)
+            (list beg (1+ end)))))
+    ((and fallback (git-rebase-line-p))
+     (list (line-beginning-position)
+           (1+ (line-end-position))))))
 
 (defun git-rebase-move-line-down (n)
   "Move the current commit (or command) N lines down.
@@ -875,22 +875,22 @@ except for the \"pick\" command."
                   (replace-match (make-string 10 ?\s) t t nil 1))
               (setq cmd (intern (concat "git-rebase-" (match-str 4))))
               (cond
-               ((not (fboundp cmd))
-                (delete-line))
-               ((eq cmd 'git-rebase-fixup)
-                (delete-line)
-                (git-rebase--insert-descriptions git-rebase-fixup-descriptions))
-               (t
-                (add-text-properties (line-beginning-position)
-                                     (1+ (line-end-position))
-                                     '(font-lock-face font-lock-comment-face))
-                (replace-match " " t t nil 2)
-                (replace-match
-                 (string-pad
-                  (save-match-data
-                    (substitute-command-keys (format "\\[%s]" cmd)))
-                  8)
-                 t t nil 3))))))))))
+                ((not (fboundp cmd))
+                 (delete-line))
+                ((eq cmd 'git-rebase-fixup)
+                 (delete-line)
+                 (git-rebase--insert-descriptions git-rebase-fixup-descriptions))
+                (t
+                 (add-text-properties (line-beginning-position)
+                                      (1+ (line-end-position))
+                                      '(font-lock-face font-lock-comment-face))
+                 (replace-match " " t t nil 2)
+                 (replace-match
+                  (string-pad
+                   (save-match-data
+                     (substitute-command-keys (format "\\[%s]" cmd)))
+                   8)
+                  t t nil 3))))))))))
 
 (defun git-rebase--insert-descriptions (alist)
   (pcase-dolist (`(,cmd . ,desc) alist)

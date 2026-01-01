@@ -1098,21 +1098,21 @@ The arguments are for internal use."
       (when magit-refresh-verbose
         (message "%s buffer `%s'..." action (buffer-name)))
       (cond
-       (created
-        (funcall refresh)
-        (cond (initial-section (funcall initial-section))
-              (select-section (funcall select-section))))
-       (t
-        (deactivate-mark)
-        (setq magit-section-pre-command-section nil)
-        (setq magit-section-highlight-overlays nil)
-        (setq magit-section-selection-overlays nil)
-        (setq magit-section-highlighted-sections nil)
-        (setq magit-section-focused-sections nil)
-        (let ((positions (magit--refresh-buffer-get-positions)))
-          (funcall refresh)
-          (cond (select-section (funcall select-section))
-                ((magit--refresh-buffer-set-positions positions))))))
+        (created
+         (funcall refresh)
+         (cond (initial-section (funcall initial-section))
+               (select-section (funcall select-section))))
+        (t
+         (deactivate-mark)
+         (setq magit-section-pre-command-section nil)
+         (setq magit-section-highlight-overlays nil)
+         (setq magit-section-selection-overlays nil)
+         (setq magit-section-highlighted-sections nil)
+         (setq magit-section-focused-sections nil)
+         (let ((positions (magit--refresh-buffer-get-positions)))
+           (funcall refresh)
+           (cond (select-section (funcall select-section))
+                 ((magit--refresh-buffer-set-positions positions))))))
       (let ((magit-section-cache-visibility nil))
         (magit-section-show magit-root-section))
       (run-hooks 'magit-refresh-buffer-hook)
@@ -1580,16 +1580,16 @@ The additional output can be found in the *Messages* buffer."
 
 (defun magit-run-hook-with-benchmark (hook)
   (cond
-   ((not hook))
-   (magit-refresh-verbose
-    (message "Running %s..." hook)
-    (message "Running %s...done (%.3fs)" hook
-             (benchmark-elapse
-               (run-hook-wrapped
-                hook
-                (lambda (fn)
-                  (message "  %-50s %f" fn (benchmark-elapse (funcall fn))))))))
-   ((run-hooks hook))))
+    ((not hook))
+    (magit-refresh-verbose
+     (message "Running %s..." hook)
+     (message "Running %s...done (%.3fs)" hook
+              (benchmark-elapse
+                (run-hook-wrapped
+                 hook
+                 (lambda (fn)
+                   (message "  %-50s %f" fn (benchmark-elapse (funcall fn))))))))
+    ((run-hooks hook))))
 
 (defun magit-file-region-line-numbers ()
   "Return the bounds of the region as line numbers.

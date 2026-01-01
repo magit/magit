@@ -457,49 +457,49 @@ Like `magit-commit-squash' but also run a `--autofixup' rebase."
 
 (defun magit-commit-assert (args &optional nopatch strict)
   (cond
-   (nopatch (or args (list "--")))
-   ((or (magit-anything-staged-p)
-        (and (magit-anything-unstaged-p)
-             ;; ^ Everything of nothing is still nothing.
-             (member "--all" args))
-        (and (not strict)
-             ;; ^ For amend variants that don't make sense otherwise.
-             (or (member "--amend" args)
-                 (member "--allow-empty" args)
-                 (member "--reset-author" args)
-                 (member "--signoff" args)
-                 (transient-arg-value "--author=" args)
-                 (transient-arg-value "--date=" args))))
-    (or args (list "--")))
-   ((and (magit-rebase-in-progress-p)
-         (not (magit-anything-unstaged-p))
-         (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
-    (setq this-command #'magit-rebase-continue)
-    (magit-run-git-sequencer "rebase" "--continue")
-    nil)
-   ((file-exists-p (expand-file-name "MERGE_MSG" (magit-gitdir)))
-    (cond ((magit-anything-unmerged-p)
-           (user-error "Unresolved conflicts"))
-          ((and (magit-anything-unstaged-p)
-                (not (y-or-n-p
-                      "Proceed with merge despite unstaged changes? ")))
-           (user-error "Abort"))
-          ((or args (list "--")))))
-   ((not (magit-anything-unstaged-p))
-    (user-error "Nothing staged (or unstaged)"))
-   (magit-commit-ask-to-stage
-    (when (eq magit-commit-ask-to-stage 'verbose)
-      (apply #'magit-diff-unstaged (magit-diff-arguments)))
-    (prog1 (when (or (eq magit-commit-ask-to-stage 'stage)
-                     (y-or-n-p
-                      "Nothing staged.  Commit all uncommitted changes? "))
-             (setq this-command 'magit-commit--all)
-             (cons "--all" (or args (list "--"))))
-      (when (and (eq magit-commit-ask-to-stage 'verbose)
-                 (derived-mode-p 'magit-diff-mode))
-        (magit-mode-bury-buffer))))
-   (t
-    (user-error "Nothing staged"))))
+    (nopatch (or args (list "--")))
+    ((or (magit-anything-staged-p)
+         (and (magit-anything-unstaged-p)
+              ;; ^ Everything of nothing is still nothing.
+              (member "--all" args))
+         (and (not strict)
+              ;; ^ For amend variants that don't make sense otherwise.
+              (or (member "--amend" args)
+                  (member "--allow-empty" args)
+                  (member "--reset-author" args)
+                  (member "--signoff" args)
+                  (transient-arg-value "--author=" args)
+                  (transient-arg-value "--date=" args))))
+     (or args (list "--")))
+    ((and (magit-rebase-in-progress-p)
+          (not (magit-anything-unstaged-p))
+          (y-or-n-p "Nothing staged.  Continue in-progress rebase? "))
+     (setq this-command #'magit-rebase-continue)
+     (magit-run-git-sequencer "rebase" "--continue")
+     nil)
+    ((file-exists-p (expand-file-name "MERGE_MSG" (magit-gitdir)))
+     (cond ((magit-anything-unmerged-p)
+            (user-error "Unresolved conflicts"))
+           ((and (magit-anything-unstaged-p)
+                 (not (y-or-n-p
+                       "Proceed with merge despite unstaged changes? ")))
+            (user-error "Abort"))
+           ((or args (list "--")))))
+    ((not (magit-anything-unstaged-p))
+     (user-error "Nothing staged (or unstaged)"))
+    (magit-commit-ask-to-stage
+     (when (eq magit-commit-ask-to-stage 'verbose)
+       (apply #'magit-diff-unstaged (magit-diff-arguments)))
+     (prog1 (when (or (eq magit-commit-ask-to-stage 'stage)
+                      (y-or-n-p
+                       "Nothing staged.  Commit all uncommitted changes? "))
+              (setq this-command 'magit-commit--all)
+              (cons "--all" (or args (list "--"))))
+       (when (and (eq magit-commit-ask-to-stage 'verbose)
+                  (derived-mode-p 'magit-diff-mode))
+         (magit-mode-bury-buffer))))
+    (t
+     (user-error "Nothing staged"))))
 
 ;;;; Reshelve
 
@@ -715,20 +715,20 @@ an alternative implementation."
        (setq rev "HEAD")
        (setq arg nil)))
     (cond
-     ((not
-       (and (eq this-command 'magit-diff-while-committing)
-            (and-let ((buf (magit-get-mode-buffer
-                            'magit-diff-mode nil 'selected)))
-              (and (equal rev (buffer-local-value 'magit-buffer-range buf))
-                   (equal arg (buffer-local-value 'magit-buffer-typearg buf)))))))
-     ((eq command 'magit-commit-amend)
-      (setq rev nil))
-     ((or squash
-          (file-exists-p (expand-file-name "rebase-merge/amend" (magit-gitdir))))
-      (setq rev "HEAD^"))
-     (t
-      (message "No alternative diff while committing")
-      (setq noalt t)))
+      ((not
+        (and (eq this-command 'magit-diff-while-committing)
+             (and-let ((buf (magit-get-mode-buffer
+                             'magit-diff-mode nil 'selected)))
+               (and (equal rev (buffer-local-value 'magit-buffer-range buf))
+                    (equal arg (buffer-local-value 'magit-buffer-typearg buf)))))))
+      ((eq command 'magit-commit-amend)
+       (setq rev nil))
+      ((or squash
+           (file-exists-p (expand-file-name "rebase-merge/amend" (magit-gitdir))))
+       (setq rev "HEAD^"))
+      (t
+       (message "No alternative diff while committing")
+       (setq noalt t)))
     (unless noalt
       (let ((magit-inhibit-save-previous-winconf 'unset)
             (magit-display-buffer-noselect t)

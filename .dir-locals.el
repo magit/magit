@@ -1,11 +1,12 @@
 ((nil
   (indent-tabs-mode . nil))
+ (emacs-lisp-mode
+  (checkdoc-allow-quoting-nil-and-t . t)
+  (lisp-indent-local-overrides . ((cond . 0))))
  (makefile-mode
   (indent-tabs-mode . t)
   (mode . outline-minor)
   (outline-regexp . "#\\(#+\\)"))
- (emacs-lisp-mode
-  (checkdoc-allow-quoting-nil-and-t . t))
  (git-commit-mode
   (git-commit-major-mode . git-commit-elisp-text-mode))
  (".github/PULL_REQUEST_TEMPLATE"

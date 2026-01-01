@@ -805,26 +805,26 @@ Magit status buffer."
 
 (defun magit-process--format-arguments (program args)
   (cond
-   ((and args (equal program (magit-git-executable)))
-    (let ((global (magit-process-git-arguments--length)))
-      (concat
-       (propertize (file-name-nondirectory program)
-                   'font-lock-face 'magit-section-heading)
-       " "
-       (propertize (magit--ellipsis)
-                   'font-lock-face 'magit-section-heading
-                   'help-echo (string-join (seq-take args global) " "))
-       " "
-       (propertize (mapconcat #'shell-quote-argument (seq-drop args global) " ")
-                   'font-lock-face 'magit-section-heading))))
-   ((and args (equal program shell-file-name))
-    (propertize (cadr args)
-                'font-lock-face 'magit-section-heading))
-   ((concat (propertize (file-name-nondirectory program)
-                        'font-lock-face 'magit-section-heading)
-            " "
-            (propertize (mapconcat #'shell-quote-argument args " ")
-                        'font-lock-face 'magit-section-heading)))))
+    ((and args (equal program (magit-git-executable)))
+     (let ((global (magit-process-git-arguments--length)))
+       (concat
+        (propertize (file-name-nondirectory program)
+                    'font-lock-face 'magit-section-heading)
+        " "
+        (propertize (magit--ellipsis)
+                    'font-lock-face 'magit-section-heading
+                    'help-echo (string-join (seq-take args global) " "))
+        " "
+        (propertize (mapconcat #'shell-quote-argument (seq-drop args global) " ")
+                    'font-lock-face 'magit-section-heading))))
+    ((and args (equal program shell-file-name))
+     (propertize (cadr args)
+                 'font-lock-face 'magit-section-heading))
+    ((concat (propertize (file-name-nondirectory program)
+                         'font-lock-face 'magit-section-heading)
+             " "
+             (propertize (mapconcat #'shell-quote-argument args " ")
+                         'font-lock-face 'magit-section-heading)))))
 
 (defun magit-process-truncate-log ()
   (let* ((head nil)

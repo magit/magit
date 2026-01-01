@@ -159,14 +159,14 @@ full loading."
       (remove-hook 'after-change-major-mode-hook
                    #'git-commit-setup-font-lock-in-buffer)))
   (cond
-   (global-git-commit-mode
-    (add-hook 'find-file-hook #'git-commit-setup-check-buffer)
-    (add-hook 'after-change-major-mode-hook
-              #'git-commit-setup-font-lock-in-buffer))
-   (t
-    (remove-hook 'find-file-hook #'git-commit-setup-check-buffer)
-    (remove-hook 'after-change-major-mode-hook
-                 #'git-commit-setup-font-lock-in-buffer))))
+    (global-git-commit-mode
+     (add-hook 'find-file-hook #'git-commit-setup-check-buffer)
+     (add-hook 'after-change-major-mode-hook
+               #'git-commit-setup-font-lock-in-buffer))
+    (t
+     (remove-hook 'find-file-hook #'git-commit-setup-check-buffer)
+     (remove-hook 'after-change-major-mode-hook
+                  #'git-commit-setup-font-lock-in-buffer))))
 
 (defcustom git-commit-major-mode #'text-mode
   "Major mode used to edit Git commit messages.
@@ -915,20 +915,20 @@ completion candidates.  The input must have the form \"NAME <EMAIL>\"."
       (setq leading-comment-end (point))
       (goto-char (point-max))
       (cond
-       ;; Look backwards for existing trailers.
-       ((re-search-backward (git-commit--trailer-regexp) nil t)
-        (end-of-line)
-        (insert ?\n string)
-        (unless (= (char-after) ?\n)
-          (insert ?\n)))
-       ;; Or place the new trailer right before the first non-leading
-       ;; comments.
-       (t
-        (while (re-search-backward (concat "^" comment-start)
-                                   leading-comment-end t))
-        (unless (looking-back "\n\n" nil)
-          (insert ?\n))
-        (insert string ?\n))))
+        ;; Look backwards for existing trailers.
+        ((re-search-backward (git-commit--trailer-regexp) nil t)
+         (end-of-line)
+         (insert ?\n string)
+         (unless (= (char-after) ?\n)
+           (insert ?\n)))
+        ;; Or place the new trailer right before the first non-leading
+        ;; comments.
+        (t
+         (while (re-search-backward (concat "^" comment-start)
+                                    leading-comment-end t))
+         (unless (looking-back "\n\n" nil)
+           (insert ?\n))
+         (insert string ?\n))))
     (unless (or (eobp) (= (char-after) ?\n))
       (insert ?\n))))
 

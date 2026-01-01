@@ -561,12 +561,12 @@ insert the run command and stderr into the process buffer."
                     (goto-char (point-max))
                     (setq errmsg
                           (cond
-                           ((eq return-error 'full)
-                            (let ((str (buffer-string)))
-                              (and (not (equal str "")) str)))
-                           ((functionp magit-git-debug)
-                            (funcall magit-git-debug (buffer-string)))
-                           ((magit--locate-error-message)))))
+                            ((eq return-error 'full)
+                             (let ((str (buffer-string)))
+                               (and (not (equal str "")) str)))
+                            ((functionp magit-git-debug)
+                             (funcall magit-git-debug (buffer-string)))
+                            ((magit--locate-error-message)))))
                   (when magit-git-debug
                     (let ((magit-git-debug nil))
                       (with-current-buffer (magit-process-buffer t)
@@ -708,29 +708,29 @@ format."
                    (status (magit-process-git t "version"))
                    (output (buffer-string)))
               (cond
-               ((not (zerop status))
-                (display-warning
-                 'magit
-                 (format "%S\n\nRunning \"%s --version\" failed with output:\n\n%s"
-                         (if host
-                             (format "Magit cannot find Git on host %S.\n
+                ((not (zerop status))
+                 (display-warning
+                  'magit
+                  (format "%S\n\nRunning \"%s --version\" failed with output:\n\n%s"
+                          (if host
+                              (format "Magit cannot find Git on host %S.\n
 Check the value of `magit-remote-git-executable' using
 `magit-debug-git-executable' and consult the info node
 `(tramp)Remote programs'." host)
-                           "Magit cannot find Git.\n
+                            "Magit cannot find Git.\n
 Check the values of `magit-git-executable' and `exec-path'
 using `magit-debug-git-executable'.")
-                         (magit-git-executable)
-                         output)))
-               ((save-match-data
-                  (and (string-match magit--git-version-regexp output)
-                       (let ((version (match-str 1 output)))
-                         (push (cons host version)
-                               magit--host-git-version-cache)
-                         version))))
-               ((error "Unexpected \"%s --version\" output: %S"
-                       (magit-git-executable)
-                       output)))))))))
+                          (magit-git-executable)
+                          output)))
+                ((save-match-data
+                   (and (string-match magit--git-version-regexp output)
+                        (let ((version (match-str 1 output)))
+                          (push (cons host version)
+                                magit--host-git-version-cache)
+                          version))))
+                ((error "Unexpected \"%s --version\" output: %S"
+                        (magit-git-executable)
+                        output)))))))))
 
 (defun magit-git-version-assert (&optional minimal who)
   "Assert that the used Git version is greater than or equal to MINIMAL.
@@ -1750,10 +1750,10 @@ The amount of time spent searching is limited by
                  (concat remote "/" newname))))
       (pcase-dolist (`(,branch ,upstream) branches)
         (cond
-         ((equal upstream oldname)
-          (magit-set-upstream-branch branch new))
-         ((equal upstream (concat remote "/" oldname))
-          (magit-set-upstream-branch branch (concat remote "/" newname))))))))
+          ((equal upstream oldname)
+           (magit-set-upstream-branch branch new))
+          ((equal upstream (concat remote "/" oldname))
+           (magit-set-upstream-branch branch (concat remote "/" newname))))))))
 
 (defun magit--get-default-branch (&optional update)
   (let ((remote (magit-primary-remote)))
@@ -2469,18 +2469,18 @@ and this option only controls what face is used.")
               (string-match "^[^/]*/" push)
               (setq push (substring push 0 (match-end 0))))
             (cond
-             ((equal name current)
-              (setq head
-                    (concat push
-                            (magit--propertize-face
-                             name 'magit-branch-current))))
-             ((equal name target)
-              (setq upstream
-                    (concat push
-                            (magit--propertize-face
-                             name '(magit-branch-upstream
-                                    magit-branch-local)))))
-             ((push (concat push name) combined)))))
+              ((equal name current)
+               (setq head
+                     (concat push
+                             (magit--propertize-face
+                              name 'magit-branch-current))))
+              ((equal name target)
+               (setq upstream
+                     (concat push
+                             (magit--propertize-face
+                              name '(magit-branch-upstream
+                                     magit-branch-local)))))
+              ((push (concat push name) combined)))))
         (cond-let
           ((or upstream (not target)))
           ((member target remotes)

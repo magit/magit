@@ -85,16 +85,16 @@ the line and column corresponding to that location."
       (setq line (line-number-at-pos))
       (setq col (current-column))
       (cond
-       ((not (equal visited-file file)))
-       ((equal magit-buffer-revision rev))
-       ((equal rev "{worktree}")
-        (setq line (magit-diff-visit--offset file magit-buffer-revision line)))
-       ((equal rev "{index}")
-        (setq line (magit-diff-visit--offset file nil line)))
-       (magit-buffer-revision
-        (setq line (magit-diff-visit--offset
-                    file (concat magit-buffer-revision ".." rev) line)))
-       ((setq line (magit-diff-visit--offset file (list "-R" rev) line)))))
+        ((not (equal visited-file file)))
+        ((equal magit-buffer-revision rev))
+        ((equal rev "{worktree}")
+         (setq line (magit-diff-visit--offset file magit-buffer-revision line)))
+        ((equal rev "{index}")
+         (setq line (magit-diff-visit--offset file nil line)))
+        (magit-buffer-revision
+         (setq line (magit-diff-visit--offset
+                     file (concat magit-buffer-revision ".." rev) line)))
+        ((setq line (magit-diff-visit--offset file (list "-R" rev) line)))))
     (funcall fn buf)
     (when line
       (with-current-buffer buf

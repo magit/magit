@@ -174,22 +174,22 @@ that is not the case, propose a message using a reasonable format."
                                   (magit-rev-format "%s" ptag))
                     (user-error "Use `sisyphus-create-release' first")))
           (tag (cond
-                ((not ptag)
-                 ;; Force the user to review the message used for the
-                 ;; initial release tag, in case they do not like the
-                 ;; default format.
-                 (cl-pushnew "--edit" args :test #'equal)
-                 (read-string "Create first release tag: "
-                              (if (and ver (string-match-p "\\`[0-9]" ver))
-                                  (concat "v" ver)
-                                ver)))
-                (ver
-                 (concat (and (string-match magit-release-tag-regexp ptag)
-                              (match-str 1 ptag))
-                         ver))
-                ((read-string (format "Create release tag (previous was %s): "
-                                      ptag)
-                              ptag))))
+                 ((not ptag)
+                  ;; Force the user to review the message used for the
+                  ;; initial release tag, in case they do not like the
+                  ;; default format.
+                  (cl-pushnew "--edit" args :test #'equal)
+                  (read-string "Create first release tag: "
+                               (if (and ver (string-match-p "\\`[0-9]" ver))
+                                   (concat "v" ver)
+                                 ver)))
+                 (ver
+                  (concat (and (string-match magit-release-tag-regexp ptag)
+                               (match-str 1 ptag))
+                          ver))
+                 ((read-string (format "Create release tag (previous was %s): "
+                                       ptag)
+                               ptag))))
           (ver (and (string-match magit-release-tag-regexp tag)
                     (match-str 2 tag))))
        (list tag
