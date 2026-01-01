@@ -2,8 +2,8 @@
   (indent-tabs-mode . nil))
  (makefile-mode
   (indent-tabs-mode . t)
-  (outline-regexp . "#\\(#+\\)")
-  (mode . outline-minor))
+  (mode . outline-minor)
+  (outline-regexp . "#\\(#+\\)"))
  (emacs-lisp-mode
   (checkdoc-allow-quoting-nil-and-t . t))
  (git-commit-mode
