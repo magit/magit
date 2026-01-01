@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v4.5.0    UNRELEASED
+* v4.5.0    2026-01-01
 
 - Removed support for loading Magit extensions from ".git/config".
   Please [[https://github.com/magit/magit/commit/d662ec107e74a05a0348ca75c89ebd127d658656][use ~.dir-locals.el~ instead]].  d662ec107e
