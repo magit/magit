@@ -216,13 +216,13 @@ it is nil, then PATH also becomes the name."
   :class 'magit--git-submodule-suffix
   :description "Add            git submodule add [--force]"
   (interactive
-   (magit-with-toplevel
-     (let* ((url (magit-read-string-ns "Add submodule (remote url)"))
-            (path (magit-submodule-read-path "Add submodules at path: " url)))
-       (list url
-             (directory-file-name path)
-             (magit-submodule-read-name-for-path path)
-             (magit-submodule-arguments "--force")))))
+    (magit-with-toplevel
+      (let* ((url (magit-read-string-ns "Add submodule (remote url)"))
+             (path (magit-submodule-read-path "Add submodules at path: " url)))
+        (list url
+              (directory-file-name path)
+              (magit-submodule-read-name-for-path path)
+              (magit-submodule-arguments "--force")))))
   (magit-submodule-add-1 url path name args))
 
 (defun magit-submodule-read-path (prompt url)
@@ -277,7 +277,7 @@ single module from the user."
   ;; the modules.
   :description "Register       git submodule init"
   (interactive
-   (list (magit-module-confirm "Register" 'magit-module-no-worktree-p)))
+    (list (magit-module-confirm "Register" 'magit-module-no-worktree-p)))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "init" "--" modules)))
 
@@ -295,8 +295,8 @@ single module from the user."
   :class 'magit--git-submodule-suffix
   :description "Populate       git submodule update --init [--recursive]"
   (interactive
-   (list (magit-module-confirm "Populate" 'magit-module-no-worktree-p)
-         (magit-submodule-arguments "--recursive")))
+    (list (magit-module-confirm "Populate" 'magit-module-no-worktree-p)
+          (magit-submodule-arguments "--recursive")))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update" "--init" args "--" modules)))
 
@@ -316,10 +316,10 @@ single module from the user."
   :description "Update         git submodule update [--force] [--no-fetch]
                      [--remote] [--recursive] [--checkout|--rebase|--merge]"
   (interactive
-   (list (magit-module-confirm "Update" 'magit-module-worktree-p)
-         (magit-submodule-arguments
-          "--force" "--remote" "--recursive" "--checkout" "--rebase" "--merge"
-          "--no-fetch")))
+    (list (magit-module-confirm "Update" 'magit-module-worktree-p)
+          (magit-submodule-arguments
+           "--force" "--remote" "--recursive" "--checkout" "--rebase" "--merge"
+           "--no-fetch")))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "update" args "--" modules)))
 
@@ -334,8 +334,8 @@ single module from the user."
   :class 'magit--git-submodule-suffix
   :description "Synchronize    git submodule sync [--recursive]"
   (interactive
-   (list (magit-module-confirm "Synchronize" 'magit-module-worktree-p)
-         (magit-submodule-arguments "--recursive")))
+    (list (magit-module-confirm "Synchronize" 'magit-module-worktree-p)
+          (magit-submodule-arguments "--recursive")))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "sync" args "--" modules)))
 
@@ -357,8 +357,8 @@ single module from the user."
   :class 'magit--git-submodule-suffix
   :description "Unpopulate     git submodule deinit [--force]"
   (interactive
-   (list (magit-module-confirm "Unpopulate")
-         (magit-submodule-arguments "--force")))
+    (list (magit-module-confirm "Unpopulate")
+          (magit-submodule-arguments "--force")))
   (magit-with-toplevel
     (magit-run-git-async "submodule" "deinit" args "--" modules)))
 
@@ -377,11 +377,11 @@ Both actions are very dangerous and have to be confirmed.  There
 are additional safety precautions in place, so you might be able
 to recover from making a mistake here, but don't count on it."
   (interactive
-   (list (if-let ((modules (magit-region-values 'magit-module-section t)))
-             (magit-confirm 'remove-modules nil "Remove %d modules" nil modules)
-           (list (magit-read-module-path "Remove module")))
-         (magit-submodule-arguments "--force")
-         current-prefix-arg))
+    (list (if-let ((modules (magit-region-values 'magit-module-section t)))
+              (magit-confirm 'remove-modules nil "Remove %d modules" nil modules)
+            (list (magit-read-module-path "Remove module")))
+          (magit-submodule-arguments "--force")
+          current-prefix-arg))
   (when magit-submodule-remove-trash-gitdirs
     (setq trash-gitdirs t))
   (magit-with-toplevel

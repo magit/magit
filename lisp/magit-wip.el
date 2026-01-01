@@ -307,9 +307,9 @@ With a negative prefix argument only show the worktree wip ref.
 The absolute numeric value of the prefix argument controls how
 many \"branches\" of each wip ref are shown."
   (interactive
-   (nconc (list (or (magit-get-current-branch) "HEAD"))
-          (magit-log-arguments)
-          (list (prefix-numeric-value current-prefix-arg))))
+    (nconc (list (or (magit-get-current-branch) "HEAD"))
+           (magit-log-arguments)
+           (list (prefix-numeric-value current-prefix-arg))))
   (magit-wip-log branch args files count))
 
 (defun magit-wip-log (branch args files count)
@@ -318,16 +318,16 @@ With a negative prefix argument only show the worktree wip ref.
 The absolute numeric value of the prefix argument controls how
 many \"branches\" of each wip ref are shown."
   (interactive
-   (nconc (list (magit-completing-read
-                 "Log branch and its wip refs"
-                 (nconc (magit-list-local-branch-names)
-                        (list "HEAD"))
-                 nil t nil 'magit-revision-history
-                 (or (magit-branch-at-point)
-                     (magit-get-current-branch)
-                     "HEAD")))
-          (magit-log-arguments)
-          (list (prefix-numeric-value current-prefix-arg))))
+    (nconc (list (magit-completing-read
+                  "Log branch and its wip refs"
+                  (nconc (magit-list-local-branch-names)
+                         (list "HEAD"))
+                  nil t nil 'magit-revision-history
+                  (or (magit-branch-at-point)
+                      (magit-get-current-branch)
+                      "HEAD")))
+           (magit-log-arguments)
+           (list (prefix-numeric-value current-prefix-arg))))
   (magit-log-setup-buffer (nconc (list branch)
                                  (magit-wip-log-get-tips
                                   (magit--wip-wtree-ref branch)

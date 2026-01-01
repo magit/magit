@@ -520,18 +520,18 @@ is updated:
 - The command was invoked with a prefix argument.
 - Non-interactively if UPDATE-AUTHOR is nil."
   (interactive
-   (let ((update-author (and (magit-rev-author-p "HEAD")
-                             (not current-prefix-arg))))
-     (push (magit-rev-format (if update-author "%ad" "%cd") "HEAD"
-                             (concat "--date=format:%F %T %z"))
-           magit--reshelve-history)
-     (list (read-string (if update-author
-                            "Change author and committer dates to: "
-                          "Change committer date to: ")
-                        (cons (format-time-string "%F %T %z") 17)
-                        'magit--reshelve-history)
-           update-author
-           (magit-commit-arguments))))
+    (let ((update-author (and (magit-rev-author-p "HEAD")
+                              (not current-prefix-arg))))
+      (push (magit-rev-format (if update-author "%ad" "%cd") "HEAD"
+                              (concat "--date=format:%F %T %z"))
+            magit--reshelve-history)
+      (list (read-string (if update-author
+                             "Change author and committer dates to: "
+                           "Change committer date to: ")
+                         (cons (format-time-string "%F %T %z") 17)
+                         'magit--reshelve-history)
+            update-author
+            (magit-commit-arguments))))
   (with-environment-variables (("GIT_COMMITTER_DATE" date))
     (magit-run-git "commit" "--amend" "--no-edit"
                    (and update-author (concat "--date=" date))

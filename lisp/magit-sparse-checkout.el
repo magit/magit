@@ -82,12 +82,12 @@ See the `git sparse-checkout' manpage for details about
 To extend rather than override the currently configured
 directories, call `magit-sparse-checkout-add' instead."
   (interactive
-   (list (magit-completing-read-multiple
-          "Include these directories: "
-          ;; Note: Given that the appeal of sparse checkouts is
-          ;; dealing with very large trees, listing all subdirectories
-          ;; may need to be reconsidered.
-          (magit-revision-directories "HEAD"))))
+    (list (magit-completing-read-multiple
+           "Include these directories: "
+           ;; Note: Given that the appeal of sparse checkouts is
+           ;; dealing with very large trees, listing all subdirectories
+           ;; may need to be reconsidered.
+           (magit-revision-directories "HEAD"))))
   (magit-sparse-checkout--auto-enable)
   (magit-run-git-async "sparse-checkout" "set" directories))
 
@@ -97,16 +97,16 @@ directories, call `magit-sparse-checkout-add' instead."
 To override rather than extend the currently configured
 directories, call `magit-sparse-checkout-set' instead."
   (interactive
-   (list (magit-completing-read-multiple
-          "Add these directories: "
-          ;; Same performance note as in `magit-sparse-checkout-set',
-          ;; but even more so given the additional processing.
-          (seq-remove
-           (let ((re (concat
-                      "\\`"
-                      (regexp-opt (magit-sparse-checkout-directories)))))
-             (##string-match-p re %))
-           (magit-revision-directories "HEAD")))))
+    (list (magit-completing-read-multiple
+           "Add these directories: "
+           ;; Same performance note as in `magit-sparse-checkout-set',
+           ;; but even more so given the additional processing.
+           (seq-remove
+            (let ((re (concat
+                       "\\`"
+                       (regexp-opt (magit-sparse-checkout-directories)))))
+              (##string-match-p re %))
+            (magit-revision-directories "HEAD")))))
   (magit-sparse-checkout--auto-enable)
   (magit-run-git-async "sparse-checkout" "add" directories))
 

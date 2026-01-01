@@ -229,18 +229,18 @@ Remove the COMMITS from BRANCH and stay on the current branch.
 If a conflict occurs, then you have to fix that and finish the
 process manually."
   (interactive
-   (magit--cherry-move-read-args "harvest" nil
-     (lambda (commits)
-       (list (let ((branches (magit-list-containing-branches (car commits))))
-               (pcase (length branches)
-                 (0 nil)
-                 (1 (car branches))
-                 (_ (magit-completing-read
-                     (let ((len (length commits)))
-                       (if (= len 1)
-                           "Remove 1 cherry from branch"
-                         (format "Remove %s cherries from branch" len)))
-                     branches nil t))))))))
+    (magit--cherry-move-read-args "harvest" nil
+      (lambda (commits)
+        (list (let ((branches (magit-list-containing-branches (car commits))))
+                (pcase (length branches)
+                  (0 nil)
+                  (1 (car branches))
+                  (_ (magit-completing-read
+                      (let ((len (length commits)))
+                        (if (= len 1)
+                            "Remove 1 cherry from branch"
+                          (format "Remove %s cherries from branch" len)))
+                      branches nil t))))))))
   (magit--cherry-move commits branch (magit-get-current-branch) args nil t))
 
 ;;;###autoload
@@ -250,14 +250,14 @@ Remove COMMITS from the current branch and stay on that branch.
 If a conflict occurs, then you have to fix that and finish the
 process manually.  `HEAD' is allowed to be detached initially."
   (interactive
-   (magit--cherry-move-read-args "donate" t
-     (lambda (commits)
-       (list (magit-read-other-branch
-              (let ((len (length commits)))
-                (if (= len 1)
-                    "Move 1 cherry to branch"
-                  (format "Move %s cherries to branch" len))))))
-     'allow-detached))
+    (magit--cherry-move-read-args "donate" t
+      (lambda (commits)
+        (list (magit-read-other-branch
+               (let ((len (length commits)))
+                 (if (= len 1)
+                     "Move 1 cherry to branch"
+                   (format "Move %s cherries to branch" len))))))
+      'allow-detached))
   (magit--cherry-move commits
                       (or (magit-get-current-branch)
                           (magit-rev-parse "HEAD"))

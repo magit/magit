@@ -61,14 +61,14 @@
    ("t" "create tracked bundle" magit-bundle-create-tracked)
    ("u" "update tracked bundle" magit-bundle-update-tracked)]
   (interactive
-   (and (eq transient-current-command 'magit-bundle-create)
-        (list (read-file-name "Create bundle: " nil nil nil
-                              (concat (file-name-nondirectory
-                                       (directory-file-name (magit-toplevel)))
-                                      ".bundle"))
-              (magit-completing-read-multiple "Refnames (zero or more): "
-                                              (magit-list-refnames))
-              (transient-args 'magit-bundle-create))))
+    (and (eq transient-current-command 'magit-bundle-create)
+         (list (read-file-name "Create bundle: " nil nil nil
+                               (concat (file-name-nondirectory
+                                        (directory-file-name (magit-toplevel)))
+                                       ".bundle"))
+               (magit-completing-read-multiple "Refnames (zero or more): "
+                                               (magit-list-refnames))
+               (transient-args 'magit-bundle-create))))
   (if file
       (magit-git-bundle "create" file refs args)
     (transient-setup 'magit-bundle-create)))
@@ -77,17 +77,17 @@
 (defun magit-bundle-create-tracked (file tag branch refs args)
   "Create and track a new bundle."
   (interactive
-   (let ((tag    (magit-read-tag "Track bundle using tag"))
-         (branch (magit-read-branch "Bundle branch"))
-         (refs   (magit-completing-read-multiple
-                  "Additional refnames (zero or more): "
-                  (magit-list-refnames))))
-     (list (read-file-name "File: " nil nil nil (concat tag ".bundle"))
-           tag branch
-           (if (equal branch (magit-get-current-branch))
-               (cons "HEAD" refs)
-             refs)
-           (transient-args 'magit-bundle-create))))
+    (let ((tag    (magit-read-tag "Track bundle using tag"))
+          (branch (magit-read-branch "Bundle branch"))
+          (refs   (magit-completing-read-multiple
+                   "Additional refnames (zero or more): "
+                   (magit-list-refnames))))
+      (list (read-file-name "File: " nil nil nil (concat tag ".bundle"))
+            tag branch
+            (if (equal branch (magit-get-current-branch))
+                (cons "HEAD" refs)
+              refs)
+            (transient-args 'magit-bundle-create))))
   (magit-git-bundle "create" file (cons branch refs) args)
   (magit-git "tag" "--force" tag branch
              "-m" (concat ";; git-bundle tracking\n"

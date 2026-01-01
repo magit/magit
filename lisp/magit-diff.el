@@ -1309,9 +1309,9 @@ revisions (i.e., use a \"...\" range)."
 With a prefix argument show changes between the working tree and
 a commit read from the minibuffer."
   (interactive
-   (cons (and current-prefix-arg
-              (magit-read-branch-or-commit "Diff working tree and commit"))
-         (magit-diff-arguments)))
+    (cons (and current-prefix-arg
+               (magit-read-branch-or-commit "Diff working tree and commit"))
+          (magit-diff-arguments)))
   (magit-diff-setup-buffer (or rev "HEAD") nil args files 'committed))
 
 ;;;###autoload
@@ -1320,9 +1320,9 @@ a commit read from the minibuffer."
 With a prefix argument show changes between the index and
 a commit read from the minibuffer."
   (interactive
-   (cons (and current-prefix-arg
-              (magit-read-branch-or-commit "Diff index and commit"))
-         (magit-diff-arguments)))
+    (cons (and current-prefix-arg
+               (magit-read-branch-or-commit "Diff index and commit"))
+          (magit-diff-arguments)))
   (magit-diff-setup-buffer rev "--cached" args files 'staged))
 
 ;;;###autoload
@@ -1405,17 +1405,17 @@ the file or blob."
 If there is no revision at point or with a prefix argument prompt
 for a revision."
   (interactive
-   (pcase-let* ((mcommit (magit-section-value-if 'module-commit))
-                (atpoint (or mcommit
-                             (magit-thing-at-point 'git-revision t)
-                             (magit-branch-or-commit-at-point)))
-                (`(,args ,files) (magit-show-commit--arguments)))
-     (list (or (and (not current-prefix-arg) atpoint)
-               (magit-read-branch-or-commit "Show commit" atpoint))
-           args
-           files
-           (and mcommit
-                (magit-section-parent-value (magit-current-section))))))
+    (pcase-let* ((mcommit (magit-section-value-if 'module-commit))
+                 (atpoint (or mcommit
+                              (magit-thing-at-point 'git-revision t)
+                              (magit-branch-or-commit-at-point)))
+                 (`(,args ,files) (magit-show-commit--arguments)))
+      (list (or (and (not current-prefix-arg) atpoint)
+                (magit-read-branch-or-commit "Show commit" atpoint))
+            args
+            files
+            (and mcommit
+                 (magit-section-parent-value (magit-current-section))))))
   (require 'magit)
   (let* ((file (magit-file-relative-name))
          (line (and file (line-number-at-pos))))

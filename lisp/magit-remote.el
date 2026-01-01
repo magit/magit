@@ -98,15 +98,15 @@ has to be used to view and change remote related variables."
 (defun magit-remote-add (remote url &optional args)
   "Add a remote named REMOTE and fetch it."
   (interactive
-   (let ((origin (magit-get "remote.origin.url"))
-         (remote (magit-read-string-ns "Remote name")))
-     (list remote
-           (magit-read-url
-            "Remote url"
-            (and origin
-                 (string-match "\\([^:/]+\\)/[^/]+\\(\\.git\\)?\\'" origin)
-                 (replace-match remote t t origin 1)))
-           (transient-args 'magit-remote))))
+    (let ((origin (magit-get "remote.origin.url"))
+          (remote (magit-read-string-ns "Remote name")))
+      (list remote
+            (magit-read-url
+             "Remote url"
+             (and origin
+                  (string-match "\\([^:/]+\\)/[^/]+\\(\\.git\\)?\\'" origin)
+                  (replace-match remote t t origin 1)))
+            (transient-args 'magit-remote))))
   (if (pcase (list magit-remote-add-set-remote.pushDefault
                    (magit-get "remote.pushDefault"))
         (`(,(pred stringp) ,_) t)
@@ -121,8 +121,8 @@ has to be used to view and change remote related variables."
 (defun magit-remote-rename (old new)
   "Rename the remote named OLD to NEW."
   (interactive
-   (let  ((remote (magit-read-remote "Rename remote")))
-     (list remote (magit-read-string-ns (format "Rename %s to" remote)))))
+    (let  ((remote (magit-read-remote "Rename remote")))
+      (list remote (magit-read-string-ns (format "Rename %s to" remote)))))
   (unless (string= old new)
     (magit-call-git "remote" "rename" old new)
     (magit-remote--cleanup-push-variables old new)
@@ -239,11 +239,11 @@ accordingly.  With a prefix argument query for the branch to be
 used, which allows you to select an incorrect value if you fancy
 doing that."
   (interactive
-   (let  ((remote (magit-read-remote "Set HEAD for remote")))
-     (list remote
-           (and current-prefix-arg
-                (magit-read-remote-branch (format "Set %s/HEAD to" remote)
-                                          remote nil nil t)))))
+    (let  ((remote (magit-read-remote "Set HEAD for remote")))
+      (list remote
+            (and current-prefix-arg
+                 (magit-read-remote-branch (format "Set %s/HEAD to" remote)
+                                           remote nil nil t)))))
   (magit-run-git "remote" "set-head" remote (or branch "--auto")))
 
 ;;;###autoload
@@ -318,11 +318,11 @@ refspec."
    ("S" magit-remote.<remote>.push)
    ("O" magit-remote.<remote>.tagopt)]
   (interactive
-   (list (or (and (not current-prefix-arg)
-                  (not (and magit-remote-direct-configure
-                            (eq transient-current-command 'magit-remote)))
-                  (magit-get-current-remote))
-             (magit--read-remote-scope))))
+    (list (or (and (not current-prefix-arg)
+                   (not (and magit-remote-direct-configure
+                             (eq transient-current-command 'magit-remote)))
+                   (magit-get-current-remote))
+              (magit--read-remote-scope))))
   (transient-setup 'magit-remote-configure nil nil :scope remote))
 
 (defun magit--read-remote-scope (&optional obj)

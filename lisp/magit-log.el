@@ -696,26 +696,26 @@ When the upstream is a local branch, then also show its own
 upstream.  When `HEAD' is detached, then show log for that, the
 previously checked out branch and its upstream and push-target."
   (interactive
-   (cons (let ((current (magit-get-current-branch))
-               head rebase target upstream upup)
-           (unless current
-             (setq rebase (magit-rebase--get-state-lines "head-name"))
-             (cond (rebase
-                    (setq rebase (magit-ref-abbrev rebase))
-                    (setq current rebase)
-                    (setq head "HEAD"))
-                   ((setq current (magit-get-previous-branch)))))
-           (cond (current
-                  (setq current
-                        (magit--propertize-face current 'magit-branch-local))
-                  (setq target (magit-get-push-branch current t))
-                  (setq upstream (magit-get-upstream-branch current))
-                  (when upstream
-                    (setq upup (and (magit-local-branch-p upstream)
-                                    (magit-get-upstream-branch upstream)))))
-                 ((setq head "HEAD")))
-           (delq nil (list current head target upstream upup)))
-         (magit-log-arguments)))
+    (cons (let ((current (magit-get-current-branch))
+                head rebase target upstream upup)
+            (unless current
+              (setq rebase (magit-rebase--get-state-lines "head-name"))
+              (cond (rebase
+                     (setq rebase (magit-ref-abbrev rebase))
+                     (setq current rebase)
+                     (setq head "HEAD"))
+                    ((setq current (magit-get-previous-branch)))))
+            (cond (current
+                   (setq current
+                         (magit--propertize-face current 'magit-branch-local))
+                   (setq target (magit-get-push-branch current t))
+                   (setq upstream (magit-get-upstream-branch current))
+                   (when upstream
+                     (setq upup (and (magit-local-branch-p upstream)
+                                     (magit-get-upstream-branch upstream)))))
+                  ((setq head "HEAD")))
+            (delq nil (list current head target upstream upup)))
+          (magit-log-arguments)))
   (magit-log-setup-buffer revs args files))
 
 ;;;###autoload
@@ -844,10 +844,10 @@ directly on BRANCH, then show approximately
 This command requires git-when-merged, which is available from
 https://github.com/mhagger/git-when-merged."
   (interactive
-   (append (let ((commit (magit-read-branch-or-commit "Log merge of commit")))
-             (list commit
-                   (magit-read-other-branch "Merged into" commit)))
-           (magit-log-arguments)))
+    (append (let ((commit (magit-read-branch-or-commit "Log merge of commit")))
+              (list commit
+                    (magit-read-other-branch "Merged into" commit)))
+            (magit-log-arguments)))
   (unless (magit-git-executable-find "git-when-merged")
     (user-error "This command requires git-when-merged (%s)"
                 "https://github.com/mhagger/git-when-merged"))
@@ -970,13 +970,13 @@ nothing else.
 If invoked outside any log buffer, then display the log buffer
 of the current repository first; creating it if necessary."
   (interactive
-   (list (magit-completing-read
-          "In log, jump to"
-          (magit-list-refnames nil t)
-          nil 'any nil 'magit-revision-history
-          (or (and$ (magit-commit-at-point)
-                    (magit-rev-fixup-target $))
-              (magit-get-current-branch)))))
+    (list (magit-completing-read
+           "In log, jump to"
+           (magit-list-refnames nil t)
+           nil 'any nil 'magit-revision-history
+           (or (and$ (magit-commit-at-point)
+                     (magit-rev-fixup-target $))
+               (magit-get-current-branch)))))
   (with-current-buffer
       (cond ((derived-mode-p 'magit-log-mode)
              (current-buffer))
@@ -1020,16 +1020,16 @@ of the current repository first; creating it if necessary."
 (defun magit-shortlog-since (commit args)
   "Show a history summary for commits since REV."
   (interactive
-   (list (magit-read-branch-or-commit "Shortlog since" (magit-get-current-tag))
-         (transient-args 'magit-shortlog)))
+    (list (magit-read-branch-or-commit "Shortlog since" (magit-get-current-tag))
+          (transient-args 'magit-shortlog)))
   (magit-git-shortlog (concat commit "..") args))
 
 ;;;###autoload
 (defun magit-shortlog-range (rev-or-range args)
   "Show a history summary for commit or range REV-OR-RANGE."
   (interactive
-   (list (magit-read-range-or-commit "Shortlog for revision or range")
-         (transient-args 'magit-shortlog)))
+    (list (magit-read-range-or-commit "Shortlog for revision or range")
+          (transient-args 'magit-shortlog)))
   (magit-git-shortlog rev-or-range args))
 
 ;;;; Movement Commands
@@ -1899,9 +1899,9 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 (defun magit-cherry (head upstream)
   "Show commits in a branch that are not merged in the upstream branch."
   (interactive
-   (let  ((head (magit-read-branch "Cherry head")))
-     (list head (magit-read-other-branch "Cherry upstream" head
-                                         (magit-get-upstream-branch head)))))
+    (let  ((head (magit-read-branch "Cherry head")))
+      (list head (magit-read-other-branch "Cherry upstream" head
+                                          (magit-get-upstream-branch head)))))
   (require 'magit)
   (magit-cherry-setup-buffer head upstream))
 

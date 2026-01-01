@@ -259,18 +259,18 @@ has to confirm that it should be reinitialized.
 
 Non-interactively DIRECTORY is (re-)initialized unconditionally."
   (interactive
-   (let ((directory (file-name-as-directory
-                     (expand-file-name
-                      (read-directory-name "Create repository in: ")))))
-     (when-let ((toplevel (magit-toplevel directory)))
-       (setq toplevel (expand-file-name toplevel))
-       (unless (y-or-n-p (if (file-equal-p toplevel directory)
-                             (format "Reinitialize existing repository %s? "
-                                     directory)
-                           (format "%s is a repository.  Create another in %s? "
-                                   toplevel directory)))
-         (user-error "Abort")))
-     (list directory)))
+    (let ((directory (file-name-as-directory
+                      (expand-file-name
+                       (read-directory-name "Create repository in: ")))))
+      (when-let ((toplevel (magit-toplevel directory)))
+        (setq toplevel (expand-file-name toplevel))
+        (unless (y-or-n-p (if (file-equal-p toplevel directory)
+                              (format "Reinitialize existing repository %s? "
+                                      directory)
+                            (format "%s is a repository.  Create another in %s? "
+                                    toplevel directory)))
+          (user-error "Abort")))
+      (list directory)))
   ;; `git init' does not understand the meaning of "~"!
   (magit-call-git "init" (magit-convert-filename-for-git
                           (expand-file-name directory)))
@@ -310,12 +310,12 @@ prefix arguments:
   then fall back to the same behavior as with two prefix
   arguments."
   (interactive
-   (let ((magit--refresh-cache (list (cons 0 0))))
-     (list (and (or current-prefix-arg (not (magit-toplevel)))
-                (progn (magit--assert-usable-git)
-                       (magit-read-repository
-                        (>= (prefix-numeric-value current-prefix-arg) 16))))
-           magit--refresh-cache)))
+    (let ((magit--refresh-cache (list (cons 0 0))))
+      (list (and (or current-prefix-arg (not (magit-toplevel)))
+                 (progn (magit--assert-usable-git)
+                        (magit-read-repository
+                         (>= (prefix-numeric-value current-prefix-arg) 16))))
+            magit--refresh-cache)))
   (let ((magit--refresh-cache (or cache (list (cons 0 0)))))
     (if directory
         (let ((toplevel (magit-toplevel directory)))

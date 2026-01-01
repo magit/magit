@@ -129,40 +129,40 @@
 (defun magit-subtree-add (prefix repository ref args)
   "Add REF from REPOSITORY as a new subtree at PREFIX."
   (interactive
-   (cons (magit-subtree-prefix 'magit-subtree-import "Add subtree")
-         (let ((remote (magit-read-remote-or-url "From repository")))
-           (list remote
-                 (magit-read-refspec "Ref" remote)
-                 (magit-subtree-arguments 'magit-subtree-import)))))
+    (cons (magit-subtree-prefix 'magit-subtree-import "Add subtree")
+          (let ((remote (magit-read-remote-or-url "From repository")))
+            (list remote
+                  (magit-read-refspec "Ref" remote)
+                  (magit-subtree-arguments 'magit-subtree-import)))))
   (magit-git-subtree "add" prefix args repository ref))
 
 ;;;###autoload
 (defun magit-subtree-add-commit (prefix commit args)
   "Add COMMIT as a new subtree at PREFIX."
   (interactive
-   (list (magit-subtree-prefix 'magit-subtree-import "Add subtree")
-         (magit-read-string-ns "Commit")
-         (magit-subtree-arguments 'magit-subtree-import)))
+    (list (magit-subtree-prefix 'magit-subtree-import "Add subtree")
+          (magit-read-string-ns "Commit")
+          (magit-subtree-arguments 'magit-subtree-import)))
   (magit-git-subtree "add" prefix args commit))
 
 ;;;###autoload
 (defun magit-subtree-merge (prefix commit args)
   "Merge COMMIT into the PREFIX subtree."
   (interactive
-   (list (magit-subtree-prefix 'magit-subtree-import "Merge into subtree")
-         (magit-read-string-ns "Commit")
-         (magit-subtree-arguments 'magit-subtree-import)))
+    (list (magit-subtree-prefix 'magit-subtree-import "Merge into subtree")
+          (magit-read-string-ns "Commit")
+          (magit-subtree-arguments 'magit-subtree-import)))
   (magit-git-subtree "merge" prefix args commit))
 
 ;;;###autoload
 (defun magit-subtree-pull (prefix repository ref args)
   "Pull REF from REPOSITORY into the PREFIX subtree."
   (interactive
-   (cons (magit-subtree-prefix 'magit-subtree-import "Pull into subtree")
-         (let ((remote (magit-read-remote-or-url "From repository")))
-           (list remote
-                 (magit-read-refspec "Ref" remote)
-                 (magit-subtree-arguments 'magit-subtree-import)))))
+    (cons (magit-subtree-prefix 'magit-subtree-import "Pull into subtree")
+          (let ((remote (magit-read-remote-or-url "From repository")))
+            (list remote
+                  (magit-read-refspec "Ref" remote)
+                  (magit-subtree-arguments 'magit-subtree-import)))))
   (magit-git-subtree "pull" prefix args repository ref))
 
 ;;;###autoload

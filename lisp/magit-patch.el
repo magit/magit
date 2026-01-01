@@ -99,18 +99,18 @@ which creates patches for all commits that are reachable from
   ["Actions"
    ("c" "Create patches" magit-patch-create)]
   (interactive
-   (if (not (eq transient-current-command 'magit-patch-create))
-       (list nil nil nil)
-     (cons (if-let ((revs (magit-region-values 'commit t)))
-               (concat (car (last revs)) "^.." (car revs))
-             (let ((range (magit-read-range-or-commit
-                           "Create patches for range or commit")))
-               (if (string-search ".." range)
-                   range
-                 (format "%s~..%s" range range))))
-           (let ((args (transient-args 'magit-patch-create)))
-             (list (seq-filter #'stringp args)
-                   (cdr (assoc "--" args)))))))
+    (if (not (eq transient-current-command 'magit-patch-create))
+        (list nil nil nil)
+      (cons (if-let ((revs (magit-region-values 'commit t)))
+                (concat (car (last revs)) "^.." (car revs))
+              (let ((range (magit-read-range-or-commit
+                            "Create patches for range or commit")))
+                (if (string-search ".." range)
+                    range
+                  (format "%s~..%s" range range))))
+            (let ((args (transient-args 'magit-patch-create)))
+              (list (seq-filter #'stringp args)
+                    (cdr (assoc "--" args)))))))
   (if (not range)
       (transient-setup 'magit-patch-create)
     (magit-run-git "format-patch" range args "--" files)
@@ -247,14 +247,14 @@ which creates patches for all commits that are reachable from
   ["Actions"
    ("a"  "Apply patch" magit-patch-apply)]
   (interactive
-   (if (not (eq transient-current-command 'magit-patch-apply))
-       (list nil)
-     (list (expand-file-name
-            (read-file-name "Apply patch: "
-                            default-directory nil nil
-                            (and$ (magit-file-at-point)
-                                  (file-relative-name $))))
-           (transient-args 'magit-patch-apply))))
+    (if (not (eq transient-current-command 'magit-patch-apply))
+        (list nil)
+      (list (expand-file-name
+             (read-file-name "Apply patch: "
+                             default-directory nil nil
+                             (and$ (magit-file-at-point)
+                                   (file-relative-name $))))
+            (transient-args 'magit-patch-apply))))
   (if (not file)
       (transient-setup 'magit-patch-apply)
     (magit-run-git "apply" args "--" (magit-convert-filename-for-git file))))
@@ -313,9 +313,9 @@ START is a commit that already is in the upstream repository.
 END is the last commit, usually a branch name, which upstream
 is asked to pull.  START has to be reachable from that commit."
   (interactive
-   (list (magit-get "remote" (magit-read-remote "Remote") "url")
-         (magit-read-branch-or-commit "Start" (magit-get-upstream-branch))
-         (magit-read-branch-or-commit "End")))
+    (list (magit-get "remote" (magit-read-remote "Remote") "url")
+          (magit-read-branch-or-commit "Start" (magit-get-upstream-branch))
+          (magit-read-branch-or-commit "End")))
   (require 'message)
   (let ((dir default-directory))
     ;; mu4e changes default-directory

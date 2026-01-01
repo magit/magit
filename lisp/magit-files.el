@@ -248,9 +248,9 @@ This command is like `find-file', except that it temporarily
 binds `default-directory' to the actual git directory, while
 reading the FILENAME."
   (interactive
-   (let ((default-directory (magit-gitdir)))
-     (find-file-read-args "Find file: "
-                          (confirm-nonexistent-file-or-buffer))))
+    (let ((default-directory (magit-gitdir)))
+      (find-file-read-args "Find file: "
+                           (confirm-nonexistent-file-or-buffer))))
   (find-file filename wildcards))
 
 (defun magit-find-git-config-file-other-window (filename &optional wildcards)
@@ -264,9 +264,9 @@ This command is like `find-file-other-window', except that it
 temporarily binds `default-directory' to the actual git
 directory, while reading the FILENAME."
   (interactive
-   (let ((default-directory (magit-gitdir)))
-     (find-file-read-args "Find file in other window: "
-                          (confirm-nonexistent-file-or-buffer))))
+    (let ((default-directory (magit-gitdir)))
+      (find-file-read-args "Find file in other window: "
+                           (confirm-nonexistent-file-or-buffer))))
   (find-file-other-window filename wildcards))
 
 (defun magit-find-git-config-file-other-frame (filename &optional wildcards)
@@ -280,9 +280,9 @@ This command is like `find-file-other-frame', except that it
 temporarily binds `default-directory' to the actual git
 directory, while reading the FILENAME."
   (interactive
-   (let ((default-directory (magit-gitdir)))
-     (find-file-read-args "Find file in other frame: "
-                          (confirm-nonexistent-file-or-buffer))))
+    (let ((default-directory (magit-gitdir)))
+      (find-file-read-args "Find file in other frame: "
+                           (confirm-nonexistent-file-or-buffer))))
   (find-file-other-frame filename wildcards))
 
 ;;; File Dispatch
@@ -495,11 +495,11 @@ staged as well as unstaged changes."
 NEWNAME may be a file or directory name.  If FILE isn't tracked in
 Git, fallback to using `rename-file'."
   (interactive
-   (let* ((file (magit-read-file "Rename file"))
-          (path (expand-file-name file (magit-toplevel))))
-     (list path (expand-file-name
-                 (read-file-name (format "Move %s to destination: " file)
-                                 (file-name-directory path))))))
+    (let* ((file (magit-read-file "Rename file"))
+           (path (expand-file-name file (magit-toplevel))))
+      (list path (expand-file-name
+                  (read-file-name (format "Move %s to destination: " file)
+                                  (file-name-directory path))))))
   (let ((oldbuf (get-file-buffer file))
         (dstdir (file-name-directory newname))
         (dstfile (if (directory-name-p newname)
@@ -548,9 +548,9 @@ Git, then fallback to using `delete-file'."
 (defun magit-file-checkout (rev file)
   "Checkout FILE from REV."
   (interactive
-   (let ((rev (magit-read-branch-or-commit
-               "Checkout from revision" magit-buffer-revision)))
-     (list rev (magit-read-file-from-rev rev "Checkout file" nil t))))
+    (let ((rev (magit-read-branch-or-commit
+                "Checkout from revision" magit-buffer-revision)))
+      (list rev (magit-read-file-from-rev rev "Checkout file" nil t))))
   (magit-with-toplevel
     (magit-run-git "checkout" rev "--" file)))
 

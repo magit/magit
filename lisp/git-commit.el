@@ -722,9 +722,9 @@ With a numeric prefix ARG, go forward ARG messages."
   "Search backward through message history for a match for STRING.
 Save current message first."
   (interactive
-   (list (read-string (format-prompt "Comment substring"
-                                     log-edit-last-comment-match)
-                      nil nil log-edit-last-comment-match)))
+    (list (read-string (format-prompt "Comment substring"
+                                      log-edit-last-comment-match)
+                       nil nil log-edit-last-comment-match)))
   (cl-letf (((symbol-function #'log-edit-previous-comment)
              (symbol-function #'git-commit-prev-message)))
     (log-edit-comment-search-backward string)))
@@ -733,9 +733,9 @@ Save current message first."
   "Search forward through message history for a match for STRING.
 Save current message first."
   (interactive
-   (list (read-string (format-prompt "Comment substring"
-                                     log-edit-last-comment-match)
-                      nil nil log-edit-last-comment-match)))
+    (list (read-string (format-prompt "Comment substring"
+                                      log-edit-last-comment-match)
+                       nil nil log-edit-last-comment-match)))
   (cl-letf (((symbol-function #'log-edit-previous-comment)
              (symbol-function #'git-commit-prev-message)))
     (log-edit-comment-search-forward string)))

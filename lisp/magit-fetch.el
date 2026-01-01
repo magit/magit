@@ -117,20 +117,20 @@ results in an error."
 (defun magit-fetch-branch (remote branch args)
   "Fetch a BRANCH from a REMOTE."
   (interactive
-   (let ((remote (magit-read-remote-or-url "Fetch from remote or url")))
-     (list remote
-           (magit-read-remote-branch "Fetch branch" remote)
-           (magit-fetch-arguments))))
+    (let ((remote (magit-read-remote-or-url "Fetch from remote or url")))
+      (list remote
+            (magit-read-remote-branch "Fetch branch" remote)
+            (magit-fetch-arguments))))
   (magit-git-fetch remote (cons branch args)))
 
 ;;;###autoload
 (defun magit-fetch-refspec (remote refspec args)
   "Fetch a REFSPEC from a REMOTE."
   (interactive
-   (let ((remote (magit-read-remote-or-url "Fetch from remote or url")))
-     (list remote
-           (magit-read-refspec "Fetch using refspec" remote)
-           (magit-fetch-arguments))))
+    (let ((remote (magit-read-remote-or-url "Fetch from remote or url")))
+      (list remote
+            (magit-read-refspec "Fetch using refspec" remote)
+            (magit-fetch-arguments))))
   (magit-git-fetch remote (cons refspec args)))
 
 ;;;###autoload

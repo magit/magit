@@ -319,9 +319,9 @@ and alternative commands."
   "Stage and unstage changes to FILE using Ediff.
 FILE has to be relative to the top directory of the repository."
   (interactive
-   (let ((files (magit-tracked-files)))
-     (list (magit-completing-read "Selectively stage file" files nil t nil nil
-                                  (car (member (magit-current-file) files))))))
+    (let ((files (magit-tracked-files)))
+      (list (magit-completing-read "Selectively stage file" files nil t nil nil
+                                   (car (member (magit-current-file) files))))))
   (magit-with-toplevel
     (let* ((bufA  (magit-get-revision-buffer "HEAD" file))
            (bufB  (magit-get-revision-buffer "{index}" file))
@@ -367,10 +367,10 @@ the revisions, choose a revision to view changes along, starting
 at the common ancestor of both revisions (i.e., use a \"...\"
 range)."
   (interactive
-   (pcase-let ((`(,revA ,revB) (magit-ediff-compare--read-revisions
-                                nil current-prefix-arg)))
-     (nconc (list revA revB)
-            (magit-ediff-read-files revA revB))))
+    (pcase-let ((`(,revA ,revB) (magit-ediff-compare--read-revisions
+                                 nil current-prefix-arg)))
+      (nconc (list revA revB)
+             (magit-ediff-read-files revA revB))))
   (magit-ediff-buffers
    ((if revA (magit-get-revision-buffer revA fileA) (get-file-buffer    fileA))
     (if revA (magit-find-file-noselect  revA fileA) (find-file-noselect fileA)))
@@ -499,9 +499,9 @@ and discard changes using Ediff, use `magit-ediff-stage'.
 
 FILE must be relative to the top directory of the repository."
   (interactive
-   (list (magit-read-file-choice "Show staged changes for file"
-                                 (magit-staged-files)
-                                 "No staged files")))
+    (list (magit-read-file-choice "Show staged changes for file"
+                                  (magit-staged-files)
+                                  "No staged files")))
   (magit-ediff-buffers ((magit-get-revision-buffer "HEAD" file)
                         (magit-find-file-noselect "HEAD" file))
                        ((get-buffer (concat file ".~{index}~"))
@@ -516,9 +516,9 @@ and discard changes using Ediff, use `magit-ediff-stage'.
 
 FILE must be relative to the top directory of the repository."
   (interactive
-   (list (magit-read-file-choice "Show unstaged changes for file"
-                                 (magit-unstaged-files)
-                                 "No unstaged files")))
+    (list (magit-read-file-choice "Show unstaged changes for file"
+                                  (magit-unstaged-files)
+                                  "No unstaged files")))
   (magit-ediff-buffers ((get-buffer (concat file ".~{index}~"))
                         (magit-find-file-index-noselect file t))
                        ((get-file-buffer file)
@@ -529,9 +529,9 @@ FILE must be relative to the top directory of the repository."
   "Show changes between `HEAD' and working tree using Ediff.
 FILE must be relative to the top directory of the repository."
   (interactive
-   (list (magit-read-file-choice "Show changes in file"
-                                 (magit-changed-files "HEAD")
-                                 "No changed files")))
+    (list (magit-read-file-choice "Show changes in file"
+                                  (magit-changed-files "HEAD")
+                                  "No changed files")))
   (magit-ediff-buffers ((magit-get-revision-buffer "HEAD" file)
                         (magit-find-file-noselect  "HEAD" file))
                        ((get-file-buffer file)

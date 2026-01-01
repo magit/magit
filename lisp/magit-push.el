@@ -176,11 +176,11 @@ the upstream."
 (defun magit-push-current (target args)
   "Push the current branch to a branch read in the minibuffer."
   (interactive
-   (if-let ((current (magit-get-current-branch)))
-       (list (magit-read-remote-branch (format "Push %s to" current)
-                                       nil nil current 'confirm)
-             (magit-push-arguments))
-     (user-error "No branch is checked out")))
+    (if-let ((current (magit-get-current-branch)))
+        (list (magit-read-remote-branch (format "Push %s to" current)
+                                        nil nil current 'confirm)
+              (magit-push-arguments))
+      (user-error "No branch is checked out")))
   (magit-git-push (magit-get-current-branch) target args))
 
 ;;;###autoload
@@ -188,18 +188,18 @@ the upstream."
   "Push an arbitrary branch or commit somewhere.
 Both the source and the target are read in the minibuffer."
   (interactive
-   (let ((source (magit-read-local-branch-or-commit "Push")))
-     (list source
-           (magit-read-remote-branch
-            (format "Push %s to" source) nil
-            (cond ((magit-local-branch-p source)
-                   (or (magit-get-push-branch source)
-                       (magit-get-upstream-branch source)))
-                  ((magit-rev-ancestor-p source "HEAD")
-                   (or (magit-get-push-branch)
-                       (magit-get-upstream-branch))))
-            source 'confirm)
-           (magit-push-arguments))))
+    (let ((source (magit-read-local-branch-or-commit "Push")))
+      (list source
+            (magit-read-remote-branch
+             (format "Push %s to" source) nil
+             (cond ((magit-local-branch-p source)
+                    (or (magit-get-push-branch source)
+                        (magit-get-upstream-branch source)))
+                   ((magit-rev-ancestor-p source "HEAD")
+                    (or (magit-get-push-branch)
+                        (magit-get-upstream-branch))))
+             source 'confirm)
+            (magit-push-arguments))))
   (magit-git-push source target args))
 
 (defvar magit-push-refspecs-history nil)
@@ -212,12 +212,12 @@ use multiple REFSPECS, separate them with commas.  Completion is
 only available for the part before the colon, or when no colon
 is used."
   (interactive
-   (list (magit-read-remote "Push to remote")
-         (magit-completing-read-multiple
-          "Push refspec,s: "
-          (cons "HEAD" (magit-list-local-branch-names))
-          nil 'any nil 'magit-push-refspecs-history)
-         (magit-push-arguments)))
+    (list (magit-read-remote "Push to remote")
+          (magit-completing-read-multiple
+           "Push refspec,s: "
+           (cons "HEAD" (magit-list-local-branch-names))
+           nil 'any nil 'magit-push-refspecs-history)
+          (magit-push-arguments)))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "push" "-v" args remote refspecs))
 
@@ -246,9 +246,9 @@ branch as default."
 (defun magit-push-tag (tag remote &optional args)
   "Push a tag to another repository."
   (interactive
-   (let  ((tag (magit-read-tag "Push tag")))
-     (list tag (magit-read-remote (format "Push %s to remote" tag) nil t)
-           (magit-push-arguments))))
+    (let  ((tag (magit-read-tag "Push tag")))
+      (list tag (magit-read-remote (format "Push %s to remote" tag) nil t)
+            (magit-push-arguments))))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "push" remote tag args))
 
@@ -256,10 +256,10 @@ branch as default."
 (defun magit-push-notes-ref (ref remote &optional args)
   "Push a notes ref to another repository."
   (interactive
-   (let ((note (magit-notes-read-ref "Push notes")))
-     (list note
-           (magit-read-remote (format "Push %s to remote" note) nil t)
-           (magit-push-arguments))))
+    (let ((note (magit-notes-read-ref "Push notes")))
+      (list note
+            (magit-read-remote (format "Push %s to remote" note) nil t)
+            (magit-push-arguments))))
   (run-hooks 'magit-credential-hook)
   (magit-run-git-async "push" remote ref args))
 

@@ -139,12 +139,12 @@ obsolete version of the commits that are being merged.  Finally
 if `forge-branch-pullreq' was used to create the merged branch,
 then also remove the respective remote branch."
   (interactive
-   (list (let ((branch (magit-get-current-branch)))
-           (magit-read-other-local-branch
-            (format "Merge `%s' into" (or branch (magit-rev-parse "HEAD")))
-            nil
-            (and branch (magit-get-local-upstream-branch branch))))
-         (magit-merge-arguments)))
+    (list (let ((branch (magit-get-current-branch)))
+            (magit-read-other-local-branch
+             (format "Merge `%s' into" (or branch (magit-rev-parse "HEAD")))
+             nil
+             (and branch (magit-get-local-upstream-branch branch))))
+          (magit-merge-arguments)))
   (let ((current (magit-get-current-branch))
         (head (magit-rev-parse "HEAD")))
     (when (zerop (magit-call-git "checkout" branch))
@@ -240,15 +240,15 @@ then also remove the respective remote branch."
 (defun magit-checkout-stage (file arg)
   "During a conflict checkout and stage side, or restore conflict."
   (interactive
-   (let ((file (magit-completing-read "Checkout file"
-                                      (magit-tracked-files) nil 'any nil
-                                      'magit-read-file-hist
-                                      (magit-current-file))))
-     (cond ((member file (magit-unmerged-files))
-            (list file (magit-checkout-read-stage file)))
-           ((yes-or-no-p (format "Restore conflicts in %s? " file))
-            (list file "--merge"))
-           ((user-error "Quit")))))
+    (let ((file (magit-completing-read "Checkout file"
+                                       (magit-tracked-files) nil 'any nil
+                                       'magit-read-file-hist
+                                       (magit-current-file))))
+      (cond ((member file (magit-unmerged-files))
+             (list file (magit-checkout-read-stage file)))
+            ((yes-or-no-p (format "Restore conflicts in %s? " file))
+             (list file "--merge"))
+            ((user-error "Quit")))))
   (pcase (cons arg (cddr (car (magit-file-status file))))
     ((or `("--ours"   ?D ,_)
          '("--ours"   ?U ?A)

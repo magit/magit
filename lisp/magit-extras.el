@@ -60,11 +60,11 @@ alternative commands."
   ["Actions"
    (" m" "Invoke mergetool" magit-git-mergetool)]
   (interactive
-   (if (and (not (eq transient-current-command 'magit-git-mergetool))
-            current-prefix-arg)
-       (list nil nil t)
-     (list (magit-read-unmerged-file "Resolve")
-           (transient-args 'magit-git-mergetool))))
+    (if (and (not (eq transient-current-command 'magit-git-mergetool))
+             current-prefix-arg)
+        (list nil nil t)
+      (list (magit-read-unmerged-file "Resolve")
+            (transient-args 'magit-git-mergetool))))
   (if transient
       (transient-setup 'magit-git-mergetool)
     (magit-run-git-async "mergetool" "--gui" args "--" file)))
@@ -131,18 +131,18 @@ prefix or when the current file cannot be determined let the user
 choose.  When the current buffer is visiting FILENAME instruct
 blame to center around the line point is on."
   (interactive
-   (let (revision filename)
-     (when (or current-prefix-arg
-               (progn
-                 (setq revision "HEAD")
-                 (not (setq filename (magit-file-relative-name nil 'tracked)))))
-       (setq revision (magit-read-branch-or-commit "Blame from revision"))
-       (setq filename (magit-read-file-from-rev revision "Blame file")))
-     (list revision filename
-           (and (equal filename
-                       (ignore-errors
-                         (magit-file-relative-name buffer-file-name)))
-                (line-number-at-pos)))))
+    (let (revision filename)
+      (when (or current-prefix-arg
+                (progn
+                  (setq revision "HEAD")
+                  (not (setq filename (magit-file-relative-name nil 'tracked)))))
+        (setq revision (magit-read-branch-or-commit "Blame from revision"))
+        (setq filename (magit-read-file-from-rev revision "Blame file")))
+      (list revision filename
+            (and (equal filename
+                        (ignore-errors
+                          (magit-file-relative-name buffer-file-name)))
+                 (line-number-at-pos)))))
   (magit-with-toplevel
     (magit-process-git 0 "gui" "blame"
                        (and linenum (list (format "--line=%d" linenum)))
@@ -593,16 +593,16 @@ revision).  If not called inside a repository and with an empty
 stack, or with two prefix arguments, then read the repository in
 the minibuffer too."
   (interactive
-   (if (or current-prefix-arg (not magit-revision-stack))
-       (let ((default-directory
-              (or (and (not (= (prefix-numeric-value current-prefix-arg) 16))
-                       (or (magit-toplevel)
-                           (cadr (car magit-revision-stack))))
-                  (magit-read-repository))))
-         (list (magit-read-branch-or-commit "Insert revision")
-               default-directory))
-     (push (caar magit-revision-stack) magit-revision-history)
-     (pop magit-revision-stack)))
+    (if (or current-prefix-arg (not magit-revision-stack))
+        (let ((default-directory
+               (or (and (not (= (prefix-numeric-value current-prefix-arg) 16))
+                        (or (magit-toplevel)
+                            (cadr (car magit-revision-stack))))
+                   (magit-read-repository))))
+          (list (magit-read-branch-or-commit "Insert revision")
+                default-directory))
+      (push (caar magit-revision-stack) magit-revision-history)
+      (pop magit-revision-stack)))
   (unless rev
     (user-error "Revision stack is empty"))
   (pcase-let ((`(,pnt-format ,eob-format ,idx-format)

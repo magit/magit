@@ -143,11 +143,11 @@ just \"PREFIX_\".  Always forward PROMPT as-is."
 COMMIT may, but does not have to be, a local branch.
 Interactively, use `magit-read-worktree-directory-function'."
   (interactive
-   (let ((commit (magit-read-branch-or-commit
-                  "In new worktree; checkout" nil
-                  (mapcar #'caddr (magit-list-worktrees)))))
-     (list (magit--read-worktree-directory commit (magit-local-branch-p commit))
-           commit)))
+    (let ((commit (magit-read-branch-or-commit
+                   "In new worktree; checkout" nil
+                   (mapcar #'caddr (magit-list-worktrees)))))
+      (list (magit--read-worktree-directory commit (magit-local-branch-p commit))
+            commit)))
   (when (zerop (magit-run-git "worktree" "add"
                               (magit--expand-worktree directory) commit))
     (magit-diff-visit-directory directory)))
@@ -157,11 +157,11 @@ Interactively, use `magit-read-worktree-directory-function'."
   "Create a new BRANCH and check it out in a new worktree at DIRECTORY.
 Interactively, use `magit-read-worktree-directory-function'."
   (interactive
-   (pcase-let
-       ((`(,branch ,start-point)
-         (magit-branch-read-args "In new worktree; checkout new branch")))
-     (list (magit--read-worktree-directory branch t)
-           branch start-point)))
+    (pcase-let
+        ((`(,branch ,start-point)
+          (magit-branch-read-args "In new worktree; checkout new branch")))
+      (list (magit--read-worktree-directory branch t)
+            branch start-point)))
   (when (zerop (magit-run-git "worktree" "add" "-b" branch
                               (magit--expand-worktree directory) start-point))
     (magit-diff-visit-directory directory)))
@@ -170,11 +170,11 @@ Interactively, use `magit-read-worktree-directory-function'."
 (defun magit-worktree-move (worktree directory)
   "Move existing WORKTREE directory to DIRECTORY."
   (interactive
-   (list (magit-completing-read "Move worktree"
-                                (cdr (magit-list-worktrees))
-                                nil t nil nil
-                                (magit-section-value-if 'worktree))
-         (read-directory-name "Move worktree to: ")))
+    (list (magit-completing-read "Move worktree"
+                                 (cdr (magit-list-worktrees))
+                                 nil t nil nil
+                                 (magit-section-value-if 'worktree))
+          (read-directory-name "Move worktree to: ")))
   (if (file-directory-p (expand-file-name ".git" worktree))
       (user-error "You may not move the main working tree")
     (let ((preexisting-directory (file-directory-p directory)))
@@ -194,10 +194,10 @@ Interactively, use `magit-read-worktree-directory-function'."
   "Delete a worktree, defaulting to the worktree at point.
 The primary worktree cannot be deleted."
   (interactive
-   (list (magit-completing-read "Delete worktree"
-                                (mapcar #'car (cdr (magit-list-worktrees)))
-                                nil t nil nil
-                                (magit-section-value-if 'worktree))))
+    (list (magit-completing-read "Delete worktree"
+                                 (mapcar #'car (cdr (magit-list-worktrees)))
+                                 nil t nil nil
+                                 (magit-section-value-if 'worktree))))
   (if (file-directory-p (expand-file-name ".git" worktree))
       (user-error "Deleting %s would delete the shared .git directory" worktree)
     (let ((primary (file-name-as-directory (caar (magit-list-worktrees)))))
@@ -221,13 +221,13 @@ minibuffer.  If the worktree at point is the one whose
 status is already being displayed in the current buffer,
 then show it in Dired instead."
   (interactive
-   (list (or (magit-section-value-if 'worktree)
-             (magit-completing-read
-              "Show status for worktree"
-              (cl-delete (directory-file-name (magit-toplevel))
-                         (magit-list-worktrees)
-                         :test #'equal :key #'car)
-              nil t))))
+    (list (or (magit-section-value-if 'worktree)
+              (magit-completing-read
+               "Show status for worktree"
+               (cl-delete (directory-file-name (magit-toplevel))
+                          (magit-list-worktrees)
+                          :test #'equal :key #'car)
+               nil t))))
   (magit-diff-visit-directory worktree))
 
 (defun magit--expand-worktree (directory)

@@ -146,12 +146,12 @@ Rules that are defined in that file affect all local repositories."
 (defun magit-skip-worktree (file)
   "Call \"git update-index --skip-worktree -- FILE\"."
   (interactive
-   (list (magit-read-file-choice "Skip worktree for"
-                                 (magit-with-toplevel
-                                   (cl-set-difference
-                                    (magit-list-files)
-                                    (magit-skip-worktree-files)
-                                    :test #'equal)))))
+    (list (magit-read-file-choice "Skip worktree for"
+                                  (magit-with-toplevel
+                                    (cl-set-difference
+                                     (magit-list-files)
+                                     (magit-skip-worktree-files)
+                                     :test #'equal)))))
   (magit-with-toplevel
     (magit-run-git "update-index" "--skip-worktree" "--" file)))
 
@@ -159,9 +159,9 @@ Rules that are defined in that file affect all local repositories."
 (defun magit-no-skip-worktree (file)
   "Call \"git update-index --no-skip-worktree -- FILE\"."
   (interactive
-   (list (magit-read-file-choice "Do not skip worktree for"
-                                 (magit-with-toplevel
-                                   (magit-skip-worktree-files)))))
+    (list (magit-read-file-choice "Do not skip worktree for"
+                                  (magit-with-toplevel
+                                    (magit-skip-worktree-files)))))
   (magit-with-toplevel
     (magit-run-git "update-index" "--no-skip-worktree" "--" file)))
 
@@ -171,12 +171,12 @@ Rules that are defined in that file affect all local repositories."
 (defun magit-assume-unchanged (file)
   "Call \"git update-index --assume-unchanged -- FILE\"."
   (interactive
-   (list (magit-read-file-choice "Assume file to be unchanged"
-                                 (magit-with-toplevel
-                                   (cl-set-difference
-                                    (magit-list-files)
-                                    (magit-assume-unchanged-files)
-                                    :test #'equal)))))
+    (list (magit-read-file-choice "Assume file to be unchanged"
+                                  (magit-with-toplevel
+                                    (cl-set-difference
+                                     (magit-list-files)
+                                     (magit-assume-unchanged-files)
+                                     :test #'equal)))))
   (magit-with-toplevel
     (magit-run-git "update-index" "--assume-unchanged" "--" file)))
 
@@ -184,9 +184,9 @@ Rules that are defined in that file affect all local repositories."
 (defun magit-no-assume-unchanged (file)
   "Call \"git update-index --no-assume-unchanged -- FILE\"."
   (interactive
-   (list (magit-read-file-choice "Do not assume file to be unchanged"
-                                 (magit-with-toplevel
-                                   (magit-assume-unchanged-files)))))
+    (list (magit-read-file-choice "Do not assume file to be unchanged"
+                                  (magit-with-toplevel
+                                    (magit-assume-unchanged-files)))))
   (magit-with-toplevel
     (magit-run-git "update-index" "--no-assume-unchanged" "--" file)))
 
