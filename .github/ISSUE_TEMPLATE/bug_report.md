@@ -11,9 +11,10 @@ If you have just updated Magit, then restart Emacs. If that does not fix the iss
 
 The reason why this might fix the issue is that updating a package does not cause the old version to be unloaded, so you might end up with a franken-version; a mixture of parts of the old and new version being loaded at the same time. Worse it is possible for the old version to leak into the byte-code of the new version, which is why reinstalling might help.
 
-Please explain
-    (1) what behavior you expected
-    (2) what behavior you observed
+Please explain,
+    (0) without using these lines as headings,
+    (1) what behavior you expected,
+    (2) what behavior you observed,
     (3) and how we can reproduce the issue.
 
 Please include a backtrace in your report.  In most cases doing:
@@ -26,7 +27,7 @@ Also post the output of:
 
     M-x magit-version RET
 
-Before reporting a defect please try to reproduce it using an Emacs instance in which only Magit and its dependencies have been loaded. Other packages or your configuration should not be loaded. This makes it easier to determine whether the issue lays with Magit or something else.
+Before reporting a defect, please try to reproduce it using an Emacs instance, in which only Magit and its dependencies have been loaded. Other packages or your configuration should not be loaded. This makes it easier to determine whether the issue lays with Magit or something else.
 
 If you run Magit from its Git repository, then you can do so using:
 
