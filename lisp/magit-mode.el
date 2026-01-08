@@ -1179,7 +1179,21 @@ The arguments are for internal use."
       ;; for the wrong buffer.  Originally reported in #4196 and
       ;; fixed with 482c25a3204468a4f6c2fe12ff061666b61f5f4d.
       (let ((magit-section-movement-hook nil))
-        (magit-section-goto-successor section line char)))))
+        (magit-section-goto-successor section line char)
+        ;; To store the point value for the selected window, it isn't
+        ;; enough for it to be current, the window has to "display" it.
+        ;; The effect of `goto-char', used by the above function, is not
+        ;; preserved, and using just `set-window-point' would affect the
+        ;; wrong buffer.
+        (unless (eq (window-dedicated-p) t)
+          (let ((restore (window-buffer))
+                (window-scroll-functions nil)
+                (window-configuration-change-hook nil))
+            (unwind-protect
+                (progn
+                  (set-window-buffer nil (current-buffer) t)
+                  (set-window-point nil (point)))
+              (set-window-buffer nil restore t))))))))
 
 (defun magit-revert-buffer (_ignore-auto _noconfirm)
   "Wrapper around `magit-refresh-buffer' suitable as `revert-buffer-function'."
