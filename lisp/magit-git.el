@@ -1883,11 +1883,11 @@ according to the branch type."
            (magit--propertize-face target 'magit-branch-remote)))))
 
 (defun magit-get-@{push}-branch (&optional branch)
-  (let ((ref (magit-rev-parse "--symbolic-full-name"
-                              (concat branch "@{push}"))))
-    (and ref
-         (string-prefix-p "refs/remotes/" ref)
-         (substring ref 13))))
+  (and-let* ((branch (magit-ref-abbrev (or branch (magit-get-current-branch))))
+             (target (magit-rev-parse "--symbolic-full-name"
+                                      (concat branch "@{push}")))
+             (_(string-prefix-p "refs/remotes/" target)))
+    (substring target 13)))
 
 (defun magit-get-remote (&optional branch)
   (and (or branch (setq branch (magit-get-current-branch)))
