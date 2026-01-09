@@ -560,8 +560,7 @@ that is being reset."
           (magit-reset-hard to))
       (magit-call-git "update-ref"
                       "-m" (format "reset: moving to %s" to)
-                      (magit-git-string "rev-parse" "--symbolic-full-name"
-                                        branch)
+                      (magit-ref-fullname branch)
                       to))
     (when (and set-upstream (magit-branch-p to))
       (magit-set-upstream-branch branch to)
