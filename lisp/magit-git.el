@@ -1874,9 +1874,10 @@ according to the branch type."
 (defun magit-get-push-branch (&optional branch verify)
   (magit--with-refresh-cache
       (list default-directory 'magit-get-push-branch branch verify)
-    (and-let* ((branch (or branch (setq branch (magit-get-current-branch))))
-               (remote (magit-get-push-remote branch))
-               (target (concat remote "/" branch)))
+    (and-let*
+        ((branch (magit-ref-abbrev (or branch (magit-get-current-branch))))
+         (remote (magit-get-push-remote branch))
+         (target (concat remote "/" branch)))
       (and (or (not verify)
                (magit-rev-verify target))
            (magit--propertize-face target 'magit-branch-remote)))))
