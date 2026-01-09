@@ -1884,10 +1884,8 @@ according to the branch type."
 
 (defun magit-get-@{push}-branch (&optional branch)
   (and-let* ((branch (magit-ref-abbrev (or branch (magit-get-current-branch))))
-             (target (magit-rev-parse "--symbolic-full-name"
-                                      (concat branch "@{push}")))
-             (_(string-prefix-p "refs/remotes/" target)))
-    (substring target 13)))
+             (target (magit-ref-fullname (concat branch "@{push}"))))
+    (magit-ref-abbrev target)))
 
 (defun magit-get-remote (&optional branch)
   (and (or branch (setq branch (magit-get-current-branch)))
