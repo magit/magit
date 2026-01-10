@@ -110,34 +110,36 @@ REV is a revision or one of \"{worktree}\" or \"{index}\".  FILE must
 be relative to the top directory of the repository.  Non-nil REVERT
 means to revert the buffer.  If `ask-revert', then only after asking.
 A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
-  (let* ((topdir   (magit-toplevel))
-         (file-abs (expand-file-name file))
-         (file-rel (file-relative-name file topdir))
-         (defdir   (file-name-directory file-abs))
-         (rev      (magit--abbrev-if-hash rev)))
-    (if (equal rev "{worktree}")
-        (let ((revert-without-query
-               (if (and$ (find-buffer-visiting file-abs)
-                         (buffer-local-value 'auto-revert-mode $))
-                   (cons "." revert-without-query)
-                 revert-without-query)))
-          (find-file-noselect file-abs))
-      (with-current-buffer (magit-get-revision-buffer-create rev file-rel)
-        (when (or (not magit-buffer-file-name)
-                  (if (eq revert 'ask-revert)
-                      (y-or-n-p (format "%s already exists; revert it? "
-                                        (buffer-name))))
-                  revert)
-          (setq magit-buffer-revision rev)
-          (setq magit-buffer-refname rev)
-          (setq magit-buffer-file-name file-abs)
-          (setq default-directory (if (file-exists-p defdir) defdir topdir))
-          (setq-local revert-buffer-function #'magit-revert-rev-file-buffer)
-          (revert-buffer t t)
-          (run-hooks (if (equal rev "{index}")
-                         'magit-find-index-hook
-                       'magit-find-file-hook)))
-        (current-buffer)))))
+  (setq file (expand-file-name file))
+  (cond
+    ((equal rev "{worktree}")
+     (let ((revert-without-query
+            (if (and$ (find-buffer-visiting file)
+                      (buffer-local-value 'auto-revert-mode $))
+                (cons "." revert-without-query)
+              revert-without-query)))
+       (find-file-noselect file)))
+    ((let* ((topdir (magit-toplevel))
+            (defdir (file-name-directory file))
+            (rev    (magit--abbrev-if-hash rev)))
+       (with-current-buffer (magit-get-revision-buffer-create
+                             rev
+                             (file-relative-name file topdir))
+         (when (or (not magit-buffer-file-name)
+                   (if (eq revert 'ask-revert)
+                       (y-or-n-p (format "%s already exists; revert it? "
+                                         (buffer-name))))
+                   revert)
+           (setq magit-buffer-revision rev)
+           (setq magit-buffer-refname rev)
+           (setq magit-buffer-file-name file)
+           (setq default-directory (if (file-exists-p defdir) defdir topdir))
+           (setq-local revert-buffer-function #'magit-revert-rev-file-buffer)
+           (revert-buffer t t)
+           (run-hooks (if (equal rev "{index}")
+                          'magit-find-index-hook
+                        'magit-find-file-hook)))
+         (current-buffer))))))
 
 (defun magit-get-revision-buffer-create (rev file)
   (magit-get-revision-buffer rev file t))
