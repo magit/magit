@@ -2115,16 +2115,17 @@ Staging and applying changes is documented in info node
    (if (equal magit-buffer-typearg "--no-index")
        (apply #'format "Differences between %s and %s" magit-buffer-diff-files)
      (concat (cond (magit-buffer-range
-                    (if (string-match-p "\\(\\.\\.\\|\\^-\\)"
-                                        magit-buffer-range)
-                        (format "Changes in %s" magit-buffer-range)
-                      (let ((msg "Changes from %s to %s")
-                            (end (if (equal magit-buffer-typearg "--cached")
-                                     "index"
-                                   "working tree")))
-                        (if (member "-R" magit-buffer-diff-args)
-                            (format msg end magit-buffer-range)
-                          (format msg magit-buffer-range end)))))
+                    (cond-let
+                      ((string-match-p "\\(\\.\\.\\|\\^-\\)"
+                                       magit-buffer-range)
+                       (format "Changes in %s" magit-buffer-range))
+                      [[msg "Changes from %s to %s"]
+                       [end (if (equal magit-buffer-typearg "--cached")
+                                "index"
+                              "working tree")]]
+                      ((member "-R" magit-buffer-diff-args)
+                       (format msg end magit-buffer-range))
+                      ((format msg magit-buffer-range end))))
                    ((equal magit-buffer-typearg "--cached")
                     "Staged changes")
                    ((and (magit-repository-local-get 'this-commit-command)
