@@ -716,11 +716,11 @@ an alternative implementation."
        (setq arg nil)))
     (cond
       ((not
-        (and (eq this-command 'magit-diff-while-committing)
-             (and-let ((buf (magit-get-mode-buffer
-                             'magit-diff-mode nil 'selected)))
-               (and (equal rev (buffer-local-value 'magit-buffer-range buf))
-                    (equal arg (buffer-local-value 'magit-buffer-typearg buf)))))))
+        (and-let*
+            ((_(eq this-command 'magit-diff-while-committing))
+             (buf (magit-get-mode-buffer 'magit-diff-mode nil 'selected))
+             (_(equal rev (buffer-local-value 'magit-buffer-range buf)))
+             (_(equal arg (buffer-local-value 'magit-buffer-typearg buf)))))))
       ((eq command 'magit-commit-amend)
        (setq rev nil))
       ((or squash
