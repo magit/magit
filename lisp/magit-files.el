@@ -122,6 +122,9 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
        (current-buffer)))
     ((error "%s isn't inside a Git repository" file))))
 
+(defun magit-find-file-hidden (rev file)
+  (magit-find-file-noselect (or rev "{worktree}") file))
+
 (defun magit-get-revision-buffer-create (rev file)
   (magit-get-revision-buffer rev file t))
 
