@@ -631,7 +631,7 @@ See also info node `(magit)Section Movement'."
                        'font-lock-face
                        (list :weight 'normal :foreground
                              (face-attribute 'default :foreground)))))
-  (setq magit-buffer-revision-oid (magit-rev-parse magit-buffer-revision))
+  (setq magit-buffer-revision-oid (magit-rev-hash magit-buffer-revision))
   (magit-insert-section (stash)
     (magit-run-section-hook 'magit-stash-sections-hook)))
 
