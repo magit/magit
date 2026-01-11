@@ -1131,7 +1131,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   (require 'magit)
   (with-current-buffer
       (magit-setup-buffer #'magit-log-mode locked
-        (magit-buffer-revisions revs)
+        (magit-buffer-log-revisions revs)
         (magit-buffer-log-args args)
         (magit-buffer-log-files files))
     (when (if focus
@@ -1141,7 +1141,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     (current-buffer)))
 
 (defun magit-log-refresh-buffer ()
-  (let ((revs  magit-buffer-revisions)
+  (let ((revs  magit-buffer-log-revisions)
         (args  magit-buffer-log-args)
         (files magit-buffer-log-files)
         (limit (magit-log-get-commit-limit)))
@@ -1197,8 +1197,8 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   args)
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-log-mode))
-  (append magit-buffer-revisions
-          (if (and magit-buffer-revisions magit-buffer-log-files)
+  (append magit-buffer-log-revisions
+          (if (and magit-buffer-log-revisions magit-buffer-log-files)
               (cons "--" magit-buffer-log-files)
             magit-buffer-log-files)))
 
@@ -1779,20 +1779,20 @@ Type \\[magit-log-select-quit] to abort without selecting a commit."
 
 (defun magit-log-select-setup-buffer (revs args)
   (magit-setup-buffer #'magit-log-select-mode nil
-    (magit-buffer-revisions revs)
+    (magit-buffer-log-revisions revs)
     (magit-buffer-log-args args)))
 
 (defun magit-log-select-refresh-buffer ()
   (setq magit-section-inhibit-markers t)
   (setq magit-section-insert-in-reverse t)
   (magit-insert-section (logbuf)
-    (magit--insert-log t magit-buffer-revisions
+    (magit--insert-log t magit-buffer-log-revisions
       (magit-log--maybe-drop-color-graph
        magit-buffer-log-args
        (magit-log-get-commit-limit)))))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-log-select-mode))
-  magit-buffer-revisions)
+  magit-buffer-log-revisions)
 
 (defvar-local magit-log-select-pick-function nil)
 (defvar-local magit-log-select-quit-function nil)

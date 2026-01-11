@@ -112,13 +112,13 @@
 ;;;; Log
 
 (put 'magit-log-mode 'magit-bookmark-variables
-     '(magit-buffer-revisions
+     '(magit-buffer-log-revisions
        magit-buffer-log-args
        magit-buffer-log-files))
 
 (cl-defmethod magit-bookmark-name (&context (major-mode magit-log-mode))
   (format "magit-log(%s%s)"
-          (string-join magit-buffer-revisions " ")
+          (string-join magit-buffer-log-revisions " ")
           (if magit-buffer-log-files
               (concat " -- " (string-join magit-buffer-log-files " "))
             "")))

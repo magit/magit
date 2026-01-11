@@ -600,7 +600,7 @@ Magit is documented in info node `(magit)'."
 ;; Preserve when refreshing status buffer.
 (put 'magit-buffer-diff-files-suspended 'permanent-local t)
 
-(defvar-local magit-buffer-revisions nil)
+(defvar-local magit-buffer-log-revisions nil)
 (defvar-local magit-buffer-log-args nil)
 (defvar-local magit-buffer-log-files nil)
 
