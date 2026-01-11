@@ -53,6 +53,9 @@
 (declare-function magit-current-blame-chunk "magit-blame" (&optional type noerror))
 (declare-function magit-blame-mode "magit-blame" (&optional arg))
 (defvar magit-blame-mode)
+;; For `magit-show-commit--arguments' and `magit-diff-wash-diff'
+(defvar magit-buffer-log-args)
+(defvar magit-buffer-log-files)
 ;; For `magit-diff-show-or-scroll'
 (declare-function git-rebase-current-line "git-rebase" (&optional batch))
 ;; For `magit-diff-unmerged'
@@ -824,6 +827,19 @@ and `:slant'."
     (((class color) (background  dark)) :foreground "#aa4444"))
   "Face for removal indicator in diffstat."
   :group 'magit-faces)
+
+;;; Variables
+
+(defvar-local magit-buffer-diff-range nil)
+(defvar-local magit-buffer-diff-range-oids nil)
+(defvar-local magit-buffer-diff-type nil)
+(defvar-local magit-buffer-diff-typearg nil)
+(defvar-local magit-buffer-diff-args nil)
+(defvar-local magit-buffer-diff-files nil)
+(defvar-local magit-buffer-diff-files-suspended nil)
+
+;; Preserve when refreshing status buffer.
+(put 'magit-buffer-diff-files-suspended 'permanent-local t)
 
 ;;; Arguments
 ;;;; Prefix Classes

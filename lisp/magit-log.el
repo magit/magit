@@ -374,6 +374,12 @@ commits before and half after."
   :group 'magit-log
   :type 'integer)
 
+;;; Variables
+
+(defvar-local magit-buffer-log-revisions nil)
+(defvar-local magit-buffer-log-args nil)
+(defvar-local magit-buffer-log-files nil)
+
 ;;; Arguments
 ;;;; Prefix Classes
 
@@ -1880,6 +1886,9 @@ Type \\[magit-cherry-pick] to apply the commit at point.
   :group 'magit-log
   (magit-hack-dir-local-variables)
   (setq magit--imenu-group-types 'cherries))
+
+(defvar-local magit-buffer-cherry-upstream nil)
+(defvar-local magit-buffer-cherry-range nil)
 
 (defun magit-cherry-setup-buffer (head upstream)
   (magit-setup-buffer #'magit-cherry-mode nil

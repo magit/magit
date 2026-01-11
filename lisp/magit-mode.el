@@ -588,27 +588,6 @@ Magit is documented in info node `(magit)'."
 (put 'magit-buffer-revision-oid 'permanent-local t)
 (put 'magit-buffer-file-name 'permanent-local t)
 
-(defvar-local magit-buffer-diff-range nil)
-(defvar-local magit-buffer-diff-range-oids nil)
-(defvar-local magit-buffer-diff-type nil)
-(defvar-local magit-buffer-diff-typearg nil)
-(defvar-local magit-buffer-diff-args nil)
-(defvar-local magit-buffer-diff-files nil)
-(defvar-local magit-buffer-diff-files-suspended nil)
-
-;; Preserve when refreshing status buffer.
-(put 'magit-buffer-diff-files-suspended 'permanent-local t)
-
-(defvar-local magit-buffer-log-revisions nil)
-(defvar-local magit-buffer-log-args nil)
-(defvar-local magit-buffer-log-files nil)
-
-(defvar-local magit-buffer-cherry-upstream nil)
-(defvar-local magit-buffer-cherry-range nil)
-
-(defvar-local magit-buffer-refs-upstream nil)
-(defvar-local magit-buffer-refs-args nil)
-
 (eval-and-compile
   (defvar magit-define-aliases-for:magit-buffer-* t)
   (when magit-define-aliases-for:magit-buffer-*

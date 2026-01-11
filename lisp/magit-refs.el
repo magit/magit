@@ -308,6 +308,9 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
   (magit-hack-dir-local-variables)
   (setq magit--imenu-group-types '(local remote tags)))
 
+(defvar-local magit-buffer-refs-args nil)
+(defvar-local magit-buffer-refs-upstream nil)
+
 (defun magit-refs-setup-buffer (ref args)
   (magit-setup-buffer #'magit-refs-mode nil
     (magit-buffer-refs-upstream ref)
