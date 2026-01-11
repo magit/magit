@@ -57,7 +57,7 @@
 
 (put 'magit-diff-mode 'magit-bookmark-variables
      '(magit-buffer-diff-range-oids
-       magit-buffer-typearg
+       magit-buffer-diff-typearg
        magit-buffer-diff-args
        magit-buffer-diff-files))
 
@@ -69,7 +69,7 @@
             ('committed magit-buffer-diff-range)
             ('undefined
              (delq nil
-                   (list magit-buffer-typearg magit-buffer-diff-range-oids))))
+                   (list magit-buffer-diff-typearg magit-buffer-diff-range-oids))))
           (if magit-buffer-diff-files
               (concat " -- " (string-join magit-buffer-diff-files " "))
             "")))

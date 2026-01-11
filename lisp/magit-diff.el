@@ -1760,7 +1760,8 @@ the Magit-Status buffer for DIRECTORY."
   (pcase-let*
       ((`(,old ,new)  (magit-diff-visit--sides))
        (goto-from     (and (not goto-file) (magit-diff-on-removed-line-p)))
-       (goto-file     (or goto-file (equal magit-buffer-typearg "--no-index")))
+       (goto-file     (or goto-file
+                          (equal magit-buffer-diff-typearg "--no-index")))
        (`(,rev ,file) (if goto-from old new))
        (buffer        (magit-find-file-noselect (if goto-file "{worktree}" rev)
                                                 file)))
@@ -1789,7 +1790,7 @@ the Magit-Status buffer for DIRECTORY."
                   ('unmerged  (cons "{worktree}" "{worktree}"))
                   ('undefined (cons "{worktree}" "{worktree}")) ;--no-index
                   (_          (error "BUG: Unexpected diff type %s" spec)))))
-    (when (equal magit-buffer-typearg "--no-index")
+    (when (equal magit-buffer-diff-typearg "--no-index")
       (setq old-file (concat "/" old-file))
       (setq new-file (concat "/" new-file)))
     (list (list old-rev old-file)
@@ -2105,7 +2106,7 @@ Staging and applying changes is documented in info node
   (require 'magit)
   (magit-setup-buffer #'magit-diff-mode locked
     (magit-buffer-diff-range range)
-    (magit-buffer-typearg typearg)
+    (magit-buffer-diff-typearg typearg)
     (magit-buffer-diff-type type)
     (magit-buffer-diff-args args)
     (magit-buffer-diff-files files)
@@ -2114,7 +2115,7 @@ Staging and applying changes is documented in info node
 (defun magit-diff-refresh-buffer ()
   "Refresh the current `magit-diff-mode' buffer."
   (magit-set-header-line-format
-   (if (equal magit-buffer-typearg "--no-index")
+   (if (equal magit-buffer-diff-typearg "--no-index")
        (apply #'format "Differences between %s and %s" magit-buffer-diff-files)
      (concat (cond (magit-buffer-diff-range
                     (cond-let
@@ -2122,13 +2123,13 @@ Staging and applying changes is documented in info node
                                        magit-buffer-diff-range)
                        (format "Changes in %s" magit-buffer-diff-range))
                       [[msg "Changes from %s to %s"]
-                       [end (if (equal magit-buffer-typearg "--cached")
+                       [end (if (equal magit-buffer-diff-typearg "--cached")
                                 "index"
                               "working tree")]]
                       ((member "-R" magit-buffer-diff-args)
                        (format msg end magit-buffer-diff-range))
                       ((format msg magit-buffer-diff-range end))))
-                   ((equal magit-buffer-typearg "--cached")
+                   ((equal magit-buffer-diff-typearg "--cached")
                     "Staged changes")
                    ((and (magit-repository-local-get 'this-commit-command)
                          (not (magit-anything-staged-p)))
@@ -2146,11 +2147,12 @@ Staging and applying changes is documented in info node
     (magit-run-section-hook 'magit-diff-sections-hook)))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-diff-mode))
-  (nconc (cond (magit-buffer-diff-range
-                (delq nil (list magit-buffer-diff-range magit-buffer-typearg)))
-               ((equal magit-buffer-typearg "--cached")
-                (list 'staged))
-               ((list 'unstaged magit-buffer-typearg)))
+  (nconc (cond
+           (magit-buffer-diff-range
+            (delq nil (list magit-buffer-diff-range magit-buffer-diff-typearg)))
+           ((equal magit-buffer-diff-typearg "--cached")
+            (list 'staged))
+           ((list 'unstaged magit-buffer-diff-typearg)))
          (and magit-buffer-diff-files (cons "--" magit-buffer-diff-files))))
 
 (cl-defmethod magit-menu-common-value ((_section magit-diff-section))
@@ -2244,7 +2246,7 @@ keymap is the parent of their keymaps."
   (magit--insert-diff t
     "diff" magit-buffer-diff-range "-p" "--no-prefix"
     (and (member "--stat" magit-buffer-diff-args) "--numstat")
-    magit-buffer-typearg
+    magit-buffer-diff-typearg
     magit-buffer-diff-args "--"
     magit-buffer-diff-files))
 
@@ -3239,7 +3241,7 @@ Do not confuse this with `magit-diff-scope' (which see)."
     (cond ((derived-mode-p 'magit-revision-mode 'magit-stash-mode) 'committed)
           ((derived-mode-p 'magit-diff-mode)
            (let ((range magit-buffer-diff-range)
-                 (const magit-buffer-typearg))
+                 (const magit-buffer-diff-typearg))
              (cond (magit-buffer-diff-type)
                    ((equal const "--no-index") 'undefined)
                    ((or (not range)
@@ -3360,7 +3362,7 @@ actually a `diff' but a `diffstat' section."
                             (magit-diff-on-removed-line-p)
                             (oref file-section source))
                        (oref file-section value))))
-    (if (equal magit-buffer-typearg "--no-index")
+    (if (equal magit-buffer-diff-typearg "--no-index")
         (concat "/" file)
       (expand-file-name file (magit-toplevel)))))
 
