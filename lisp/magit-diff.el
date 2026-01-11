@@ -1938,24 +1938,25 @@ commit or stash at point, then prompt for a commit."
           (setq rev (oref it value))
           (setq cmd #'magit-stash-show)
           (setq buf (magit-get-mode-buffer 'magit-stash-mode))))))
-    (if rev
-        (if-let* ((_ buf)
-                  (win (get-buffer-window buf))
-                  (_ (equal (buffer-local-value 'magit-buffer-revision buf) rev))
-                  (_ (equal (buffer-local-value 'magit-buffer-revision-oid buf)
-                            (magit-rev-parse rev))))
-            (with-selected-window win
-              (condition-case nil
-                  (funcall fn)
-                (error
-                 (pcase-exhaustive fn
-                   ('scroll-up   (goto-char (point-min)))
-                   ('scroll-down (goto-char (point-max)))))))
-          (let ((magit-display-buffer-noselect t))
-            (if (eq cmd #'magit-show-commit)
-                (apply #'magit-show-commit rev (magit-show-commit--arguments))
-              (funcall cmd rev))))
-      (call-interactively #'magit-show-commit))))
+    (cond-let*
+      ((not rev)
+       (call-interactively #'magit-show-commit))
+      ([_ buf]
+       [win (get-buffer-window buf)]
+       [_ (equal (buffer-local-value 'magit-buffer-revision buf) rev)]
+       [_ (equal (buffer-local-value 'magit-buffer-revision-oid buf)
+                 (magit-rev-parse rev))]
+       (with-selected-window win
+         (condition-case nil
+             (funcall fn)
+           (error
+            (pcase-exhaustive fn
+              ('scroll-up   (goto-char (point-min)))
+              ('scroll-down (goto-char (point-max))))))))
+      [[magit-display-buffer-noselect t]]
+      ((eq cmd #'magit-show-commit)
+       (apply #'magit-show-commit rev (magit-show-commit--arguments)))
+      ((funcall cmd rev)))))
 
 ;;;; Section Commands
 
