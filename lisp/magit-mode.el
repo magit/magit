@@ -609,6 +609,30 @@ Magit is documented in info node `(magit)'."
 (defvar-local magit-buffer-refs-upstream nil)
 (defvar-local magit-buffer-refs-args nil)
 
+(eval-and-compile
+  (defvar magit-define-aliases-for:magit-buffer-* t)
+  (when magit-define-aliases-for:magit-buffer-*
+    ;; Unfortunately defvar-local can only be used at top-level,
+    ;; so instead we have to use make-variable-buffer-local below.
+    (defvar magit-buffer-arguments nil)
+    (make-obsolete-variable 'magit-buffer-arguments
+      "use a mode- or package-specific `magit-buffer-{*}-args' instead"
+      "magit 4.6.0")
+    (defvar magit-buffer-upstream nil)
+    (make-obsolete-variable 'magit-buffer-upstream
+      "use a mode- or package-specific `magit-buffer-{*}-upstream' instead"
+      "magit 4.6.0")
+    (define-obsolete-variable-alias 'magit-buffer-range-hashed
+      'magit-buffer-diff-range-oids "magit 4.6.0")
+    (define-obsolete-variable-alias 'magit-buffer-revisions
+      'magit-buffer-log-revisions "magit 4.6.0")
+    (define-obsolete-variable-alias 'magit-buffer-revision-hash
+      'magit-buffer-revision-oid "magit 4.6.0")
+    (define-obsolete-variable-alias 'magit-buffer-typearg
+      'magit-buffer-diff-typearg "magit 4.6.0")))
+(make-variable-buffer-local 'magit-buffer-arguments)
+(make-variable-buffer-local 'magit-buffer-upstream)
+
 (defun magit-buffer-file-name ()
   "Return `magit-buffer-file-name' or if that is nil `buffer-file-name'.
 In an indirect buffer get the value for its base buffer."
