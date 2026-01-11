@@ -1906,7 +1906,7 @@ commit or stash at point, then prompt for a commit."
   (magit-diff-show-or-scroll #'scroll-down))
 
 (defun magit-diff-show-or-scroll (fn)
-  (let (rev cmd buf win)
+  (let (rev cmd buf)
     (cond
       ((and (bound-and-true-p magit-blame-mode)
             (fboundp 'magit-current-blame-chunk))
@@ -1939,11 +1939,11 @@ commit or stash at point, then prompt for a commit."
           (setq cmd #'magit-stash-show)
           (setq buf (magit-get-mode-buffer 'magit-stash-mode))))))
     (if rev
-        (if (and buf
-                 (setq win (get-buffer-window buf))
-                 (equal (buffer-local-value 'magit-buffer-revision buf) rev)
-                 (equal (buffer-local-value 'magit-buffer-revision-oid buf)
-                        (magit-rev-parse rev)))
+        (if-let* ((_ buf)
+                  (win (get-buffer-window buf))
+                  (_ (equal (buffer-local-value 'magit-buffer-revision buf) rev))
+                  (_ (equal (buffer-local-value 'magit-buffer-revision-oid buf)
+                            (magit-rev-parse rev))))
             (with-selected-window win
               (condition-case nil
                   (funcall fn)
