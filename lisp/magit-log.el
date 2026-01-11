@@ -1885,7 +1885,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
   (magit-setup-buffer #'magit-cherry-mode nil
     (magit-buffer-refname head)
     (magit-buffer-upstream upstream)
-    (magit-buffer-range (concat upstream ".." head))))
+    (magit-buffer-cherry-range (concat upstream ".." head))))
 
 (defun magit-cherry-refresh-buffer ()
   (setq magit-section-insert-in-reverse t)
@@ -1893,7 +1893,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
     (magit-run-section-hook 'magit-cherry-sections-hook)))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-cherry-mode))
-  magit-buffer-range)
+  magit-buffer-cherry-range)
 
 ;;;###autoload
 (defun magit-cherry (head upstream)
