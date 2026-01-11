@@ -126,12 +126,12 @@
 
 (put 'magit-cherry-mode 'magit-bookmark-variables
      '(magit-buffer-refname
-       magit-buffer-upstream))
+       magit-buffer-cherry-upstream))
 
 (cl-defmethod magit-bookmark-name (&context (major-mode magit-cherry-mode))
   (format "magit-cherry(%s > %s)"
           magit-buffer-refname
-          magit-buffer-upstream))
+          magit-buffer-cherry-upstream))
 
 ;;;; Reflog
 

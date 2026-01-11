@@ -604,8 +604,8 @@ Magit is documented in info node `(magit)'."
 (defvar-local magit-buffer-log-args nil)
 (defvar-local magit-buffer-log-files nil)
 
+(defvar-local magit-buffer-cherry-upstream nil)
 (defvar-local magit-buffer-cherry-range nil)
-(defvar-local magit-buffer-upstream nil)
 
 (defvar-local magit-buffer-refs-upstream nil)
 (defvar-local magit-buffer-refs-args nil)

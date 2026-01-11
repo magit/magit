@@ -1884,7 +1884,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 (defun magit-cherry-setup-buffer (head upstream)
   (magit-setup-buffer #'magit-cherry-mode nil
     (magit-buffer-refname head)
-    (magit-buffer-upstream upstream)
+    (magit-buffer-cherry-upstream upstream)
     (magit-buffer-cherry-range (concat upstream ".." head))))
 
 (defun magit-cherry-refresh-buffer ()
@@ -1909,10 +1909,11 @@ Type \\[magit-cherry-pick] to apply the commit at point.
   "Insert headers appropriate for `magit-cherry-mode' buffers."
   (let ((branch (propertize magit-buffer-refname
                             'font-lock-face 'magit-branch-local))
-        (upstream (propertize magit-buffer-upstream 'font-lock-face
-                              (if (magit-local-branch-p magit-buffer-upstream)
-                                  'magit-branch-local
-                                'magit-branch-remote))))
+        (upstream (propertize
+                   magit-buffer-cherry-upstream 'font-lock-face
+                   (if (magit-local-branch-p magit-buffer-cherry-upstream)
+                       'magit-branch-local
+                     'magit-branch-remote))))
     (magit-insert-head-branch-header branch)
     (magit-insert-upstream-branch-header branch upstream "Upstream: ")
     (insert ?\n)))
@@ -1923,7 +1924,7 @@ Type \\[magit-cherry-pick] to apply the commit at point.
     (magit-insert-heading t "Cherry commits")
     (magit-git-wash (apply-partially #'magit-log-wash-log 'cherry)
       "cherry" "-v" "--abbrev"
-      magit-buffer-upstream
+      magit-buffer-cherry-upstream
       magit-buffer-refname)))
 
 ;;; Log Sections
