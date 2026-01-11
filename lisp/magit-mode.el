@@ -606,7 +606,7 @@ Magit is documented in info node `(magit)'."
 
 (defvar-local magit-buffer-upstream nil)
 
-(defvar-local magit-buffer-arguments nil)
+(defvar-local magit-buffer-refs-args nil)
 
 (defun magit-buffer-file-name ()
   "Return `magit-buffer-file-name' or if that is nil `buffer-file-name'.

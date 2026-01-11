@@ -311,7 +311,7 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (defun magit-refs-setup-buffer (ref args)
   (magit-setup-buffer #'magit-refs-mode nil
     (magit-buffer-upstream ref)
-    (magit-buffer-arguments args)))
+    (magit-buffer-refs-args args)))
 
 (defun magit-refs-refresh-buffer ()
   (setq magit--right-margin-delayed (not (magit--right-margin-active)))
@@ -319,13 +319,13 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     (setq magit-refs-show-commit-count nil))
   (magit-set-header-line-format
    (format "%s %s" magit-buffer-upstream
-           (string-join magit-buffer-arguments " ")))
+           (string-join magit-buffer-refs-args " ")))
   (magit-insert-section (branchbuf)
     (magit-run-section-hook 'magit-refs-sections-hook))
   (add-hook 'kill-buffer-hook #'magit-preserve-section-visibility-cache))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-refs-mode))
-  (cons magit-buffer-upstream magit-buffer-arguments))
+  (cons magit-buffer-upstream magit-buffer-refs-args))
 
 ;;; Commands
 
@@ -360,11 +360,11 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
     ((eq transient-current-command 'magit-show-refs)
      (transient-args 'magit-show-refs))
     ((eq major-mode 'magit-refs-mode)
-     magit-buffer-arguments)
+     magit-buffer-refs-args)
     ([_(memq use-buffer-args '(always selected))]
      [buffer (magit-get-mode-buffer 'magit-refs-mode nil
                                     (eq use-buffer-args 'selected))]
-     (buffer-local-value 'magit-buffer-arguments buffer))
+     (buffer-local-value 'magit-buffer-refs-args buffer))
     ((alist-get 'magit-show-refs transient-values))))
 
 (transient-define-argument magit-for-each-ref:--contains ()
@@ -540,7 +540,7 @@ line is inserted at all."
 
 (defun magit-insert-tags ()
   "Insert sections showing all tags."
-  (when-let ((tags (magit-git-lines "tag" "--list" "-n" magit-buffer-arguments)))
+  (when-let ((tags (magit-git-lines "tag" "--list" "-n" magit-buffer-refs-args)))
     (let ((_head (magit-rev-parse "HEAD")))
       (magit-insert-section (tags)
         (magit-insert-heading (length tags) "Tags")
@@ -581,7 +581,7 @@ line is inserted at all."
         (dolist (line (magit-git-lines "for-each-ref" "--format=\
 %(symref:short)%00%(refname:short)%00%(refname)%00%(subject)"
                                        (concat "refs/remotes/" remote)
-                                       magit-buffer-arguments))
+                                       magit-buffer-refs-args))
           (pcase-let ((`(,head-branch ,branch ,ref ,msg)
                        (cl-substitute nil ""
                                       (split-string line "\0")
@@ -661,7 +661,7 @@ line is inserted at all."
 %(push:remotename)%00%(push)%00%(push:track)%00%(subject)"
                                     "%00%00%00%(subject)"))
                           "refs/heads"
-                          magit-buffer-arguments))))
+                          magit-buffer-refs-args))))
     (unless (magit-get-current-branch)
       (push (magit-refs--format-local-branch
              (concat "*\0\0\0\0\0\0\0\0" (magit-rev-format "%s")))
