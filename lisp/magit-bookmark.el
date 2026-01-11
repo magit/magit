@@ -146,7 +146,7 @@
 (put 'magit-status-mode 'magit-bookmark-variables nil)
 
 (put 'magit-refs-mode 'magit-bookmark-variables
-     '(magit-buffer-upstream
+     '(magit-buffer-refs-upstream
        magit-buffer-refs-args))
 
 (put 'magit-stashes-mode 'magit-bookmark-variables nil)
