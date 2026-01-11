@@ -1941,17 +1941,16 @@ commit or stash at point, then prompt for a commit."
     (if rev
         (if (and buf
                  (setq win (get-buffer-window buf))
-                 (with-current-buffer buf
-                   (and (equal rev magit-buffer-revision)
-                        (equal (magit-rev-parse rev)
-                               magit-buffer-revision-oid))))
+                 (equal (buffer-local-value 'magit-buffer-revision buf) rev)
+                 (equal (buffer-local-value 'magit-buffer-revision-oid buf)
+                        (magit-rev-parse rev)))
             (with-selected-window win
               (condition-case nil
                   (funcall fn)
                 (error
-                 (goto-char (pcase fn
-                              ('scroll-up   (point-min))
-                              ('scroll-down (point-max)))))))
+                 (pcase-exhaustive fn
+                   ('scroll-up   (goto-char (point-min)))
+                   ('scroll-down (goto-char (point-max)))))))
           (let ((magit-display-buffer-noselect t))
             (if (eq cmd #'magit-show-commit)
                 (apply #'magit-show-commit rev (magit-show-commit--arguments))
