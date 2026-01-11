@@ -589,8 +589,8 @@ Magit is documented in info node `(magit)'."
 (put 'magit-buffer-revision-hash 'permanent-local t)
 (put 'magit-buffer-file-name 'permanent-local t)
 
-(defvar-local magit-buffer-range nil)
-(defvar-local magit-buffer-range-hashed nil)
+(defvar-local magit-buffer-diff-range nil)
+(defvar-local magit-buffer-diff-range-oids nil)
 (defvar-local magit-buffer-diff-type nil)
 (defvar-local magit-buffer-typearg nil)
 (defvar-local magit-buffer-diff-args nil)

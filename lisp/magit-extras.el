@@ -737,9 +737,9 @@ abbreviated revision to the `kill-ring' and the
               (cl-case major-mode
                 (magit-diff-mode
                  (if (string-match "\\.\\.\\.?\\(.+\\)"
-                                   magit-buffer-range)
-                     (match-str 1 magit-buffer-range)
-                   magit-buffer-range))
+                                   magit-buffer-diff-range)
+                     (match-str 1 magit-buffer-diff-range)
+                   magit-buffer-diff-range))
                 (magit-status-mode "HEAD")))]
      [_(magit-commit-p rev)]
      (setq rev (magit-rev-parse

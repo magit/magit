@@ -620,7 +620,7 @@ See also info node `(magit)Section Movement'."
 (defun magit-stash-setup-buffer (stash args files)
   (magit-setup-buffer #'magit-stash-mode nil
     (magit-buffer-revision stash)
-    (magit-buffer-range (format "%s^..%s" stash stash))
+    (magit-buffer-diff-range (format "%s^..%s" stash stash))
     (magit-buffer-diff-args args)
     (magit-buffer-diff-files files)))
 

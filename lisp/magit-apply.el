@@ -717,9 +717,9 @@ so causes the change to be applied to the index as well."
   (pcase-let ((`(,binaries ,sections)
                (let ((bs (magit-binary-files
                           (cond ((derived-mode-p 'magit-revision-mode)
-                                 magit-buffer-range)
+                                 magit-buffer-diff-range)
                                 ((derived-mode-p 'magit-diff-mode)
-                                 magit-buffer-range)
+                                 magit-buffer-diff-range)
                                 ("--cached")))))
                  (magit--separate (##member (oref % value) bs)
                                   sections))))

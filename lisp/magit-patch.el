@@ -286,7 +286,7 @@ same differences as those shown in the buffer are always used."
                      current-prefix-arg))
   (unless (derived-mode-p 'magit-diff-mode)
     (user-error "Only diff buffers can be saved as patches"))
-  (let ((rev     magit-buffer-range)
+  (let ((rev     magit-buffer-diff-range)
         (typearg magit-buffer-typearg)
         (args    magit-buffer-diff-args)
         (files   magit-buffer-diff-files))

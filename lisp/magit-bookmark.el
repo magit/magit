@@ -56,7 +56,7 @@
 ;;;; Diff
 
 (put 'magit-diff-mode 'magit-bookmark-variables
-     '(magit-buffer-range-hashed
+     '(magit-buffer-diff-range-oids
        magit-buffer-typearg
        magit-buffer-diff-args
        magit-buffer-diff-files))
@@ -66,9 +66,10 @@
           (pcase (magit-diff-type)
             ('staged "staged")
             ('unstaged "unstaged")
-            ('committed magit-buffer-range)
+            ('committed magit-buffer-diff-range)
             ('undefined
-             (delq nil (list magit-buffer-typearg magit-buffer-range-hashed))))
+             (delq nil
+                   (list magit-buffer-typearg magit-buffer-diff-range-oids))))
           (if magit-buffer-diff-files
               (concat " -- " (string-join magit-buffer-diff-files " "))
             "")))
