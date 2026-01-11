@@ -779,7 +779,7 @@ restrict the log to the lines that the region touches."
   (require 'magit)
   (if-let ((file (magit-file-relative-name)))
       (magit-log-setup-buffer
-       (list (or magit-buffer-refname
+       (list (or magit-buffer-revision
                  (magit-get-current-branch)
                  "HEAD"))
        (let ((args (car (magit-log-arguments))))
@@ -802,7 +802,7 @@ restrict the log to the lines that the region touches."
                          (user-error "Buffer isn't visiting a file"))
                      (or (funcall magit-log-trace-definition-function)
                          (user-error "No function at point found"))
-                     (or magit-buffer-refname
+                     (or magit-buffer-revision
                          (magit-get-current-branch)
                          "HEAD")))
   (require 'magit)

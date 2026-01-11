@@ -131,7 +131,6 @@ A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
                                        (buffer-name))))
                  revert)
          (setq magit-buffer-revision rev)
-         (setq magit-buffer-refname rev)
          (setq magit-buffer-file-name file)
          (setq default-directory (if (file-exists-p defdir) defdir topdir))
          (setq-local revert-buffer-function #'magit-revert-rev-file-buffer)
@@ -157,18 +156,18 @@ A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
                      (when (string-match regexp magit-buffer-file-name)
                        (throw 'found t)))))
             (yes-or-no-p (format "Revert buffer from Git %s? "
-                                 (if (equal magit-buffer-refname "{index}")
+                                 (if (equal magit-buffer-revision "{index}")
                                      "index"
-                                   (concat "revision " magit-buffer-refname)))))
+                                   (concat "revision " magit-buffer-revision)))))
     (let* ((inhibit-read-only t)
            (default-directory (magit-toplevel))
            (file (file-relative-name magit-buffer-file-name))
            (coding-system-for-read (or coding-system-for-read 'undecided)))
       (erase-buffer)
       (magit-git-insert "cat-file" "-p"
-                        (if (equal magit-buffer-refname "{index}")
+                        (if (equal magit-buffer-revision "{index}")
                             (concat ":" file)
-                          (concat magit-buffer-refname ":" file)))
+                          (concat magit-buffer-revision ":" file)))
       (setq buffer-file-coding-system last-coding-system-used))
     (let ((buffer-file-name magit-buffer-file-name)
           (after-change-major-mode-hook
@@ -207,7 +206,7 @@ The current buffer has to be visiting a file in the index, which
 is done using `magit-find-index-noselect'."
   (interactive)
   (let ((file (magit-file-relative-name)))
-    (unless (equal magit-buffer-refname "{index}")
+    (unless (equal magit-buffer-revision "{index}")
       (user-error "%s isn't visiting the index" file))
     (if (y-or-n-p (format "Update index with contents of %s?" (buffer-name)))
         (let ((index (make-temp-name

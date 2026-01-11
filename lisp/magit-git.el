@@ -48,7 +48,6 @@
 (defvar magit-buffer-file-name)
 (defvar magit-buffer-log-args)
 (defvar magit-buffer-log-files)
-(defvar magit-buffer-refname)
 (defvar magit-buffer-revision)
 
 ;; From `magit-process'.
@@ -1682,7 +1681,7 @@ to, or to some other symbolic-ref that points to the same ref."
                             (magit-current-blame-chunk))))
         (oref chunk orig-rev))
       (and magit-buffer-file-name
-           magit-buffer-refname)
+           magit-buffer-revision)
       (and (derived-mode-p 'magit-stash-mode
                            'magit-merge-preview-mode
                            'magit-revision-mode)

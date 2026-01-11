@@ -261,7 +261,7 @@ Also see option `magit-blame-styles'."
   (or (and (not (and type (not (eq type magit-blame-type))))
            (magit-blame-chunk-at (point)))
       (and type
-           (let ((rev  (or magit-buffer-refname magit-buffer-revision))
+           (let ((rev magit-buffer-revision)
                  (file (and (not (derived-mode-p 'dired-mode))
                             (magit-file-relative-name
                              nil (not magit-buffer-file-name))))
@@ -418,8 +418,8 @@ modes is toggled, then this mode also gets toggled automatically.
       (magit-blame-mode 1))
     (message "Blaming...")
     (magit-blame-run-process
-     (and$ (or magit-buffer-refname magit-buffer-revision)
-           (and (not (equal $ "{index}")) $))
+     (and (not (equal magit-buffer-revision "{index}"))
+          magit-buffer-revision)
      (magit-file-relative-name nil (not magit-buffer-file-name))
      (if (memq magit-blame-type '(final removal))
          (cons "--reverse" args)

@@ -1199,8 +1199,6 @@ If no DWIM context is found, nil is returned."
     ([commits (magit-region-values '(commit branch) t)]
      (deactivate-mark)
      (concat (car (last commits)) ".." (car commits)))
-    (magit-buffer-refname
-     (cons 'commit magit-buffer-refname))
     ((derived-mode-p 'magit-stash-mode)
      (cons 'commit
            (magit-section-case
@@ -1212,7 +1210,7 @@ If no DWIM context is found, nil is returned."
                      (oref parent)
                      (oref parent)
                      (oref value))))))
-    ((derived-mode-p 'magit-revision-mode)
+    (magit-buffer-revision
      (cons 'commit magit-buffer-revision))
     ((derived-mode-p 'magit-diff-mode)
      (pcase-exhaustive magit-buffer-diff-type
@@ -1361,8 +1359,8 @@ the file or blob."
   (interactive)
   (require 'magit)
   (if-let ((file (magit-file-relative-name)))
-      (if magit-buffer-refname
-          (magit-show-commit magit-buffer-refname
+      (if magit-buffer-revision
+          (magit-show-commit magit-buffer-revision
                              (car (magit-show-commit--arguments))
                              (list file))
         (save-buffer)
