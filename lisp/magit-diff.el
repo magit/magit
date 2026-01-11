@@ -1930,7 +1930,7 @@ commit or stash at point, then prompt for a commit."
                  (with-current-buffer buf
                    (and (equal rev magit-buffer-revision)
                         (equal (magit-rev-parse rev)
-                               magit-buffer-revision-hash))))
+                               magit-buffer-revision-oid))))
             (with-selected-window win
               (condition-case nil
                   (funcall fn)
@@ -2316,7 +2316,7 @@ keymap is the parent of their keymaps."
 (defun magit-diff-wash-diffs (args &optional limit)
   (run-hooks 'magit-diff-wash-diffs-hook)
   (when (member "--show-signature" args)
-    (magit-diff-wash-signature magit-buffer-revision-hash))
+    (magit-diff-wash-signature magit-buffer-revision-oid))
   (when (member "--stat" args)
     (magit-diff-wash-diffstat))
   (when (re-search-forward magit-diff-headline-re limit t)
@@ -2746,9 +2746,9 @@ Staging and applying changes is documented in info node
     (magit-buffer-diff-files-suspended nil)))
 
 (defun magit-revision-refresh-buffer ()
-  (setq magit-buffer-revision-hash (magit-rev-hash magit-buffer-revision))
+  (setq magit-buffer-revision-oid (magit-rev-hash magit-buffer-revision))
   (magit-set-header-line-format
-   (concat (magit-object-type magit-buffer-revision-hash)
+   (concat (magit-object-type magit-buffer-revision-oid)
            " "  magit-buffer-revision
            (pcase (length magit-buffer-diff-files)
              (0)

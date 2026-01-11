@@ -77,7 +77,7 @@
 ;;;; Revision
 
 (put 'magit-revision-mode 'magit-bookmark-variables
-     '(magit-buffer-revision-hash
+     '(magit-buffer-revision-oid
        magit-buffer-diff-args
        magit-buffer-diff-files))
 
@@ -91,7 +91,7 @@
 ;;;; Stash
 
 (put 'magit-stash-mode 'magit-bookmark-variables
-     '(magit-buffer-revision-hash
+     '(magit-buffer-revision-oid
        magit-buffer-diff-args
        magit-buffer-diff-files))
 
@@ -105,7 +105,7 @@
 (cl-defmethod magit-bookmark--get-child-value
   (section &context (major-mode magit-stash-mode))
   (string-replace magit-buffer-revision
-                  magit-buffer-revision-hash
+                  magit-buffer-revision-oid
                   (oref section value)))
 
 ;;; Log
