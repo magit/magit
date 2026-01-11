@@ -608,8 +608,6 @@ Magit is documented in info node `(magit)'."
 
 (defvar-local magit-buffer-arguments nil)
 
-(defvar-local magit-buffer-files nil)
-
 (defun magit-buffer-file-name ()
   "Return `magit-buffer-file-name' or if that is nil `buffer-file-name'.
 In an indirect buffer get the value for its base buffer."
