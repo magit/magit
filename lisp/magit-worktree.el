@@ -204,8 +204,10 @@ The primary worktree cannot be deleted."
       (magit-confirm-files (if magit-delete-by-moving-to-trash 'trash 'delete)
                            (list worktree))
       (when (file-exists-p worktree)
-        (let ((delete-by-moving-to-trash magit-delete-by-moving-to-trash))
-          (delete-directory worktree t magit-delete-by-moving-to-trash)))
+        (if magit-delete-by-moving-to-trash
+            (let ((delete-by-moving-to-trash t))
+              (delete-directory worktree t t))
+          (magit-call-git "worktree" "remove" "--force" worktree)))
       (if (file-exists-p default-directory)
           (magit-run-git "worktree" "prune")
         (let ((default-directory primary))
