@@ -267,7 +267,7 @@ If there is only one worktree, then insert nothing."
         (let* ((cols
                 (mapcar
                  (lambda (config)
-                   (pcase-let ((`(,_ ,commit ,branch ,bare) config))
+                   (pcase-let ((`(,directory ,commit ,branch ,bare) config))
                      (cons (cond
                              (branch
                               (propertize
@@ -276,8 +276,11 @@ If there is only one worktree, then insert nothing."
                                    'magit-branch-current
                                  'magit-branch-local)))
                              (commit
-                              (propertize (magit-rev-abbrev commit)
-                                          'font-lock-face 'magit-hash))
+                              (propertize
+                               (magit-rev-abbrev commit) 'font-lock-face
+                               (if (file-equal-p default-directory directory)
+                                   '(magit-hash magit-branch-current)
+                                 'magit-hash)))
                              (bare "(bare)"))
                            config)))
                  worktrees))
