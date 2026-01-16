@@ -201,9 +201,9 @@ The primary worktree cannot be deleted."
   (if (file-directory-p (expand-file-name ".git" worktree))
       (user-error "Deleting %s would delete the shared .git directory" worktree)
     (let ((primary (file-name-as-directory (caar (magit-list-worktrees)))))
-      (magit-confirm-files (if magit-delete-by-moving-to-trash 'trash 'delete)
-                           (list worktree))
       (when (file-exists-p worktree)
+        (magit-confirm-files (if magit-delete-by-moving-to-trash 'trash 'delete)
+                             (list worktree))
         (if magit-delete-by-moving-to-trash
             (let ((delete-by-moving-to-trash t))
               (delete-directory worktree t t))
