@@ -1454,7 +1454,7 @@ string \"true\", otherwise return nil."
   "Return a rev that forces Git to interpret REV as a commit.
 If REV is nil or has the form \":/TEXT\", return REV itself."
   (cond ((not rev) nil)
-        ((string-match-p "^:/" rev) rev)
+        ((string-prefix-p ":/" rev) rev)
         ((concat rev "^{commit}"))))
 
 (defun magit-rev-equal (a b)
