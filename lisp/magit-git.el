@@ -433,22 +433,6 @@ to do the following.
   "Execute Git with ARGS, returning t if its exit code is 1."
   (= (magit-git-exit-code args) 1))
 
-(defun magit-git-string-p (&rest args)
-  "Execute Git with ARGS, returning the first line of its output.
-If the exit code isn't zero or if there is no output, then return
-nil.  Neither of these results is considered an error; if that is
-what you want, then use `magit-git-string-ng' instead.
-
-This is an experimental replacement for `magit-git-string', and
-still subject to major changes."
-  (magit--with-refresh-cache (cons default-directory args)
-    (magit--with-temp-process-buffer
-      (and (zerop (magit-process-git t args))
-           (not (bobp))
-           (progn
-             (goto-char (point-min))
-             (buffer-substring-no-properties (point) (line-end-position)))))))
-
 (defun magit-git-string-ng (&rest args)
   "Execute Git with ARGS, returning the first line of its output.
 If the exit code isn't zero or if there is no output, then that
@@ -590,16 +574,18 @@ insert the run command and stderr into the process buffer."
        (match-str 1)))
 
 (defun magit-git-string (&rest args)
-  "Execute Git with ARGS, returning the first line of its output.
-If there is no output, return nil.  If the output begins with a
-newline, return an empty string."
+  "Execute Git with ARGS, returning the first line of its output (stdout).
+If the exit code isn't zero or if there is no output, then return nil.
+Neither of these results is considered an error; if that is what you
+want, then use `magit-git-string-ng' instead."
   (setq args (flatten-tree args))
   (magit--with-refresh-cache (cons default-directory args)
     (magit--with-temp-process-buffer
-      (apply #'magit-git-insert args)
-      (unless (bobp)
-        (goto-char (point-min))
-        (buffer-substring-no-properties (point) (line-end-position))))))
+      (and (zerop (apply #'magit-git-insert args))
+           (not (bobp))
+           (progn
+             (goto-char (point-min))
+             (buffer-substring-no-properties (point) (line-end-position)))))))
 
 (defun magit-git-lines (&rest args)
   "Execute Git with ARGS, returning its output as a list of lines.
@@ -2999,6 +2985,9 @@ out.  Only existing branches can be selected."
       (server-send-string client msg))))
 
 ;;; _
+
+(define-obsolete-function-alias 'magit-git-string-p
+  #'magit-git-string "Magit 4.6.0")
 
 (define-obsolete-function-alias 'magit-rev-verify-commit
   #'magit-commit-p "Magit 4.6.0")
