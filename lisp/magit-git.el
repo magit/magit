@@ -1446,8 +1446,6 @@ string \"true\", otherwise return nil."
   "Return full hash for REV if it names an existing commit."
   (magit-rev-verify (magit--rev-dereference rev)))
 
-(defalias 'magit-rev-verify-commit #'magit-commit-p)
-
 (defalias 'magit-rev-hash #'magit-commit-p)
 
 (defun magit--rev-dereference (rev)
@@ -2991,6 +2989,10 @@ out.  Only existing branches can be selected."
       (server-send-string client msg))))
 
 ;;; _
+
+(define-obsolete-function-alias 'magit-rev-verify-commit
+  #'magit-commit-p "Magit 4.6.0")
+
 (provide 'magit-git)
 ;; Local Variables:
 ;; read-symbol-shorthands: (

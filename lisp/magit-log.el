@@ -878,7 +878,7 @@ https://github.com/mhagger/git-when-merged."
                  (to (if (<= to 0)
                          branch
                        (format "%s~%s" branch to))))
-            (unless (magit-rev-verify-commit from)
+            (unless (magit-commit-p from)
               (setq from (magit-git-string "rev-list" "--max-parents=0"
                                            commit)))
             (magit-log-setup-buffer (list (concat from ".." to))
