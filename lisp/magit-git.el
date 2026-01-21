@@ -1479,10 +1479,9 @@ However, if REV is nil or has the form \":/TEXT\", return REV itself."
   (magit-git-success "merge-base" "--is-ancestor" a b))
 
 (defun magit-rev-head-p (rev)
+  "Return t if REV can be dereferences as the `HEAD' commit."
   (or (equal rev "HEAD")
-      (and rev
-           (not (string-search ".." rev))
-           (magit-rev-eq rev "HEAD"))))
+      (magit-rev-eq rev "HEAD")))
 
 (defun magit-rev-author-p (rev)
   "Return t if the user is the author of REV.
