@@ -458,7 +458,7 @@ buffer (creating it if necessary) and the error message is shown
 in the status buffer (provided it exists).
 
 This is an experimental replacement for `magit-git-string', and
-still subject to major changes.  Also see `magit-git-string-p'."
+still subject to major changes."
   (magit--with-refresh-cache
       (list default-directory 'magit-git-string-ng args)
     (magit--with-temp-process-buffer
@@ -1120,8 +1120,8 @@ tracked file."
       (file-relative-name file dir))))
 
 (defun magit-file-ignored-p (file)
-  (magit-git-string-p "ls-files" "--others" "--ignored" "--exclude-standard"
-                      "--" (magit-convert-filename-for-git file)))
+  (magit-git-string "ls-files" "--others" "--ignored" "--exclude-standard"
+                    "--" (magit-convert-filename-for-git file)))
 
 (defun magit-file-tracked-p (file)
   (magit-git-success "ls-files" "--error-unmatch"
@@ -1440,7 +1440,7 @@ string \"true\", otherwise return nil."
   (equal (magit-git-str "rev-parse" args) "true"))
 
 (defun magit-rev-verify (rev)
-  (magit-git-string-p "rev-parse" "--verify" rev))
+  (magit-git-string "rev-parse" "--verify" rev))
 
 (defun magit-commit-p (rev)
   "Return commit oid for REV if it can be dereferences as a commit.
