@@ -1482,8 +1482,7 @@ However, if REV is nil or has the form \":/TEXT\", return REV itself."
   (or (equal rev "HEAD")
       (and rev
            (not (string-search ".." rev))
-           (equal (magit-rev-parse rev)
-                  (magit-rev-parse "HEAD")))))
+           (magit-rev-eq rev "HEAD"))))
 
 (defun magit-rev-author-p (rev)
   "Return t if the user is the author of REV.
