@@ -1443,14 +1443,23 @@ string \"true\", otherwise return nil."
   (magit-git-string-p "rev-parse" "--verify" rev))
 
 (defun magit-commit-p (rev)
-  "Return full hash for REV if it names an existing commit."
+  "Return commit oid for REV if it can be dereferences as a commit.
+Otherwise return nil.  Use `magit-commit-oid' if you actually need
+the oid; eventually this function will return t instead of the oid."
+  ;; TODO Return t instead of the oid.
   (magit-rev-verify (magit--rev-dereference rev)))
 
-(defalias 'magit-rev-hash #'magit-commit-p)
+(defun magit-commit-oid (rev &optional noerror)
+  "Return commit oid for REV if it can be dereferences as a commit.
+Otherwise signal an error, or return nil, if optional NOERROR is non-nil."
+  (cond ((magit-rev-verify (magit--rev-dereference rev)))
+        (noerror nil)
+        ((error "%s cannot be dereferenced as a commit" rev))))
 
 (defun magit--rev-dereference (rev)
   "Return a rev that forces Git to interpret REV as a commit.
-If REV is nil or has the form \":/TEXT\", return REV itself."
+Do so by appending \"^{commit}\"; see \"--verify\" in git-rev-parse(1).
+However, if REV is nil or has the form \":/TEXT\", return REV itself."
   (cond ((not rev) nil)
         ((string-prefix-p ":/" rev) rev)
         ((concat rev "^{commit}"))))
@@ -1461,8 +1470,8 @@ If REV is nil or has the form \":/TEXT\", return REV itself."
 
 (defun magit-rev-eq (a b)
   "Return t if A and B refer to the same commit."
-  (let ((a (magit-commit-p a))
-        (b (magit-commit-p b)))
+  (let ((a (magit-commit-oid a t))
+        (b (magit-commit-oid b t)))
     (and a b (equal a b))))
 
 (defun magit-rev-ancestor-p (a b)
@@ -2582,12 +2591,12 @@ and this option only controls what face is used.")
   (if (string-match magit-range-re range)
       (magit-bind-match-strings (beg sep end) range
         (and (or beg end)
-             (let ((beg-hash (and beg (magit-rev-hash beg)))
-                   (end-hash (and end (magit-rev-hash end))))
-               (and (or (not beg) beg-hash)
-                    (or (not end) end-hash)
-                    (concat beg-hash sep end-hash)))))
-    (magit-rev-hash range)))
+             (let ((beg-oid (and beg (magit-commit-oid beg)))
+                   (end-oid (and end (magit-commit-oid end))))
+               (and (or (not beg) beg-oid)
+                    (or (not end) end-oid)
+                    (concat beg-oid sep end-oid)))))
+    (magit-commit-oid range)))
 
 (defvar magit-revision-faces
   '(magit-hash
@@ -2641,7 +2650,7 @@ and this option only controls what face is used.")
         (and (not (equal string "@"))
              (or (and (>= (length string) 7)
                       (string-match-p "[a-z]" string)
-                      (magit-commit-p string))
+                      (magit-commit-oid string t))
                  (and (magit-ref-p string)
                       (member (get-text-property (point) 'face)
                               magit-revision-faces)))
@@ -2992,6 +3001,11 @@ out.  Only existing branches can be selected."
 
 (define-obsolete-function-alias 'magit-rev-verify-commit
   #'magit-commit-p "Magit 4.6.0")
+
+(define-obsolete-function-alias 'magit-rev-hash
+  #'magit-commit-p "Magit 4.6.0"
+  "Return oid for REV if it names an existing commit, nil otherwise.
+Instead use `magit-commit-p' or `magit-commit-oid'.")
 
 (provide 'magit-git)
 ;; Local Variables:

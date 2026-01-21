@@ -1437,8 +1437,8 @@ for a revision."
       (when module
         (setq default-directory
               (expand-file-name (file-name-as-directory module))))
-      (unless (magit-commit-p rev)
-        (user-error "%s is not a commit" rev))
+      (unless (magit-commit-oid rev t)
+        (user-error "%s cannot be dereferenced as a commit" rev))
       (when file
         (save-buffer))
       (let ((buf (magit-revision-setup-buffer rev args files)))
@@ -1931,7 +1931,7 @@ commit or stash at point, then prompt for a commit."
           (setq cmd #'magit-show-commit)
           (setq buf (magit-get-mode-buffer 'magit-revision-mode)))
          (tag
-          (setq rev (magit-rev-hash (oref it value)))
+          (setq rev (magit-commit-oid (oref it value)))
           (setq cmd #'magit-show-commit)
           (setq buf (magit-get-mode-buffer 'magit-revision-mode)))
          (stash
@@ -2760,7 +2760,7 @@ Staging and applying changes is documented in info node
     (magit-buffer-diff-files-suspended nil)))
 
 (defun magit-revision-refresh-buffer ()
-  (setq magit-buffer-revision-oid (magit-rev-hash magit-buffer-revision))
+  (setq magit-buffer-revision-oid (magit-commit-oid magit-buffer-revision))
   (magit-set-header-line-format
    (concat (magit-object-type magit-buffer-revision)
            " "  magit-buffer-revision

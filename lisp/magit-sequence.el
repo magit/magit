@@ -932,8 +932,9 @@ If no such sequence is in progress, do nothing."
              patch commit)
         (while (and patches (>= i cur))
           (setq patch (pop patches))
-          (setq commit (magit-commit-p
-                        (cadr (split-string (magit-file-line patch)))))
+          (setq commit
+                (magit-commit-oid (cadr (split-string (magit-file-line patch)))
+                                  t))
           (cond ((and commit (= i cur))
                  (magit-sequence-insert-commit
                   "stop" commit 'magit-sequence-stop))
