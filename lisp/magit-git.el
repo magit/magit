@@ -2588,6 +2588,9 @@ and this option only controls what face is used.")
               (list beg end sep)))))
 
 (defun magit-hash-range (range)
+  "Return a string with the revisions in RANGE replaced with commit oids.
+Either side of RANGE may be omitted, and RANGE may be just a revision.
+If either revision cannot be dereferenced as a commit, signal an error."
   (if (string-match magit-range-re range)
       (magit-bind-match-strings (beg sep end) range
         (and (or beg end)
