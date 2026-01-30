@@ -111,6 +111,8 @@ be relative to the top directory of the repository.  Non-nil REVERT
 means to revert the buffer.  If `ask-revert', then only after asking.
 A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
   (cond-let*
+    [[topdir (magit-toplevel)]
+     [file (expand-file-name file topdir)]]
     ((equal rev "{worktree}")
      (let ((revert-without-query
             (if (and$ (find-buffer-visiting file)
@@ -118,10 +120,9 @@ A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
                 (cons "." revert-without-query)
               revert-without-query)))
        (find-file-noselect file)))
-    ([topdir (magit-toplevel)]
-     [file   (expand-file-name file topdir)]
+    ([_ topdir]
      [defdir (file-name-directory file)]
-     (setq rev (magit--abbrev-if-hash rev))
+     [rev (magit--abbrev-if-hash rev)]
      (with-current-buffer (magit-get-revision-buffer-create
                            rev
                            (file-relative-name file topdir))
