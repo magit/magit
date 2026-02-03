@@ -138,7 +138,7 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
        (setq magit-buffer-file-name file)
        (setq default-directory (if (file-exists-p defdir) defdir topdir))
        (setq-local revert-buffer-function #'magit--revert-blob-buffer)
-       (revert-buffer t t)
+       (magit--refresh-blob-buffer)
        (current-buffer)))
     ((error "%s isn't inside a Git repository" file))))
 
@@ -150,6 +150,9 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
            (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
 
 (defun magit--revert-blob-buffer (_ignore-auto _noconfirm)
+  (magit--refresh-blob-buffer))
+
+(defun magit--refresh-blob-buffer ()
   (let ((inhibit-read-only t))
     (erase-buffer)
     (save-excursion
