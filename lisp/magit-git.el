@@ -1329,6 +1329,12 @@ Sorted from longest to shortest CYGWIN name."
       (and (derived-mode-p 'magit-log-mode)
            (car magit-buffer-log-files))))
 
+;;; Blobs
+
+(defun magit--file-index-stages (file)
+  (mapcar (##split-string % " ")
+          (magit-git-lines "ls-files" "--stage" "--" file)))
+
 ;;; Predicates
 
 (defun magit-no-commit-p ()

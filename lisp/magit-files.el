@@ -115,6 +115,9 @@ the line and column corresponding to that location."
 REV is a revision or one of \"{worktree}\" or \"{index}\".  Non-nil
 REVERT means to revert the buffer.  If `ask-revert', then only after
 asking.  A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
+  (when (and (equal rev "{index}")
+             (length> (magit--file-index-stages file) t))
+    (setq rev "{worktree}"))
   (cond-let*
     [[topdir (magit-toplevel)]
      [file (expand-file-name file topdir)]]
