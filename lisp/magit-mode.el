@@ -581,11 +581,13 @@ Magit is documented in info node `(magit)'."
 (defvaralias 'magit-buffer-refname 'magit-buffer-revision)
 (defvar-local magit-buffer-revision nil)
 (defvar-local magit-buffer-revision-oid nil)
+(defvar-local magit-buffer-blob-oid nil)
 (defvar-local magit-buffer-file-name nil)
 
 ;; Preserve when major-mode is changed in file-visiting buffers.
 (put 'magit-buffer-revision 'permanent-local t)
 (put 'magit-buffer-revision-oid 'permanent-local t)
+(put 'magit-buffer-blob-oid 'permanent-local t)
 (put 'magit-buffer-file-name 'permanent-local t)
 
 (eval-and-compile

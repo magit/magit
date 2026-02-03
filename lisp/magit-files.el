@@ -130,16 +130,20 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
            (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
 
 (defun magit--revert-blob-buffer (_ignore-auto _noconfirm)
-  (magit--refresh-blob-buffer))
+  (magit--refresh-blob-buffer t))
 
-(defun magit--refresh-blob-buffer ()
-  (setq magit-buffer-revision-oid
-        (magit-commit-oid magit-buffer-revision))
-  (let ((inhibit-read-only t))
-    (erase-buffer)
-    (save-excursion
-      (magit--insert-blob-contents magit-buffer-revision
-                                   (magit-file-relative-name))))
+(defun magit--refresh-blob-buffer (&optional force)
+  (let ((old-blob-oid magit-buffer-blob-oid))
+    (setq magit-buffer-revision-oid
+          (magit-commit-oid magit-buffer-revision))
+    (setq magit-buffer-blob-oid
+          (magit-blob-oid magit-buffer-revision magit-buffer-file-name))
+    (when (or force (not (equal old-blob-oid magit-buffer-blob-oid)))
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (save-excursion
+          (magit--insert-blob-contents magit-buffer-revision
+                                       (magit-file-relative-name))))))
   (magit--blob-normal-mode))
 
 (defun magit--blob-normal-mode ()
