@@ -112,10 +112,9 @@ the line and column corresponding to that location."
 
 (defun magit-find-file-noselect (rev file &optional revert)
   "Read FILE from REV into a buffer and return the buffer.
-REV is a revision or one of \"{worktree}\" or \"{index}\".  FILE must
-be relative to the top directory of the repository.  Non-nil REVERT
-means to revert the buffer.  If `ask-revert', then only after asking.
-A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
+REV is a revision or one of \"{worktree}\" or \"{index}\".  Non-nil
+REVERT means to revert the buffer.  If `ask-revert', then only after
+asking.  A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
   (cond-let*
     [[topdir (magit-toplevel)]
      [file (expand-file-name file topdir)]]
@@ -129,6 +128,8 @@ A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
     ([_ topdir]
      [defdir (file-name-directory file)]
      [rev (magit--abbrev-if-hash rev)]
+     (unless (file-in-directory-p file topdir)
+       (error "%s is not in repository %s" file topdir))
      (with-current-buffer (magit-get-revision-buffer-create
                            rev
                            (file-relative-name file topdir))
@@ -198,8 +199,7 @@ See also https://github.com/doomemacs/doomemacs/pull/6309."
 ;;; Find Index
 
 (defun magit-find-file-index-noselect (file &optional revert)
-  "Read FILE from the index into a buffer and return the buffer.
-FILE must to be relative to the top directory of the repository."
+  "Read FILE from the index into a buffer and return the buffer."
   (magit-find-file-noselect "{index}" file (or revert 'ask-revert)))
 
 (defun magit-update-index ()
