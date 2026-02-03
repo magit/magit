@@ -172,10 +172,11 @@ asking.  A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
            (file (magit-file-relative-name))
            (coding-system-for-read (or coding-system-for-read 'undecided)))
       (erase-buffer)
-      (magit-git-insert "cat-file" "-p"
-                        (if (equal magit-buffer-revision "{index}")
-                            (concat ":" file)
-                          (concat magit-buffer-revision ":" file)))
+      (save-excursion
+        (magit-git-insert "cat-file" "-p"
+                          (if (equal magit-buffer-revision "{index}")
+                              (concat ":" file)
+                            (concat magit-buffer-revision ":" file))))
       (setq buffer-file-coding-system last-coding-system-used))
     (let ((buffer-file-name magit-buffer-file-name)
           (after-change-major-mode-hook
@@ -189,8 +190,7 @@ asking.  A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
       ;; have to use this strange invocation to achieve that.
       (normal-mode (not enable-local-variables)))
     (setq buffer-read-only t)
-    (set-buffer-modified-p nil)
-    (goto-char (point-min))))
+    (set-buffer-modified-p nil)))
 
 (define-advice lsp (:around (fn &rest args) magit-find-file)
   "Do nothing when visiting blob using `magit-find-file' and similar.
