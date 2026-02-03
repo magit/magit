@@ -144,7 +144,7 @@ asking.  A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
          (setq magit-buffer-revision rev)
          (setq magit-buffer-file-name file)
          (setq default-directory (if (file-exists-p defdir) defdir topdir))
-         (setq-local revert-buffer-function #'magit-revert-rev-file-buffer)
+         (setq-local revert-buffer-function #'magit--revert-blob-buffer)
          (revert-buffer t t)
          (run-hooks 'magit-find-blob-hook))
        (current-buffer)))
@@ -157,7 +157,7 @@ asking.  A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
   (funcall (if create #'get-buffer-create #'get-buffer)
            (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
 
-(defun magit-revert-rev-file-buffer (_ignore-auto noconfirm)
+(defun magit--revert-blob-buffer (_ignore-auto noconfirm)
   (when (or noconfirm
             (and (not (buffer-modified-p))
                  (catch 'found
