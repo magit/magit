@@ -1335,6 +1335,15 @@ Sorted from longest to shortest CYGWIN name."
   (mapcar (##split-string % " ")
           (magit-git-lines "ls-files" "--stage" "--" file)))
 
+(defun magit--insert-blob-contents (rev file)
+  (let ((coding-system-for-read (or coding-system-for-read 'undecided)))
+    (magit-git-insert "cat-file" "-p"
+                      (if (equal rev "{index}")
+                          (concat ":" file)
+                        (concat rev ":" file)))
+    (setq buffer-file-coding-system last-coding-system-used)
+    nil))
+
 ;;; Predicates
 
 (defun magit-no-commit-p ()

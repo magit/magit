@@ -151,16 +151,11 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
            (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
 
 (defun magit--revert-blob-buffer (_ignore-auto _noconfirm)
-  (let ((inhibit-read-only t)
-        (file (magit-file-relative-name))
-        (coding-system-for-read (or coding-system-for-read 'undecided)))
+  (let ((inhibit-read-only t))
     (erase-buffer)
     (save-excursion
-      (magit-git-insert "cat-file" "-p"
-                        (if (equal magit-buffer-revision "{index}")
-                            (concat ":" file)
-                          (concat magit-buffer-revision ":" file))))
-    (setq buffer-file-coding-system last-coding-system-used))
+      (magit--insert-blob-contents magit-buffer-revision
+                                   (magit-file-relative-name))))
   (let ((buffer-file-name magit-buffer-file-name)
         (after-change-major-mode-hook
          (seq-difference after-change-major-mode-hook
