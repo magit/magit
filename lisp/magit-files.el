@@ -33,8 +33,14 @@
 
 ;;; Find Blob
 
-(defvar magit-find-file-hook nil)
-(add-hook 'magit-find-file-hook #'magit-blob-mode)
+(define-obsolete-variable-alias 'magit-find-file-hook
+  'magit-find-blob-hook "Magit 4.6.0")
+
+(define-obsolete-variable-alias 'magit-find-index-hook
+  'magit-find-blob-hook "Magit 4.6.0")
+
+(defvar magit-find-blob-hook nil)
+(add-hook 'magit-find-blob-hook #'magit-blob-mode)
 
 ;;;###autoload
 (defun magit-find-file (rev file)
@@ -136,9 +142,7 @@ A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
          (setq default-directory (if (file-exists-p defdir) defdir topdir))
          (setq-local revert-buffer-function #'magit-revert-rev-file-buffer)
          (revert-buffer t t)
-         (run-hooks (if (equal rev "{index}")
-                        'magit-find-index-hook
-                      'magit-find-file-hook)))
+         (run-hooks 'magit-find-blob-hook))
        (current-buffer)))
     ((error "%s isn't inside a Git repository" file))))
 
@@ -192,9 +196,6 @@ See also https://github.com/doomemacs/doomemacs/pull/6309."
     (apply fn args)))
 
 ;;; Find Index
-
-(defvar magit-find-index-hook nil)
-(add-hook 'magit-find-index-hook #'magit-blob-mode)
 
 (defun magit-find-file-index-noselect (file &optional revert)
   "Read FILE from the index into a buffer and return the buffer.
