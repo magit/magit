@@ -332,8 +332,8 @@ FILE has to be relative to the top directory of the repository."
            (bufC* (or bufC (find-file-noselect file)))
            (coding-system-for-read
             (buffer-local-value 'buffer-file-coding-system bufC*))
-           (bufA* (magit-find-file-noselect "HEAD" file t))
-           (bufB* (magit-find-file-index-noselect file t)))
+           (bufA* (magit-find-file-noselect "HEAD" file))
+           (bufB* (magit-find-file-index-noselect file)))
       (with-current-buffer bufB* (setq buffer-read-only nil))
       (magit-ediff-buffers
        (bufA bufA*)
@@ -505,7 +505,7 @@ FILE must be relative to the top directory of the repository."
   (magit-ediff-buffers ((magit-get-revision-buffer "HEAD" file)
                         (magit-find-file-noselect "HEAD" file))
                        ((get-buffer (concat file ".~{index}~"))
-                        (magit-find-file-index-noselect file t))))
+                        (magit-find-file-index-noselect file))))
 
 ;;;###autoload
 (defun magit-ediff-show-unstaged (file)
@@ -520,7 +520,7 @@ FILE must be relative to the top directory of the repository."
                                   (magit-unstaged-files)
                                   "No unstaged files")))
   (magit-ediff-buffers ((get-buffer (concat file ".~{index}~"))
-                        (magit-find-file-index-noselect file t))
+                        (magit-find-file-index-noselect file))
                        ((get-file-buffer file)
                         (find-file-noselect file))))
 

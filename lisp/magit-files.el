@@ -110,11 +110,9 @@ the line and column corresponding to that location."
         (move-to-column col)))
     buf))
 
-(defun magit-find-file-noselect (rev file &optional revert)
+(defun magit-find-file-noselect (rev file)
   "Read FILE from REV into a buffer and return the buffer.
-REV is a revision or one of \"{worktree}\" or \"{index}\".  Non-nil
-REVERT means to revert the buffer.  If `ask-revert', then only after
-asking.  A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
+REV is a revision or one of \"{worktree}\" or \"{index}\"."
   (when (and (equal rev "{index}")
              (length> (magit--file-index-stages file) t))
     (setq rev "{worktree}"))
@@ -136,17 +134,12 @@ asking.  A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
      (with-current-buffer (magit-get-revision-buffer-create
                            rev
                            (file-relative-name file topdir))
-       (when (or (not magit-buffer-file-name)
-                 (if (eq revert 'ask-revert)
-                     (y-or-n-p (format "%s already exists; revert it? "
-                                       (buffer-name))))
-                 revert)
-         (setq magit-buffer-revision rev)
-         (setq magit-buffer-file-name file)
-         (setq default-directory (if (file-exists-p defdir) defdir topdir))
-         (setq-local revert-buffer-function #'magit--revert-blob-buffer)
-         (revert-buffer t t)
-         (run-hooks 'magit-find-blob-hook))
+       (setq magit-buffer-revision rev)
+       (setq magit-buffer-file-name file)
+       (setq default-directory (if (file-exists-p defdir) defdir topdir))
+       (setq-local revert-buffer-function #'magit--revert-blob-buffer)
+       (revert-buffer t t)
+       (run-hooks 'magit-find-blob-hook)
        (current-buffer)))
     ((error "%s isn't inside a Git repository" file))))
 
@@ -157,40 +150,30 @@ asking.  A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
   (funcall (if create #'get-buffer-create #'get-buffer)
            (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
 
-(defun magit--revert-blob-buffer (_ignore-auto noconfirm)
-  (when (or noconfirm
-            (and (not (buffer-modified-p))
-                 (catch 'found
-                   (dolist (regexp revert-without-query)
-                     (when (string-match regexp magit-buffer-file-name)
-                       (throw 'found t)))))
-            (yes-or-no-p (format "Revert buffer from Git %s? "
-                                 (if (equal magit-buffer-revision "{index}")
-                                     "index"
-                                   (concat "revision " magit-buffer-revision)))))
-    (let* ((inhibit-read-only t)
-           (file (magit-file-relative-name))
-           (coding-system-for-read (or coding-system-for-read 'undecided)))
-      (erase-buffer)
-      (save-excursion
-        (magit-git-insert "cat-file" "-p"
-                          (if (equal magit-buffer-revision "{index}")
-                              (concat ":" file)
-                            (concat magit-buffer-revision ":" file))))
-      (setq buffer-file-coding-system last-coding-system-used))
-    (let ((buffer-file-name magit-buffer-file-name)
-          (after-change-major-mode-hook
-           (seq-difference after-change-major-mode-hook
-                           '(global-diff-hl-mode-enable-in-buffer ; Emacs >= 30
-                             global-diff-hl-mode-enable-in-buffers ; Emacs < 30
-                             eglot--maybe-activate-editing-mode)
-                           #'eq)))
-      ;; We want `normal-mode' to respect nil `enable-local-variables'.
-      ;; The FIND-FILE argument wasn't designed for our use case, so we
-      ;; have to use this strange invocation to achieve that.
-      (normal-mode (not enable-local-variables)))
-    (setq buffer-read-only t)
-    (set-buffer-modified-p nil)))
+(defun magit--revert-blob-buffer (_ignore-auto _noconfirm)
+  (let ((inhibit-read-only t)
+        (file (magit-file-relative-name))
+        (coding-system-for-read (or coding-system-for-read 'undecided)))
+    (erase-buffer)
+    (save-excursion
+      (magit-git-insert "cat-file" "-p"
+                        (if (equal magit-buffer-revision "{index}")
+                            (concat ":" file)
+                          (concat magit-buffer-revision ":" file))))
+    (setq buffer-file-coding-system last-coding-system-used))
+  (let ((buffer-file-name magit-buffer-file-name)
+        (after-change-major-mode-hook
+         (seq-difference after-change-major-mode-hook
+                         '(global-diff-hl-mode-enable-in-buffer ; Emacs >= 30
+                           global-diff-hl-mode-enable-in-buffers ; Emacs < 30
+                           eglot--maybe-activate-editing-mode)
+                         #'eq)))
+    ;; We want `normal-mode' to respect nil `enable-local-variables'.
+    ;; The FIND-FILE argument wasn't designed for our use case, so we
+    ;; have to use this strange invocation to achieve that.
+    (normal-mode (not enable-local-variables)))
+  (setq buffer-read-only t)
+  (set-buffer-modified-p nil))
 
 (define-advice lsp (:around (fn &rest args) magit-find-file)
   "Do nothing when visiting blob using `magit-find-file' and similar.
@@ -200,9 +183,9 @@ See also https://github.com/doomemacs/doomemacs/pull/6309."
 
 ;;; Find Index
 
-(defun magit-find-file-index-noselect (file &optional revert)
+(defun magit-find-file-index-noselect (file)
   "Read FILE from the index into a buffer and return the buffer."
-  (magit-find-file-noselect "{index}" file (or revert 'ask-revert)))
+  (magit-find-file-noselect "{index}" file))
 
 (defun magit-update-index ()
   "Update the index with the contents of the current buffer.
