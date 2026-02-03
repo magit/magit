@@ -139,7 +139,6 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
        (setq default-directory (if (file-exists-p defdir) defdir topdir))
        (setq-local revert-buffer-function #'magit--revert-blob-buffer)
        (revert-buffer t t)
-       (run-hooks 'magit-find-blob-hook)
        (current-buffer)))
     ((error "%s isn't inside a Git repository" file))))
 
@@ -172,7 +171,8 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
     ;; so we have to use this strange invocation to achieve that.
     (normal-mode (not enable-local-variables))
     (setq buffer-read-only t)
-    (set-buffer-modified-p nil)))
+    (set-buffer-modified-p nil)
+    (run-hooks 'magit-find-blob-hook)))
 
 (define-advice lsp (:around (fn &rest args) magit-find-file)
   "Do nothing when visiting blob using `magit-find-file' and similar.
