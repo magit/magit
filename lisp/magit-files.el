@@ -130,7 +130,17 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
            (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
 
 (defun magit--revert-blob-buffer (_ignore-auto _noconfirm)
-  (magit--refresh-blob-buffer t))
+  (let ((old-rev-oid magit-buffer-revision-oid)
+        (line (line-number-at-pos))
+        (col (current-column)))
+    (setq magit-buffer-blob-oid (magit-blob-oid magit-buffer-revision
+                                                magit-buffer-file-name))
+    (setq magit-buffer-revision-oid (magit-commit-oid magit-buffer-revision))
+    (magit--refresh-blob-buffer t)
+    (magit-find-file--restore-position (current-buffer)
+                                       magit-buffer-revision-oid
+                                       (magit-file-relative-name)
+                                       old-rev-oid line col)))
 
 (defun magit--refresh-blob-buffer (&optional force)
   (let ((old-blob-oid magit-buffer-blob-oid))
@@ -163,12 +173,13 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
     (set-buffer-modified-p nil)
     (run-hooks 'magit-find-blob-hook)))
 
-(defun magit-find-file--restore-position (buf rev file)
-  (let ((rev-oid magit-buffer-revision-oid)
-        line col)
-    (when-let ((visited-file (magit-file-relative-name)))
-      (setq line (line-number-at-pos))
-      (setq col (current-column))
+(defun magit-find-file--restore-position ( buf rev file
+                                           &optional old-rev-oid line col)
+  (when-let ((visited-file (magit-file-relative-name)))
+    (let ((rev-oid (or old-rev-oid magit-buffer-revision-oid)))
+      (unless line
+        (setq line (line-number-at-pos))
+        (setq col (current-column)))
       (cond
         ((not (equal visited-file file)))
         ((magit-rev-eq rev-oid rev))
