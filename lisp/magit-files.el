@@ -169,8 +169,7 @@ asking.  A non-nil value for REVERT is ignored if REV is \"{worktree}\"."
                                      "index"
                                    (concat "revision " magit-buffer-revision)))))
     (let* ((inhibit-read-only t)
-           (default-directory (magit-toplevel))
-           (file (file-relative-name magit-buffer-file-name))
+           (file (magit-file-relative-name))
            (coding-system-for-read (or coding-system-for-read 'undecided)))
       (erase-buffer)
       (magit-git-insert "cat-file" "-p"
