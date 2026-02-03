@@ -133,6 +133,8 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
   (magit--refresh-blob-buffer))
 
 (defun magit--refresh-blob-buffer ()
+  (setq magit-buffer-revision-oid
+        (magit-commit-oid magit-buffer-revision))
   (let ((inhibit-read-only t))
     (erase-buffer)
     (save-excursion
@@ -158,20 +160,21 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
     (run-hooks 'magit-find-blob-hook)))
 
 (defun magit-find-file--restore-position (buf rev file)
-  (let (line col)
+  (let ((rev-oid magit-buffer-revision-oid)
+        line col)
     (when-let ((visited-file (magit-file-relative-name)))
       (setq line (line-number-at-pos))
       (setq col (current-column))
       (cond
         ((not (equal visited-file file)))
-        ((equal magit-buffer-revision rev))
+        ((magit-rev-eq rev-oid rev))
         ((equal rev "{worktree}")
-         (setq line (magit-diff-visit--offset file magit-buffer-revision line)))
+         (setq line (magit-diff-visit--offset file rev-oid line)))
         ((equal rev "{index}")
          (setq line (magit-diff-visit--offset file nil line)))
-        (magit-buffer-revision
+        (rev-oid
          (setq line (magit-diff-visit--offset
-                     file (concat magit-buffer-revision ".." rev) line)))
+                     file (concat rev-oid ".." rev) line)))
         ((setq line (magit-diff-visit--offset file (list "-R" rev) line)))))
     (when line
       (with-current-buffer buf
