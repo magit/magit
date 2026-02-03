@@ -156,19 +156,23 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
     (save-excursion
       (magit--insert-blob-contents magit-buffer-revision
                                    (magit-file-relative-name))))
+  (magit--blob-normal-mode))
+
+(defun magit--blob-normal-mode ()
   (let ((buffer-file-name magit-buffer-file-name)
         (after-change-major-mode-hook
+         ;; Inhibit diff-hl and eglot; see bb8a65269d and 234a787b8c.
          (seq-difference after-change-major-mode-hook
                          '(global-diff-hl-mode-enable-in-buffer ; Emacs >= 30
                            global-diff-hl-mode-enable-in-buffers ; Emacs < 30
                            eglot--maybe-activate-editing-mode)
                          #'eq)))
     ;; We want `normal-mode' to respect nil `enable-local-variables'.
-    ;; The FIND-FILE argument wasn't designed for our use case, so we
-    ;; have to use this strange invocation to achieve that.
-    (normal-mode (not enable-local-variables)))
-  (setq buffer-read-only t)
-  (set-buffer-modified-p nil))
+    ;; The FIND-FILE argument wasn't designed for our use case,
+    ;; so we have to use this strange invocation to achieve that.
+    (normal-mode (not enable-local-variables))
+    (setq buffer-read-only t)
+    (set-buffer-modified-p nil)))
 
 (define-advice lsp (:around (fn &rest args) magit-find-file)
   "Do nothing when visiting blob using `magit-find-file' and similar.
