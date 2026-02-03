@@ -347,6 +347,7 @@ to `magit-dispatch'."
 
 (defvar-keymap magit-blob-mode-map
   :doc "Keymap for `magit-blob-mode'."
+  "g" #'revert-buffer
   "p" #'magit-blob-previous
   "n" #'magit-blob-next
   "b" #'magit-blame-addition
