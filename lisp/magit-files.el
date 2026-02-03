@@ -84,30 +84,10 @@ the line and column corresponding to that location."
             (magit-read-file-from-rev (if (member rev pseudo-revs) "HEAD" rev)
                                       prompt)))))
 
-(defun magit-find-file--internal (rev file fn)
-  (let ((buf (magit-find-file-noselect rev file))
-        line col)
-    (when-let ((visited-file (magit-file-relative-name)))
-      (setq line (line-number-at-pos))
-      (setq col (current-column))
-      (cond
-        ((not (equal visited-file file)))
-        ((equal magit-buffer-revision rev))
-        ((equal rev "{worktree}")
-         (setq line (magit-diff-visit--offset file magit-buffer-revision line)))
-        ((equal rev "{index}")
-         (setq line (magit-diff-visit--offset file nil line)))
-        (magit-buffer-revision
-         (setq line (magit-diff-visit--offset
-                     file (concat magit-buffer-revision ".." rev) line)))
-        ((setq line (magit-diff-visit--offset file (list "-R" rev) line)))))
-    (funcall fn buf)
-    (when line
-      (with-current-buffer buf
-        (widen)
-        (goto-char (point-min))
-        (forward-line (1- line))
-        (move-to-column col)))
+(defun magit-find-file--internal (rev file display)
+  (let ((buf (magit-find-file-noselect rev file)))
+    (magit-find-file--restore-position buf rev file)
+    (funcall display buf)
     buf))
 
 (defun magit-find-file-noselect (rev file)
@@ -176,6 +156,29 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
     (setq buffer-read-only t)
     (set-buffer-modified-p nil)
     (run-hooks 'magit-find-blob-hook)))
+
+(defun magit-find-file--restore-position (buf rev file)
+  (let (line col)
+    (when-let ((visited-file (magit-file-relative-name)))
+      (setq line (line-number-at-pos))
+      (setq col (current-column))
+      (cond
+        ((not (equal visited-file file)))
+        ((equal magit-buffer-revision rev))
+        ((equal rev "{worktree}")
+         (setq line (magit-diff-visit--offset file magit-buffer-revision line)))
+        ((equal rev "{index}")
+         (setq line (magit-diff-visit--offset file nil line)))
+        (magit-buffer-revision
+         (setq line (magit-diff-visit--offset
+                     file (concat magit-buffer-revision ".." rev) line)))
+        ((setq line (magit-diff-visit--offset file (list "-R" rev) line)))))
+    (when line
+      (with-current-buffer buf
+        (widen)
+        (goto-char (point-min))
+        (forward-line (1- line))
+        (move-to-column col)))))
 
 (define-advice lsp (:around (fn &rest args) magit-find-file)
   "Do nothing when visiting blob using `magit-find-file' and similar.
