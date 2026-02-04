@@ -535,7 +535,9 @@ instead."
                 (magit-list-repos-uniquify
                  (mapcar (lambda (v)
                            (cons (concat
-                                  key "\\"
+                                  key
+                                  (or (bound-and-true-p uniquify-separator)
+                                      "\\")
                                   (file-name-nondirectory
                                    (directory-file-name
                                     (substring v 0 (- (1+ (length key)))))))
