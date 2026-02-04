@@ -3684,6 +3684,10 @@ actually a `diff' but a `diffstat' section."
 
 (defun magit-diff--get-hunk-syntax (hunk side rev file)
   (let ((args (magit-diff--get-hunk-text hunk (eq side 'old))))
+    ;; For syntax highlighting, treat "{index}" as "{worktree}" since
+    ;; we only need syntax rules, not actual index content.
+    (when (equal rev "{index}")
+      (setq rev "{worktree}"))
     (with-current-buffer (magit-find-file-hidden rev file)
       (save-excursion ; FIXME necessary? if so, fix?
         (apply #'diff-syntax-fontify-props nil args)))))

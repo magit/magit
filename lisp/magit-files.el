@@ -94,7 +94,7 @@ the line and column corresponding to that location."
   "Read FILE from REV into a buffer and return the buffer.
 REV is a revision or one of \"{worktree}\" or \"{index}\"."
   (when (and (equal rev "{index}")
-             (length> (magit--file-index-stages file) t))
+             (length> (magit--file-index-stages file) 1))
     (setq rev "{worktree}"))
   (cond-let*
     [[topdir (magit-toplevel)]
@@ -138,7 +138,9 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
         (col (current-column)))
     (setq magit-buffer-blob-oid (magit-blob-oid magit-buffer-revision
                                                 magit-buffer-file-name))
-    (setq magit-buffer-revision-oid (magit-commit-oid magit-buffer-revision))
+    (setq magit-buffer-revision-oid
+          (and (not (member magit-buffer-revision '("{worktree}" "{index}")))
+               (magit-commit-oid magit-buffer-revision)))
     (magit--refresh-blob-buffer t)
     (magit-find-file--restore-position (current-buffer)
                                        magit-buffer-revision-oid
@@ -148,7 +150,8 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
 (defun magit--refresh-blob-buffer (&optional force)
   (let ((old-blob-oid magit-buffer-blob-oid))
     (setq magit-buffer-revision-oid
-          (magit-commit-oid magit-buffer-revision))
+          (and (not (member magit-buffer-revision '("{worktree}" "{index}")))
+               (magit-commit-oid magit-buffer-revision)))
     (setq magit-buffer-blob-oid
           (magit-blob-oid magit-buffer-revision magit-buffer-file-name))
     (when (or force (not (equal old-blob-oid magit-buffer-blob-oid)))
