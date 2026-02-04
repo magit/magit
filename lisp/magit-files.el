@@ -94,7 +94,7 @@ the line and column corresponding to that location."
   "Read FILE from REV into a buffer and return the buffer.
 REV is a revision or one of \"{worktree}\" or \"{index}\"."
   (when (and (equal rev "{index}")
-             (length> (magit--file-index-stages file) t))
+             (length> (magit--file-index-stages file) 1))
     (setq rev "{worktree}"))
   (cond-let*
     [[topdir (magit-toplevel)]
