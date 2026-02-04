@@ -145,7 +145,7 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
 (defun magit--refresh-blob-buffer (&optional force)
   (let ((old-blob-oid magit-buffer-blob-oid))
     (setq magit-buffer-revision-oid
-          (magit-commit-oid magit-buffer-revision))
+          (magit-commit-oid magit-buffer-revision t))
     (setq magit-buffer-blob-oid
           (magit-blob-oid magit-buffer-revision magit-buffer-file-name))
     (when (or force (not (equal old-blob-oid magit-buffer-blob-oid)))
