@@ -73,16 +73,16 @@ the line and column corresponding to that location."
   (magit-find-file--internal rev file #'switch-to-buffer-other-frame))
 
 (defun magit-find-file-read-args (prompt)
-  (let ((pseudo-revs '("{worktree}" "{index}")))
-    (let ((rev (magit-completing-read "Find file from revision"
-                                      (append pseudo-revs
-                                              (magit-list-refnames nil t))
-                                      nil 'any nil 'magit-revision-history
-                                      (or (magit-branch-or-commit-at-point)
-                                          (magit-get-current-branch)))))
-      (list rev
-            (magit-read-file-from-rev (if (member rev pseudo-revs) "HEAD" rev)
-                                      prompt)))))
+  (let* ((pseudo-revs '("{worktree}" "{index}"))
+         (rev (magit-completing-read "Find file from revision"
+                                     (append pseudo-revs
+                                             (magit-list-refnames nil t))
+                                     nil 'any nil 'magit-revision-history
+                                     (or (magit-branch-or-commit-at-point)
+                                         (magit-get-current-branch)))))
+    (list rev
+          (magit-read-file-from-rev (if (member rev pseudo-revs) "HEAD" rev)
+                                    prompt))))
 
 (defun magit-find-file--internal (rev file display)
   (let ((buf (magit-find-file-noselect rev file)))
