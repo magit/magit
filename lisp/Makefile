@@ -93,16 +93,18 @@ $(PKG)-version.el:
 	@printf " Creating $@\n"
 	@printf "%s" "$$VERSIONLIB_TMPL" > $@
 
-check-declare:
-	@printf "Checking function declarations\n"
-	@$(EMACS_BATCH) -L $(TOP)../borg -L $(TOP)../forge/lisp \
-	--eval "(check-declare-directory default-directory)"
-
 ## Install ###########################################################
 
 install: lisp versionlib
 	@$(MKDIR) $(DESTDIR)$(lispdir)
 	$(CP) $(ELS) magit-autoloads.el magit-version.el $(ELCS) $(DESTDIR)$(lispdir)
+
+## Debug
+
+check-declare:
+	@printf "Checking function declarations\n"
+	@$(EMACS_BATCH) -L $(TOP)../borg -L $(TOP)../forge/lisp \
+	--eval "(check-declare-directory default-directory)"
 
 ## Clean #############################################################
 
