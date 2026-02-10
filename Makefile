@@ -121,12 +121,8 @@ test: lisp
 test-interactive:
 	@$(MAKE) -C test test-interactive
 
-emacs-Q: clean-lisp
-	@$(MAKE) -C lisp autoloads
-	@$(EMACS_INTR) --debug-init --eval "(progn\
-	(setq debug-on-error t)\
-	(require 'magit-autoloads)\
-	(global-set-key \"\\C-xg\" 'magit-status))"
+emacs-Q:
+	@$(MAKE) -C lisp emacs-Q
 
 check-declare:
 	@$(MAKE) -C lisp check-declare

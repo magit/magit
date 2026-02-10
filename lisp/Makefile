@@ -101,6 +101,13 @@ install: lisp versionlib
 
 ## Debug
 
+emacs-Q: clean
+	@$(MAKE) autoloads
+	@$(EMACS_INTR) --debug-init --eval "(progn\
+	(setq debug-on-error t)\
+	(require 'magit-autoloads)\
+	(global-set-key \"\\C-xg\" 'magit-status))"
+
 check-declare:
 	@printf "Checking function declarations\n"
 	@$(EMACS_BATCH) -L $(TOP)../borg -L $(TOP)../forge/lisp \
