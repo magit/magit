@@ -230,6 +230,7 @@ All Contributors
 - Lele Gaifax
 - Lénaïc Huard
 - Leo Liu
+- Leonard Lausen
 - Leonardo Etcheverry
 - Leo Vivier
 - Li Chen
