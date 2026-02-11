@@ -188,12 +188,11 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
          (setq line (magit-diff-visit--offset
                      file (concat rev-oid ".." rev) line)))
         ((setq line (magit-diff-visit--offset file (list "-R" rev) line)))))
-    (when line
-      (with-current-buffer buf
-        (widen)
-        (goto-char (point-min))
-        (forward-line (1- line))
-        (move-to-column col)))))
+    (with-current-buffer buf
+      (widen)
+      (goto-char (point-min))
+      (forward-line (1- line))
+      (move-to-column col))))
 
 (define-advice lsp (:around (fn &rest args) magit-find-file)
   "Do nothing when visiting blob using `magit-find-file' and similar.
