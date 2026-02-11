@@ -105,8 +105,9 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
                         (cons "." revert-without-query)
                       revert-without-query)))
                (find-file-noselect file)))
-            ([_ topdir]
-             [defdir (file-name-directory file)]
+            ((not topdir)
+             (error "%s is not inside a Git repository" file))
+            ([defdir (file-name-directory file)]
              [rev (magit--abbrev-if-hash rev)]
              (unless (file-in-directory-p file topdir)
                (error "%s is not inside Git repository %s" file topdir))
@@ -119,7 +120,7 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
                (setq-local revert-buffer-function #'magit--revert-blob-buffer)
                (magit--refresh-blob-buffer)
                (current-buffer)))
-            ((error "%s is not inside a Git repository" file)))))
+            ((error "Unexpected error")))))
     (when (and (not no-restore-position)
                (equal (magit-file-relative-name) file-relative))
       (let ((pos (magit-find-file--position)))
