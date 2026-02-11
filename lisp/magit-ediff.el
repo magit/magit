@@ -269,17 +269,17 @@ and alternative commands."
         (cond (fileC
                (magit-ediff-buffers
                 ((magit-get-revision-buffer revA fileA)
-                 (magit-find-file-noselect  revA fileA))
+                 (magit-ediff--find-file    revA fileA))
                 ((magit-get-revision-buffer revB fileB)
-                 (magit-find-file-noselect  revB fileB))
+                 (magit-ediff--find-file    revB fileB))
                 ((magit-get-revision-buffer revC fileC)
-                 (magit-find-file-noselect  revC fileC))
+                 (magit-ediff--find-file    revC fileC))
                 setup quit file))
               ((magit-ediff-buffers
                 ((magit-get-revision-buffer revA fileA)
-                 (magit-find-file-noselect  revA fileA))
+                 (magit-ediff--find-file    revA fileA))
                 ((magit-get-revision-buffer revB fileB)
-                 (magit-find-file-noselect  revB fileB))
+                 (magit-ediff--find-file    revB fileB))
                 nil setup quit file)))))))
 
 ;;;###autoload
@@ -332,8 +332,8 @@ FILE has to be relative to the top directory of the repository."
            (bufC* (or bufC (find-file-noselect file)))
            (coding-system-for-read
             (buffer-local-value 'buffer-file-coding-system bufC*))
-           (bufA* (magit-find-file-noselect "HEAD" file))
-           (bufB* (magit-find-file-index-noselect file)))
+           (bufA* (magit-ediff--find-file "HEAD" file))
+           (bufB* (magit-ediff--find-file "{index}" file)))
       (with-current-buffer bufB* (setq buffer-read-only nil))
       (magit-ediff-buffers
        (bufA bufA*)
@@ -373,9 +373,9 @@ range)."
              (magit-ediff-read-files revA revB))))
   (magit-ediff-buffers
    ((if revA (magit-get-revision-buffer revA fileA) (get-file-buffer    fileA))
-    (if revA (magit-find-file-noselect  revA fileA) (find-file-noselect fileA)))
+    (if revA (magit-ediff--find-file    revA fileA) (find-file-noselect fileA)))
    ((if revB (magit-get-revision-buffer revB fileB) (get-file-buffer    fileB))
-    (if revB (magit-find-file-noselect  revB fileB) (find-file-noselect fileB)))))
+    (if revB (magit-ediff--find-file    revB fileB) (find-file-noselect fileB)))))
 
 (defun magit-ediff-compare--read-revisions (&optional arg mbase)
   (let ((input (or arg (magit-diff-read-range-or-commit
@@ -503,9 +503,9 @@ FILE must be relative to the top directory of the repository."
                                   (magit-staged-files)
                                   "No staged files")))
   (magit-ediff-buffers ((magit-get-revision-buffer "HEAD" file)
-                        (magit-find-file-noselect "HEAD" file))
+                        (magit-ediff--find-file "HEAD" file))
                        ((get-buffer (concat file ".~{index}~"))
-                        (magit-find-file-index-noselect file))))
+                        (magit-ediff--find-file "{index}" file))))
 
 ;;;###autoload
 (defun magit-ediff-show-unstaged (file)
@@ -520,7 +520,7 @@ FILE must be relative to the top directory of the repository."
                                   (magit-unstaged-files)
                                   "No unstaged files")))
   (magit-ediff-buffers ((get-buffer (concat file ".~{index}~"))
-                        (magit-find-file-index-noselect file))
+                        (magit-ediff--find-file "{index}" file))
                        ((get-file-buffer file)
                         (find-file-noselect file))))
 
@@ -533,7 +533,7 @@ FILE must be relative to the top directory of the repository."
                                   (magit-changed-files "HEAD")
                                   "No changed files")))
   (magit-ediff-buffers ((magit-get-revision-buffer "HEAD" file)
-                        (magit-find-file-noselect  "HEAD" file))
+                        (magit-ediff--find-file "HEAD" file))
                        ((get-file-buffer file)
                         (find-file-noselect file))))
 
@@ -563,12 +563,15 @@ stash that were staged."
              (member fileA (magit-changed-files revB revA)))
         (magit-ediff-buffers
          ((magit-get-revision-buffer revA fileA)
-          (magit-find-file-noselect  revA fileA))
+          (magit-ediff--find-file    revA fileA))
          ((magit-get-revision-buffer revB fileB)
-          (magit-find-file-noselect  revB fileB))
+          (magit-ediff--find-file    revB fileB))
          ((magit-get-revision-buffer revC fileC)
-          (magit-find-file-noselect  revC fileC)))
+          (magit-ediff--find-file    revC fileC)))
       (magit-ediff-compare revA revC fileA fileC))))
+
+(defun magit-ediff--find-file (rev file)
+  (magit-find-file-noselect rev file t))
 
 (defun magit-ediff-cleanup-auxiliary-buffers ()
   (let* ((ctl-buf ediff-control-buffer)

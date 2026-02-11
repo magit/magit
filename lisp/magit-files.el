@@ -50,7 +50,7 @@ already exists.  If prior to calling this command the current
 buffer and/or cursor position is about the same file, then go
 to the line and column corresponding to that location."
   (interactive (magit-find-file-read-args "Find file"))
-  (magit-find-file--internal rev file #'pop-to-buffer-same-window))
+  (pop-to-buffer-same-window (magit-find-file-noselect rev file)))
 
 ;;;###autoload
 (defun magit-find-file-other-window (rev file)
@@ -60,7 +60,7 @@ already exists.  If prior to calling this command the current
 buffer and/or cursor position is about the same file, then go to
 the line and column corresponding to that location."
   (interactive (magit-find-file-read-args "Find file in other window"))
-  (magit-find-file--internal rev file #'switch-to-buffer-other-window))
+  (switch-to-buffer-other-window (magit-find-file-noselect rev file)))
 
 ;;;###autoload
 (defun magit-find-file-other-frame (rev file)
@@ -70,7 +70,7 @@ already exists.  If prior to calling this command the current
 buffer and/or cursor position is about the same file, then go to
 the line and column corresponding to that location."
   (interactive (magit-find-file-read-args "Find file in other frame"))
-  (magit-find-file--internal rev file #'switch-to-buffer-other-frame))
+  (switch-to-buffer-other-frame (magit-find-file-noselect rev file)))
 
 (defun magit-find-file-read-args (prompt)
   (let* ((pseudo-revs '("{worktree}" "{index}"))
@@ -84,46 +84,45 @@ the line and column corresponding to that location."
           (magit-read-file-from-rev (if (member rev pseudo-revs) "HEAD" rev)
                                     prompt))))
 
-(defun magit-find-file--internal (rev file display)
-  (let ((buf (magit-find-file-noselect rev file)))
-    (when (equal (magit-file-relative-name) file)
-      (let ((pos (magit-find-file--position)))
-        (with-current-buffer buf
-          (apply #'magit-find-file--restore-position pos))))
-    (funcall display buf)
-    buf))
-
-(defun magit-find-file-noselect (rev file)
+(defun magit-find-file-noselect (rev file &optional no-restore-position)
   "Read FILE from REV into a buffer and return the buffer.
 REV is a revision or one of \"{worktree}\" or \"{index}\"."
   (when (and (equal rev "{index}")
              (length> (magit--file-index-stages file) 1))
     (setq rev "{worktree}"))
-  (cond-let*
-    [[topdir (magit-toplevel)]
-     [file (expand-file-name file topdir)]]
-    ((equal rev "{worktree}")
-     (let ((revert-without-query
-            (if (and$ (find-buffer-visiting file)
-                      (buffer-local-value 'auto-revert-mode $))
-                (cons "." revert-without-query)
-              revert-without-query)))
-       (find-file-noselect file)))
-    ([_ topdir]
-     [defdir (file-name-directory file)]
-     [rev (magit--abbrev-if-hash rev)]
-     (unless (file-in-directory-p file topdir)
-       (error "%s is not in repository %s" file topdir))
-     (with-current-buffer (magit-get-revision-buffer-create
-                           rev
-                           (file-relative-name file topdir))
-       (setq magit-buffer-revision rev)
-       (setq magit-buffer-file-name file)
-       (setq default-directory (if (file-exists-p defdir) defdir topdir))
-       (setq-local revert-buffer-function #'magit--revert-blob-buffer)
-       (magit--refresh-blob-buffer)
-       (current-buffer)))
-    ((error "%s isn't inside a Git repository" file))))
+  (let* ((topdir (magit-toplevel))
+         (file (expand-file-name file topdir))
+         (file-relative (file-relative-name file topdir))
+         (buffer
+          (cond-let
+            ((equal rev "{worktree}")
+             (let ((revert-without-query
+                    (if (and$ (find-buffer-visiting file)
+                              (buffer-local-value 'auto-revert-mode $))
+                        (cons "." revert-without-query)
+                      revert-without-query)))
+               (find-file-noselect file)))
+            ([_ topdir]
+             [defdir (file-name-directory file)]
+             [rev (magit--abbrev-if-hash rev)]
+             (unless (file-in-directory-p file topdir)
+               (error "%s is not in repository %s" file topdir))
+             (with-current-buffer
+                 (magit-get-revision-buffer-create rev file-relative)
+               (setq magit-buffer-revision rev)
+               (setq magit-buffer-file-name file)
+               (setq default-directory
+                     (if (file-exists-p defdir) defdir topdir))
+               (setq-local revert-buffer-function #'magit--revert-blob-buffer)
+               (magit--refresh-blob-buffer)
+               (current-buffer)))
+            ((error "%s isn't inside a Git repository" file)))))
+    (when (and (not no-restore-position)
+               (equal (magit-file-relative-name) file-relative))
+      (let ((pos (magit-find-file--position)))
+        (with-current-buffer buffer
+          (apply #'magit-find-file--restore-position pos))))
+    buffer))
 
 (defun magit-get-revision-buffer-create (rev file)
   (magit-get-revision-buffer rev file t))
@@ -211,7 +210,7 @@ See also https://github.com/doomemacs/doomemacs/pull/6309."
 
 (defun magit-find-file-index-noselect (file)
   "Read FILE from the index into a buffer and return the buffer."
-  (magit-find-file-noselect "{index}" file))
+  (magit-find-file-noselect "{index}" file t))
 
 (defun magit-update-index ()
   "Update the index with the contents of the current buffer.
@@ -427,7 +426,7 @@ When visiting a blob or the version from the index, then go to
 the same location in the respective file in the working tree."
   (interactive)
   (if-let ((file (magit-file-relative-name)))
-      (magit-find-file--internal "{worktree}" file #'pop-to-buffer-same-window)
+      (pop-to-buffer-same-window (magit-find-file-noselect "{worktree}" file))
     (user-error "Not visiting a blob")))
 
 (defun magit-blob-visit (rev file)
@@ -638,6 +637,12 @@ If DEFAULT is non-nil, use this as the default value instead of
 
 (define-obsolete-function-alias 'magit-find-file-noselect-1
   'magit-find-file-noselect "Magit 4.4.0")
+
+(defun magit-find-file--internal (rev file display)
+  (declare (obsolete magit-find-file-noselect "Magit 4.6.0"))
+  (let ((buf (magit-find-file-noselect rev file)))
+    (funcall display buf)
+    buf))
 
 (provide 'magit-files)
 ;; Local Variables:
