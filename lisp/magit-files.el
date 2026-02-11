@@ -87,10 +87,13 @@ the line and column corresponding to that location."
 (defun magit-find-file-noselect (rev file &optional no-restore-position)
   "Read FILE from REV into a buffer and return the buffer.
 REV is a revision or one of \"{worktree}\" or \"{index}\"."
-  (when (and (equal rev "{index}")
-             (length> (magit--file-index-stages file) 1))
-    (setq rev "{worktree}"))
-  (let* ((topdir (magit-toplevel))
+  (let* ((rev (pcase rev
+                ('nil "{worktree}")
+                ((and "{index}"
+                      (guard (length> (magit--file-index-stages file) 1)))
+                 "{worktree}")
+                (rev rev)))
+         (topdir (magit-toplevel))
          (file (expand-file-name file topdir))
          (file-relative (file-relative-name file topdir))
          (buffer
