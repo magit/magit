@@ -181,13 +181,13 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
         ((not (equal visited-file file)))
         ((magit-rev-eq rev-oid rev))
         ((equal rev "{worktree}")
-         (setq line (magit-diff-visit--offset file rev-oid line)))
+         (setq line (magit-diff-visit--offset line file rev-oid)))
         ((equal rev "{index}")
-         (setq line (magit-diff-visit--offset file nil line)))
+         (setq line (magit-diff-visit--offset line file)))
         (rev-oid
          (setq line (magit-diff-visit--offset
-                     file (concat rev-oid ".." rev) line)))
-        ((setq line (magit-diff-visit--offset file (list "-R" rev) line)))))
+                     line file (concat rev-oid ".." rev))))
+        ((setq line (magit-diff-visit--offset line file "-R" rev)))))
     (with-current-buffer buf
       (widen)
       (goto-char (point-min))

@@ -1443,7 +1443,7 @@ for a revision."
         (save-buffer))
       (let ((buf (magit-revision-setup-buffer rev args files)))
         (when file
-          (let ((line (magit-diff-visit--offset file (list "-R" rev) line))
+          (let ((line (magit-diff-visit--offset line file "-R" rev))
                 (col (current-column)))
             (with-current-buffer buf
               (magit-diff--goto-file-position file line col))))))))
@@ -1816,8 +1816,8 @@ the Magit-Status buffer for DIRECTORY."
              (column (magit-diff-hunk-column hunk goto-from)))
     (with-current-buffer buffer
       (when (and goto-file (not (equal rev "{worktree}")))
-        (setq line (magit-diff-visit--offset
-                    file (if (equal rev "{index}") nil rev) line)))
+        (setq line (apply #'magit-diff-visit--offset line file
+                          (and (equal rev "{index}") (list rev)))))
       (save-restriction
         (widen)
         (goto-char (point-min))
@@ -1855,7 +1855,7 @@ the Magit-Status buffer for DIRECTORY."
     (max 0 (- (+ (current-column) 2)
               (length (oref section value))))))
 
-(defun magit-diff-visit--offset (file rev line)
+(defun magit-diff-visit--offset (line file &rest args)
   (let ((offset 0))
     (with-temp-buffer
       (save-excursion
