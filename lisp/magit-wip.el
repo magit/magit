@@ -131,10 +131,7 @@ buffer."
 (defun magit-wip-commit-buffer-file (&optional msg)
   "Commit visited file to a worktree work-in-progress ref."
   (interactive (list "save %s snapshot"))
-  (when (and (not magit--wip-inhibit-autosave)
-             buffer-file-name
-             (magit-inside-worktree-p t)
-             (magit-file-tracked-p buffer-file-name))
+  (when (magit-wip--commitable-p)
     (magit-wip-commit-worktree
      (magit-wip-get-ref)
      (list buffer-file-name)
@@ -155,10 +152,7 @@ buffer."
 (put 'magit-wip-buffer-backed-up 'permanent-local t)
 
 (defun magit-wip-commit-initial-backup ()
-  (when (and (not magit-wip-buffer-backed-up)
-             buffer-file-name
-             (magit-inside-worktree-p t)
-             (magit-file-tracked-p buffer-file-name))
+  (when (magit-wip--commitable-p)
     (let ((magit-save-repository-buffers nil))
       (magit-wip-commit-buffer-file "autosave %s before save"))
     (setq magit-wip-buffer-backed-up t)))
@@ -292,6 +286,12 @@ commit message."
                         (branch (or ref (magit-get-current-branch))))
                 (concat "refs/heads/" branch))
               "HEAD")))
+
+(defun magit-wip--commitable-p ()
+  (and (not magit--wip-inhibit-autosave)
+       buffer-file-name
+       (magit-inside-worktree-p t)
+       (magit-file-tracked-p buffer-file-name)))
 
 ;;; Log
 
