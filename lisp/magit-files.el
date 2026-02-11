@@ -210,11 +210,7 @@ See also https://github.com/doomemacs/doomemacs/pull/6309."
   (unless magit-buffer-revision
     (apply fn args)))
 
-;;; Find Index
-
-(defun magit-find-file-index-noselect (file)
-  "Read FILE from the index into a buffer and return the buffer."
-  (magit-find-file-noselect "{index}" file t))
+;;; Update Index
 
 (defun magit-update-index ()
   "Update the index with the contents of the current buffer.
@@ -647,6 +643,11 @@ If DEFAULT is non-nil, use this as the default value instead of
   (let ((buf (magit-find-file-noselect rev file)))
     (funcall display buf)
     buf))
+
+(defun magit-find-file-index-noselect (file)
+  "Read FILE from the index into a buffer and return the buffer."
+  (declare (obsolete magit-find-file-noselect "Magit 4.6.0"))
+  (magit-find-file-noselect "{index}" file t))
 
 (provide 'magit-files)
 ;; Local Variables:
