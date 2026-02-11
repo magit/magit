@@ -1815,13 +1815,15 @@ the Magit-Status buffer for DIRECTORY."
              (line   (magit-diff-hunk-line   hunk goto-from))
              (column (magit-diff-hunk-column hunk goto-from)))
     (with-current-buffer buffer
-      (when (and goto-file (not (equal rev "{worktree}")))
-        (setq line (apply #'magit-diff-visit--offset line file
-                          (and (not (equal rev "{index}")) (list rev)))))
       (save-restriction
         (widen)
         (goto-char (point-min))
-        (forward-line (1- line))
+        (forward-line
+         (1- (pcase rev
+               ((guard (not goto-file)) line)
+               ("{worktree}" line)
+               ("{index}" (magit-diff-visit--offset line file))
+               (_ (magit-diff-visit--offset line file rev)))))
         (move-to-column column)
         (point)))))
 
