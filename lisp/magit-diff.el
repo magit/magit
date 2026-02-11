@@ -1817,7 +1817,7 @@ the Magit-Status buffer for DIRECTORY."
     (with-current-buffer buffer
       (when (and goto-file (not (equal rev "{worktree}")))
         (setq line (apply #'magit-diff-visit--offset line file
-                          (and (equal rev "{index}") (list rev)))))
+                          (and (not (equal rev "{index}")) (list rev)))))
       (save-restriction
         (widen)
         (goto-char (point-min))
@@ -1860,7 +1860,10 @@ the Magit-Status buffer for DIRECTORY."
     (with-temp-buffer
       (save-excursion
         (magit-with-toplevel
-          (magit-git-insert "diff" rev "--" file)))
+          (cond ((stringp file)
+                 (magit-git-insert "diff" args "--" file))
+                ((magit-git-version< "2.50"))
+                ((apply #'magit--diff-pair (current-buffer) file)))))
       (catch 'found
         (while (re-search-forward
                 "^@@ -\\([0-9]+\\),\\([0-9]+\\) \\+\\([0-9]+\\),\\([0-9]+\\) @@.*\n"
@@ -1880,6 +1883,13 @@ the Magit-Status buffer for DIRECTORY."
                       (forward-line))))
               (throw 'found nil))))))
     (+ line offset)))
+
+(defun magit--diff-pair (buffer a b &optional file)
+  (with-temp-buffer
+    (insert (format ":100644 100644 %s %s M\0%s\0" a b (or file "blob")))
+    (call-process-region (point-min) (point-max)
+                         (magit-git-executable) nil buffer nil
+                         "diff-pairs" "-z")))
 
 ;;;; Scroll Commands
 
