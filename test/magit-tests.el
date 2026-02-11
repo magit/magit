@@ -42,9 +42,8 @@
                    (list "-c" "user.email=\"a.u.thor@example.com\"")
                    magit-git-global-arguments)))
        (condition-case err
-           (cl-letf (((symbol-function #'message) (lambda (&rest _))))
-             (let ((default-directory (file-truename ,dir)))
-               ,@body))
+           (let ((default-directory (file-truename ,dir)))
+             ,@body)
          (error (message "Keeping test directory:\n  %s" ,dir)
                 (signal (car err) (cdr err))))
        (delete-directory ,dir t))))
