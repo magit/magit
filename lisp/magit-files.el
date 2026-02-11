@@ -86,7 +86,10 @@ the line and column corresponding to that location."
 
 (defun magit-find-file--internal (rev file display)
   (let ((buf (magit-find-file-noselect rev file)))
-    (magit-find-file--restore-position buf rev file)
+    (when (equal (magit-file-relative-name) file)
+      (let ((pos (magit-find-file--position)))
+        (with-current-buffer buf
+          (apply #'magit-find-file--restore-position pos))))
     (funcall display buf)
     buf))
 
@@ -130,14 +133,9 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
            (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
 
 (defun magit--revert-blob-buffer (_ignore-auto _noconfirm)
-  (let ((old-rev-oid magit-buffer-revision-oid)
-        (line (line-number-at-pos))
-        (col (current-column)))
+  (let ((pos (magit-find-file--position)))
     (magit--refresh-blob-buffer t)
-    (magit-find-file--restore-position (current-buffer)
-                                       magit-buffer-revision-oid
-                                       (magit-file-relative-name)
-                                       old-rev-oid line col)))
+    (apply #'magit-find-file--restore-position pos)))
 
 (defun magit--refresh-blob-buffer (&optional force)
   (let ((old-blob-oid magit-buffer-blob-oid))
@@ -170,29 +168,38 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
     (set-buffer-modified-p nil)
     (run-hooks 'magit-find-blob-hook)))
 
-(defun magit-find-file--restore-position ( buf rev file
-                                           &optional old-rev-oid line col)
-  (when-let ((visited-file (magit-file-relative-name)))
-    (let ((rev-oid (or old-rev-oid magit-buffer-revision-oid)))
-      (unless line
-        (setq line (line-number-at-pos))
-        (setq col (current-column)))
-      (cond
-        ((not (equal visited-file file)))
-        ((magit-rev-eq rev-oid rev))
-        ((equal rev "{worktree}")
-         (setq line (magit-diff-visit--offset line file rev-oid)))
-        ((equal rev "{index}")
-         (setq line (magit-diff-visit--offset line file)))
-        (rev-oid
-         (setq line (magit-diff-visit--offset
-                     line file (concat rev-oid ".." rev))))
-        ((setq line (magit-diff-visit--offset line file "-R" rev)))))
-    (with-current-buffer buf
-      (widen)
-      (goto-char (point-min))
-      (forward-line (1- line))
-      (move-to-column col))))
+(defun magit-find-file--position ()
+  (list (or magit-buffer-revision-oid magit-buffer-revision "{worktree}")
+        magit-buffer-blob-oid
+        (line-number-at-pos)
+        (current-column)))
+
+(defun magit-find-file--restore-position (before blob line col)
+  (let ((file (magit-file-relative-name))
+        (rev (or magit-buffer-revision-oid magit-buffer-revision "{worktree}")))
+    (goto-char (point-min))
+    (forward-line
+     (1-
+      (pcase (list before rev)
+        ((guard (equal magit-buffer-blob-oid blob)) line)
+        ('("{worktree}" "{worktree}") line)
+        ('("{worktree}" "{index}")
+         (magit-diff-visit--offset line file "-R"))
+        (`("{worktree}" ,_)
+         (magit-diff-visit--offset line file "-R" rev))
+        ('("{index}" "{worktree}")
+         (magit-diff-visit--offset line file))
+        ('("{index}" "{index}")
+         (magit-diff-visit--offset line (list blob magit-buffer-blob-oid file)))
+        (`("{index}" ,_)
+         (magit-diff-visit--offset line file "-R" "--cached"))
+        (`(,_ "{worktree}")
+         (magit-diff-visit--offset line file before))
+        (`(,_ "{index}")
+         (magit-diff-visit--offset line file "--cached"))
+        (_
+         (magit-diff-visit--offset line file before rev)))))
+    (move-to-column col)))
 
 (define-advice lsp (:around (fn &rest args) magit-find-file)
   "Do nothing when visiting blob using `magit-find-file' and similar.
