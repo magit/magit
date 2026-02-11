@@ -133,9 +133,6 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
   (let ((old-rev-oid magit-buffer-revision-oid)
         (line (line-number-at-pos))
         (col (current-column)))
-    (setq magit-buffer-blob-oid (magit-blob-oid magit-buffer-revision
-                                                magit-buffer-file-name))
-    (setq magit-buffer-revision-oid (magit-commit-oid magit-buffer-revision))
     (magit--refresh-blob-buffer t)
     (magit-find-file--restore-position (current-buffer)
                                        magit-buffer-revision-oid
