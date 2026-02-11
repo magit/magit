@@ -291,7 +291,8 @@ commit message."
   (and (not magit--wip-inhibit-autosave)
        buffer-file-name
        (magit-inside-worktree-p t)
-       (magit-file-tracked-p buffer-file-name)))
+       (magit-file-tracked-p buffer-file-name)
+       (magit-wip-get-ref)))
 
 ;;; Log
 
