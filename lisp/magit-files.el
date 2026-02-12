@@ -31,6 +31,8 @@
 
 (require 'magit)
 
+(declare-function ediff-quit "ediff-util" (reverse-default-keep-variants))
+
 ;;; Find Blob
 
 (define-obsolete-variable-alias 'magit-find-file-hook
@@ -390,18 +392,32 @@ Currently this only adds the following key bindings.
   :package-version '(magit . "2.3.0"))
 
 (defun magit-bury-buffer (&optional kill-buffer)
-  "Bury the current buffer, or with a prefix argument kill it."
+  "Bury the current buffer, or with a prefix argument kill it.
+
+If the buffer is used by an Ediff session, refuse to kill or bury just
+that buffer.  That former would break the session and the latter makes
+little sense in this context.  Instead offer to quit the whole session."
   (interactive "P")
-  (if kill-buffer (kill-buffer) (bury-buffer)))
+  (cond ((bound-and-true-p ediff-this-buffer-ediff-sessions)
+         (ediff-quit nil))
+        (kill-buffer (kill-buffer))
+        ((bury-buffer))))
 
 (defun magit-bury-or-kill-buffer (&optional bury-buffer)
   "Bury the current buffer if displayed in multiple windows, else kill it.
-With a prefix argument only bury the buffer even if it is only displayed
-in a single window."
+
+With a prefix argument only bury the buffer even if it is only
+displayed in a single window.
+
+If the buffer is used by an Ediff session, refuse to kill or bury just
+that buffer.  That former would break the session and the latter makes
+little sense in this context.  Instead offer to quit the whole session."
   (interactive "P")
-  (if (or bury-buffer (cdr (get-buffer-window-list nil nil t)))
-      (bury-buffer)
-    (kill-buffer)))
+  (cond ((bound-and-true-p ediff-this-buffer-ediff-sessions)
+         (ediff-quit nil))
+        ((or bury-buffer (cdr (get-buffer-window-list nil nil t)))
+         (bury-buffer))
+        ((kill-buffer))))
 
 (defun magit-kill-this-buffer ()
   "Kill the current buffer."
