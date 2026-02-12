@@ -262,8 +262,7 @@ FILE has to be relative to the top directory of the repository."
   "Compare REVA:FILEA with REVB:FILEB using Ediff.
 
 FILEA and FILEB have to be relative to the top directory of the
-repository.  If REVA or REVB is nil, then this stands for the
-working tree state.
+repository.
 
 If the region is active, use the revisions on the first and last
 line of the region.  With a prefix argument, instead of diffing
@@ -276,8 +275,8 @@ range)."
       (nconc (list revA revB)
              (magit-ediff-read-files revA revB))))
   (magit-ediff-buffers
-   (magit-ediff--find-file (or revA "{worktree}") fileA)
-   (magit-ediff--find-file (or revB "{worktree}") fileB)))
+   (magit-ediff--find-file revA fileA)
+   (magit-ediff--find-file revB fileB)))
 
 (defun magit-ediff-compare--read-revisions (&optional arg mbase)
   (let ((input (or arg (magit-diff-read-range-or-commit
@@ -285,7 +284,7 @@ range)."
                         nil mbase))))
     (if-let ((range (magit-split-range input)))
         (list (car range) (cdr range))
-      (list input nil))))
+      (list input "{worktree}"))))
 
 (defun magit-ediff-read-files (revA revB &optional fileB)
   "Read file in REVB, return it and the corresponding file in REVA.
