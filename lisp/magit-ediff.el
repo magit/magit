@@ -130,8 +130,8 @@ recommend you do not further complicate that by enabling this.")
     ("r" "Show range"    magit-ediff-compare)
     ("z" "Show stash"    magit-ediff-show-stash)]])
 
-;;;###autoload
-(defun magit-ediff-resolve-all (file)
+;;;###autoload(autoload 'magit-ediff-resolve-all "magit-ediff" nil t)
+(transient-define-suffix magit-ediff-resolve-all (file)
   "Resolve all conflicts in the FILE at point using Ediff.
 
 If there is no file at point or if it doesn't have any unmerged
@@ -139,6 +139,7 @@ changes, then prompt for a file.
 
 See info node `(magit) Ediffing' for more information about this
 and alternative commands."
+  :inapt-if-not #'magit-anything-unmerged-p
   (interactive (list (magit-read-unmerged-file)))
   (magit-with-toplevel
     (let* ((dir   (magit-gitdir))
@@ -192,8 +193,8 @@ and alternative commands."
          (and fileC (magit-ediff--find-file revC fileC))
          setup quit file)))))
 
-;;;###autoload
-(defun magit-ediff-resolve-rest (file)
+;;;###autoload(autoload 'magit-ediff-resolve-rest "magit-ediff" nil t)
+(transient-define-suffix magit-ediff-resolve-rest (file)
   "Resolve outstanding conflicts in the FILE at point using Ediff.
 
 If there is no file at point or if it doesn't have any unmerged
@@ -201,6 +202,7 @@ changes, then prompt for a file.
 
 See info node `(magit) Ediffing' for more information about this
 and alternative commands."
+  :inapt-if-not #'magit-anything-unmerged-p
   (interactive (list (magit-read-unmerged-file)))
   (magit-with-toplevel
     (with-current-buffer (find-file-noselect file)
@@ -224,10 +226,11 @@ and alternative commands."
          (let ((magit-ediff-previous-winconf smerge-ediff-windows))
            (run-hooks 'magit-ediff-quit-hook)))))))
 
-;;;###autoload
-(defun magit-ediff-stage (file)
+;;;###autoload(autoload 'magit-ediff-stage "magit-ediff" nil t)
+(transient-define-suffix magit-ediff-stage (file)
   "Stage and unstage changes to FILE using Ediff.
 FILE has to be relative to the top directory of the repository."
+  :inapt-if-not #'magit-anything-modified-p
   (interactive
     (let ((files (magit-tracked-files)))
       (list (magit-completing-read "Selectively stage file" files nil t nil nil
@@ -257,8 +260,8 @@ FILE has to be relative to the top directory of the repository."
              (when (y-or-n-p (format "Save file %s? " buffer-file-name))
                (save-buffer)))))))))
 
-;;;###autoload
-(defun magit-ediff-compare (revA revB fileA fileB)
+;;;###autoload(autoload 'magit-ediff-compare "magit-ediff" nil t)
+(transient-define-suffix magit-ediff-compare (revA revB fileA fileB)
   "Compare REVA:FILEA with REVB:FILEB using Ediff.
 
 FILEA and FILEB have to be relative to the top directory of the
@@ -317,8 +320,8 @@ prompting for it."
                      revA revB)))
         fileB))
 
-;;;###autoload
-(defun magit-ediff-dwim ()
+;;;###autoload(autoload 'magit-ediff-dwim "magit-ediff" nil t)
+(transient-define-suffix magit-ediff-dwim ()
   "Compare, stage, or resolve using Ediff.
 This command tries to guess what file, and what commit or range
 the user wants to compare, stage, or resolve using Ediff.  It
@@ -391,14 +394,15 @@ mind at all, then it asks the user for a command to run."
               (funcall command file))
              ((call-interactively command)))))))
 
-;;;###autoload
-(defun magit-ediff-show-staged (file)
+;;;###autoload(autoload 'magit-ediff-show-staged "magit-ediff" nil t)
+(transient-define-suffix magit-ediff-show-staged (file)
   "Show staged changes using Ediff.
 
 This only allows looking at the changes; to stage, unstage,
 and discard changes using Ediff, use `magit-ediff-stage'.
 
 FILE must be relative to the top directory of the repository."
+  :inapt-if-not #'magit-anything-staged-p
   (interactive
     (list (magit-read-file-choice "Show staged changes for file"
                                   (magit-staged-files)
@@ -406,14 +410,15 @@ FILE must be relative to the top directory of the repository."
   (magit-ediff-buffers (magit-ediff--find-file "HEAD" file)
                        (magit-ediff--find-file "{index}" file)))
 
-;;;###autoload
-(defun magit-ediff-show-unstaged (file)
+;;;###autoload(autoload 'magit-ediff-show-unstaged "magit-ediff" nil t)
+(transient-define-suffix magit-ediff-show-unstaged (file)
   "Show unstaged changes using Ediff.
 
 This only allows looking at the changes; to stage, unstage,
 and discard changes using Ediff, use `magit-ediff-stage'.
 
 FILE must be relative to the top directory of the repository."
+  :inapt-if-not #'magit-anything-unstaged-p
   (interactive
     (list (magit-read-file-choice "Show unstaged changes for file"
                                   (magit-unstaged-files)
@@ -421,10 +426,11 @@ FILE must be relative to the top directory of the repository."
   (magit-ediff-buffers (magit-ediff--find-file "{index}" file)
                        (magit-ediff--find-file "{worktree}" file)))
 
-;;;###autoload
-(defun magit-ediff-show-working-tree (file)
+;;;###autoload(autoload 'magit-ediff-show-working-tree "magit-ediff" nil t)
+(transient-define-suffix magit-ediff-show-working-tree (file)
   "Show changes between `HEAD' and working tree using Ediff.
 FILE must be relative to the top directory of the repository."
+  :inapt-if-not #'magit-anything-modified-p
   (interactive
     (list (magit-read-file-choice "Show changes in file"
                                   (magit-modified-files)
@@ -432,8 +438,8 @@ FILE must be relative to the top directory of the repository."
   (magit-ediff-buffers (magit-ediff--find-file "HEAD" file)
                        (magit-ediff--find-file "{worktree}" file)))
 
-;;;###autoload
-(defun magit-ediff-show-commit (commit)
+;;;###autoload(autoload 'magit-ediff-show-commit "magit-ediff" nil t)
+(transient-define-suffix magit-ediff-show-commit (commit)
   "Show changes introduced by COMMIT using Ediff."
   (interactive (list (magit-read-branch-or-commit "Revision")))
   (let ((revA (concat commit "^"))
@@ -442,12 +448,13 @@ FILE must be relative to the top directory of the repository."
            revA revB
            (magit-ediff-read-files revA revB (magit-current-file)))))
 
-;;;###autoload
-(defun magit-ediff-show-stash (stash)
+;;;###autoload(autoload 'magit-ediff-show-stash "magit-ediff" nil t)
+(transient-define-suffix magit-ediff-show-stash (stash)
   "Show changes introduced by STASH using Ediff.
 `magit-ediff-show-stash-with-index' controls whether a three-buffer
 Ediff is used in order to distinguish changes in the stash that were
 staged."
+  :inapt-if-not #'magit-list-stashes
   (interactive (list (magit-read-stash "Stash")))
   (pcase-let* ((revA (concat stash "^1"))
                (revB (concat stash "^2"))
