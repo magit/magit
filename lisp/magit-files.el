@@ -42,6 +42,8 @@
 (defvar magit-find-blob-hook nil)
 (add-hook 'magit-find-blob-hook #'magit-blob-mode)
 
+(defvar-local magit-buffer--volatile nil)
+
 ;;;###autoload
 (defun magit-find-file (rev file)
   "View FILE from REV.
@@ -84,7 +86,7 @@ the line and column corresponding to that location."
           (magit-read-file-from-rev (if (member rev pseudo-revs) "HEAD" rev)
                                     prompt))))
 
-(defun magit-find-file-noselect (rev file &optional no-restore-position)
+(defun magit-find-file-noselect (rev file &optional no-restore-position volatile)
   "Read FILE from REV into a buffer and return the buffer.
 REV is a revision or one of \"{worktree}\" or \"{index}\"."
   (let* ((rev (pcase rev
@@ -112,7 +114,7 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
              (unless (file-in-directory-p file topdir)
                (error "%s is not inside Git repository %s" file topdir))
              (with-current-buffer
-                 (magit-get-revision-buffer-create rev file-relative)
+                 (magit--get-blob-buffer rev file-relative volatile)
                (setq magit-buffer-revision rev)
                (setq magit-buffer-file-name file)
                (setq default-directory
@@ -128,12 +130,26 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
           (apply #'magit-find-file--restore-position pos))))
     buffer))
 
-(defun magit-get-revision-buffer-create (rev file)
-  (magit-get-revision-buffer rev file t))
+(defun magit--get-blob-buffer (rev file &optional volatile)
+  ;; REV is assummed to be abbreviated and FILE to be relative.
+  (cond-let
+    ([buf (magit--find-buffer 'magit-buffer-revision rev
+                              'magit-buffer-file-name file)]
+     (with-current-buffer buf
+       (when (and (not volatile) magit-buffer--volatile)
+         (setq magit-buffer--volatile nil)
+         (rename-buffer (magit--blob-buffer-name rev file))))
+     buf)
+    ([buf (get-buffer-create (magit--blob-buffer-name rev file volatile))]
+     (with-current-buffer buf
+       (setq magit-buffer--volatile volatile))
+     buf)))
 
-(defun magit-get-revision-buffer (rev file &optional create)
-  (funcall (if create #'get-buffer-create #'get-buffer)
-           (format "%s.~%s~" file (subst-char-in-string ?/ ?_ rev))))
+(defun magit--blob-buffer-name (rev file &optional volatile)
+  (format "%s%s.~%s~"
+          (if volatile " " "")
+          file
+          (subst-char-in-string ?/ ?_ rev)))
 
 (defun magit--revert-blob-buffer (_ignore-auto _noconfirm)
   (let ((pos (magit-find-file--position)))

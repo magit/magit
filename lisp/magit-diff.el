@@ -41,7 +41,7 @@
 (declare-function magit-stash-show "magit-stash" (stash &optional args files))
 ;; For `magit-diff-visit-file'
 (declare-function magit-find-file-noselect "magit-files"
-                  (rev file &optional no-restore-position))
+                  (rev file &optional no-restore-position volatile))
 (declare-function magit-status-setup-buffer "magit-status" (&optional directory))
 ;; For `magit-diff-wash-diff'
 (defvar magit-log-heading-re)

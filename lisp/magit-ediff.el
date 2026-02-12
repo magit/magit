@@ -570,6 +570,9 @@ stash that were staged."
           (magit-ediff--find-file    revC fileC)))
       (magit-ediff-compare revA revC fileA fileC))))
 
+(defun magit-get-revision-buffer (rev file)
+  (get-buffer (magit--blob-buffer-name rev file)))
+
 (defun magit-ediff--find-file (rev file)
   (magit-find-file-noselect rev file t))
 
