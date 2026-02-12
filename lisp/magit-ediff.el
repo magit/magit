@@ -372,10 +372,10 @@ range)."
       (nconc (list revA revB)
              (magit-ediff-read-files revA revB))))
   (magit-ediff-buffers
-   ((if revA (magit-get-revision-buffer revA fileA) (get-file-buffer    fileA))
-    (if revA (magit-ediff--find-file    revA fileA) (find-file-noselect fileA)))
-   ((if revB (magit-get-revision-buffer revB fileB) (get-file-buffer    fileB))
-    (if revB (magit-ediff--find-file    revB fileB) (find-file-noselect fileB)))))
+   ((magit-get-revision-buffer (or revA "{worktree}") fileA)
+    (magit-ediff--find-file    (or revA "{worktree}") fileA))
+   ((magit-get-revision-buffer (or revB "{worktree}") fileB)
+    (magit-ediff--find-file    (or revB "{worktree}") fileB))))
 
 (defun magit-ediff-compare--read-revisions (&optional arg mbase)
   (let ((input (or arg (magit-diff-read-range-or-commit
@@ -521,8 +521,8 @@ FILE must be relative to the top directory of the repository."
                                   "No unstaged files")))
   (magit-ediff-buffers ((magit-get-revision-buffer "{index}" file)
                         (magit-ediff--find-file    "{index}" file))
-                       ((get-file-buffer file)
-                        (find-file-noselect file))))
+                       ((magit-get-revision-buffer "{worktree}" file)
+                        (magit-ediff--find-file    "{worktree}" file))))
 
 ;;;###autoload
 (defun magit-ediff-show-working-tree (file)
@@ -534,8 +534,8 @@ FILE must be relative to the top directory of the repository."
                                   "No changed files")))
   (magit-ediff-buffers ((magit-get-revision-buffer "HEAD" file)
                         (magit-ediff--find-file    "HEAD" file))
-                       ((get-file-buffer file)
-                        (find-file-noselect file))))
+                       ((magit-get-revision-buffer "{worktree}" file)
+                        (magit-ediff--find-file    "{worktree}" file))))
 
 ;;;###autoload
 (defun magit-ediff-show-commit (commit)
