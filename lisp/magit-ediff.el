@@ -446,9 +446,9 @@ FILE must be relative to the top directory of the repository."
 ;;;###autoload
 (defun magit-ediff-show-stash (stash)
   "Show changes introduced by STASH using Ediff.
-`magit-ediff-show-stash-with-index' controls whether a
-three-buffer Ediff is used in order to distinguish changes in the
-stash that were staged."
+`magit-ediff-show-stash-with-index' controls whether a three-buffer
+Ediff is used in order to distinguish changes in the stash that were
+staged."
   (interactive (list (magit-read-stash "Stash")))
   (pcase-let* ((revA (concat stash "^1"))
                (revB (concat stash "^2"))
