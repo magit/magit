@@ -428,7 +428,7 @@ FILE must be relative to the top directory of the repository."
 FILE must be relative to the top directory of the repository."
   (interactive
     (list (magit-read-file-choice "Show changes in file"
-                                  (magit-changed-files "HEAD")
+                                  (magit-modified-files)
                                   "No changed files")))
   (magit-ediff-buffers (magit-ediff--find-file "HEAD" file)
                        (magit-ediff--find-file "{worktree}" file)))
