@@ -113,7 +113,7 @@ recommend you do not further complicate that by enabling this.")
 
 (defvar magit-ediff-previous-winconf nil)
 
-;;;###autoload(autoload 'magit-ediff "magit-ediff" nil)
+;;;###autoload(autoload 'magit-ediff "magit-ediff" nil t)
 (transient-define-prefix magit-ediff ()
   "Show differences using the Ediff package."
   :info-manual "(ediff)"
