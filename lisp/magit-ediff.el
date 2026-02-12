@@ -503,9 +503,9 @@ FILE must be relative to the top directory of the repository."
                                   (magit-staged-files)
                                   "No staged files")))
   (magit-ediff-buffers ((magit-get-revision-buffer "HEAD" file)
-                        (magit-ediff--find-file "HEAD" file))
-                       ((get-buffer (concat file ".~{index}~"))
-                        (magit-ediff--find-file "{index}" file))))
+                        (magit-ediff--find-file    "HEAD" file))
+                       ((magit-get-revision-buffer "{index}" file)
+                        (magit-ediff--find-file    "{index}" file))))
 
 ;;;###autoload
 (defun magit-ediff-show-unstaged (file)
@@ -519,8 +519,8 @@ FILE must be relative to the top directory of the repository."
     (list (magit-read-file-choice "Show unstaged changes for file"
                                   (magit-unstaged-files)
                                   "No unstaged files")))
-  (magit-ediff-buffers ((get-buffer (concat file ".~{index}~"))
-                        (magit-ediff--find-file "{index}" file))
+  (magit-ediff-buffers ((magit-get-revision-buffer "{index}" file)
+                        (magit-ediff--find-file    "{index}" file))
                        ((get-file-buffer file)
                         (find-file-noselect file))))
 
@@ -533,7 +533,7 @@ FILE must be relative to the top directory of the repository."
                                   (magit-changed-files "HEAD")
                                   "No changed files")))
   (magit-ediff-buffers ((magit-get-revision-buffer "HEAD" file)
-                        (magit-ediff--find-file "HEAD" file))
+                        (magit-ediff--find-file    "HEAD" file))
                        ((get-file-buffer file)
                         (find-file-noselect file))))
 
