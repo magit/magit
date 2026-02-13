@@ -5,7 +5,7 @@
   <a href="https://docs.magit.vc"><b>manual</b></a> |
   <a href="https://docs.magit.vc/magit/FAQ.html"><b>faq</b></a> |
   <a href="https://github.com/magit/magit/wiki"><b>wiki</b></a> |
-  <a href="https://emacs.ch/@tarsius"><b>mastodon</b></a>
+  <a href="https://fosstodon.org/@tarsius"><b>mastodon</b></a>
 </p>
 <hr>
 
