@@ -719,37 +719,44 @@ side.  That way you don't lose the ability to visit the old side."
 
 ;;;; Lines
 
+(defcustom magit-diff-specify-hunk-foreground t
+  "Whether to specify foreground colors for hunk faces.
+Setting this only has an effect if done before Magit is loaded."
+  :package-version '(magit . "4.6.0")
+  :group 'magit-faces
+  :type 'boolean)
+
 (defface magit-diff-context
-  '((((class color) (background light))
+  `((((class color) (background light))
      :extend t
-     :foreground "grey50")
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "grey50")))
     (((class color) (background  dark))
      :extend t
-     :foreground "grey70"))
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "grey70"))))
   "Face for lines in a diff that are unchanged."
   :group 'magit-faces)
 
 (defface magit-diff-removed
-  '((((class color) (background light))
+  `((((class color) (background light))
      :extend t
      :background "#ffdddd"
-     :foreground "#aa2222")
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "#aa2222")))
     (((class color) (background dark))
      :extend t
      :background "#553333"
-     :foreground "#ffdddd"))
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "#ffdddd"))))
   "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
 (defface magit-diff-added
-  '((((class color) (background light))
+  `((((class color) (background light))
      :extend t
      :background "#ddffdd"
-     :foreground "#22aa22")
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "#22aa22")))
     (((class color) (background dark))
      :extend t
      :background "#335533"
-     :foreground "#ddffdd"))
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "#ddffdd"))))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
@@ -759,14 +766,14 @@ side.  That way you don't lose the ability to visit the old side."
   :group 'magit-faces)
 
 (defface magit-diff-base
-  '((((class color) (background light))
+  `((((class color) (background light))
      :extend t
      :background "#ffffcc"
-     :foreground "#aaaa11")
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "#aaaa11")))
     (((class color) (background dark))
      :extend t
      :background "#555522"
-     :foreground "#ffffcc"))
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "#ffffcc"))))
   "Face for lines in a diff for the base side in a conflict."
   :group 'magit-faces)
 
@@ -778,38 +785,38 @@ side.  That way you don't lose the ability to visit the old side."
 ;;;; Highlights
 
 (defface magit-diff-context-highlight
-  '((((class color) (background light))
+  `((((class color) (background light))
      :extend t
      :background "grey95"
-     :foreground "grey50")
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "grey50")))
     (((class color) (background dark))
      :extend t
      :background "grey20"
-     :foreground "grey70"))
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "grey70"))))
   "Face for lines in the current context in a diff."
   :group 'magit-faces)
 
 (defface magit-diff-removed-highlight
-  '((((class color) (background light))
+  `((((class color) (background light))
      :extend t
      :background "#eecccc"
-     :foreground "#aa2222")
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "#aa2222")))
     (((class color) (background dark))
      :extend t
      :background "#663333"
-     :foreground "#eecccc"))
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "#eecccc"))))
   "Face for lines in a diff that have been removed."
   :group 'magit-faces)
 
 (defface magit-diff-added-highlight
-  '((((class color) (background light))
+  `((((class color) (background light))
      :extend t
      :background "#cceecc"
-     :foreground "#22aa22")
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "#22aa22")))
     (((class color) (background dark))
      :extend t
      :background "#336633"
-     :foreground "#cceecc"))
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "#cceecc"))))
   "Face for lines in a diff that have been added."
   :group 'magit-faces)
 
@@ -819,14 +826,14 @@ side.  That way you don't lose the ability to visit the old side."
   :group 'magit-faces)
 
 (defface magit-diff-base-highlight
-  '((((class color) (background light))
+  `((((class color) (background light))
      :extend t
      :background "#eeeebb"
-     :foreground "#aaaa11")
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "#aaaa11")))
     (((class color) (background dark))
      :extend t
      :background "#666622"
-     :foreground "#eeeebb"))
+     ,@(and magit-diff-specify-hunk-foreground '(:foreground "#eeeebb"))))
   "Face for lines in a diff for the base side in a conflict."
   :group 'magit-faces)
 
