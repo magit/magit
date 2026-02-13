@@ -3418,39 +3418,46 @@ actually a `diff' but a `diffstat' section."
     (forward-line)
     (while (< (point) end)
       (let ((bol (point))
-            (eol (line-end-position)))
+            (eol (line-end-position))
+            (line-face nil))
         (when (and magit-diff-hide-trailing-cr-characters
                    (char-equal ?\r (char-before eol)))
           (put-text-property (1- eol) eol 'invisible t))
-        (put-text-property
-         bol (1+ eol) 'font-lock-face
-         (cond
-           ((looking-at "^\\+\\+?\\([<=|>]\\)\\{7\\}")
-            (setq stage (pcase (list (match-str 1) highlight)
-                          ('("<" nil) 'magit-diff-our)
-                          ('("<"   t) 'magit-diff-our-highlight)
-                          ('("|" nil) 'magit-diff-base)
-                          ('("|"   t) 'magit-diff-base-highlight)
-                          ('("=" nil) 'magit-diff-their)
-                          ('("="   t) 'magit-diff-their-highlight)
-                          ('(">" nil) nil)))
-            (if highlight
-                'magit-diff-conflict-heading-highlight
-              'magit-diff-conflict-heading))
-           ((looking-at (if merging "^\\(\\+\\| \\+\\)" "^\\+"))
-            (magit-diff-paint-tab merging tab-width)
-            (magit-diff-paint-whitespace merging 'added diff-type)
-            (or stage
-                (if highlight 'magit-diff-added-highlight 'magit-diff-added)))
-           ((looking-at (if merging "^\\(-\\| -\\)" "^-"))
-            (magit-diff-paint-tab merging tab-width)
-            (magit-diff-paint-whitespace merging 'removed diff-type)
-            (if highlight 'magit-diff-removed-highlight 'magit-diff-removed))
-           (t
-            (magit-diff-paint-tab merging tab-width)
-            (magit-diff-paint-whitespace merging 'context diff-type)
-            (if highlight 'magit-diff-context-highlight 'magit-diff-context))))
-        (forward-line))))
+        (cond
+          ((looking-at "^\\+\\+?\\([<=|>]\\)\\{7\\}")
+           (setq line-face
+                 (if highlight
+                     'magit-diff-conflict-heading-highlight
+                   'magit-diff-conflict-heading))
+           (setq stage
+                 (pcase (list (match-str 1) highlight)
+                   ('("<" nil) 'magit-diff-our)
+                   ('("<"   t) 'magit-diff-our-highlight)
+                   ('("|" nil) 'magit-diff-base)
+                   ('("|"   t) 'magit-diff-base-highlight)
+                   ('("=" nil) 'magit-diff-their)
+                   ('("="   t) 'magit-diff-their-highlight)
+                   ('(">" nil) nil))))
+          ((looking-at (if merging "^\\(\\+\\| \\+\\)" "^\\+"))
+           (magit-diff-paint-tab merging tab-width)
+           (magit-diff-paint-whitespace merging 'added diff-type)
+           (setq line-face (cond (stage)
+                                 (highlight 'magit-diff-added-highlight)
+                                 ('magit-diff-added))))
+          ((looking-at (if merging "^\\(-\\| -\\)" "^-"))
+           (magit-diff-paint-tab merging tab-width)
+           (magit-diff-paint-whitespace merging 'removed diff-type)
+           (setq line-face (if highlight
+                               'magit-diff-removed-highlight
+                             'magit-diff-removed)))
+          (t
+           (magit-diff-paint-tab merging tab-width)
+           (magit-diff-paint-whitespace merging 'context diff-type)
+           (setq line-face (if highlight
+                               'magit-diff-context-highlight
+                             'magit-diff-context))))
+        (put-text-property bol (1+ eol) 'font-lock-face line-face))
+      (forward-line)))
   (when (eq magit-diff-refine-hunk 'all)
     (magit-diff-update-hunk-refinement section))
   (oset section painted (if highlight 'highlight 'plain)))
