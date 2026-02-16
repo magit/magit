@@ -153,11 +153,11 @@ to set `magit-branch-prefer-remote-upstream' to a non-nil value.
 However, I recommend that you use local branches as UPSTREAM."
   :package-version '(magit . "2.9.0")
   :group 'magit-commands
-  :type '(repeat (cons (string :tag "Use upstream")
-                       (choice :tag "For branches" ;???
-                               (regexp :tag "Matching")
-                               (repeat :tag "Except"
-                                       (string :tag "Branch"))))))
+  :type '(alist :key-type (string :tag "Use upstream")
+                :value-type (choice :tag "For branches" ;???
+                                    (regexp :tag "Matching")
+                                    (repeat :tag "Except"
+                                            (string :tag "Branch")))))
 
 (defcustom magit-branch-rename-push-target t
   "Whether the push-remote setup is preserved when renaming a branch.
