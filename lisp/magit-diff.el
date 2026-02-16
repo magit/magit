@@ -305,10 +305,10 @@ If the used INDENT is `tabs', highlight indentation with tabs.
 If INDENT is an integer, highlight indentation with at least
 that many spaces.  Otherwise, highlight neither."
   :group 'magit-diff
-  :type `(repeat (cons (string :tag "Directory regexp")
-                       (choice (const :tag "Tabs" tabs)
-                               (integer :tag "Spaces" :value ,tab-width)
-                               (const :tag "Neither" nil)))))
+  :type `(alist :key-type (regexp :tag "Directory regexp")
+                :value-type (choice (const :tag "Tabs" tabs)
+                                    (natnum :tag "Spaces" :value ,tab-width)
+                                    (const :tag "Neither" nil))))
 
 (defcustom magit-diff-hide-trailing-cr-characters
   (and (memq system-type '(ms-dos windows-nt)) t)
