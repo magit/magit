@@ -677,7 +677,8 @@ an alternative implementation."
     (message "Diffing changes to be committed (C-g to abort diffing)")
     (let ((inhibit-quit nil))
       (condition-case nil
-          (magit-commit-diff-1)
+          (with-demoted-errors "Error showing commit diff: %S"
+            (magit-commit-diff-1))
         (quit)))))
 
 (defun magit-commit-diff-1 ()
