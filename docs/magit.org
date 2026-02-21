@@ -5783,12 +5783,16 @@ following suffix commands.
   merge commit, which makes it possible to inspect how conflicts were
   resolved and to adjust the commit message.
 
+  To create an octopus-merge, separate branches with commas.
+
 - Key: m e (magit-merge-editmsg) ::
 
   This command merges another branch or an arbitrary revision into the
   current branch and opens a commit message buffer, so that the user
   can make adjustments.  The commit is not actually created until the
   user finishes with ~C-c C-c~.
+
+  To create an octopus-merge, separate branches with commas.
 
 - Key: m n (magit-merge-nocommit) ::
 
@@ -5808,6 +5812,8 @@ following suffix commands.
   stuck on some obsolete version of the commits that are being merged.
   Finally, if ~magit-branch-pull-request~ was used to create the merged
   branch, then the respective remote branch is also removed.
+
+  To create an octopus-merge, separate branches with commas.
 
 - Key: m d (magit-merge-dissolve) ::
 

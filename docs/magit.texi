@@ -6825,6 +6825,8 @@ created.  With a prefix argument this does not actually create the
 merge commit, which makes it possible to inspect how conflicts were
 resolved and to adjust the commit message.
 
+To create an octopus-merge, separate branches with commas.
+
 @item @kbd{m e} (@code{magit-merge-editmsg})
 @kindex m e
 @findex magit-merge-editmsg
@@ -6832,6 +6834,8 @@ This command merges another branch or an arbitrary revision into the
 current branch and opens a commit message buffer, so that the user
 can make adjustments.  The commit is not actually created until the
 user finishes with @code{C-c C-c}.
+
+To create an octopus-merge, separate branches with commas.
 
 @item @kbd{m n} (@code{magit-merge-nocommit})
 @kindex m n
@@ -6853,6 +6857,8 @@ This ensures that the respective pull-request (if any) won't get
 stuck on some obsolete version of the commits that are being merged.
 Finally, if @code{magit-branch-pull-request} was used to create the merged
 branch, then the respective remote branch is also removed.
+
+To create an octopus-merge, separate branches with commas.
 
 @item @kbd{m d} (@code{magit-merge-dissolve})
 @kindex m d
