@@ -112,9 +112,7 @@ edit it.
                      (magit-merge-arguments)))
   (magit-merge-assert)
   (cl-pushnew "--no-ff" args :test #'equal)
-  (apply #'magit-run-git-with-editor "merge" "--edit"
-         (append (delete "--ff-only" args)
-                 (list rev))))
+  (magit-run-git-with-editor "merge" "--edit" (delete "--ff-only" args) rev))
 
 ;;;###autoload
 (defun magit-merge-nocommit (rev &optional args)
