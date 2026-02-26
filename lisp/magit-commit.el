@@ -669,7 +669,13 @@ an alternative implementation."
                                   'magit-commit--rebase
                                 last-command))
   (when (and git-commit-mode magit-commit-show-diff)
-    (when-let ((diff-buffer (magit-get-mode-buffer 'magit-diff-mode)))
+    (when-let ((diff-buffer
+                ;; This signals an error if not inside a Git repository,
+                ;; but the user may be visiting COMMIT_EDITMSG using a
+                ;; tool other than git, which can be used outside a Git
+                ;; repository.  See #5527.
+                (ignore-error magit-outside-git-repo
+                  (magit-get-mode-buffer 'magit-diff-mode))))
       ;; This window just started displaying the commit message
       ;; buffer.  Without this that buffer would immediately be
       ;; replaced with the diff buffer.  See #2632.

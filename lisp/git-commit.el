@@ -504,6 +504,12 @@ Used as the local value of `header-line-format', in buffer using
   (setq git-commit-usage-message nil) ; show a shorter message")
 
 (defun git-commit-setup ()
+  ;; If an error occurs when `emacsclient' is used, and it turns out
+  ;; to not be triggered by something in this function, then another
+  ;; likely source are functions on `server-switch-hook'.  Debugging
+  ;; is suppressed while running that hook, so it may be necessary to
+  ;; force debugging by modifying those functions directly.  Enabling
+  ;; `magit-process-record-invocations' may also help.
   (let ((gitdir default-directory)
         (cd (and git-commit-cd-to-toplevel
                  (or (car (rassoc default-directory magit--separated-gitdirs))
