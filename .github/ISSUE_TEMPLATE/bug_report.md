@@ -7,6 +7,8 @@ note: Keep in sync with wiki/How-to-report-a-bug.md
 
 Please do not ignore these instructions.
 
+Please use your own words.  If you really must use a LLM, at least disclose that upfront.
+
 If you have just updated Magit, then restart Emacs. If that does not fix the issue, then also uninstall Magit and all dependencies that were updated at the same time, restart Emacs and then reinstall Magit.
 
 The reason why this might fix the issue is that updating a package does not cause the old version to be unloaded, so you might end up with a franken-version; a mixture of parts of the old and new version being loaded at the same time. Worse it is possible for the old version to leak into the byte-code of the new version, which is why reinstalling might help.
