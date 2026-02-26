@@ -676,9 +676,9 @@ an alternative implementation."
                 ;; repository.  See #5527.
                 (ignore-error magit-outside-git-repo
                   (magit-get-mode-buffer 'magit-diff-mode))))
-      ;; This window just started displaying the commit message
-      ;; buffer.  Without this that buffer would immediately be
-      ;; replaced with the diff buffer.  See #2632.
+      ;; This window just started displaying the commit message buffer.
+      ;; Without unrecording that buffer would immediately be replaced
+      ;; with the diff buffer.  See #2632.
       (unrecord-window-buffer nil diff-buffer))
     (message "Diffing changes to be committed (C-g to abort diffing)")
     (let ((inhibit-quit nil))
