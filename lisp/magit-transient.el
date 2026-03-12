@@ -95,17 +95,16 @@
     (cond-let
       (current-prefix-arg
        (pcase-let*
-           ((`(,fallback . ,choices)
+           ((`(,unset . ,choices)
              (magit--git-variable-list-choices obj))
+            (unset (or unset "(unset)"))
             (choice (magit-completing-read
                      (format "Set `%s' to" (oref obj variable))
-                     (if fallback
-                         (nconc (mapcar #'magit--delete-text-properties choices)
-                                (list (propertize fallback 'face
-                                                  'transient-inactive-value)))
-                       (mapcar #'magit--delete-text-properties choices))
+                     (nconc (mapcar #'magit--delete-text-properties choices)
+                            (list (propertize unset 'face
+                                              'transient-inactive-value)))
                      nil t)))
-         (if (equal choice fallback) nil choice)))
+         (if (equal choice unset) nil choice)))
       ([value (oref obj value)]
        (cadr (member value choices)))
       ((car choices)))))
