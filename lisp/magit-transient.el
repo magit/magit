@@ -99,7 +99,11 @@
              (magit--git-variable-list-choices obj))
             (choice (magit-completing-read
                      (format "Set `%s' to" (oref obj variable))
-                     (if fallback (nconc choices (list fallback)) choices)
+                     (if fallback
+                         (nconc (mapcar #'magit--delete-text-properties choices)
+                                (list (propertize fallback 'face
+                                                  'transient-inactive-value)))
+                       (mapcar #'magit--delete-text-properties choices))
                      nil t)))
          (if (equal choice fallback) nil choice)))
       ([value (oref obj value)]
