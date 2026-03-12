@@ -1013,6 +1013,18 @@ This function should be named `version>' and be part of Emacs."
 This function should be named `version>=' and be part of Emacs."
   (version-list-<= (version-to-list v2) (version-to-list v1)))
 
+(defun magit--delete-text-properties (string &optional props)
+  "Delete text properties PROPS from STRING and return it.
+If PROPS is nil, remove all properties.  To leave STRING unchanged
+and return a new string, instead use `magit--remove-text-properties'."
+  (set-text-properties 0 (length string) props string)
+  string)
+
+(defun magit--remove-text-properties (string &optional props)
+  "Return a copy of STRING with text properties PROPS removed.
+If PROPS is nil, remove all properties."
+  (magit--delete-text-properties (copy-sequence string) props))
+
 ;;; Kludges for Emacs Bugs
 
 (defun magit-which-function ()
