@@ -890,7 +890,8 @@ Also rename the respective reflog file."
   (magit-run-git-with-editor "branch" "--edit-description" branch))
 
 (defclass magit--git-branch:upstream (magit--git-variable)
-  ((format :initform " %k %m %M\n   %r %R")))
+  ((format            :initform " %k %m %M\n   %r %R")
+   (accessible-format :initform "%k %m is %M and %r is %R")))
 
 (transient-define-infix magit-branch.<branch>.merge/remote ()
   :class 'magit--git-branch:upstream)
@@ -918,7 +919,7 @@ Also rename the respective reflog file."
 (cl-defmethod transient-format ((obj magit--git-branch:upstream))
   (let ((branch (transient-scope)))
     (format-spec
-     (oref obj format)
+     (transient--get-format obj)
      `((?k . ,(transient-format-key obj))
        (?r . ,(format "branch.%s.remote" branch))
        (?m . ,(format "branch.%s.merge" branch))
