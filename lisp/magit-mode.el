@@ -1614,7 +1614,7 @@ The additional output can be found in the *Messages* buffer."
 (defun magit-file-region-line-numbers ()
   "Return the bounds of the region as line numbers.
 The returned value has the form (BEGINNING-LINE END-LINE).  If
-the region end at the beginning of a line, do not include that
+the region ends at the beginning of a line, do not include that
 line.  Avoid including the line after the end of the file."
   (and (magit-buffer-file-name)
        (region-active-p)
