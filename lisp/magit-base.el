@@ -1029,7 +1029,7 @@ If PROPS is nil, remove all properties."
 
 (static-if (fboundp 'member-if) ; Emacs 31.1
     (defalias 'magit--any 'member-if)
-  (defalias 'magit--any' 'cl-member-if))
+  (defalias 'magit--any 'cl-member-if))
 
 ;;; Kludges for Emacs Bugs
 
