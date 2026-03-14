@@ -5463,16 +5463,16 @@ buffer, but it's also possible to un-/stage all changes made to the
 file visited in the current buffer right from inside that buffer.
 
 @table @asis
-@item @kbd{M-x magit-stage-file}
-@findex magit-stage-file
+@item @kbd{M-x magit-stage-files}
+@findex magit-stage-files
 When invoked inside a file-visiting buffer, then stage all changes
 to that file.  In a Magit buffer, stage the file at point if any.
 Otherwise prompt for a file to be staged.  With a prefix argument
 always prompt the user for a file, even in a file-visiting buffer or
 when there is a file section at point.
 
-@item @kbd{M-x magit-unstage-file}
-@findex magit-unstage-file
+@item @kbd{M-x magit-unstage-files}
+@findex magit-unstage-files
 When invoked inside a file-visiting buffer, then unstage all changes
 to that file.  In a Magit buffer, unstage the file at point if any.
 Otherwise prompt for a file to be unstaged.  With a prefix argument
@@ -9428,9 +9428,9 @@ all, add this to your init file and restart Emacs.
 
 @table @asis
 @item @kbd{C-c f} (@code{magit-file-dispatch})
-@itemx @kbd{C-c f s} (@code{magit-stage-file})
+@itemx @kbd{C-c f s} (@code{magit-stage-files})
 @itemx @kbd{C-c f s} (@code{magit-stage-buffer-file})
-@itemx @kbd{C-c f u} (@code{magit-unstage-file})
+@itemx @kbd{C-c f u} (@code{magit-unstage-files})
 @itemx @kbd{C-c f u} (@code{magit-unstage-buffer-file})
 @itemx @kbd{C-c f , x} (@code{magit-file-untrack})
 @itemx @kbd{C-c f , r} (@code{magit-file-rename})
@@ -9486,9 +9486,9 @@ all, add this to your init file and restart Emacs.
 @kindex C-c f c
 @kindex C-c f e
 @findex magit-file-dispatch
-@findex magit-stage-file
+@findex magit-stage-files
 @findex magit-stage-buffer-file
-@findex magit-unstage-file
+@findex magit-unstage-files
 @findex magit-unstage-buffer-file
 @findex magit-file-untrack
 @findex magit-file-rename
@@ -9525,21 +9525,21 @@ the instructions further up.
 This transient prefix command binds the following suffix commands
 and displays them in a temporary buffer until a suffix is invoked.
 
-@item @kbd{C-c M-g s} (@code{magit-stage-file})
+@item @kbd{C-c M-g s} (@code{magit-stage-files})
 @itemx @kbd{C-c M-g s} (@code{magit-stage-buffer-file})
 @kindex C-c M-g s
 @kindex C-c M-g s
-@findex magit-stage-file
+@findex magit-stage-files
 @findex magit-stage-buffer-file
 Stage all changes to the file being visited in the current buffer.
 When not visiting a file, then the first command is used, which
 prompts for a file.
 
-@item @kbd{C-c M-g u} (@code{magit-unstage-file})
+@item @kbd{C-c M-g u} (@code{magit-unstage-files})
 @itemx @kbd{C-c M-g u} (@code{magit-unstage-buffer-file})
 @kindex C-c M-g u
 @kindex C-c M-g u
-@findex magit-unstage-file
+@findex magit-unstage-files
 @findex magit-unstage-buffer-file
 Unstage all changes to the file being visited in the current buffer.
 When not visiting a file, then the first command is used, which
