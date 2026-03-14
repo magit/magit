@@ -7846,9 +7846,9 @@ all, add this to your init file and restart Emacs.
 
 - Key: C-c f (magit-file-dispatch) ::
 - Key: C-c f s (magit-stage-files) ::
-- Key: C-c f s (magit-stage-buffer-file) ::
+- Key: C-c f s (magit-file-stage) ::
 - Key: C-c f u (magit-unstage-files) ::
-- Key: C-c f u (magit-unstage-buffer-file) ::
+- Key: C-c f u (magit-file-unstage) ::
 - Key: C-c f , x (magit-file-untrack) ::
 - Key: C-c f , r (magit-file-rename) ::
 - Key: C-c f , k (magit-file-delete) ::
@@ -7885,14 +7885,14 @@ all, add this to your init file and restart Emacs.
   and displays them in a temporary buffer until a suffix is invoked.
 
 - Key: C-c M-g s (magit-stage-files) ::
-- Key: C-c M-g s (magit-stage-buffer-file) ::
+- Key: C-c M-g s (magit-file-stage) ::
 
   Stage all changes to the file being visited in the current buffer.
   When not visiting a file, then the first command is used, which
   prompts for a file.
 
 - Key: C-c M-g u (magit-unstage-files) ::
-- Key: C-c M-g u (magit-unstage-buffer-file) ::
+- Key: C-c M-g u (magit-file-unstage) ::
 
   Unstage all changes to the file being visited in the current buffer.
   When not visiting a file, then the first command is used, which

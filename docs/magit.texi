@@ -9429,9 +9429,9 @@ all, add this to your init file and restart Emacs.
 @table @asis
 @item @kbd{C-c f} (@code{magit-file-dispatch})
 @itemx @kbd{C-c f s} (@code{magit-stage-files})
-@itemx @kbd{C-c f s} (@code{magit-stage-buffer-file})
+@itemx @kbd{C-c f s} (@code{magit-file-stage})
 @itemx @kbd{C-c f u} (@code{magit-unstage-files})
-@itemx @kbd{C-c f u} (@code{magit-unstage-buffer-file})
+@itemx @kbd{C-c f u} (@code{magit-file-unstage})
 @itemx @kbd{C-c f , x} (@code{magit-file-untrack})
 @itemx @kbd{C-c f , r} (@code{magit-file-rename})
 @itemx @kbd{C-c f , k} (@code{magit-file-delete})
@@ -9487,9 +9487,9 @@ all, add this to your init file and restart Emacs.
 @kindex C-c f e
 @findex magit-file-dispatch
 @findex magit-stage-files
-@findex magit-stage-buffer-file
+@findex magit-file-stage
 @findex magit-unstage-files
-@findex magit-unstage-buffer-file
+@findex magit-file-unstage
 @findex magit-file-untrack
 @findex magit-file-rename
 @findex magit-file-delete
@@ -9526,21 +9526,21 @@ This transient prefix command binds the following suffix commands
 and displays them in a temporary buffer until a suffix is invoked.
 
 @item @kbd{C-c M-g s} (@code{magit-stage-files})
-@itemx @kbd{C-c M-g s} (@code{magit-stage-buffer-file})
+@itemx @kbd{C-c M-g s} (@code{magit-file-stage})
 @kindex C-c M-g s
 @kindex C-c M-g s
 @findex magit-stage-files
-@findex magit-stage-buffer-file
+@findex magit-file-stage
 Stage all changes to the file being visited in the current buffer.
 When not visiting a file, then the first command is used, which
 prompts for a file.
 
 @item @kbd{C-c M-g u} (@code{magit-unstage-files})
-@itemx @kbd{C-c M-g u} (@code{magit-unstage-buffer-file})
+@itemx @kbd{C-c M-g u} (@code{magit-file-unstage})
 @kindex C-c M-g u
 @kindex C-c M-g u
 @findex magit-unstage-files
-@findex magit-unstage-buffer-file
+@findex magit-file-unstage
 Unstage all changes to the file being visited in the current buffer.
 When not visiting a file, then the first command is used, which
 prompts for a file.
