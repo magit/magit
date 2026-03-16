@@ -3,4 +3,6 @@ on: [push, pull_request]
 jobs:
   compile:
     name: Compile
-    uses: emacscollective/workflows/.github/workflows/compile.yml@main
+    uses: | # zizmor: ignore[unpinned-uses] same maintainer as this repo
+      emacscollective/workflows/.github/workflows/compile.yml@main
+    permissions: {}

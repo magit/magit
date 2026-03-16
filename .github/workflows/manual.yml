@@ -6,6 +6,8 @@ on:
 jobs:
   manual:
     name: Manual
-    uses: emacscollective/workflows/.github/workflows/manual.yml@main
+    uses: | # zizmor: ignore[unpinned-uses] same maintainer as this repo
+      emacscollective/workflows/.github/workflows/manual.yml@main
+    permissions: {}
     secrets:
       rclone_config: ${{ secrets.RCLONE_CONFIG }}
