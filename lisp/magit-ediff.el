@@ -177,7 +177,7 @@ and alternative commands."
                                    ,(format ">>>>>>> %s" revB)))))
             (quit  (lambda ()
                      ;; For merge jobs Ediff switches buffer names around.
-                     ;; At this point `ediff-buffer-C' no longer refer to
+                     ;; At this point `ediff-buffer-C' no longer refers to
                      ;; the ancestor buffer but to the merge result buffer.
                      ;; See (if ediff-merge-job ...) in `ediff-setup'.
                      (when (buffer-live-p ediff-buffer-C)
