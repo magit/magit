@@ -293,6 +293,8 @@ range)."
   "Read file in REVB, return it and the corresponding file in REVA.
 When FILEB is non-nil, use this as REVB's file instead of
 prompting for it."
+  (when (equal revA "{worktree}") (setq revA nil))
+  (when (equal revB "{worktree}") (setq revB nil))
   (unless (and fileB (member fileB (magit-revision-files revB)))
     (setq fileB
           (or (and fileB
