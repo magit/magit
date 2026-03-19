@@ -45,6 +45,7 @@
 (add-hook 'magit-find-blob-hook #'magit-blob-mode)
 
 (defvar-local magit-buffer--volatile nil)
+(put 'magit-buffer--volatile 'permanent-local t)
 
 ;;;###autoload
 (defun magit-find-file (rev file)
