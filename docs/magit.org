@@ -3235,7 +3235,21 @@ not support these arguments.)
 
 - Key: D t (magit-diff-toggle-refine-hunk) ::
 
-  This command toggles hunk refinement on or off.
+  This command toggles hunk refinement on or off, or switches the
+  refinement method.
+
+  If hunk refinement is currently on, then turn off hunk refinement.
+  If hunk refinement is off, then turn on immediate hunk refinement.
+
+  With a prefix argument, an alternative refinement method comes into
+  play.  When using that method, mode hunks are not refined immediately,
+  instead each hunk is refined once it is selected, and then stays refined
+  until the next refresh of the buffer.  If hunk refinement is currently
+  on, then toggle between refining all hunks up front or only once they
+  are selected.  If hunk refinement is off, then turn on hunk refinement,
+  using the eventual refinement method.
+
+  Customize option ~magit-diff-refine-hunk~ to change the default method.
 
 - Key: D r (magit-diff-switch-range-type) ::
 
