@@ -51,6 +51,8 @@
 (declare-function magit-wip-get-ref "magit-wip" ())
 (declare-function magit-wip-commit-worktree "magit-wip" (ref files msg))
 
+(declare-function magit--blob-cache-zap "magit-files" ())
+
 ;;; Options
 
 (defcustom magit-mode-hook nil
@@ -1559,13 +1561,14 @@ repositories."
   "Zap caches for the current repository.
 
 Remove the repository's entry from `magit-repository-local-cache',
-remove the host's entry from `magit--host-git-version-cache', and
-set `magit-section-visibility-cache' to nil for all Magit buffers
-of the repository.
+remove the host's entry from `magit--host-git-version-cache', set
+`magit-section-visibility-cache' to nil for all Magit buffers of
+the repository, and empty the `magit--blob-cache'.
 
 With a prefix argument or if optional ALL is non-nil, discard the
 mentioned caches completely."
   (interactive)
+  (magit--blob-cache-zap)
   (cond (all
          (setq magit-repository-local-cache nil)
          (setq magit--host-git-version-cache nil)
