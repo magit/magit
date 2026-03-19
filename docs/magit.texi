@@ -3965,6 +3965,20 @@ Whether to ignore whitespace changes in word-granularity
 differences.
 @end defopt
 
+@defopt magit-diff-specify-hunk-foreground
+Whether to specify foreground colors for hunk faces.
+
+Setting this only has an effect if done before Magit is loaded.
+@end defopt
+
+@defopt magit-diff-use-indicator-faces
+Whether to use separate faces for diff side indicators.
+
+If non-@code{nil}, use, for example, @code{magit-diff-removed-indicator} for the
+plus sign at the beginning of a removed line.  If @code{nil}, use the same
+face as for the rest of the line.
+@end defopt
+
 @defopt magit-diff-adjust-tab-width
 Whether to adjust the width of tabs in diffs.
 
