@@ -3907,10 +3907,11 @@ If `magit-diff-visit-previous-blob' is nil, then always return nil."
     (setq section (oref section parent)))
   (and (magit-file-section-p section)
        (let ((header (oref section header)))
-         (if no-rename
-             (replace-regexp-in-string
-              "^--- \\(.+\\)" (oref section value) header t t 1)
-           header))))
+         (if (or (not no-rename)
+                 (string-match-p "^--- /dev/null" header))
+             header
+           (replace-regexp-in-string
+            "^--- \\(.+\\)" (oref section value) header t t 1)))))
 
 (defun magit-diff-hunk-region-header (section)
   (let ((patch (magit-diff-hunk-region-patch section)))
