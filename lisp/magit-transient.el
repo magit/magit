@@ -76,7 +76,9 @@
                           (oref obj scope)))
         (arg (if (oref obj global) "--global" "--local")))
     (oset obj variable variable)
-    (oset obj value (if (magit-get-boolean arg variable) "true" "false"))))
+    (oset obj value
+          (and (zerop (magit-process-git t "config" "--bool" arg variable))
+               (buffer-substring (point-min) (1- (point-max)))))))
 
 ;;;; Read
 
