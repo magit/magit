@@ -509,9 +509,9 @@ signal `magit-invalid-git-boolean'."
 
 (defun magit-git-config-p (variable &optional default)
   "Return the boolean value of the Git variable VARIABLE.
-VARIABLE has to be specified as a string.  Return DEFAULT (which
-defaults to nil) if VARIABLE is unset.  If VARIABLE's value isn't
-a boolean, then raise an error."
+VARIABLE has to be specified as a string.  If VARIABLE is unset,
+return nil by default, unless DEFAULT is non-nil, in which case
+return t.  Signal an error if VARIABLE is set but not a boolean."
   (let ((args (list "config" "--bool" "--default" (if default "true" "false")
                     variable)))
     (magit--with-refresh-cache (cons default-directory args)
