@@ -2741,10 +2741,11 @@ If either revision cannot be dereferenced as a commit, signal an error."
       (lambda ()
         (magit--minibuf-default-add-commit)
         (setq-local crm-separator "\\.\\.\\.?"))
-    (magit-completing-read-multiple
-     (concat prompt ": ")
-     (magit-list-refnames)
-     nil 'any nil 'magit-revision-history default nil t)))
+    (let ((crm-prompt "%p"))
+      (magit-completing-read-multiple
+       (concat prompt ": ")
+       (magit-list-refnames)
+       nil 'any nil 'magit-revision-history default nil t))))
 
 (defun magit-read-remote-branch
     (prompt &optional remote default local-branch require-match)
