@@ -71,6 +71,8 @@
   (cl-pushnew 'orig-rev eieio--known-slot-names)
   (cl-pushnew 'number eieio--known-slot-names))
 
+(defvar crm-prompt) ; Emacs 31.1
+
 ;;; Options
 
 ;; For now this is shared between `magit-process' and `magit-git'.
