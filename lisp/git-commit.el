@@ -679,7 +679,12 @@ comment and anything below the cut line (\"--- >8 ---\")."
                      'action (lambda (_)
                                (if (memq elt buffer-invisibility-spec)
                                    (remove-from-invisibility-spec elt)
-                                 (add-to-invisibility-spec elt)))))
+                                 (add-to-invisibility-spec elt))
+                               ;; KLUDGE Force "redisplay".
+                               (when-let ((w1 (selected-window))
+                                          (w2 (next-window)))
+                                 (select-window w2)
+                                 (select-window w1)))))
       (add-text-properties (point) (point-max) '(invisible git-commit-diff)))))
 
 (defun git-commit-finish-query-functions (force)
