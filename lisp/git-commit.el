@@ -118,6 +118,8 @@
 
 (defvar git-commit-need-summary-line)
 
+(declare-function dabbrev-capf "dabbrev" ())
+
 (define-obsolete-variable-alias
   'git-commit-known-pseudo-headers
   'git-commit-trailers
@@ -198,6 +200,7 @@ Also note that `git-commit-mode' (which see) is not a major-mode.")
 (defcustom git-commit-setup-hook
   (list #'git-commit-ensure-comment-gap
         #'git-commit-save-message
+        #'git-commit-setup-capf
         #'git-commit-setup-changelog-support
         #'git-commit-turn-on-auto-fill
         #'git-commit-propertize-diff
@@ -209,6 +212,7 @@ Also note that `git-commit-mode' (which see) is not a major-mode.")
   :get #'magit-hook-custom-get
   :options '(git-commit-ensure-comment-gap
              git-commit-save-message
+             git-commit-setup-capf
              git-commit-setup-changelog-support
              magit-generate-changelog
              git-commit-turn-on-auto-fill
@@ -607,6 +611,13 @@ the input isn't tacked to the comment."
     (goto-char (point-min))
     (when (looking-at (format "\\`\n%s" comment-start))
       (open-line 1))))
+
+(defun git-commit-setup-capf ()
+  "Teach `complete-symbol' about `dabbrev-capf'.
+When \"git commit\"'s \"--verbose\" argument is used, this allows
+completing modified symbols and other text appearing in the diff."
+  (require 'dabbrev)
+  (add-hook 'completion-at-point-functions #'dabbrev-capf -90 t))
 
 (defun git-commit-setup-changelog-support ()
   "Treat ChangeLog entries as unindented paragraphs."
