@@ -448,7 +448,7 @@ the redundant bindings, then set this to nil, before loading
     ["Cancel" with-editor-cancel t]
     ["Commit" with-editor-finish t]))
 
-;;; Hooks
+;;; Global Mode
 
 (defconst git-commit-filename-regexp "/\\(\
 \\(\\(COMMIT\\|NOTES\\|PULLREQ\\|MERGEREQ\\|TAG\\)_EDIT\\|MERGE_\\|\\)MSG\
@@ -469,8 +469,6 @@ the redundant bindings, then set this to nil, before loading
              (string-match-p git-commit-filename-regexp buffer-file-name))
     (git-commit-setup)))
 
-(defvar git-commit-mode)
-
 (defun git-commit-file-not-found ()
   ;; cygwin git will pass a cygwin path (/cygdrive/c/foo/.git/...),
   ;; try to handle this in window-nt Emacs.
@@ -490,6 +488,10 @@ the redundant bindings, then set this to nil, before loading
 
 (when (eq system-type 'windows-nt)
   (add-hook 'find-file-not-found-functions #'git-commit-file-not-found))
+
+;;; Local Mode
+
+(defvar git-commit-mode)
 
 (defconst git-commit-default-usage-message "\
 Type \\[with-editor-finish] to finish, \
@@ -602,6 +604,8 @@ used."
 
 (put 'git-commit-mode 'permanent-local t)
 
+;;; Setup
+
 (defun git-commit-ensure-comment-gap ()
   "Separate initial empty line from initial comment.
 If the buffer begins with an empty line followed by a comment, insert
@@ -697,6 +701,8 @@ comment and anything below the cut line (\"--- >8 ---\")."
                                  (select-window w2)
                                  (select-window w1)))))
       (add-text-properties (point) (point-max) '(invisible git-commit-diff)))))
+
+;;; Finish
 
 (defun git-commit-finish-query-functions (force)
   (run-hook-with-args-until-failure
