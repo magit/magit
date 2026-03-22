@@ -6094,6 +6094,10 @@ Remotes]].
   commits from START to ~HEAD~ onto NEWBASE.  START has to be selected
   from a list of recent commits.
 
+  This command calls ~git rebase --onto NEWBASE START HEAD~.  Because
+  the range always ends at ~HEAD~, you must first check out the branch
+  or commit you want as the upper bound (a detached ~HEAD~ works too).
+
 By default Magit uses the ~--autostash~ argument, which causes
 uncommitted changes to be stored in a stash before the rebase begins.
 These changes are restored after the rebase completes and if possible
