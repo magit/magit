@@ -7173,6 +7173,10 @@ the selected branch TARGET are being rebased.
 This command starts a non-interactive rebase sequence to transfer
 commits from START to @code{HEAD} onto NEWBASE@.  START has to be selected
 from a list of recent commits.
+
+This command calls @code{git rebase --onto NEWBASE START HEAD}.  Because
+the range always ends at @code{HEAD}, you must first check out the branch
+or commit you want as the upper bound (a detached @code{HEAD} works too).
 @end table
 
 By default Magit uses the @code{--autostash} argument, which causes
