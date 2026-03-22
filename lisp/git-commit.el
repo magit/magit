@@ -201,6 +201,7 @@ Also note that `git-commit-mode' (which see) is not a major-mode.")
         #'git-commit-setup-changelog-support
         #'git-commit-turn-on-auto-fill
         #'git-commit-propertize-diff
+        #'git-commit-collapse-diff
         #'bug-reference-mode)
   "Hook run at the end of `git-commit-setup'."
   :group 'git-commit
@@ -214,6 +215,7 @@ Also note that `git-commit-mode' (which see) is not a major-mode.")
              git-commit-turn-on-orglink
              git-commit-turn-on-flyspell
              git-commit-propertize-diff
+             git-commit-collapse-diff
              bug-reference-mode))
 
 (defcustom git-commit-finish-query-functions
@@ -361,6 +363,11 @@ In this context a \"keyword\" is text surrounded by brackets."
 (defface git-commit-comment-heading
   '((t :inherit git-commit-trailer-token))
   "Face used for headings in commit message comments."
+  :group 'git-commit-faces)
+
+(defface git-commit-comment-button
+  '((t :inherit git-commit-comment-heading :underline t))
+  "Face used for buttons in commit message comments."
   :group 'git-commit-faces)
 
 (defface git-commit-comment-file
@@ -656,6 +663,24 @@ comment and anything below the cut line (\"--- >8 ---\")."
 (defun git-commit-flyspell-verify ()
   (not (= (char-after (line-beginning-position))
           (aref comment-start 0))))
+
+(defun git-commit-collapse-diff ()
+  "Collapse inline diff and add button to allow expanding it."
+  (save-excursion
+    (goto-char (point-min))
+    (when (re-search-forward (format "%s -+ >8 -+" comment-start) nil t)
+      (let ((elt '(git-commit-diff t)))
+        (add-to-invisibility-spec elt)
+        (make-button (line-beginning-position) (point)
+                     'face 'git-commit-comment-button
+                     'keymap (define-keymap :parent button-map
+                               "<return>" #'push-button
+                               "<tab>" #'push-button)
+                     'action (lambda (_)
+                               (if (memq elt buffer-invisibility-spec)
+                                   (remove-from-invisibility-spec elt)
+                                 (add-to-invisibility-spec elt)))))
+      (add-text-properties (point) (point-max) '(invisible git-commit-diff)))))
 
 (defun git-commit-finish-query-functions (force)
   (run-hook-with-args-until-failure
