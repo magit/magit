@@ -144,6 +144,7 @@ This hook is still experimental.")
   "Create a new commit or replace an existing commit."
   :info-manual "(magit)Initiating a Commit"
   :man-page "git-commit"
+  :value '("--verbose")
   ["Arguments"
    ("-a" "Stage all modified and deleted files"   ("-a" "--all"))
    ("-e" "Allow empty commit"                     "--allow-empty")
