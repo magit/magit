@@ -23,10 +23,8 @@
 <hr>
 
 <div align="center">
-  Keeping its users <a href= "https://magit.vc/quotes/">this excited</a> is
-  <a href="https://magit.vc/stats/magit/authors.html#cumulated_added_lines_of_code_per_author">
-    a lot of work
-  </a>.
+  Keeping its users <a href= "https://magit.vc/quotes/">this excited</a>
+  is <a href="https://stats.magit.vc/magit/authors.html"> a lot of work</a>.
   If Magit makes you <br> more productive too,
   then <b>please consider making a donation</b>.
 </div>
@@ -133,7 +131,7 @@ Thanks to all of you, may (the history of) the source be with you!
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/emacs%3Amagit.svg?header=&columns=4&minversion=4&exclude_unsupported=1)](https://repology.org/project/emacs%3Amagit/versions)
 
-[authors]: https://magit.vc/stats/magit/authors.html
+[authors]: https://stats.magit.vc/magit/authors.html
 [jonas]:   https://emacsair.me
 [kyle]:    https://kyleam.com
 [marius]:  https://github.com/mvollmer
