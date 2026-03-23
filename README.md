@@ -135,9 +135,9 @@ Thanks to all of you, may (the history of) the source be with you!
 [jonas]:   https://emacsair.me
 [kyle]:    https://kyleam.com
 [marius]:  https://github.com/mvollmer
-[nicolas]: http://dudebout.com
+[nicolas]: https://github.com/dudebout
 [noam]:    https://github.com/npostavs
-[peter]:   https://github.com/pjweisberg
+[peter]:   https://github.com/peweisberg-fadv
 [phil]:    https://github.com/philjackson
 [remi]:    https://github.com/vanicat
 [yann]:    https://yann.hodique.info
