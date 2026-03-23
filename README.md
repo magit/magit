@@ -24,7 +24,7 @@
 
 <div align="center">
   Keeping its users <a href= "https://magit.vc/quotes/">this excited</a> is
-  <a href="https://magit.vc/stats/magit/authors.html#cumulated_added_lines_of_code_per_author">
+  <a href="https://stats.magit.vc/magit/authors.html#cumulated_added_lines_of_code_per_author">
     a lot of work
   </a>.
   If Magit makes you <br> more productive too,
