@@ -1451,9 +1451,10 @@ string \"true\", otherwise return nil."
   (magit-git-string "rev-parse" "--verify" rev))
 
 (defun magit-commit-p (rev)
-  "Return commit oid for REV if it can be dereferences as a commit.
+  "Return non-nil if REV can be dereferences as a commit.
 Otherwise return nil.  Use `magit-commit-oid' if you actually need
-the oid; eventually this function will return t instead of the oid."
+the oid; eventually this function will return t instead of the oid,
+as it curently does for backward compatibility."
   ;; TODO Return t instead of the oid.
   (magit-rev-verify (magit--rev-dereference rev)))
 
