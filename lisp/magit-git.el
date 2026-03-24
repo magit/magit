@@ -2286,8 +2286,8 @@ specified using `core.worktree'."
                                      'magit-branch-local
                                    'magit-branch-remote)))
 
-(defun magit-tag-p (rev)
-  (car (member rev (magit-list-tags))))
+(defun magit-tag-p (obj)
+  (equal (magit-object-type obj) "tag"))
 
 (defun magit-remote-p (string)
   (car (member string (magit-list-remotes))))
