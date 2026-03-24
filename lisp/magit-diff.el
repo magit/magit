@@ -2953,7 +2953,7 @@ Staging and applying changes is documented in info node
 This function only inserts anything when `magit-show-commit' is
 called with a tag as argument, when that is called with a commit
 or a ref which is not a branch, then it inserts nothing."
-  (when (equal (magit-object-type magit-buffer-revision) "tag")
+  (when (magit-tag-p magit-buffer-revision)
     (magit-insert-section (taginfo)
       (let ((beg (point)))
         ;; "git verify-tag -v" would output what we need, but the gpg
