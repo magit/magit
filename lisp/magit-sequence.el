@@ -805,16 +805,29 @@ argument, prompt for the first commit to potentially squash into."
       nil nil t)))
 
 (defun magit-rebase--perl-editor (action since)
-  (let ((commit (magit-rev-abbrev (magit-rebase--target-commit since))))
-    (format "%s -i -p -e '++$x if not $x and s/^pick %s/%s %s/'"
+  (let* ((commit (magit-rebase--target-commit since))
+         (abbrev (magit-rev-abbrev commit))
+         (replacement
+          (cl-case action
+            (edit   (format "edit %s" abbrev))
+            (remove (format "noop\n# pick %s" abbrev))
+            (reword (if (magit-rebase--empty-commit-p commit)
+                        (concat "$&\\n"
+                                "exec git commit --amend "
+                                "--allow-empty --only --edit")
+                      (format "reword %s" abbrev)))
+            (t      (error "Unknown action: %s" action)))))
+    (format "%s -i -p -e '++$x if not $x and s/^pick %s\\S*.*$/%s/'"
             magit-perl-executable
-            commit
-            (cl-case action
-              (edit   "edit")
-              (remove "noop\n# pick")
-              (reword "reword")
-              (t      (error "Unknown action: %s" action)))
-            commit)))
+            abbrev
+            replacement)))
+
+(defun magit-rebase--empty-commit-p (commit)
+  (let ((tree (magit-rev-parse (concat commit "^{tree}"))))
+    (equal tree
+           (if-let ((parent (car (magit-commit-parents commit))))
+               (magit-rev-parse (concat parent "^{tree}"))
+             (magit-git-string "mktree")))))
 
 ;;;###autoload
 (defun magit-rebase-continue (&optional noedit)

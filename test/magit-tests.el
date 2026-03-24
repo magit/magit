@@ -25,6 +25,7 @@
 (require 'tramp-sh)
 
 (require 'magit)
+(require 'magit-sequence)
 
 (defun magit-test-init-repo (dir &rest args)
   (let ((magit-git-global-arguments
@@ -69,6 +70,12 @@
         (unless raw
           (setq result (string-trim result)))
         result))))
+
+(defun magit-test-rebase-with-editor (editor &rest args)
+  (let ((process-environment (copy-sequence process-environment)))
+    (push "GIT_EDITOR=true" process-environment)
+    (push (concat "GIT_SEQUENCE_EDITOR=" editor) process-environment)
+    (apply #'magit-git-success "rebase" "-i" args)))
 
 ;;; Git
 
@@ -212,6 +219,31 @@
     (should     (magit-get-boolean "a.b"))
     (let ((magit--refresh-cache (list (cons 0 0))))
      (should    (magit-get-boolean "a.b")))))
+
+(ert-deftest magit-rebase-reword-commit:empty-root ()
+  (magit-with-test-repository
+    (magit-git "commit" "--allow-empty" "-m" "root")
+    (let ((root (magit-rev-parse "HEAD")))
+      (should (magit-test-rebase-with-editor
+               (magit-rebase--perl-editor 'reword root)
+               "--root")))
+    (should (equal (magit-git-string "log" "-1" "--format=%s") "root"))))
+
+(ert-deftest magit-rebase-reword-commit:empty-past ()
+  (magit-with-test-repository
+    (write-region "one\n" nil "file")
+    (magit-git "add" "file")
+    (magit-git "commit" "-m" "one")
+    (magit-git "commit" "--allow-empty" "-m" "two")
+    (write-region "one\ntwo\n" nil "file")
+    (magit-git "add" "file")
+    (magit-git "commit" "-m" "three")
+    (let ((commit (magit-rev-parse "HEAD~1")))
+      (should (magit-test-rebase-with-editor
+               (magit-rebase--perl-editor 'reword (concat commit "^"))
+               (concat commit "^"))))
+    (should (equal (magit-git-lines "log" "--format=%s" "--reverse")
+                   '("one" "two" "three")))))
 
 (ert-deftest magit-get-{current|next}-tag ()
   (magit-with-test-repository
