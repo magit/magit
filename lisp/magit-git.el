@@ -1331,6 +1331,9 @@ Sorted from longest to shortest CYGWIN name."
 
 ;;; Blobs
 
+(defun magit-blob-p (obj)
+  (equal (magit-object-type obj) "blob"))
+
 (defun magit-blob-oid (rev file)
   (if (equal rev "{index}")
       (cadr (car (magit--file-index-stages file)))
