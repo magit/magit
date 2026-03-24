@@ -166,7 +166,7 @@ Also note that `git-commit-mode' (which see) is not a major-mode.")
         #'git-commit-save-message
         #'git-commit-setup-capf
         #'git-commit-setup-changelog-support
-        #'git-commit-turn-on-auto-fill
+        #'git-commit-setup-auto-fill
         #'git-commit-propertize-diff
         #'git-commit-collapse-diff
         #'bug-reference-mode)
@@ -179,9 +179,9 @@ Also note that `git-commit-mode' (which see) is not a major-mode.")
              git-commit-setup-capf
              git-commit-setup-changelog-support
              magit-generate-changelog
-             git-commit-turn-on-auto-fill
-             git-commit-turn-on-orglink
-             git-commit-turn-on-flyspell
+             git-commit-setup-auto-fill
+             git-commit-setup-orglink
+             git-commit-setup-flyspell
              git-commit-propertize-diff
              git-commit-collapse-diff
              bug-reference-mode))
@@ -629,7 +629,7 @@ completing modified symbols and other text appearing in the diff."
   (setq-local fill-indent-according-to-mode t)
   (setq-local paragraph-start (concat paragraph-start "\\|\\*\\|(")))
 
-(defun git-commit-turn-on-auto-fill ()
+(defun git-commit-setup-auto-fill ()
   "Unconditionally turn on Auto Fill mode.
 Ensure auto filling happens everywhere, except in the summary line."
   (auto-fill-mode 1)
@@ -641,7 +641,7 @@ Ensure auto filling happens everywhere, except in the summary line."
   (unless (eq (line-beginning-position) 1)
     (do-auto-fill)))
 
-(defun git-commit-turn-on-orglink ()
+(defun git-commit-setup-orglink ()
   "Turn on Orglink mode if it is available.
 If `git-commit-major-mode' is `org-mode', then silently forgo
 turning on `orglink-mode'."
@@ -651,7 +651,7 @@ turning on `orglink-mode'."
     (setq-local orglink-match-anywhere t)
     (orglink-mode 1)))
 
-(defun git-commit-turn-on-flyspell ()
+(defun git-commit-setup-flyspell ()
   "Unconditionally turn on Flyspell mode.
 Also check text that is already in the buffer, while avoiding to check
 most text that Git will strip from the final message, such as the last
@@ -1277,6 +1277,19 @@ commit, then the hook is not run at all."
  'git-commit-known-pseudo-header
  'git-commit-trailer-token
  "git-commit 4.0.0")
+
+(define-obsolete-function-alias
+  'git-commit-turn-on-auto-fill
+  'git-commit-setup-auto-fill
+  "git-commit 4.6.0")
+(define-obsolete-function-alias
+  'git-commit-turn-on-flyspell
+  'git-commit-setup-flyspell
+  "git-commit 4.6.0")
+(define-obsolete-function-alias
+  'git-commit-turn-on-orglink
+  'git-commit-setup-orglink
+  "git-commit 4.6.0")
 
 (provide 'git-commit)
 ;; Local Variables:
