@@ -701,7 +701,8 @@ comment and anything below the cut line (\"--- >8 ---\")."
                                           (w2 (next-window)))
                                  (select-window w2)
                                  (select-window w1)))))
-      (add-text-properties (point) (point-max) '(invisible git-commit-diff)))))
+      (let ((ov (make-overlay (point) (point-max))))
+        (overlay-put ov 'invisible 'git-commit-diff)))))
 
 ;;; Finish
 
