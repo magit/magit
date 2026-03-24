@@ -635,9 +635,10 @@ Ensure auto filling happens everywhere, except in the summary line."
   (auto-fill-mode 1)
   (setq-local comment-auto-fill-only-comments nil)
   (when git-commit-need-summary-line
-    (setq-local auto-fill-function #'git-commit-auto-fill-except-summary)))
+    (setq-local auto-fill-function #'git-commit--auto-fill-except-summary)))
 
-(defun git-commit-auto-fill-except-summary ()
+(defun git-commit--auto-fill-except-summary ()
+  "Do not fill summary line."
   (unless (eq (line-beginning-position) 1)
     (do-auto-fill)))
 
@@ -658,8 +659,7 @@ most text that Git will strip from the final message, such as the last
 comment and anything below the cut line (\"--- >8 ---\")."
   (require 'flyspell)
   (flyspell-mode 1)
-  (setq flyspell-generic-check-word-predicate
-        #'git-commit-flyspell-verify)
+  (setq flyspell-generic-check-word-predicate #'git-commit--flyspell-verify)
   (let ((end nil)
         ;; The "cut line" is defined in "git/wt-status.c".  It appears
         ;; in the commit message when `commit.verbose' is set to true.
@@ -675,7 +675,8 @@ comment and anything below the cut line (\"--- >8 ---\")."
       (setq end (point)))
     (flyspell-region (point-min) end)))
 
-(defun git-commit-flyspell-verify ()
+(defun git-commit--flyspell-verify ()
+  "Do not check spelling in comments."
   (not (= (char-after (line-beginning-position))
           (aref comment-start 0))))
 
