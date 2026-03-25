@@ -172,8 +172,8 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
         (erase-buffer)
         (save-excursion
           (magit--insert-blob-contents magit-buffer-revision
-                                       (magit-file-relative-name))))))
-  (magit--blob-normal-mode))
+                                       (magit-file-relative-name))))
+      (magit--blob-normal-mode))))
 
 (defun magit--blob-normal-mode ()
   (let ((buffer-file-name magit-buffer-file-name)
