@@ -515,7 +515,6 @@ is done setting up buffers."
     (when magit-ediff-use-indirect-buffers
       (setq buffer (make-indirect-buffer
                     buffer (generate-new-buffer-name (buffer-name buffer)) t)))
-    (with-current-buffer buffer (font-lock-ensure))
     buffer))
 
 ;;; Quit

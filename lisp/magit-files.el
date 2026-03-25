@@ -183,11 +183,26 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
                          '(global-diff-hl-mode-enable-in-buffer ; Emacs >= 30
                            global-diff-hl-mode-enable-in-buffers ; Emacs < 30
                            eglot--maybe-activate-editing-mode)
-                         #'eq)))
-    ;; We want `normal-mode' to respect nil `enable-local-variables'.
-    ;; The FIND-FILE argument wasn't designed for our use case,
-    ;; so we have to use this strange invocation to achieve that.
-    (normal-mode (not enable-local-variables))
+                         #'eq))
+        (buffer-name (buffer-name)))
+    ;; `font-lock-mode' contains a hardcoded condition that prevents it
+    ;; from being enabled in hidden buffers.  Use a fake `buffer-name'
+    ;; to trick it into believing the buffer is not hidden.
+    (if (eq (aref buffer-name 0) ?\s)
+        (letrec ((adv (lambda (fn &optional buffer)
+                        (let ((name (funcall fn buffer)))
+                          (cond ((equal name buffer-name)
+                                 (advice-remove 'buffer-name adv)
+                                 (substring name 1))
+                                (name))))))
+          (advice-add 'buffer-name :around adv)
+          (unwind-protect
+              (normal-mode (not enable-local-variables))
+            (advice-remove 'buffer-name adv)))
+      ;; We want `normal-mode' to respect nil `enable-local-variables'.
+      ;; The FIND-FILE argument wasn't designed for our use case,
+      ;; so we have to use this strange invocation to achieve that.
+      (normal-mode (not enable-local-variables)))
     (setq buffer-read-only t)
     (set-buffer-modified-p nil)
     (run-hooks 'magit-find-blob-hook)))
