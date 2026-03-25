@@ -191,10 +191,9 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
     (if (eq (aref buffer-name 0) ?\s)
         (letrec ((adv (lambda (fn &optional buffer)
                         (let ((name (funcall fn buffer)))
-                          (cond ((equal name buffer-name)
-                                 (advice-remove 'buffer-name adv)
-                                 (substring name 1))
-                                (name))))))
+                          (if (equal name buffer-name)
+                              (substring name 1)
+                            name)))))
           (advice-add 'buffer-name :around adv)
           (unwind-protect
               (normal-mode (not enable-local-variables))
