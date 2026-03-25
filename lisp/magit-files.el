@@ -113,7 +113,7 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
             ((not topdir)
              (error "%s is not inside a Git repository" file))
             ([defdir (file-name-directory file)]
-             [rev (magit--abbrev-if-hash rev)]
+             [rev (magit--abbrev-if-oid rev)]
              (unless (file-in-directory-p file topdir)
                (error "%s is not inside Git repository %s" file topdir))
              (with-current-buffer

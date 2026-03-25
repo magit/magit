@@ -2357,10 +2357,10 @@ If `first-parent' is set, traverse only first parents."
 (defun magit-rev-abbrev (rev)
   (magit-rev-parse (magit-abbrev-arg "short") rev))
 
-(defun magit--abbrev-if-hash (rev)
-  (cond ((or (magit-ref-p rev) (member rev '("{index}" "{worktree}"))) rev)
-        ((magit-rev-parse (magit-abbrev-arg "short") rev))
-        (rev)))
+(defun magit--abbrev-if-oid (obj)
+  (cond ((or (magit-ref-p obj) (member obj '("{index}" "{worktree}"))) obj)
+        ((magit-rev-parse (magit-abbrev-arg "short") obj))
+        (obj)))
 
 (defun magit-commit-children (rev &optional args)
   (seq-keep (lambda (line)
@@ -2583,8 +2583,8 @@ and this option only controls what face is used.")
                (beg (or beg "HEAD"))
                (end (or end "HEAD")))
     (when abbrev
-      (setq beg (magit--abbrev-if-hash beg))
-      (setq end (magit--abbrev-if-hash end)))
+      (setq beg (magit--abbrev-if-oid beg))
+      (setq end (magit--abbrev-if-oid end)))
     (pcase sep
       (".."  (cons beg end))
       ("..." (and$ (magit-git-string "merge-base" beg end)
@@ -3040,6 +3040,9 @@ out.  Only existing branches can be selected."
   #'magit-commit-p "Magit 4.6.0"
   "Return oid for REV if it names an existing commit, nil otherwise.
 Instead use `magit-commit-p' or `magit-commit-oid'.")
+
+(define-obsolete-function-alias 'magit--abbrev-if-hash
+  #'magit--abbrev-if-oid "Magit 4.6.0")
 
 (provide 'magit-git)
 ;; Local Variables:

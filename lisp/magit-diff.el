@@ -1944,7 +1944,7 @@ the Magit-Status buffer for DIRECTORY."
                    (magit-split-range spec t))
                   (`(,(or 'commit 'stash) . ,rev)
                    (cons (magit-rev-abbrev (concat rev "^"))
-                         (magit--abbrev-if-hash rev)))
+                         (magit--abbrev-if-oid rev)))
                   ('staged    (cons (magit-rev-abbrev "HEAD") "{index}"))
                   ('unstaged  (cons (if (magit-anything-staged-p nil old-file)
                                         "{index}"
