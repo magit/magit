@@ -1482,9 +1482,9 @@ However, if REV is nil or has the form \":/TEXT\", return REV itself."
 
 (defun magit-rev-eq (a b)
   "Return t if A and B refer to the same commit."
-  (let ((a (magit-commit-oid a t))
-        (b (magit-commit-oid b t)))
-    (and a b (equal a b))))
+  (and-let ((a (magit-commit-oid a t))
+            (b (magit-commit-oid b t)))
+    (equal a b)))
 
 (defun magit-rev-ancestor-p (a b)
   "Return non-nil if commit A is an ancestor of commit B."
@@ -1600,9 +1600,9 @@ nil, then use \"heads/\"."
 A symbolic-ref pointing to some ref, is `equal' to that ref,
 as are two symbolic-refs pointing to the same ref.  Refnames
 may be abbreviated."
-  (let ((a (magit-ref-fullname a))
-        (b (magit-ref-fullname b)))
-    (and a b (equal a b))))
+  (and-let ((a (magit-ref-fullname a))
+            (b (magit-ref-fullname b)))
+    (equal a b)))
 
 (defun magit-ref-eq (a b)
   "Return t if the refnames A and B are `eq'.
