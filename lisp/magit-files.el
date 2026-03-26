@@ -146,6 +146,9 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
      buf)
     ([buf (get-buffer-create (magit--blob-buffer-name rev file volatile))]
      (with-current-buffer buf
+       ;; Undo is disabled in hidden buffers by default.  While this
+       ;; may look like it is doing the opposite, this enabled undo.
+       (setq buffer-undo-list nil)
        (setq magit-buffer--volatile volatile)
        (magit--blob-cache-put buf))
      buf)))
