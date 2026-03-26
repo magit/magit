@@ -41,8 +41,7 @@
 (define-obsolete-variable-alias 'magit-find-index-hook
   'magit-find-blob-hook "Magit 4.6.0")
 
-(defvar magit-find-blob-hook nil)
-(add-hook 'magit-find-blob-hook #'magit-blob-mode)
+(defvar magit-find-blob-hook (list #'magit-blob-mode))
 
 (defvar-local magit-buffer--volatile nil)
 (put 'magit-buffer--volatile 'permanent-local t)
