@@ -641,7 +641,7 @@ prompt is confusing."
              "push"
              (and (or force magit-branch-delete-never-verify) "--no-verify")
              remote
-             (mapcar (##concat ":" (substring % offset)) branches))
+             (mapcar (##concat ":refs/heads/" (substring % offset)) branches))
             ;; If that is not the case, then this deletes the tracking branches.
             (set-process-sentinel
              magit-this-process
