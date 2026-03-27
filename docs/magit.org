@@ -6988,6 +6988,21 @@ These variables can be set from the transient prefix command
   ~--tags~, then all tags are fetched.  If this variable has no value,
   then only tags are fetched that are reachable from fetched branches.
 
+- Variable: remote.NAME.followRemoteHEAD ::
+
+  How "git fetch" handles updates to "remotes/<remote>/HEAD".
+
+  This command sets the local value of the Git variable
+  ~remote.<remote>.followRemoteHEAD~, where <remote> is a stand-in for
+  the actual remote, as displayed in the menu, from which this command
+  is invoked.  This variable is documented in [[man:git-config]]
+
+  Unfortunately Git does not provide a variable to set a default for
+  all remotes of all repositories, but you can set the global value for
+  a remote name used in multiple repository, which will then be used as
+  the default for that remote in all repositories.  You should consider
+  using "always" for remotes named "origin".
+
 ** Fetching
 
 Also see [[man:git-fetch]] For information about the upstream and the

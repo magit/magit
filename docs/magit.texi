@@ -8290,6 +8290,32 @@ value is @code{--no-tags} then no tags are fetched.  If the value is
 then only tags are fetched that are reachable from fetched branches.
 @end defvar
 
+@defvar remote.NAME.followRemoteHEAD
+How "git fetch" handles updates to "remotes/<remote>/HEAD".
+
+This command sets the local value of the Git variable
+@code{remote.<remote>.followRemoteHEAD}, where <remote> is a stand-in for
+the actual remote, as displayed in the menu, from which this command
+is invoked.  This variable is documented in 
+@ifinfo
+@ref{git-config,,,gitman,}.
+@end ifinfo
+@ifhtml
+@html
+the <a href="http://git-scm.com/docs/git-config">git-config(1)</a> manpage.
+@end html
+@end ifhtml
+@iftex
+the git-config(1) manpage.
+@end iftex
+
+Unfortunately Git does not provide a variable to set a default for
+all remotes of all repositories, but you can set the global value for
+a remote name used in multiple repository, which will then be used as
+the default for that remote in all repositories.  You should consider
+using "always" for remotes named "origin".
+@end defvar
+
 @node Fetching
 @section Fetching
 

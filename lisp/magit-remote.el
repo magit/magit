@@ -73,7 +73,8 @@ has to be used to view and change remote related variables."
    ("U" magit-remote.<remote>.fetch)
    ("s" magit-remote.<remote>.pushurl)
    ("S" magit-remote.<remote>.push)
-   ("O" magit-remote.<remote>.tagopt)]
+   ("O" magit-remote.<remote>.tagopt)
+   ("h" magit-remote.<remote>.followremotehead)]
   ["Arguments for add"
    ("-f" "Fetch after add" "-f")]
   ["Actions"
@@ -316,7 +317,8 @@ refspec."
    ("U" magit-remote.<remote>.fetch)
    ("s" magit-remote.<remote>.pushurl)
    ("S" magit-remote.<remote>.push)
-   ("O" magit-remote.<remote>.tagopt)]
+   ("O" magit-remote.<remote>.tagopt)
+   ("h" magit-remote.<remote>.followremotehead)]
   (interactive
     (list (or (and (not current-prefix-arg)
                    (not (and magit-remote-direct-configure
@@ -363,6 +365,27 @@ refspec."
   :scope #'magit--read-remote-scope
   :variable "remote.%s.tagOpt"
   :choices '("--no-tags" "--tags"))
+
+(transient-define-infix magit-remote.<remote>.followremotehead ()
+  "How \"git fetch\" handles updates to \"remotes/<remote>/HEAD\".
+
+This command sets the local value of the Git variable
+`remote.<remote>.followRemoteHEAD', where <remote> is a stand-in for
+the actual remote, as displayed in the menu, from which this command
+is invoked.  This variable is documented in (man \"git-config(1)\").
+
+Unfortunately Git does not provide a variable to set a default for
+all remotes of all repositories, but you can set the global value for
+a remote name used in multiple repository, which will then be used as
+the default for that remote in all repositories.  You should consider
+using \"always\" for remotes named \"origin\".
+
+  git config set --global remote.origin.followRemoteHEAD always"
+  :class 'magit--git-variable:choices
+  :scope #'magit--read-remote-scope
+  :variable "remote.%s.followRemoteHEAD"
+  :choices '("create" "always" "warn")
+  :default "create")
 
 ;;; Transfer Utilities
 
