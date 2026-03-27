@@ -638,10 +638,10 @@ prompt is confusing."
                        (magit-rev-parse "--short" ref)))
             ;; Assume the branches actually still exist on the remote.
             (magit-run-git-async
-             "push"
+             "push" "--delete"
              (and (or force magit-branch-delete-never-verify) "--no-verify")
              remote
-             (mapcar (##concat ":refs/heads/" (substring % offset)) branches))
+             (mapcar (##concat "refs/heads/" (substring % offset)) branches))
             ;; If that is not the case, then this deletes the tracking branches.
             (set-process-sentinel
              magit-this-process
