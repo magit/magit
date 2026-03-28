@@ -228,7 +228,7 @@ be disabled.  Also consider enabling `magit-diff-use-indicator-faces'.
 Emacs has to be restarted, after changing the value of the former.
 
 This is considered experimental and is disabled by default, because the
-fontification is done synchronously, and that can lead to a noticable
+fontification is done synchronously, and that can lead to a noticeable
 delay.  The plan is to make it asynchronous, probably with the help of
 the new `futur' package, which itself still under heavy development."
   :package-version '(magit . "4.6.0")

@@ -18,7 +18,7 @@
   ~magit-git-post-commit-functions~, ~magit-git-post-merge-functions~
   and ~magit-git-post-rewrite-functions~.
 
-- Replaced option ~magit-section-visibility-indicator~ (singluar) with
+- Replaced option ~magit-section-visibility-indicator~ (singular) with
   new option ~magit-section-visibility-indicators~ (plurarl) to better
   support emacs sessions that have both terminal and gui frames.
   2d8f43e681

@@ -133,7 +133,7 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
     buffer))
 
 (defun magit--get-blob-buffer (rev file &optional volatile)
-  ;; REV is assummed to be abbreviated and FILE to be relative.
+  ;; REV is assumed to be abbreviated and FILE to be relative.
   (cond-let
     ([buf (magit--find-buffer 'magit-buffer-revision rev
                               'magit-buffer-file-name file)]

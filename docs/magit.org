@@ -3420,7 +3420,7 @@ that they are available here too.
   Emacs has to be restarted, after changing the value of the former.
 
   This is considered experimental and is disabled by default, because the
-  fontification is done synchronously, and that can lead to a noticable
+  fontification is done synchronously, and that can lead to a noticeable
   delay.  The plan is to make it asynchronous, probably with the help of
   the new ~futur~ package, which itself still under heavy development.
 
