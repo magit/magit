@@ -562,9 +562,10 @@ insert the run command and stderr into the process buffer."
                           exit log 'magit-section-secondary-heading)
                          exit)))))
                 (cond ((not magit-git-debug))
-                      (errmsg (message "%s" errmsg))
+                      (errmsg (message "magit--git-insert: %S" errmsg))
                       ((zerop exit))
-                      ((message "Git returned with exit-code %s" exit))))
+                      ((message "magit--git-insert: %s %s"
+                                "Git returned with exit-code" exit))))
               (or (and return-error errmsg)
                   exit))
           (ignore-errors (delete-file log))))
