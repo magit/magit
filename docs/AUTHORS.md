@@ -49,6 +49,7 @@ All Contributors
 - Alex Kreisher
 - Alex Ott
 - Allen Li
+- Andrea Alberti
 - Andreas Fuchs
 - Andreas Liljeqvist
 - Andreas Rottmann
