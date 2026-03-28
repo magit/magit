@@ -565,7 +565,8 @@ insert the run command and stderr into the process buffer."
                       (errmsg (message "%s" errmsg))
                       ((zerop exit))
                       ((message "Git returned with exit-code %s" exit))))
-              (or errmsg exit))
+              (or (and return-error errmsg)
+                  exit))
           (ignore-errors (delete-file log))))
     (magit-process-git (list t nil) args)))
 
