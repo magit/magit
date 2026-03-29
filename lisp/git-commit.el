@@ -587,9 +587,9 @@ Used as the local value of `header-line-format', in buffer using
   (with-demoted-errors "Error running git-commit-setup-hook: %S"
     (run-hooks 'git-commit-setup-hook))
   (set-buffer-modified-p nil)
-  (when-let ((format git-commit-header-line-format))
+  (when$ git-commit-header-line-format
     (setq header-line-format
-          (if (stringp format) (substitute-command-keys format) format)))
+          (if (stringp $) (substitute-command-keys $) $)))
   (when git-commit-usage-message
     (setq with-editor-usage-message git-commit-usage-message))
   (with-editor-usage-message))

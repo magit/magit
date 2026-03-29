@@ -511,8 +511,8 @@ from the source branch's upstream, then an error is raised."
          (if checkout
              (magit-call-git "checkout" "-b" branch current)
            (magit-call-git "branch" branch current)))
-       (when-let ((upstream (magit-get-indirect-upstream-branch current)))
-         (magit-call-git "branch" "--set-upstream-to" upstream branch))
+       (when$ (magit-get-indirect-upstream-branch current)
+         (magit-call-git "branch" "--set-upstream-to" $ branch))
        (when (and tracked
                   (setq base
                         (if from

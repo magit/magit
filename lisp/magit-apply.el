@@ -644,8 +644,8 @@ of a side, then keep that side without prompting."
     (let ((orig (cadr (assoc file status))))
       (if (file-exists-p file)
           (progn
-            (when-let ((path (file-name-directory orig)))
-              (make-directory path t))
+            (when$ (file-name-directory orig)
+              (make-directory $ t))
             (magit-call-git "mv" file orig))
         (magit-call-git "rm" "--cached" "--" file)
         (magit-call-git "reset" "--" orig)))))

@@ -344,8 +344,8 @@ is done using `magit-find-index-noselect'."
           (set-buffer-modified-p nil)
           (magit-run-after-apply-functions file "un-/stage"))
       (message "Abort")))
-  (when-let ((buffer (magit-get-mode-buffer 'magit-status-mode)))
-    (with-current-buffer buffer
+  (when$ (magit-get-mode-buffer 'magit-status-mode)
+    (with-current-buffer $
       (magit-refresh)))
   t)
 

@@ -97,8 +97,8 @@ Rules that are defined in that file affect all local repositories."
   (magit-refresh))
 
 (defun magit--gitignore (rule file)
-  (when-let ((directory (file-name-directory file)))
-    (make-directory directory t))
+  (when$ (file-name-directory file)
+    (make-directory $ t))
   (with-temp-buffer
     (when (file-exists-p file)
       (insert-file-contents file))
