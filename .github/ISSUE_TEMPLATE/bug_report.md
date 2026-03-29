@@ -40,7 +40,7 @@ Alternatively, run:
 
     M-x magit-emacs-Q-command RET
 
-to save a shell command to the `kill-ring` and the system's clip-board, which you can then copy into a shell to run.
+to save a shell command to the kill-ring and the system's clip-board, which you can then copy into a shell to run.
 
 Finally, if that didn't work and you have installed Magit from Melpa, then run commands similar to the ones above, but use tab completion to replace the various Ns with the correct versions:
 
