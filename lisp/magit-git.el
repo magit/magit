@@ -1339,7 +1339,7 @@ Sorted from longest to shortest CYGWIN name."
 (defun magit-blob-oid (rev file)
   (if (equal rev "{index}")
       (cadr (car (magit--file-index-stages file)))
-    (magit-git-string "ls-tree" "--object-only" rev "--"
+    (magit-git-string "ls-tree" "--full-tree" "--object-only" rev "--"
                       (magit-convert-filename-for-git file))))
 
 (defun magit--file-index-stages (file)
