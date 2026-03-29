@@ -1337,10 +1337,13 @@ Sorted from longest to shortest CYGWIN name."
   (equal (magit-object-type obj) "blob"))
 
 (defun magit-blob-oid (rev file)
-  (if (equal rev "{index}")
-      (cadr (car (magit--file-index-stages file)))
-    (magit-git-string "ls-tree" "--full-tree" "--object-only" rev "--"
-                      (magit-convert-filename-for-git file))))
+  (cond-let
+    ((equal rev "{index}")
+     (cadr (car (magit--file-index-stages file))))
+    ;; --object-only and --format were only added in Git v2.36.0.
+    ([out (magit-git-string "ls-tree" "--full-tree" rev "--"
+                            (magit-convert-filename-for-git file))]
+     (nth 2 (split-string out "[\s\t]")))))
 
 (defun magit--file-index-stages (file)
   (mapcar (##split-string % " ")
