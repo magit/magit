@@ -394,7 +394,7 @@ to do the following.
 
 * Prepend `magit-git-global-arguments' to ARGS.
 * If ASYNC is non-nil and `magit-overriding-githook-directory' is non-nil
-  and valid, set `core.hooksPath' by adding additional aguments to ARGS.
+  and valid, set `core.hooksPath' by adding additional arguments to ARGS.
 * Flatten ARGS, removing nil arguments.
 * If `system-type' is `windows-nt', encode ARGS to `w32-ansi-code-page'."
   (cond ((not async))
