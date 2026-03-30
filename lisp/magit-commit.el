@@ -684,10 +684,10 @@ an alternative implementation."
     (let ((inhibit-quit nil))
       (condition-case nil
           (with-demoted-errors "Error showing commit diff: %S"
-            (magit-commit-diff-1))
+            (magit-commit-diff--show))
         (quit)))))
 
-(defun magit-commit-diff-1 ()
+(defun magit-commit-diff--args ()
   (let ((rev nil)
         (arg "--cached")
         (command (magit-repository-local-get 'this-commit-command))
@@ -736,10 +736,13 @@ an alternative implementation."
       ((or squash
            (file-exists-p (expand-file-name "rebase-merge/amend" (magit-gitdir))))
        (setq rev "HEAD^"))
-      (t
-       (message "No alternative diff while committing")
-       (setq noalt t)))
-    (unless noalt
+      ((setq noalt t)))
+    (list rev arg noalt)))
+
+(defun magit-commit-diff--show ()
+  (pcase-let ((`(,rev ,arg ,noalt) (magit-commit-diff--args)))
+    (if noalt
+        (message "No alternative diff while committing")
       (let ((magit-inhibit-save-previous-winconf 'unset)
             (magit-display-buffer-noselect t)
             (display-buffer-overriding-action

@@ -47,7 +47,7 @@
 ;; For `magit-diff-wash-diff'
 (defvar magit-log-heading-re)
 ;; For `magit-diff-while-committing'
-(declare-function magit-commit-diff-1 "magit-commit" ())
+(declare-function magit-commit-diff--show "magit-commit" ())
 (declare-function magit-commit-message-buffer "magit-commit" ())
 ;; For `magit-insert-revision-gravatar'
 (defvar gravatar-size)
@@ -1490,7 +1490,7 @@ be committed."
   (interactive)
   (unless (magit-commit-message-buffer)
     (user-error "No commit in progress"))
-  (magit-commit-diff-1))
+  (magit-commit-diff--show))
 
 ;;;###autoload
 (defun magit-diff-buffer-file ()
