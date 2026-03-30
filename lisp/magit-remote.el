@@ -108,15 +108,15 @@ has to be used to view and change remote related variables."
                   (string-match "\\([^:/]+\\)/[^/]+\\(\\.git\\)?\\'" origin)
                   (replace-match remote t t origin 1)))
             (transient-args 'magit-remote))))
-  (if (pcase (list magit-remote-add-set-remote.pushDefault
-                   (magit-get "remote.pushDefault"))
-        (`(,(pred stringp) ,_) t)
-        ((or `(ask ,_) '(ask-if-unset nil))
-         (y-or-n-p (format "Set `remote.pushDefault' to \"%s\"? " remote))))
-      (progn (magit-call-git "remote" "add" args remote url)
-             (setf (magit-get "remote.pushDefault") remote)
-             (magit-refresh))
-    (magit-run-git-async "remote" "add" args remote url)))
+  (cond ((pcase (list magit-remote-add-set-remote.pushDefault
+                      (magit-get "remote.pushDefault"))
+           (`(,(pred stringp) ,_) t)
+           ((or `(ask ,_) '(ask-if-unset nil))
+            (y-or-n-p (format "Set `remote.pushDefault' to \"%s\"? " remote))))
+         (magit-call-git "remote" "add" args remote url)
+         (setf (magit-get "remote.pushDefault") remote)
+         (magit-refresh))
+        ((magit-run-git-async "remote" "add" args remote url))))
 
 ;;;###autoload
 (defun magit-remote-rename (old new)

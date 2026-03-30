@@ -2601,17 +2601,18 @@ keymap is the parent of their keymaps."
      (let ((long-status (match-str 0))
            (status "BUG")
            file orig base)
-       (if (equal long-status "merged")
-           (progn (setq status long-status)
-                  (setq long-status nil))
-         (setq status (pcase-exhaustive long-status
-                        ("added in remote"   "new file")
-                        ("added in both"     "new file")
-                        ("added in local"    "new file")
-                        ("removed in both"   "removed")
-                        ("changed in both"   "changed")
-                        ("removed in local"  "removed")
-                        ("removed in remote" "removed"))))
+       (cond ((equal long-status "merged")
+              (setq status long-status)
+              (setq long-status nil))
+             ((setq status
+                    (pcase-exhaustive long-status
+                      ("added in remote"   "new file")
+                      ("added in both"     "new file")
+                      ("added in local"    "new file")
+                      ("removed in both"   "removed")
+                      ("changed in both"   "changed")
+                      ("removed in local"  "removed")
+                      ("removed in remote" "removed")))))
        (magit-delete-line)
        (while (looking-at
                "^  \\([^ ]+\\) +[0-9]\\{6\\} \\([a-z0-9]\\{40,\\}\\) \\(.+\\)$")
@@ -2988,15 +2989,14 @@ or a ref which is not a branch, then it inserts nothing."
             (goto-char (match-beginning 0))
           (goto-char (point-max)))
         (insert ?\n))
-      (if (re-search-forward "-----BEGIN PGP SIGNATURE-----" nil t)
-          (progn
-            (let ((beg (match-beginning 0)))
-              (re-search-forward "-----END PGP SIGNATURE-----\n")
-              (delete-region beg (point)))
-            (save-excursion
-              (magit-process-git t "verify-tag" magit-buffer-revision))
-            (magit-diff-wash-signature magit-buffer-revision))
-        (goto-char (point-max)))
+      (cond ((re-search-forward "-----BEGIN PGP SIGNATURE-----" nil t)
+             (let ((beg (match-beginning 0)))
+               (re-search-forward "-----END PGP SIGNATURE-----\n")
+               (delete-region beg (point)))
+             (save-excursion
+               (magit-process-git t "verify-tag" magit-buffer-revision))
+             (magit-diff-wash-signature magit-buffer-revision))
+            ((goto-char (point-max))))
       (insert ?\n))))
 
 (defvar-keymap magit-commit-message-section-map

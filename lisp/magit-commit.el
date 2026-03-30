@@ -549,20 +549,19 @@ is updated:
       (user-error "There are no modified modules that could be absorbed"))
     (when commit
       (setq commit (magit-rebase-interactive-assert commit t)))
-    (if (and commit (eq phase 'run))
-        (progn
-          (dolist (module modules)
-            (when-let ((msg (magit-git-string
-                             "log" "-1" "--format=%s"
-                             (concat commit "..") "--" module)))
-              (magit-git "commit" "-m" (concat "fixup! " msg)
-                         "--only" "--" module)))
-          (magit-refresh)
-          t)
-      (magit-log-select
-        (lambda (commit)
-          (magit-commit-absorb-modules 'run commit))
-        nil nil nil nil commit))))
+    (cond ((and commit (eq phase 'run))
+           (dolist (module modules)
+             (when-let ((msg (magit-git-string
+                              "log" "-1" "--format=%s"
+                              (concat commit "..") "--" module)))
+               (magit-git "commit" "-m" (concat "fixup! " msg)
+                          "--only" "--" module)))
+           (magit-refresh)
+           t)
+          ((magit-log-select
+             (lambda (commit)
+               (magit-commit-absorb-modules 'run commit))
+             nil nil nil nil commit)))))
 
 ;;;###autoload(autoload 'magit-commit-absorb "magit-commit" nil t)
 (transient-define-prefix magit-commit-absorb (phase commit args)

@@ -572,25 +572,26 @@ flattened before use."
     ;; On w32, git expects UTF-8 encoded input, ignore any user
     ;; configuration telling us otherwise (see #3250).
     (encode-coding-region (point-min) (point-max) 'utf-8-unix))
-  (if (file-remote-p default-directory)
-      ;; We lack `process-file-region', so fall back to asynch +
-      ;; waiting in remote case.
-      (progn
-        (magit-start-git (current-buffer) args)
-        (while (and magit-this-process
-                    (eq (process-status magit-this-process) 'run))
-          (sleep-for 0.005)))
-    (run-hooks 'magit-pre-call-git-hook)
-    (pcase-let* ((process-environment (magit-process-environment))
-                 (default-process-coding-system (magit--process-coding-system))
-                 (flat-args (magit-process-git-arguments args t))
-                 (`(,process-buf . ,section)
-                  (magit-process-setup (magit-git-executable) flat-args))
-                 (inhibit-read-only t))
-      (magit-process-finish
-       (apply #'call-process-region (point-min) (point-max)
-              (magit-git-executable) nil process-buf nil flat-args)
-       process-buf nil default-directory section))))
+  (cond
+    ((file-remote-p default-directory)
+     ;; We lack `process-file-region', so fall back to asynch +
+     ;; waiting in remote case.
+     (magit-start-git (current-buffer) args)
+     (while (and magit-this-process
+                 (eq (process-status magit-this-process) 'run))
+       (sleep-for 0.005)))
+    (t
+     (run-hooks 'magit-pre-call-git-hook)
+     (pcase-let* ((process-environment (magit-process-environment))
+                  (default-process-coding-system (magit--process-coding-system))
+                  (flat-args (magit-process-git-arguments args t))
+                  (`(,process-buf . ,section)
+                   (magit-process-setup (magit-git-executable) flat-args))
+                  (inhibit-read-only t))
+       (magit-process-finish
+        (apply #'call-process-region (point-min) (point-max)
+               (magit-git-executable) nil process-buf nil flat-args)
+        process-buf nil default-directory section)))))
 
 ;;; Asynchronous Processes
 

@@ -885,10 +885,10 @@ If there is no previous sibling section, then move to the parent."
 (defun magit-section-goto (arg)
   "Run `magit-section-movement-hook'.
 See info node `(magit)Section Movement'."
-  (if (integerp arg)
-      (progn (forward-line arg)
-             (setq arg (magit-current-section)))
-    (goto-char (oref arg start)))
+  (cond ((integerp arg)
+         (forward-line arg)
+         (setq arg (magit-current-section)))
+        ((goto-char (oref arg start))))
   (run-hook-with-args 'magit-section-movement-hook arg))
 
 (defun magit-section-set-window-start (section)

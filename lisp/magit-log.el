@@ -1187,19 +1187,19 @@ Type \\[magit-reset] to reset `HEAD' to the commit at point.
 (defvar-local magit-log--color-graph nil)
 
 (defun magit-log--maybe-drop-color-graph (args limit)
-  (if (member "--color" args)
-      (if (cond ((not (member "--graph" args)))
-                ((not magit-log-color-graph-limit) nil)
-                ((not limit)
-                 (message "Dropping --color because -n isn't set (see %s)"
-                          'magit-log-color-graph-limit))
-                ((> limit magit-log-color-graph-limit)
-                 (message "Dropping --color because -n is larger than %s"
-                          'magit-log-color-graph-limit)))
-          (progn (setq args (remove "--color" args))
-                 (setq magit-log--color-graph nil))
-        (setq magit-log--color-graph t))
-    (setq magit-log--color-graph nil))
+  (cond ((not (member "--color" args))
+         (setq magit-log--color-graph nil))
+        ((cond ((not (member "--graph" args)) t)
+               ((not magit-log-color-graph-limit) nil)
+               ((not limit)
+                (message "Dropping --color because -n isn't set (see %s)"
+                         'magit-log-color-graph-limit))
+               ((> limit magit-log-color-graph-limit)
+                (message "Dropping --color because -n is larger than %s"
+                         'magit-log-color-graph-limit)))
+         (setq args (remove "--color" args))
+         (setq magit-log--color-graph nil))
+        ((setq magit-log--color-graph t)))
   args)
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-log-mode))

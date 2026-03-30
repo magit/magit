@@ -642,13 +642,13 @@ of a side, then keep that side without prompting."
             files))
   (dolist (file files)
     (let ((orig (cadr (assoc file status))))
-      (if (file-exists-p file)
-          (progn
-            (when$ (file-name-directory orig)
-              (make-directory $ t))
-            (magit-call-git "mv" file orig))
-        (magit-call-git "rm" "--cached" "--" file)
-        (magit-call-git "reset" "--" orig)))))
+      (cond ((file-exists-p file)
+             (when$ (file-name-directory orig)
+               (make-directory $ t))
+             (magit-call-git "mv" file orig))
+            (t
+             (magit-call-git "rm" "--cached" "--" file)
+             (magit-call-git "reset" "--" orig))))))
 
 (defun magit-discard-files--discard (sections new-files)
   (let ((files (mapcar (##oref % value) sections)))
