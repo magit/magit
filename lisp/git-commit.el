@@ -121,6 +121,7 @@
 
 (declare-function dabbrev--reset-global-variables "dabbrev" ())
 (declare-function dabbrev-capf "dabbrev" ())
+(declare-function magit-diff--modified-defuns "magit-diff" ())
 
 (define-obsolete-variable-alias
   'git-commit-known-pseudo-headers
@@ -844,6 +845,44 @@ Save current message first."
              (setq str (replace-match "\n" t t str)))
            str))))
 
+;;; Changelog
+
+;;;###autoload
+(defun git-commit-insert-changelog-gnu ()
+  "Insert a GNU-style changelog at point while authorig a commit message.
+
+The modified definitions are extracted from the diff in the message
+buffer, which is only available if \"git commit\" was invoked with
+\"--verbose\"."
+  (interactive)
+  (unless git-commit-mode
+    (user-error "Not in a commit message buffer"))
+  ;; Like `change-log-insert-entries'.
+  (pcase-dolist (`(,file . ,defuns) (magit-diff--modified-defuns))
+    (if (not defuns)
+        (insert "* " file ":\n")
+      (insert "* " file " ")
+      (dolist (def defuns)
+        (insert "(" def "):\n")))))
+
+;;;###autoload
+(defun git-commit-insert-changelog-plain ()
+  "Insert a simple changelog at point while authorig a commit message.
+
+Defuns are slightly indented and quoted like in elisp docstrings.
+The exact format is still subject to change.
+
+The modified definitions are extracted from the diff in the message
+buffer, which is only available if \"git commit\" was invoked with
+\"--verbose\"."
+  (interactive)
+  (unless git-commit-mode
+    (user-error "Not in a commit message buffer"))
+  (pcase-dolist (`(,file . ,defuns) (magit-diff--modified-defuns))
+    (insert file ":\n")
+    (dolist (def defuns)
+      (insert "  `" def "'\n"))))
+
 ;;; Trailers
 
 (transient-define-prefix git-commit-insert-trailer ()
@@ -853,19 +892,22 @@ See also manpage git-interpret-trailer(1).  This command does
 not use that Git command, but the initial description still
 serves as a good introduction."
   [[:description (##cond (prefix-arg
-                          "Insert ... by someone ")
-                         ("Insert ... by yourself"))
+                          "Insert trailer ... by someone ")
+                         ("Insert trailer ... by yourself"))
     ("a"   "Ack"          git-commit-ack)
     ("m"   "Modified"     git-commit-modified)
     ("r"   "Reviewed"     git-commit-review)
     ("s"   "Signed-off"   git-commit-signoff)
     ("t"   "Tested"       git-commit-test)]
-   ["Insert ... by someone"
+   ["Insert trailer ... by someone"
     ("C-c" "Cc"           git-commit-cc)
     ("C-r" "Reported"     git-commit-reported)
     ("C-i" "Suggested"    git-commit-suggested)
     ("C-a" "Co-authored"  git-commit-co-authored)
-    ("C-d" "Co-developed" git-commit-co-developed)]])
+    ("C-d" "Co-developed" git-commit-co-developed)]]
+  ["Insert changelog"
+   ("l g" "GNU-style"     git-commit-insert-changelog-gnu)
+   ("l p" "plain"         git-commit-insert-changelog-plain)])
 
 (defun git-commit-ack (name mail)
   "Insert a trailer acknowledging that you have looked at the commit."
