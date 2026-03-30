@@ -34,6 +34,7 @@
 (require 'diff-mode)
 (require 'image)
 (require 'smerge-mode)
+(require 'which-func)
 
 ;; For `magit-diff--get-value'
 (defvar magit-status-use-buffer-arguments)
@@ -2042,6 +2043,73 @@ the Magit-Status buffer for DIRECTORY."
     (call-process-region (point-min) (point-max)
                          (magit-git-executable) nil buffer nil
                          "diff-pairs" "-z")))
+
+;;;;; Modified
+
+(defun magit-diff--modified-defuns ()
+  (let (value eof)
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "^diff --git" nil t)
+        (save-excursion
+          (setq eof (and (re-search-forward "^diff --git" nil t)
+                         (match-beginning 0))))
+        (let (-rev +rev)
+          (while (progn (forward-line) (looking-at "^[a-z]"))
+            (when (looking-at "^index \\([^.]+\\)\\.\\.\\([^ ]+\\)")
+              (setq -rev (magit-rev-parse (match-string 1)))
+              (setq +rev (magit-rev-parse (match-string 2)))))
+          (pcase-let*
+              ((-file (and (looking-at "^--- a/\\(.+\\)")
+                           (prog1 (match-str 1) (forward-line))))
+               (+file (and (looking-at "^\\+\\+\\+ b/\\(.+\\)")
+                           (prog1 (match-str 1) (forward-line))))
+               (`(,-lines ,+lines) (magit-diff--modified-lines eof))
+               (-defuns (and -lines (magit-diff--modified-defuns-1
+                                     -rev -file -lines)))
+               (+defuns (and +lines (magit-diff--modified-defuns-1
+                                     +rev +file +lines))))
+            (if (equal -file +file)
+                (when$ (nconc +defuns -defuns)
+                  (push (cons +file (delete-dups $)) value))
+              (when -defuns (push (cons -file -defuns) value))
+              (when +defuns (push (cons +file +defuns) value)))))))
+    (nreverse value)))
+
+(defun magit-diff--modified-defuns-1 (rev file lines)
+  (with-current-buffer (magit-find-file-noselect rev file t t)
+    (save-excursion
+      (save-restriction
+        (widen)
+        (let (defuns)
+          (while-let ((line (pop lines)))
+            (goto-char (point-min))
+            (forward-line line)
+            (when-let ((def (which-function)))
+              (cl-pushnew def defuns :test #'equal)
+              (when-let ((end (condition-case nil (end-of-defun)
+                                (:success (line-number-at-pos))
+                                (error nil))))
+                (while (and lines (> end (car lines)))
+                  (pop lines)))))
+          (nreverse defuns))))))
+
+(defun magit-diff--modified-lines (bound)
+  (let (-lines +lines)
+    (while (re-search-forward
+            "^@@ -\\([0-9]+\\),[^ ]+ \\+\\([0-9]+\\),[^ ]+ @@.*\n" bound t)
+      (let ((-line (string-to-number (match-string 1)))
+            (+line (string-to-number (match-string 2))))
+        (while (and (not (eobp))
+                    (memq (char-after) '(?\s ?- ?+)))
+          (pcase (char-after)
+            (?\s (cl-incf -line)
+                 (cl-incf +line))
+            (?-  (push (cl-incf -line) -lines))
+            (?+  (push (cl-incf +line) +lines)))
+          (forward-line))))
+    (list (nreverse -lines)
+          (nreverse +lines))))
 
 ;;;; Scroll Commands
 
