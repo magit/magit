@@ -119,8 +119,8 @@
 
 (defvar git-commit-need-summary-line)
 
-(declare-function dabbrev-capf "dabbrev" ())
 (declare-function dabbrev--reset-global-variables "dabbrev" ())
+(declare-function dabbrev-capf "dabbrev" ())
 
 (define-obsolete-variable-alias
   'git-commit-known-pseudo-headers
