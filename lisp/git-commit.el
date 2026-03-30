@@ -121,7 +121,9 @@
 
 (declare-function dabbrev--reset-global-variables "dabbrev" ())
 (declare-function dabbrev-capf "dabbrev" ())
+(declare-function magit-commit-diff--args "magit-commit" ())
 (declare-function magit-diff--modified-defuns "magit-diff" ())
+(declare-function magit-diff-arguments "magit-diff" (&optional mode))
 
 (define-obsolete-variable-alias
   'git-commit-known-pseudo-headers
@@ -847,6 +849,17 @@ Save current message first."
 
 ;;; Changelog
 
+(defun git-commit--modified-defuns ()
+  (if (save-excursion
+        (goto-char (point-min))
+        (re-search-forward "^diff --git" nil t))
+      (magit-diff--modified-defuns)
+    (with-temp-buffer
+      (pcase-let ((`(,rev ,arg) (magit-commit-diff--args)))
+        (save-excursion
+          (magit-git-insert "diff" "-p" arg (car (magit-diff-arguments)) rev)))
+      (magit-diff--modified-defuns))))
+
 ;;;###autoload
 (defun git-commit-insert-changelog-gnu ()
   "Insert a GNU-style changelog at point while authorig a commit message.
@@ -858,7 +871,7 @@ buffer, which is only available if \"git commit\" was invoked with
   (unless git-commit-mode
     (user-error "Not in a commit message buffer"))
   ;; Like `change-log-insert-entries'.
-  (pcase-dolist (`(,file . ,defuns) (magit-diff--modified-defuns))
+  (pcase-dolist (`(,file . ,defuns) (git-commit--modified-defuns))
     (if (not defuns)
         (insert "* " file ":\n")
       (insert "* " file " ")
@@ -878,7 +891,7 @@ buffer, which is only available if \"git commit\" was invoked with
   (interactive)
   (unless git-commit-mode
     (user-error "Not in a commit message buffer"))
-  (pcase-dolist (`(,file . ,defuns) (magit-diff--modified-defuns))
+  (pcase-dolist (`(,file . ,defuns) (git-commit--modified-defuns))
     (insert file ":\n")
     (dolist (def defuns)
       (insert "  `" def "'\n"))))
