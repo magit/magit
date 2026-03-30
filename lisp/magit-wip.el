@@ -187,16 +187,16 @@ commit message."
 
 (defun magit-wip-commit-worktree (ref files msg)
   (when (or (not files)
-            ;; `update-index' will either ignore (before Git v2.32.0)
-            ;; or fail when passed directories (relevant for the
-            ;; untracked files code paths).
+            ;; "git update-index" either ignores (before Git v2.32.0) or
+            ;; fails, when passed directories.  This is relevant for the
+            ;; untracked files code paths.
             (setq files (seq-remove #'file-directory-p files)))
     (let* ((wipref (magit--wip-wtree-ref ref))
            (parent (magit-wip-get-parent ref wipref))
            (tree (magit-with-temp-index parent (list "--reset" "-i")
                    (if files
-                       ;; Note: `update-index' is used instead of `add'
-                       ;; because `add' will fail if a file is already
+                       ;; Use "git update-index" instead of "git add"
+                       ;; because the latter fails if a file is already
                        ;; deleted in the temporary index.
                        (magit-wip--git "update-index" "--add" "--remove"
                                        "--ignore-skip-worktree-entries"
