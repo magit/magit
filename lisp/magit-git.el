@@ -1349,12 +1349,14 @@ Sorted from longest to shortest CYGWIN name."
           (magit-git-lines "ls-files" "--stage" "--"
                            (magit-convert-filename-for-git file))))
 
-(defun magit--insert-blob-contents (rev file)
+(defun magit--insert-blob-contents (obj file)
   (let ((coding-system-for-read (or coding-system-for-read 'undecided)))
-    (magit-git-insert "cat-file" "-p"
-                      (if (equal rev "{index}")
-                          (concat ":" file)
-                        (concat rev ":" file)))
+    (if (magit-blob-p obj)
+        (magit-git-insert "cat-file" "blob" obj)
+      (magit-git-insert "cat-file" "-p"
+                        (if (equal obj "{index}")
+                            (concat ":" file)
+                          (concat obj ":" file))))
     (setq buffer-file-coding-system last-coding-system-used)
     nil))
 

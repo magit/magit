@@ -43,6 +43,7 @@
 
 (defvar magit-find-blob-hook (list #'magit-blob-mode))
 
+(defvar-local magit-buffer-blob-oid--init nil)
 (defvar-local magit-buffer--volatile nil)
 (put 'magit-buffer--volatile 'permanent-local t)
 
@@ -90,7 +91,8 @@ the line and column corresponding to that location."
 
 (defun magit-find-file-noselect (rev file &optional no-restore-position volatile)
   "Read FILE from REV into a buffer and return the buffer.
-REV is a revision or one of \"{worktree}\" or \"{index}\"."
+REV is a revision or one of \"{worktree}\" or \"{index}\".
+Non-interactively REV can also be a blob object."
   (let* ((rev (pcase rev
                 ('nil "{worktree}")
                 ((and "{index}"
@@ -117,7 +119,9 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
                (error "%s is not inside Git repository %s" file topdir))
              (with-current-buffer
                  (magit--get-blob-buffer rev file-relative volatile)
-               (setq magit-buffer-revision rev)
+               (if (magit-blob-p rev)
+                   (setq magit-buffer-blob-oid--init (magit-rev-parse rev))
+                 (setq magit-buffer-revision rev))
                (setq magit-buffer-file-name file)
                (setq default-directory
                      (if (file-exists-p defdir) defdir topdir))
@@ -132,29 +136,33 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
           (apply #'magit-find-file--restore-position pos))))
     buffer))
 
-(defun magit--get-blob-buffer (rev file &optional volatile)
-  ;; REV is assumed to be abbreviated and FILE to be relative.
+(defun magit--get-blob-buffer (obj file &optional volatile)
+  ;; If OBJ is a commit, is assummed to be abbreviated.
+  ;; FILE is assumed to be relative to the top-level.
   (cond-let
-    ([buf (magit--find-buffer 'magit-buffer-revision rev
-                              'magit-buffer-file-name file)]
+    ([buf (if (magit-blob-p obj)
+              (magit--find-buffer 'magit-buffer-blob-oid (magit-rev-parse obj)
+                                  'magit-buffer-file-name file)
+            (magit--find-buffer 'magit-buffer-revision obj
+                                'magit-buffer-file-name file))]
      (with-current-buffer buf
        (when (and (not volatile) magit-buffer--volatile)
          (setq magit-buffer--volatile nil)
-         (rename-buffer (magit--blob-buffer-name rev file))
+         (rename-buffer (magit--blob-buffer-name obj file))
          (magit--blob-cache-remove buf)))
      buf)
-    ([buf (get-buffer-create (magit--blob-buffer-name rev file volatile))]
+    ([buf (get-buffer-create (magit--blob-buffer-name obj file volatile))]
      (with-current-buffer buf
        (setq magit-buffer--volatile volatile)
        (magit--blob-cache-put buf))
      (buffer-enable-undo buf)
      buf)))
 
-(defun magit--blob-buffer-name (rev file &optional volatile)
+(defun magit--blob-buffer-name (obj file &optional volatile)
   (format "%s%s.~%s~"
           (if volatile " " "")
-          file
-          (subst-char-in-string ?/ ?_ rev)))
+          (or file (and (magit-blob-p obj) "{blob}"))
+          (subst-char-in-string ?/ ?_ obj)))
 
 (defun magit--revert-blob-buffer (_ignore-auto _noconfirm)
   (let ((pos (magit-find-file--position)))
@@ -163,10 +171,15 @@ REV is a revision or one of \"{worktree}\" or \"{index}\"."
 
 (defun magit--refresh-blob-buffer (&optional force)
   (let ((old-blob-oid magit-buffer-blob-oid))
-    (setq magit-buffer-revision-oid
-          (magit-commit-oid magit-buffer-revision t))
-    (setq magit-buffer-blob-oid
-          (magit-blob-oid magit-buffer-revision magit-buffer-file-name))
+    (cond
+      (magit-buffer-revision
+       (setq magit-buffer-revision-oid
+             (magit-commit-oid magit-buffer-revision t))
+       (setq magit-buffer-blob-oid
+             (magit-blob-oid magit-buffer-revision magit-buffer-file-name)))
+      (magit-buffer-blob-oid--init
+       (setq magit-buffer-blob-oid magit-buffer-blob-oid--init)
+       (setq magit-buffer-blob-oid--init nil)))
     (when (or force (not (equal old-blob-oid magit-buffer-blob-oid)))
       (let ((inhibit-read-only t))
         (erase-buffer)
@@ -308,7 +321,7 @@ Age is tracked in seconds.  If nil, only use `magit--blob-cache-limit'.")
 (define-advice lsp (:around (fn &rest args) magit-find-file)
   "Do nothing when visiting blob using `magit-find-file' and similar.
 See also https://github.com/doomemacs/doomemacs/pull/6309."
-  (unless magit-buffer-revision
+  (unless magit-buffer-blob-oid
     (apply fn args)))
 
 ;;; Update Index

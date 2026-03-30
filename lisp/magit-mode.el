@@ -625,6 +625,7 @@ In an indirect buffer get the value for its base buffer."
 (defun magit-buffer-revision ()
   "Return `magit-buffer-revision' or if that is nil \"{worktree}\".
 If not visiting a blob or file, or the file isn't being tracked,
+return nil.  If visiting a blob but `magit-buffer-revision' is nil,
 return nil."
   (or magit-buffer-revision
       (and buffer-file-name
