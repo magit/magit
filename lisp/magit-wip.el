@@ -193,18 +193,23 @@ commit message."
             (setq files (seq-remove #'file-directory-p files)))
     (let* ((wipref (magit--wip-wtree-ref ref))
            (parent (magit-wip-get-parent ref wipref))
-           (tree (magit-with-temp-index parent (list "--reset" "-i")
-                   (if files
-                       ;; Use "git update-index" instead of "git add"
-                       ;; because the latter fails if a file is already
-                       ;; deleted in the temporary index.
-                       (magit-wip--git "update-index" "--add" "--remove"
-                                       "--ignore-skip-worktree-entries"
-                                       "--" files)
-                     (magit-with-toplevel
-                       (magit-wip--git "add" "-u" ".")))
-                   (magit-git-string "write-tree"))))
-      (magit-wip-update-wipref ref wipref tree parent files msg "worktree"))))
+           (tree (condition-case nil
+                     (magit-with-temp-index parent (list "--reset" "-i")
+                       (if files
+                           ;; Use "git update-index" instead of "git add"
+                           ;; because the latter fails if a file is already
+                           ;; deleted in the temporary index.
+                           (magit-wip--git "update-index" "--add" "--remove"
+                                           "--ignore-skip-worktree-entries"
+                                           "--" files)
+                         (magit-with-toplevel
+                           (magit-wip--git "add" "-u" ".")))
+                       (magit-git-string "write-tree"))
+                   (error
+                    (message "Index locked; no worktree wip commit created")))))
+      (when tree
+        (magit-wip-update-wipref ref wipref tree parent
+                                 files msg "worktree")))))
 
 (defun magit-wip--git (&rest args)
   (if magit-wip-debug
