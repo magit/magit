@@ -110,6 +110,7 @@
 (require 'transient)
 (require 'with-editor)
 
+(defvar dabbrev--abbrev-char-regexp)
 (defvar diff-default-read-only)
 (defvar flyspell-generic-check-word-predicate)
 (defvar font-lock-beg)
@@ -119,6 +120,7 @@
 (defvar git-commit-need-summary-line)
 
 (declare-function dabbrev-capf "dabbrev" ())
+(declare-function dabbrev--reset-global-variables "dabbrev" ())
 
 (define-obsolete-variable-alias
   'git-commit-known-pseudo-headers
@@ -621,6 +623,9 @@ the input isn't tacked to the comment."
 When \"git commit\"'s \"--verbose\" argument is used, this allows
 completing modified symbols and other text appearing in the diff."
   (require 'dabbrev)
+  (unless dabbrev--abbrev-char-regexp
+    ;; Initialize (not "reset") variables.  See #5545.
+    (dabbrev--reset-global-variables))
   (add-hook 'completion-at-point-functions #'dabbrev-capf -90 t))
 
 (defun git-commit-setup-changelog-support ()
