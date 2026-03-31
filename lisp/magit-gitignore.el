@@ -121,23 +121,26 @@ Rules that are defined in that file affect all local repositories."
                            choices nil 'any nil nil default)))
 
 (defun magit--gitignore-patterns (&optional directory)
-  (delete-dups
-   (mapcan
-    (lambda (file)
-      (cons (concat "/" file)
-            (and$ (file-name-extension file)
-                  (list (concat "/" (file-name-directory file) "*." $)
-                        (concat "*." $)))))
-    (sort (nconc
-           (magit-untracked-files nil directory)
-           ;; The untracked section of the status buffer lists
-           ;; directories containing only untracked files.
-           ;; Add those as candidates.
-           (seq-filter #'directory-name-p
-                       (magit-list-files
-                        "--other" "--exclude-standard" "--directory"
-                        "--no-empty-directory" "--" directory)))
-          #'string-lessp))))
+  (let* ((topdir (magit-toplevel))
+         (default-directory (or directory topdir))
+         (files (magit--untracked-files directory t))
+         ;; Include directories that contain only untracked files.
+         (dirs (seq-filter (##equal (substring % -1) "/")
+                           (magit--untracked-files directory)))
+         (globs nil)
+         (dirglobs nil))
+    (when directory
+      (let ((beg (length (file-relative-name directory topdir))))
+        (setq files (mapcar (##substring % beg) files))
+        (setq dirs  (mapcar (##substring % beg) dirs))))
+    (dolist (file files)
+      (when-let ((ext (file-name-extension file)))
+        (cl-pushnew (concat "*." ext) globs :test #'equal)
+        (when-let ((dir (file-name-directory file)))
+          (cl-pushnew (concat dir "*." ext) dirglobs :test #'equal))))
+    (sort (nconc globs
+                 (mapcar (##concat "/" %) (nconc files dirs dirglobs)))
+          #'string<)))
 
 ;;; Skip Worktree Commands
 
