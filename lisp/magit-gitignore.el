@@ -35,16 +35,10 @@
   "Instruct Git to ignore a file or pattern."
   :man-page "gitignore"
   ["Gitignore"
-   ("t" "shared at toplevel (.gitignore)"
-    magit-gitignore-in-topdir)
-   ("s" "shared in subdirectory (path/to/.gitignore)"
-    magit-gitignore-in-subdir)
-   ("p" "privately (.git/info/exclude)"
-    magit-gitignore-in-gitdir)
-   ("g" magit-gitignore-on-system
-    :if (##magit-get "core.excludesfile")
-    :description (##format "privately for all repositories (%s)"
-                           (magit-get "core.excludesfile")))]
+   ("t" magit-gitignore-in-topdir)
+   ("s" magit-gitignore-in-subdir)
+   ("p" magit-gitignore-in-gitdir)
+   ("g" magit-gitignore-on-system)]
   ["Skip worktree"
    (7 "w" "do skip worktree"     magit-skip-worktree)
    (7 "W" "do not skip worktree" magit-no-skip-worktree)]
@@ -54,23 +48,25 @@
 
 ;;; Gitignore Commands
 
-;;;###autoload
-(defun magit-gitignore-in-topdir (rule)
+;;;###autoload(autoload 'magit-gitignore-in-topdir "magit-gitignore" nil t)
+(transient-define-suffix magit-gitignore-in-topdir (rule)
   "Add the Git ignore RULE to the top-level \".gitignore\" file.
 Since this file is tracked, it is shared with other clones of the
 repository.  Also stage the file."
+  :description "shared at toplevel (.gitignore)"
   (interactive (list (magit-gitignore-read-pattern)))
   (magit-with-toplevel
     (magit--gitignore rule ".gitignore")
     (magit-run-git "add" ".gitignore")))
 
-;;;###autoload
-(defun magit-gitignore-in-subdir (rule directory)
+;;;###autoload(autoload 'magit-gitignore-in-subdir "magit-gitignore" nil t)
+(transient-define-suffix magit-gitignore-in-subdir (rule directory)
   "Add the Git ignore RULE to a \".gitignore\" file in DIRECTORY.
 Prompt the user for a directory and add the rule to the
 \".gitignore\" file in that directory.  Since such files are
 tracked, they are shared with other clones of the repository.
 Also stage the file."
+  :description "shared in subdirectory (path/to/.gitignore)"
   (interactive (list (magit-gitignore-read-pattern)
                      (read-directory-name "Limit rule to files in: ")))
   (magit-with-toplevel
@@ -78,18 +74,22 @@ Also stage the file."
       (magit--gitignore rule file)
       (magit-run-git "add" (magit-convert-filename-for-git file)))))
 
-;;;###autoload
-(defun magit-gitignore-in-gitdir (rule)
+;;;###autoload(autoload 'magit-gitignore-in-gitdir "magit-gitignore" nil t)
+(transient-define-suffix magit-gitignore-in-gitdir (rule)
   "Add the Git ignore RULE to \"$GIT_DIR/info/exclude\".
 Rules in that file only affects this clone of the repository."
+  :description "privately (.git/info/exclude)"
   (interactive (list (magit-gitignore-read-pattern)))
   (magit--gitignore rule (expand-file-name "info/exclude" (magit-gitdir)))
   (magit-refresh))
 
-;;;###autoload
-(defun magit-gitignore-on-system (rule)
+;;;###autoload(autoload 'magit-gitignore-on-system "magit-gitignore" nil t)
+(transient-define-suffix magit-gitignore-on-system (rule)
   "Add the Git ignore RULE to the file specified by `core.excludesFile'.
 Rules that are defined in that file affect all local repositories."
+  :if (##magit-get "core.excludesfile")
+  :description (##format "privately for all repositories (%s)"
+                         (magit-get "core.excludesfile"))
   (interactive (list (magit-gitignore-read-pattern)))
   (magit--gitignore rule
                     (or (magit-get "core.excludesFile")
