@@ -112,6 +112,11 @@ Rules that are defined in that file affect all local repositories."
   (let ((choices (magit--gitignore-patterns directory))
         (default (magit-current-file)))
     (when default
+      (when directory
+        (setq default
+              (substring default
+                         (length
+                          (file-relative-name directory (magit-toplevel))))))
       (setq default (concat "/" default))
       (unless (member default choices)
         (setq default (concat "*." (file-name-extension default)))
