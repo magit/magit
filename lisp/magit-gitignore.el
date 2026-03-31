@@ -65,7 +65,8 @@ Prompt the user for a directory and add the rule to the
 tracked, they are shared with other clones of the repository.
 Also stage the file."
   :description "shared in subdirectory (path/to/.gitignore)"
-  (interactive (let ((dir (read-directory-name "Limit rule to files in: ")))
+  (interactive (let ((dir (expand-file-name
+                           (read-directory-name "Limit rule to files in: "))))
                  (list (magit-gitignore-read-pattern dir) dir)))
   (magit--gitignore rule (expand-file-name ".gitignore" directory) t))
 
