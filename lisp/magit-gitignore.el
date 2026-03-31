@@ -66,7 +66,11 @@ tracked, they are shared with other clones of the repository.
 Also stage the file."
   :description "shared in subdirectory (path/to/.gitignore)"
   (interactive (let ((dir (expand-file-name
-                           (read-directory-name "Limit rule to files in: "))))
+                           (read-directory-name
+                            "Limit rule to files in: "
+                            (and$ (magit-current-file)
+                                  (file-name-directory
+                                   (expand-file-name $ (magit-toplevel))))))))
                  (list (magit-gitignore-read-pattern dir) dir)))
   (magit--gitignore rule (expand-file-name ".gitignore" directory) t))
 
