@@ -87,9 +87,10 @@ Rules in that file only affects this clone of the repository."
 (transient-define-suffix magit-gitignore-on-system (rule)
   "Add the Git ignore RULE to the file specified by `core.excludesFile'.
 Rules that are defined in that file affect all local repositories."
-  :if (##magit-get "core.excludesfile")
+  :inapt-if-not (##magit-get "core.excludesfile")
   :description (##format "privately for all repositories (%s)"
-                         (magit-get "core.excludesfile"))
+                         (or (magit-get "core.excludesfile")
+                             "core.excludesfile is not set"))
   (interactive (list (magit-gitignore-read-pattern)))
   (magit--gitignore rule
                     (or (magit-get "core.excludesFile")
