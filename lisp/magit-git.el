@@ -1132,6 +1132,16 @@ issue."
                     (and (not all) "--exclude-standard")
                     "--" files))
 
+(defun magit--untracked-files (&optional directory all)
+  (magit-with-toplevel
+    (seq-keep (##and (eq (aref % 0) ??)
+                     (substring % 3))
+              (magit-git-items "status" "-z" "--porcelain"
+                               (if all
+                                   "--untracked-files=all"
+                                 "--untracked-files=normal")
+                               "--" directory))))
+
 (defun magit-list-untracked-files (&optional files)
   "Return a list of untracked files.
 
