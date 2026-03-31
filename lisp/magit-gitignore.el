@@ -108,27 +108,10 @@ Rules that are defined in that file affect all local repositories."
     (magit-refresh)))
 
 (defun magit-gitignore-read-pattern ()
-  (let* ((default (magit-current-file))
-         (base (car magit-buffer-diff-files))
+  (let* ((base (car magit-buffer-diff-files))
          (base (and base (file-directory-p base) base))
-         (choices
-          (delete-dups
-           (mapcan
-            (lambda (file)
-              (cons (concat "/" file)
-                    (and$ (file-name-extension file)
-                          (list (concat "/" (file-name-directory file) "*." $)
-                                (concat "*." $)))))
-            (sort (nconc
-                   (magit-untracked-files nil base)
-                   ;; The untracked section of the status buffer lists
-                   ;; directories containing only untracked files.
-                   ;; Add those as candidates.
-                   (seq-filter #'directory-name-p
-                               (magit-list-files
-                                "--other" "--exclude-standard" "--directory"
-                                "--no-empty-directory" "--" base)))
-                  #'string-lessp)))))
+         (choices (magit--gitignore-patterns base))
+         (default (magit-current-file)))
     (when default
       (setq default (concat "/" default))
       (unless (member default choices)
@@ -137,6 +120,25 @@ Rules that are defined in that file affect all local repositories."
           (setq default nil))))
     (magit-completing-read "File or pattern to ignore"
                            choices nil 'any nil nil default)))
+
+(defun magit--gitignore-patterns (&optional directory)
+  (delete-dups
+   (mapcan
+    (lambda (file)
+      (cons (concat "/" file)
+            (and$ (file-name-extension file)
+                  (list (concat "/" (file-name-directory file) "*." $)
+                        (concat "*." $)))))
+    (sort (nconc
+           (magit-untracked-files nil directory)
+           ;; The untracked section of the status buffer lists
+           ;; directories containing only untracked files.
+           ;; Add those as candidates.
+           (seq-filter #'directory-name-p
+                       (magit-list-files
+                        "--other" "--exclude-standard" "--directory"
+                        "--no-empty-directory" "--" directory)))
+          #'string-lessp))))
 
 ;;; Skip Worktree Commands
 
