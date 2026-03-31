@@ -55,9 +55,7 @@ Since this file is tracked, it is shared with other clones of the
 repository.  Also stage the file."
   :description "shared at toplevel (.gitignore)"
   (interactive (list (magit-gitignore-read-pattern)))
-  (magit-with-toplevel
-    (magit--gitignore rule ".gitignore")
-    (magit-run-git "add" ".gitignore")))
+  (magit--gitignore rule (expand-file-name ".gitignore" (magit-toplevel)) t))
 
 ;;;###autoload(autoload 'magit-gitignore-in-subdir "magit-gitignore" nil t)
 (transient-define-suffix magit-gitignore-in-subdir (rule directory)
@@ -69,10 +67,7 @@ Also stage the file."
   :description "shared in subdirectory (path/to/.gitignore)"
   (interactive (list (magit-gitignore-read-pattern)
                      (read-directory-name "Limit rule to files in: ")))
-  (magit-with-toplevel
-    (let ((file (expand-file-name ".gitignore" directory)))
-      (magit--gitignore rule file)
-      (magit-run-git "add" (magit-convert-filename-for-git file)))))
+  (magit--gitignore rule (expand-file-name ".gitignore" directory) t))
 
 ;;;###autoload(autoload 'magit-gitignore-in-gitdir "magit-gitignore" nil t)
 (transient-define-suffix magit-gitignore-in-gitdir (rule)
@@ -80,8 +75,7 @@ Also stage the file."
 Rules in that file only affects this clone of the repository."
   :description "privately (.git/info/exclude)"
   (interactive (list (magit-gitignore-read-pattern)))
-  (magit--gitignore rule (expand-file-name "info/exclude" (magit-gitdir)))
-  (magit-refresh))
+  (magit--gitignore rule (expand-file-name "info/exclude" (magit-gitdir))))
 
 ;;;###autoload(autoload 'magit-gitignore-on-system "magit-gitignore" nil t)
 (transient-define-suffix magit-gitignore-on-system (rule)
@@ -92,12 +86,11 @@ Rules that are defined in that file affect all local repositories."
                          (or (magit-get "core.excludesfile")
                              "core.excludesfile is not set"))
   (interactive (list (magit-gitignore-read-pattern)))
-  (magit--gitignore rule
-                    (or (magit-get "core.excludesFile")
-                        (error "Variable `core.excludesFile' isn't set")))
-  (magit-refresh))
+  (if-let ((file (magit-get "core.excludesFile")))
+      (magit--gitignore rule file)
+    (error "Variable `core.excludesFile' isn't set")))
 
-(defun magit--gitignore (rule file)
+(defun magit--gitignore (rule file &optional stage)
   (when$ (file-name-directory file)
     (make-directory $ t))
   (with-temp-buffer
@@ -108,7 +101,11 @@ Rules that are defined in that file affect all local repositories."
       (insert "\n"))
     (insert (replace-regexp-in-string "\\(\\\\*\\)" "\\1\\1" rule))
     (insert "\n")
-    (write-region nil nil file)))
+    (write-region nil nil file))
+  (if stage
+      (magit-with-toplevel
+        (magit-run-git "add" (magit-convert-filename-for-git file)))
+    (magit-refresh)))
 
 (defun magit-gitignore-read-pattern ()
   (let* ((default (magit-current-file))
