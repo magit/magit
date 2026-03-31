@@ -65,8 +65,8 @@ Prompt the user for a directory and add the rule to the
 tracked, they are shared with other clones of the repository.
 Also stage the file."
   :description "shared in subdirectory (path/to/.gitignore)"
-  (interactive (list (magit-gitignore-read-pattern)
-                     (read-directory-name "Limit rule to files in: ")))
+  (interactive (let ((dir (read-directory-name "Limit rule to files in: ")))
+                 (list (magit-gitignore-read-pattern dir) dir)))
   (magit--gitignore rule (expand-file-name ".gitignore" directory) t))
 
 ;;;###autoload(autoload 'magit-gitignore-in-gitdir "magit-gitignore" nil t)
@@ -107,11 +107,9 @@ Rules that are defined in that file affect all local repositories."
         (magit-run-git "add" (magit-convert-filename-for-git file)))
     (magit-refresh)))
 
-(defun magit-gitignore-read-pattern ()
-  (let* ((base (car magit-buffer-diff-files))
-         (base (and base (file-directory-p base) base))
-         (choices (magit--gitignore-patterns base))
-         (default (magit-current-file)))
+(defun magit-gitignore-read-pattern (&optional directory)
+  (let ((choices (magit--gitignore-patterns directory))
+        (default (magit-current-file)))
     (when default
       (setq default (concat "/" default))
       (unless (member default choices)
