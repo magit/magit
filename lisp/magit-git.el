@@ -1277,7 +1277,7 @@ or if no rename is detected."
                  ;; then we probably have a cygwin git.
                  (and-let ((dirs (magit--early-process-lines
                                   magit-git-executable "--exec-path")))
-                   (and (not (string-match-p "\\`[a-zA-Z]:" (car dir)))
+                   (and (not (string-match-p "\\`[a-zA-Z]:" (car dirs)))
                         (magit--early-process-lines "mount"))))
                 #'> :key (pcase-lambda (`(,cyg . ,_win)) (length cyg))))
   "Alist of (CYGWIN . WIN32) directory names.
