@@ -1275,11 +1275,10 @@ or if no rename is detected."
                             "Failed to parse Cygwin mount: %S" mount)))
                  ;; If --exec-path is not a native Windows path,
                  ;; then we probably have a cygwin git.
-                 (and (not (string-match-p
-                            "\\`[a-zA-Z]:"
-                            (car (magit--early-process-lines
-                                  magit-git-executable "--exec-path"))))
-                      (magit--early-process-lines "mount")))
+                 (and-let ((dirs (magit--early-process-lines
+                                  magit-git-executable "--exec-path")))
+                   (and (not (string-match-p "\\`[a-zA-Z]:" (car dir)))
+                        (magit--early-process-lines "mount"))))
                 #'> :key (pcase-lambda (`(,cyg . ,_win)) (length cyg))))
   "Alist of (CYGWIN . WIN32) directory names.
 Sorted from longest to shortest CYGWIN name."
