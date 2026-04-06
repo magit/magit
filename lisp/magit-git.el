@@ -2987,8 +2987,16 @@ out.  Only existing branches can be selected."
                              (magit-get-remote))))
 
 (defun magit-read-module-path (prompt &optional predicate)
+  ;; Predicates are evaluate with the minibuffer as the current buffer.
+  ;; Unlike for other completion frameworks, Helm does not ensure that
+  ;; the value of `default-directory' in that buffer is the same as in
+  ;; the buffer from which completion was invoked.
   (magit-completing-read prompt (magit-list-module-paths)
-                         predicate t nil nil
+                         (let ((dir default-directory))
+                           (lambda (module)
+                             (let ((default-directory dir))
+                               (funcall predicate module))))
+                         t nil nil
                          (magit-module-at-point predicate)))
 
 (defun magit-module-confirm (verb &optional predicate)
