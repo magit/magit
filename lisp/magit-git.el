@@ -1223,14 +1223,13 @@ See also `magit-untracked-files'."
             (magit-list-files "-v" args)))
 
 (defun magit-revision-files (rev)
-  (magit-with-toplevel
-    (magit-git-items "ls-tree" "-z" "-r" "--name-only" rev)))
+  (magit-git-items "ls-tree" "-z" "--full-tree" "-r" "--name-only" rev))
 
 (defun magit-revision-directories (rev)
   "List directories that contain a tracked file in revision REV."
-  (magit-with-toplevel
-    (mapcar #'file-name-as-directory
-            (magit-git-items "ls-tree" "-z" "-r" "-d" "--name-only" rev))))
+  (mapcar #'file-name-as-directory
+          (magit-git-items "ls-tree" "-z" "--full-tree" "-r" "-d" "--name-only"
+                           rev)))
 
 (defun magit-changed-files (rev-or-range &optional other-rev)
   "Return list of files the have changed between two revisions.
