@@ -281,6 +281,28 @@ framework ultimately determines how the collection is displayed."
   :group 'magit-miscellaneous
   :type '(choice string (repeat string)))
 
+(defcustom magit-cygwin-mount-points
+  (and (eq system-type 'windows-nt)
+       (cl-sort (mapcar
+                 (lambda (mount)
+                   (if (string-match "^\\(.*\\) on \\(.*\\) type" mount)
+                       (cons (file-name-as-directory (match-str 2 mount))
+                             (file-name-as-directory (match-str 1 mount)))
+                     (lwarn '(magit) :error
+                            "Failed to parse Cygwin mount: %S" mount)))
+                 ;; If --exec-path is not a native Windows path,
+                 ;; then we probably have a cygwin git.
+                 (and-let ((dirs (magit--early-process-lines
+                                  magit-git-executable "--exec-path")))
+                   (and (not (string-match-p "\\`[a-zA-Z]:" (car dirs)))
+                        (magit--early-process-lines "mount"))))
+                #'> :key (pcase-lambda (`(,cyg . ,_win)) (length cyg))))
+  "Alist of (CYGWIN . WIN32) directory names.
+Sorted from longest to shortest CYGWIN name."
+  :package-version '(magit . "2.3.0")
+  :group 'magit-process
+  :type '(alist :key-type string :value-type directory))
+
 ;;; Git
 
 (defvar magit-git-debug nil
@@ -1263,28 +1285,6 @@ or if no rename is detected."
                 ((push (list file nil x y) status))))
         (setq pos (point)))
       status)))
-
-(defcustom magit-cygwin-mount-points
-  (and (eq system-type 'windows-nt)
-       (cl-sort (mapcar
-                 (lambda (mount)
-                   (if (string-match "^\\(.*\\) on \\(.*\\) type" mount)
-                       (cons (file-name-as-directory (match-str 2 mount))
-                             (file-name-as-directory (match-str 1 mount)))
-                     (lwarn '(magit) :error
-                            "Failed to parse Cygwin mount: %S" mount)))
-                 ;; If --exec-path is not a native Windows path,
-                 ;; then we probably have a cygwin git.
-                 (and-let ((dirs (magit--early-process-lines
-                                  magit-git-executable "--exec-path")))
-                   (and (not (string-match-p "\\`[a-zA-Z]:" (car dirs)))
-                        (magit--early-process-lines "mount"))))
-                #'> :key (pcase-lambda (`(,cyg . ,_win)) (length cyg))))
-  "Alist of (CYGWIN . WIN32) directory names.
-Sorted from longest to shortest CYGWIN name."
-  :package-version '(magit . "2.3.0")
-  :group 'magit-process
-  :type '(alist :key-type string :value-type directory))
 
 (defun magit-expand-git-file-name (filename)
   (unless (file-name-absolute-p filename)
