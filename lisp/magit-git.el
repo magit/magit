@@ -103,11 +103,11 @@ this."
     (ignore-error file-missing
       (apply #'process-lines-ignore-status program args))))
 
-(defvar magit-git-w32-path-hack nil
+(defvar magit--git-w32-path-hack nil
   "Alist of (EXE . (PATHENTRY)).
 This specifies what additional PATH setting needs to be added to
 the environment in order to run the non-wrapper git executables
-successfully.")
+successfully.  Set when `magit-git-executable' is (re)initialized.")
 
 (defcustom magit-git-executable
   (or (and (eq system-type 'windows-nt)
@@ -121,7 +121,7 @@ successfully.")
                            exec "-c"
                            "alias.X=!x() { which \"$1\" | cygpath -mf -; }; x"
                            "X" "git")))
-                    (hack-entry (assoc core-exe magit-git-w32-path-hack))
+                    (hack-entry (assoc core-exe magit--git-w32-path-hack))
                     ;; Running the libexec/git-core executable
                     ;; requires some extra PATH entries.
                     (path-hack
@@ -135,7 +135,7 @@ successfully.")
                ;; idempotent.
                (if hack-entry
                    (setcdr hack-entry path-hack)
-                 (push (cons core-exe path-hack) magit-git-w32-path-hack))
+                 (push (cons core-exe path-hack) magit--git-w32-path-hack))
                core-exe)))
       (and (eq system-type 'darwin)
            (executable-find "git"))

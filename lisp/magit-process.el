@@ -545,7 +545,7 @@ eol conversion."
                  (list (concat "SHADOWED_GITHOOK_DIRECTORY="
                                (magit--shadowed-githook-directory))))
             (and local
-                 (cdr (assoc magit-git-executable magit-git-w32-path-hack)))
+                 (cdr (assoc magit-git-executable magit--git-w32-path-hack)))
             (and local magit-need-cygwin-noglob
                  (mapcar (lambda (var)
                            (concat var "=" (if-let ((val (getenv var)))
