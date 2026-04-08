@@ -1133,25 +1133,15 @@ a bare repository."
   (magit-list-files "--cached" args))
 
 (defun magit-untracked-files (&optional all files &rest args)
-  "Return a list of untracked files.
-
-Note that when using \"--directory\", the rules from \".gitignore\"
-files from sub-directories are ignore, which is probably a Git bug.
-See also `magit-list-untracked-files', which does not have this
-issue."
-  (magit-list-files "--other" args
-                    (and (not all) "--exclude-standard")
-                    "--" files))
-
-(defun magit--untracked-files (&optional directory all)
+  "Return a list of untracked files."
   (magit-with-toplevel
     (seq-keep (##and (eq (aref % 0) ??)
                      (substring % 3))
-              (magit-git-items "status" "-z" "--porcelain"
+              (magit-git-items "status" "-z" "--porcelain" args
                                (if all
                                    "--untracked-files=all"
                                  "--untracked-files=normal")
-                               "--" directory))))
+                               "--" files))))
 
 (defun magit-list-untracked-files (&optional files)
   "Return a list of untracked files.

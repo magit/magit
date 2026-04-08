@@ -132,10 +132,10 @@ Rules that are defined in that file affect all local repositories."
 (defun magit--gitignore-patterns (&optional directory)
   (let* ((topdir (magit-toplevel))
          (default-directory (or directory topdir))
-         (files (magit--untracked-files directory t))
+         (files (magit-untracked-files t directory))
          ;; Include directories that contain only untracked files.
          (dirs (seq-filter (##equal (substring % -1) "/")
-                           (magit--untracked-files directory)))
+                           (magit-untracked-files nil directory)))
          (globs nil)
          (dirglobs nil))
     (when directory
