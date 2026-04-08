@@ -710,15 +710,14 @@ Git, then fallback to using `delete-file'."
      (car (member (or default (magit-current-file)) files)))))
 
 (defun magit-read-file (prompt &optional tracked-only)
-  (magit-with-toplevel
-    (let ((choices (nconc (magit-list-files)
-                          (and (not tracked-only)
-                               (magit-untracked-files)))))
-      (magit-completing-read
-       prompt choices nil t nil nil
-       (car (member (or (magit-section-value-if '(file submodule))
-                        (magit-file-relative-name nil tracked-only))
-                    choices))))))
+  (let ((choices (nconc (magit-list-files)
+                        (and (not tracked-only)
+                             (magit-untracked-files)))))
+    (magit-completing-read
+     prompt choices nil t nil nil
+     (car (member (or (magit-section-value-if '(file submodule))
+                      (magit-file-relative-name nil tracked-only))
+                  choices)))))
 
 (defun magit-read-tracked-file (prompt)
   (magit-read-file prompt t))

@@ -1126,7 +1126,8 @@ a bare repository."
 ;;;; File Lists
 
 (defun magit-list-files (&rest args)
-  (apply #'magit-git-items "ls-files" "-z" "--full-name" args))
+  (magit-with-toplevel
+    (apply #'magit-git-items "ls-files" "-z" args)))
 
 (defun magit-tracked-files (&rest args)
   (magit-list-files "--cached" args))
