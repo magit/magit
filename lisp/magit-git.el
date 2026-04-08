@@ -882,7 +882,8 @@ Also see `magit-git-config-p'."
     (dolist (v values)
       (magit-call-git "config" arg "--add" var v))))
 
-;;; Files
+;;; Repository
+;;;; Repository Locations
 
 (defun magit--safe-default-directory (&optional file)
   (catch 'unsafe-default-dir
@@ -1028,6 +1029,8 @@ returning the truename."
   `(let ((default-directory (magit--toplevel-safe)))
      ,@body))
 
+;;;; Repository Predicates
+
 (define-error 'magit-outside-git-repo "Not inside Git repository")
 (define-error 'magit-corrupt-git-config "Corrupt Git configuration")
 (define-error 'magit-git-executable-not-found "Git executable cannot be found")
@@ -1109,25 +1112,8 @@ a bare repository."
                 (file-directory-p (expand-file-name "refs" directory))
                 (file-directory-p (expand-file-name "objects" directory))))))
 
-(defun magit-file-relative-name (&optional file tracked)
-  "Return the path of FILE relative to the repository root.
-
-If optional FILE is nil or omitted, return the relative path of
-the file being visited in the current buffer, if any, else nil.
-If the file is not inside a Git repository, then return nil.
-
-If TRACKED is non-nil, return the path only if it matches a
-tracked file."
-  (with-current-buffer (or (buffer-base-buffer) (current-buffer))
-    (and-let* ((file (or file
-                         (magit-buffer-file-name)
-                         (and (derived-mode-p 'dired-mode)
-                              default-directory)))
-               (dir (magit-toplevel (magit--safe-default-directory
-                                     (file-name-parent-directory file))))
-               (_(or (not tracked)
-                     (magit-file-tracked-p file))))
-      (file-relative-name file dir))))
+;;; Files
+;;;; File Predicates
 
 (defun magit-file-ignored-p (file)
   (magit-git-string "ls-files" "--others" "--ignored" "--exclude-standard"
@@ -1136,6 +1122,8 @@ tracked file."
 (defun magit-file-tracked-p (file)
   (magit-git-success "ls-files" "--error-unmatch"
                      "--" (magit-convert-filename-for-git file)))
+
+;;;; File Lists
 
 (defun magit-list-files (&rest args)
   (apply #'magit-git-items "ls-files" "-z" "--full-name" args))
@@ -1260,6 +1248,28 @@ range.  Otherwise, it can be any revision or range accepted by
                                           "--diff-filter=R" revA revB)
                          3)))
 
+;;;; File Names
+
+(defun magit-file-relative-name (&optional file tracked)
+  "Return the path of FILE relative to the repository root.
+
+If optional FILE is nil or omitted, return the relative path of
+the file being visited in the current buffer, if any, else nil.
+If the file is not inside a Git repository, then return nil.
+
+If TRACKED is non-nil, return the path only if it matches a
+tracked file."
+  (with-current-buffer (or (buffer-base-buffer) (current-buffer))
+    (and-let* ((file (or file
+                         (magit-buffer-file-name)
+                         (and (derived-mode-p 'dired-mode)
+                              default-directory)))
+               (dir (magit-toplevel (magit--safe-default-directory
+                                     (file-name-parent-directory file))))
+               (_(or (not tracked)
+                     (magit-file-tracked-p file))))
+      (file-relative-name file dir))))
+
 (defun magit--rev-file-name (file rev other-rev)
   "For FILE, potentially renamed between REV and OTHER-REV, return name in REV.
 Return nil, if FILE appears neither in REV nor OTHER-REV,
@@ -1267,24 +1277,6 @@ or if no rename is detected."
   (or (car (member file (magit-revision-files rev)))
       (and$ (magit-renamed-files rev other-rev)
             (car (rassoc file $)))))
-
-(defun magit-file-status (&rest args)
-  (magit--with-temp-process-buffer
-    (save-excursion (magit-git-insert "status" "-z" args))
-    (let ((pos (point)) status)
-      (while (> (skip-chars-forward "[:print:]") 0)
-        (let ((x (char-after     pos))
-              (y (char-after (1+ pos)))
-              (file (buffer-substring (+ pos 3) (point))))
-          (forward-char)
-          (cond ((memq x '(?R ?C))
-                 (setq pos (point))
-                 (skip-chars-forward "[:print:]")
-                 (push (list file (buffer-substring pos (point)) x y) status)
-                 (forward-char))
-                ((push (list file nil x y) status))))
-        (setq pos (point)))
-      status)))
 
 (defun magit-expand-git-file-name (filename)
   (unless (file-name-absolute-p filename)
@@ -1322,6 +1314,8 @@ or if no rename is detected."
                             t)
     path))
 
+;;;; File Miscellaneous
+
 (defun magit-file-at-point (&optional expand assert)
   (cond-let
     ([file (magit-section-case
@@ -1338,6 +1332,24 @@ or if no rename is detected."
       (magit-file-at-point)
       (and (derived-mode-p 'magit-log-mode)
            (car magit-buffer-log-files))))
+
+(defun magit-file-status (&rest args)
+  (magit--with-temp-process-buffer
+    (save-excursion (magit-git-insert "status" "-z" args))
+    (let ((pos (point)) status)
+      (while (> (skip-chars-forward "[:print:]") 0)
+        (let ((x (char-after     pos))
+              (y (char-after (1+ pos)))
+              (file (buffer-substring (+ pos 3) (point))))
+          (forward-char)
+          (cond ((memq x '(?R ?C))
+                 (setq pos (point))
+                 (skip-chars-forward "[:print:]")
+                 (push (list file (buffer-substring pos (point)) x y) status)
+                 (forward-char))
+                ((push (list file nil x y) status))))
+        (setq pos (point)))
+      status)))
 
 ;;; Blobs
 
