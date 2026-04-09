@@ -126,6 +126,8 @@ Non-interactively REV can also be a blob object."
                (setq default-directory
                      (if (file-exists-p defdir) defdir topdir))
                (setq-local revert-buffer-function #'magit--revert-blob-buffer)
+               (setq-local buffer-read-only t)
+               (setq-local read-only-mode--state t)
                (magit--refresh-blob-buffer)
                (current-buffer)))
             ((error "Unexpected error")))))
@@ -215,7 +217,6 @@ Non-interactively REV can also be a blob object."
       ;; The FIND-FILE argument wasn't designed for our use case,
       ;; so we have to use this strange invocation to achieve that.
       (normal-mode (not enable-local-variables)))
-    (setq buffer-read-only t)
     (set-buffer-modified-p nil)
     (run-hooks 'magit-find-blob-hook)))
 
