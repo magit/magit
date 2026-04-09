@@ -473,6 +473,7 @@ to `magit-dispatch'."
 
 (defvar-keymap magit-blob-mode-map
   :doc "Keymap for `magit-blob-mode'."
+  "<remap> <read-only-mode>" #'magit-blob-mode
   "g" #'revert-buffer
   "p" #'magit-blob-previous
   "n" #'magit-blob-next
@@ -482,11 +483,22 @@ to `magit-dispatch'."
   "q" #'magit-bury-or-kill-buffer)
 
 (define-minor-mode magit-blob-mode
-  "Enable some Magit features in blob-visiting buffers.
+  "Enable key bindings, which are useful in blob-visiting buffers.
 
-Currently this only adds the following key bindings.
-\n\\{magit-blob-mode-map}"
-  :package-version '(magit . "2.3.0"))
+\\{magit-blob-mode-map}
+When the user disables `read-only-mode', these bindings would conflict
+with bindings for `self-insert-command'.  To avoid this conflict,
+`read-only-mode' is remapped to `magit-blob-mode' and disabling the
+latter disables both modes.  Likewise, enabling it, also enables
+`read-only-mode'.
+
+When this mode is disabled, many of the commands, for which it would
+single-character bindings, are accessible via \\[magit-file-dispatch]."
+  :package-version '(magit . "2.3.0")
+  ;; Don't actually call `read-only-mode'.  Because
+  ;; that could enable the incompatible `view-mode'.
+  (setq-local buffer-read-only magit-blob-mode)
+  (setq-local read-only-mode--state magit-blob-mode))
 
 (defun magit-bury-buffer (&optional kill-buffer)
   "Bury the current buffer, or with a prefix argument kill it.
