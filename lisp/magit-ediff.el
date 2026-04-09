@@ -243,18 +243,21 @@ FILE has to be relative to the top directory of the repository."
             (buffer-local-value 'buffer-file-coding-system bufC))
            (bufA (magit-ediff--find-file "HEAD" file))
            (bufB (magit-ediff--find-file "{index}" file))
-           (lockB (buffer-local-value 'buffer-read-only bufB)))
+           (lockB (buffer-local-value 'buffer-read-only bufB))
+           (modeB (buffer-local-value 'magit-blob-mode bufB)))
       (with-current-buffer bufB
-        (setq-local buffer-read-only nil)
-        (setq-local read-only-mode--state nil))
+        ;; Make writable and don't shadow self-insert-command.
+        (magit-blob-mode -1))
       (magit-ediff-buffers
        bufA bufB bufC nil
        (lambda ()
          (when (buffer-live-p ediff-buffer-B)
            (when lockB
              (with-current-buffer bufB
-               (setq-local buffer-read-only t)
-               (setq-local read-only-mode--state t)))
+               (if modeB
+                   (magit-blob-mode 1)
+                 (setq-local buffer-read-only t)
+                 (setq-local read-only-mode--state t))))
            (when (buffer-modified-p ediff-buffer-B)
              (with-current-buffer ediff-buffer-B
                (magit-update-index))))
