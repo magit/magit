@@ -1,4 +1,186 @@
 # -*- mode: org -*-
+* v4.6.0    UNRELEASED
+
+The primary focus of this release are blob-visiting buffers.  For
+now the hope is that most users will find working with such buffers
+slightly more pleasant, without necessarily becoming aware that
+anything changed.  The goal was to pay off technical dept and to
+prepare for future changes.
+
+- Visiting blobs now always involves ~magit-find-file-noselect~, even
+  when an existing buffer may be involved.  The behavior of this
+  function is getting closer to that of ~find-file-noselect~.
+
+- Implemented support for visiting blobs for the benefit of features
+  such as syntax-highlighting, as opposed to the user visiting it
+  explicitly.  Such "volatile" blog buffers are hidden and are cached
+  for a while, in case they are needed again.  If the user visits a
+  hidden cached blob, the buffer is renamed to reveal it and it is no
+  longer subject to garbage collection.
+
+- Blobs can now alternatively be visited with nothing but a blob
+  object id (instead of a revision and a path).
+
+- Blob-visiting buffers can now be reverted with ~g~, which is useful
+  when the buffer is visited via, e.g., a branch, as opposed to a
+  revision or blob object id.  The buffer is not needlessly refreshed,
+  if the blob oid does not change.  dd48491659, f55bfaf792, cf84935a74
+
+- Syntax highlighting can now be enabled for diffs.  This is disabled
+  by default, because the work is still being performed synchronously,
+  which leads to noticeable delays for large diffs and can be sluggish
+  even for smaller diffs.  #2942, c7b0342dc7
+
+  A future release is going to add support for asynchronous diff
+  syntax highlighting.  (The blob buffer cache added in this release
+  does help, but is not enough.)
+
+  Configure ~magit-diff-fontify-hunk~ to try out this feature now, but
+  please just disable it again, if it turns out to still be too slow
+  for your taste.  If you enable this, you should also customize the
+  new option ~magit-diff-specify-hunk-foreground,~ and possibly the new
+  option ~magit-diff-use-indicator-faces~ as well.
+
+- Added new hook ~magit-find-blob-hook~, which replaces the old hooks
+  ~magit-find-file-hook~ and ~magit-find-index-hook~.  The new hook is
+  run when first visiting a blob as the old hooks used to do, but
+  also when reverting a blob buffer.  fc29202838, 999047889c
+
+- ~magit-find-file-noselect~ now pivots to the worktree file when
+  asked to visit the index blob, but that has multiple stages,
+  due to an unresolved conflict.  This likely will be revisited.
+  a2165a0ba7
+
+- Added support for compiling a list of definitions that are modified
+  in a diff, and for inserting such lists when authoring commit
+  messages.  The new commands ~git-commit-insert-changelog-gnu~ and
+  ~git-commit-insert-changelog-plain~ insert such list and can be
+  invoked from the same menu (on ~C-c C-i~), which is used to insert
+  commit trailers. #2931, 863f1aa6fe, 46b7f76df3
+
+- Improved support for jumping to the same location in another blob,
+  from a buffer visiting a blob or file.  87090491d4
+
+- Reworked ~magit-buffer-*~ variables.  Many were renamed (but the old
+  names are still available as obsolete aliases).  Others that were
+  previously shared by multiple modes were replaced with mode-specific
+  variants.  298218fa85~..7bfc458065
+
+- When authoring commit messages, ~complete-symbol~ now completes
+  against modified definitions and symbols appearing in modified
+  lines.  2366db4b3b
+
+- Thanks to the improvements to ~magit-find-file-noselect~ and the blob
+  buffer cache, Ediff support could be simplified considerably.
+
+- If it is part of an Ediff session, quitting a blob-visiting buffer
+  would corrupt that session, so teach ~magit-bury-or-kill-buffer~ and
+  ~magit-bury-buffer~ to instead offer to completely quit the session.
+  29c6241993
+
+- Commands that currently cannot be used are now explicitly disabled
+  in the ediff menu.  3125b51ede
+
+- Provided ~magit-delete-by-moving-to-trash~ is ~nil~,
+  ~magit-worktree-delete~ is faster now.  #5504
+
+- Taught ~magit-insert-worktrees~ to emphasize the current worktree
+  even if no branch is checked out.  fbc4b5d316
+
+- ~magit-git-string~ now returns ~nil~ if the exit status is non-zero.
+  Previously it tended to return the empty string instead, making
+  it harder for callers to detect and handle errors.  c85358f5b0
+
+- When listing repositories ~uniquify-separator~ is now respected.
+  #5514
+
+- ~magit-diff-toggle-refine-hunk~ now favors immediate refinement mode
+  over the incremental variant.  550ec1cb1f
+
+- Added new command ~magit-remote.<remote>.followremotehead~.  #5283
+
+- Improved gitignore commands and menu.  1c0efafc4b~..28878dd879
+
+Bugfixes:
+
+- Deleting all stashes proceeded without requiring confirmation.
+  #5500
+
+- When the status buffer is refreshed in the background, point was
+  reset to its beginning.  9d7e06dd8c
+
+- ~magit-find-file-noselect~ assumed the file is located in the current
+  repository.  c7b70171ba
+
+- ~magit-worktree-delete~ did not ask for confirmation if there are
+  untracked files, which would be lost.  7887f80213
+
+- ~magit-wip-mode~ was added to ~git-commit-post-finish-hook~, even if
+  it ended up as a no-op, which could result in a timeout warning,
+  which in this case would be meaningless.  24e97fcdfe
+
+- ~make clean~ failed to remove ~magit-autoloads.el~.  dd6363369f
+
+- ~make emacs-Q~ was broken.  #5517
+
+- Before the initial commit, use of ~magit-wip-mode~ could result in
+  bogus errors.  8783759256
+
+- Amending the initial commit resulted in an error.  #5524
+
+- Errors that occur while preparing a commit diff are now demoted
+  or suppressed, allowing the commit process to proceed.
+  90561a2e85, #5526
+
+- Merge commands can now create octopus merges.  #5523
+
+- Commands that usually cycle through values displayed in the
+  transient menu can also use completion to set the new value
+  (by using a prefix argument).  The completion candidates
+  displayed in that case have been improved.  60e04662be, 7ecc3d3890
+
+- It wasn't possible to reverse the sole hunk adding a file.  #5521
+
+- The value displayed for transient suffixes that represent Git
+  variables could be wrong if the global value is used as fallback.
+  8d891f7c41
+
+- The value displayed for transient suffixes that represent boolean
+  Git variables was wrong if the variable is unset.  aa625ec04c
+
+- A new feature in Emacs 31 caused a misleading hint to be added to
+  the prompt used when reading a range.  f44c6424ce
+
+- A remote branch could not be deleted if a tag with a matching name
+  exists.  #5368
+
+- If ~magit-git-debug~ is enabled and an error occurs,
+  ~magit--git-insert~, and thus ~magit-git-insert~, always returned the
+  error message, which most callers were not prepared to handle,
+  making debugging harder, not easier.  Now these functions return
+  ~nil~, like when debugging is disable.  71047f4d45
+
+- A secondary Git index is used when creating wip commit, but despite
+  that, if the primary index is locked that fail.  The primary index
+  can be locked at surprising times (e.g., while the user is writing
+  a commit message).  If the creation of a wip commit results in an
+  error, that previously was not demoted, preventing explicit user
+  actions from completing.  315d85c765
+
+- On Windows compiling Magit failed if Git isn't installed.  #5548
+
+- Added a kludge to make it possible to read a module using Helm.
+  #5546
+
+- ~magit-list-files~ and other functions that list files no longer
+  limit to files in ~default-directory~.  All callers needed that,
+  but had to switch to the top-level before calling such functions,
+  and some callers failed to do so.  c29f7eb3e4
+
+- ~magit-untracked-files~ used ~git ls-files~, which is unreliable when
+  it comes to this particular file set, instead of the reliable ~git
+  status --porcelain~.  073b01e834
+
 * v4.5.0    2026-01-01
 
 - Removed support for loading Magit extensions from ".git/config".
