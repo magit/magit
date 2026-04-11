@@ -3683,10 +3683,11 @@ actually a `diff' but a `diffstat' section."
           (magit--add-face-text-property
            bol (+ bol (if merging 2 1)) sign-face)))
       (forward-line)))
-  (when (eq magit-diff-fontify-hunk 'all)
-    (magit-diff--update-hunk-syntax section))
-  (when (eq magit-diff-refine-hunk 'all)
-    (magit-diff-update-hunk-refinement section))
+  (unless (magit--meta-hunk-p section)
+    (when (eq magit-diff-fontify-hunk 'all)
+      (magit-diff--update-hunk-syntax section))
+    (when (eq magit-diff-refine-hunk 'all)
+      (magit-diff-update-hunk-refinement section)))
   (oset section painted (if highlight 'highlight 'plain)))
 
 ;;;; Whitespace
@@ -3760,10 +3761,11 @@ actually a `diff' but a `diffstat' section."
 ;;;; Refinement
 
 (cl-defmethod magit-section--refine ((section magit-hunk-section))
-  (when (eq magit-diff-fontify-hunk t)
-    (magit-diff--update-hunk-syntax section))
-  (when (eq magit-diff-refine-hunk t)
-    (magit-diff-update-hunk-refinement section)))
+  (unless (magit--meta-hunk-p section)
+    (when (eq magit-diff-fontify-hunk t)
+      (magit-diff--update-hunk-syntax section))
+    (when (eq magit-diff-refine-hunk t)
+      (magit-diff-update-hunk-refinement section))))
 
 (defun magit-diff-update-hunk-refinement (&optional section allow-remove)
   (if section
@@ -3820,7 +3822,8 @@ actually a `diff' but a `diffstat' section."
                 (forward-line 1))))))
     (named-let update ((section magit-root-section))
       (if (magit-section-match 'hunk section)
-          (magit-diff--update-hunk-syntax section)
+          (unless (magit--meta-hunk-p section)
+            (magit-diff--update-hunk-syntax section))
         (dolist (child (oref section children))
           (update child))))))
 

@@ -504,6 +504,9 @@ and delay of your graphical environment or operating system."
    (heading-highlight-face :initform 'magit-diff-hunk-heading-highlight)
    (heading-selection-face :initform 'magit-diff-hunk-heading-selection)))
 
+(defun magit--meta-hunk-p (section)
+  (not (cdr (oref section value))))
+
 (setf (alist-get 'file   magit--section-type-alist) 'magit-file-section)
 (setf (alist-get 'module magit--section-type-alist) 'magit-module-section)
 (setf (alist-get 'hunk   magit--section-type-alist) 'magit-hunk-section)
