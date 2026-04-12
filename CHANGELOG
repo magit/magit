@@ -4,7 +4,7 @@
 The primary focus of this release are blob-visiting buffers.  For
 now the hope is that most users will find working with such buffers
 slightly more pleasant, without necessarily becoming aware that
-anything changed.  The goal was to pay off technical dept and to
+anything changed.  The goal was to pay off technical debt and to
 prepare for future changes.
 
 - Visiting blobs now always involves ~magit-find-file-noselect~, even
@@ -13,7 +13,7 @@ prepare for future changes.
 
 - Implemented support for visiting blobs for the benefit of features
   such as syntax-highlighting, as opposed to the user visiting it
-  explicitly.  Such "volatile" blog buffers are hidden and are cached
+  explicitly.  Such "volatile" blob buffers are hidden and are cached
   for a while, in case they are needed again.  If the user visits a
   hidden cached blob, the buffer is renamed to reveal it and it is no
   longer subject to garbage collection.
@@ -38,7 +38,7 @@ prepare for future changes.
   Configure ~magit-diff-fontify-hunk~ to try out this feature now, but
   please just disable it again, if it turns out to still be too slow
   for your taste.  If you enable this, you should also customize the
-  new option ~magit-diff-specify-hunk-foreground,~ and possibly the new
+  new option ~magit-diff-specify-hunk-foreground~ and possibly the new
   option ~magit-diff-use-indicator-faces~ as well.
 
 - Added new hook ~magit-find-blob-hook~, which replaces the old hooks
