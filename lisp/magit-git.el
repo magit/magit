@@ -2994,10 +2994,11 @@ out.  Only existing branches can be selected."
   ;; the value of `default-directory' in that buffer is the same as in
   ;; the buffer from which completion was invoked.
   (magit-completing-read prompt (magit-list-module-paths)
-                         (let ((dir default-directory))
-                           (lambda (module)
-                             (let ((default-directory dir))
-                               (funcall predicate module))))
+                         (and predicate
+                              (let ((dir default-directory))
+                                (lambda (module)
+                                  (let ((default-directory dir))
+                                    (funcall predicate module)))))
                          t nil nil
                          (magit-module-at-point predicate)))
 
