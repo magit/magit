@@ -1048,13 +1048,16 @@ setting `imenu--index-alist' to nil before calling that function."
 (static-if (version< emacs-version "31.1")
     (define-advice dabbrev-capf (:around (fn) git-commit)
       "Backport bugfix from debbug#80645 / a7d05207214 / 31.1.
-See #5551 and #5556."
-      (cl-letf (((symbol-function #'user-error)
-                 (lambda (format &rest args)
-                   (unless (string-prefix-p "No dynamic expansion" format)
-                     (signal 'user-error
-                             (list (apply #'format-message format args)))))))
-        (funcall fn))))
+    See #5551, #5556 and #5558 (I wish I had not rushed this)."
+      (pcase-let ((`(,beg ,end ,table . ,rest) (funcall fn)))
+        `( ,beg ,end
+           ,(lambda (&rest args)
+              (condition-case err
+                  (apply table args)
+                (user-error
+                 (unless (string-prefix-p "No dynamic expansion" (cadr err))
+                   (signal (car err) (cdr err))))))
+           ,@rest))))
 
 ;;; Kludges for Custom
 
