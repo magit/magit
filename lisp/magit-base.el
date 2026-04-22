@@ -43,15 +43,6 @@
 (require 'llama) ; For (##these ...) see M-x describe-function RET # # RET.
 (require 'subr-x)
 
-;; For older Emacs releases we depend on an updated `seq' release from
-;; GNU ELPA, for `seq-keep'.  Unfortunately something else may already
-;; have required `seq', before `package' had a chance to put the more
-;; recent version earlier on the `load-path'.
-(when (and (featurep 'seq)
-           (not (fboundp 'seq-keep)))
-  (unload-feature 'seq 'force))
-(require 'seq)
-
 (require 'crm)
 
 (require 'magit-section)
