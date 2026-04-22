@@ -50,15 +50,10 @@
 (require 'llama) ; For (##these ...) see M-x describe-function RET # # RET.
 (require 'subr-x)
 
-;; For older Emacs releases we depend on an updated `seq' release from GNU
-;; ELPA, for `seq-keep'.  Unfortunately something else may require `seq'
-;; before `package' had a chance to put this version on the `load-path'.
-(when (and (featurep 'seq)
-           (not (fboundp 'seq-keep)))
-  (unload-feature 'seq 'force))
-(require 'seq)
-;; Furthermore, by default `package' just silently refuses to upgrade.
-(defconst magit--core-upgrade-instructions "\
+(defun magit--display-core-upgrade-instructions (package version)
+  (display-warning 'magit
+                   (substitute-command-keys
+                    (format "\
 Magit requires `%s' >= %s,
 but due to bad defaults, Emacs' package manager, refuses to
 upgrade this and other built-in packages to higher releases
@@ -86,12 +81,20 @@ reinstalling Magit.
 
 If you don't use the `package' package manager but still get
 this warning, then your chosen package manager likely has a
-similar defect.")
-(unless (fboundp 'seq-keep)
-  (display-warning 'magit (substitute-command-keys
-                           (format magit--core-upgrade-instructions
-                                   'seq "2.24" 'seq 'seq 'seq 'seq))
+similar defect."
+                            package version package package package package))
                    :emergency))
+
+;; For older Emacs releases we depend on an updated `seq' release from GNU
+;; ELPA, for `seq-keep'.  Unfortunately something else may require `seq'
+;; before `package' had a chance to put this version on the `load-path'.
+(when (and (featurep 'seq)
+           (not (fboundp 'seq-keep)))
+  (unload-feature 'seq 'force))
+(require 'seq)
+;; Furthermore, by default `package' just silently refuses to upgrade.
+(unless (fboundp 'seq-keep)
+  (magit--display-core-upgrade-instructions 'seq "2.24"))
 
 (require 'cursor-sensor)
 (require 'format-spec)
