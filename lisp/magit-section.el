@@ -96,6 +96,14 @@ similar defect."
 (unless (fboundp 'seq-keep)
   (magit--display-core-upgrade-instructions 'seq "2.24"))
 
+;; Likewise, we require a recent `transient'.
+(when (and (featurep 'transient)
+           (not (fboundp 'transient--string-pixel-width)))
+  (unload-feature 'transient 'force))
+(require 'transient)
+(unless (fboundp 'transient--string-pixel-width)
+  (magit--display-core-upgrade-instructions 'transient "0.13"))
+
 (require 'cursor-sensor)
 (require 'format-spec)
 

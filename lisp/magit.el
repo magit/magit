@@ -25,7 +25,7 @@
 ;;     (llama         "1.0")
 ;;     (magit-section "4.5")
 ;;     (seq           "2.24")
-;;     (transient     "0.12")
+;;     (transient     "0.13")
 ;;     (with-editor   "3.4"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
