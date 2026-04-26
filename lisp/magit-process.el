@@ -1207,7 +1207,8 @@ If STR is supplied, it replaces the `mode-line-process' text."
 (define-error 'magit-git-error "Git error")
 
 (defun magit-process-error-summary (process-buf section)
-  "A one-line error summary from the given SECTION."
+  "Return one-line error summary from SECTION in PROCESS-BUF.
+If PROCESS-BUF is no longer alive, return nil."
   (and (buffer-live-p process-buf)
        (with-current-buffer process-buf
          (and (oref section content)
@@ -1221,9 +1222,9 @@ If STR is supplied, it replaces the `mode-line-process' text."
                           (match-str 1))))))))))
 
 (defun magit-process-error-tooltip (process-buf section)
-  "Returns the text from SECTION of the PROCESS-BUF buffer.
-
-Limited by `magit-process-error-tooltip-max-lines'."
+  "Return text from SECTION in PROCESS-BUF.
+Option `magit-process-error-tooltip-max-lines' limits how many lines to
+return.  If that is nil, or PROCESS-BUF is no longer alive, return nil."
   (and (integerp magit-process-error-tooltip-max-lines)
        (> magit-process-error-tooltip-max-lines 0)
        (buffer-live-p process-buf)
