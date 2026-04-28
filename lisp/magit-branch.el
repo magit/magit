@@ -202,6 +202,13 @@ has to be used to view and change branch related variables."
   :group 'magit-commands
   :type '(repeat string))
 
+(defcustom magit-branch-new-branch-initial-name ""
+  "Initial name for the new branch."
+  :package-version '(magit . "4.6.0")
+  :group 'magit-commands
+  :type 'string
+  :safe 'stringp)
+
 ;;; Commands
 
 ;;;###autoload(autoload 'magit-branch "magit" nil t)
@@ -429,9 +436,11 @@ when using `magit-branch-and-checkout'."
                       (format "%s (starting at `%s')" prompt choice)
                     "Name for new branch")
                   (let ((def (string-join (cdr (split-string choice "/")) "/")))
-                    (and (member choice (magit-list-remote-branch-names))
-                         (not (member def (magit-list-local-branch-names)))
-                         def)))
+                    (or
+                     (and (member choice (magit-list-remote-branch-names))
+                          (not (member def (magit-list-local-branch-names)))
+                          def)
+                     magit-branch-new-branch-initial-name)))
                  choice))
           ((eq magit-branch-read-upstream-first 'fallback)
            (list choice
