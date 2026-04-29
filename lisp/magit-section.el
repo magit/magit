@@ -98,10 +98,10 @@ similar defect."
 
 ;; Likewise, we require a recent `transient'.
 (when (and (featurep 'transient)
-           (not (fboundp 'transient--string-pixel-width)))
+           (not (fboundp 'transient--advise-this-command)))
   (unload-feature 'transient 'force))
 (require 'transient)
-(unless (fboundp 'transient--string-pixel-width)
+(unless (fboundp 'transient--advise-this-command)
   (magit--display-core-upgrade-instructions 'transient "0.13"))
 
 (require 'cursor-sensor)
