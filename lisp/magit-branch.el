@@ -422,27 +422,33 @@ when using `magit-branch-and-checkout'."
 (defun magit-branch-read-args (prompt &optional default-start)
   (cond-let
     ((not magit-branch-read-upstream-first)
-     (let ((name (magit-read-string-ns (concat prompt " named"))))
-       (if (magit-branch-p name)
-           (magit-branch-read-args
-            (format "Branch `%s' already exists; pick another name" name)
-            default-start)
-         (list name (magit-read-starting-point prompt name default-start)))))
+     (let ((name (magit-branch--read-name (concat prompt " named"))))
+       (list name (magit-read-starting-point prompt name default-start))))
     [[start (magit-read-starting-point prompt nil default-start)]]
     ((magit-rev-verify start)
-     (list (magit-read-string-ns
+     (list (magit-branch--read-name
             (if magit-completing-read--silent-default
                 (format "%s (starting at `%s')" prompt start)
               "Name for new branch")
-            (let ((def (string-join (cdr (split-string start "/")) "/")))
-              (and (member start (magit-list-remote-branch-names))
-                   (not (member def (magit-list-local-branch-names)))
-                   def)))
+            start)
            start))
     [[name start]]
     ((eq magit-branch-read-upstream-first 'fallback)
      (list name (magit-read-starting-point prompt name default-start)))
     ((user-error "Not a valid starting-point: %s" name))))
+
+(defun magit-branch--read-name (prompt &optional start-point)
+  (let ((name (magit-read-string-ns
+               prompt
+               (and start-point
+                    (magit-remote-branch-p start-point)
+                    (string-match "/" start-point)
+                    (list (substring start-point (match-end 0)))))))
+    (if (magit-branch-p name)
+        (magit-branch--read-name
+         (format "Branch `%s' already exists; pick another name" name)
+         initial-input)
+      name)))
 
 ;;;###autoload
 (defun magit-branch-spinout (branch &optional from)
