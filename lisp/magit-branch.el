@@ -438,17 +438,20 @@ when using `magit-branch-and-checkout'."
     ((user-error "Not a valid starting-point: %s" name))))
 
 (defun magit-branch--read-name (prompt &optional start-point)
-  (let ((name (magit-read-string-ns
-               prompt
-               (and start-point
-                    (magit-remote-branch-p start-point)
-                    (string-match "/" start-point)
-                    (list (substring start-point (match-end 0)))))))
-    (if (magit-branch-p name)
-        (magit-branch--read-name
-         (format "Branch `%s' already exists; pick another name" name)
-         initial-input)
-      name)))
+  (let ((taken (magit-list-local-branch-names))
+        (choices (and start-point
+                      (magit-remote-branch-p start-point)
+                      (string-match "/" start-point)
+                      (list (substring start-point (match-end 0))))))
+    (magit-completing-read
+     prompt (seq-difference choices taken) nil
+     (lambda (choice)
+       (cond
+         ((member choice taken)
+          (run-with-timer
+           0 nil (##minibuffer-message "conflicts with existing branch"))
+          nil)
+         (t))))))
 
 ;;;###autoload
 (defun magit-branch-spinout (branch &optional from)
