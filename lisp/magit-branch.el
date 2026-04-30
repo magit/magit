@@ -420,29 +420,29 @@ when using `magit-branch-and-checkout'."
   (magit-run-git "checkout" "--orphan" branch start-point))
 
 (defun magit-branch-read-args (prompt &optional default-start)
-  (if magit-branch-read-upstream-first
-      (let ((choice (magit-read-starting-point prompt nil default-start)))
-        (cond
-          ((magit-rev-verify choice)
-           (list (magit-read-string-ns
-                  (if magit-completing-read--silent-default
-                      (format "%s (starting at `%s')" prompt choice)
-                    "Name for new branch")
-                  (let ((def (string-join (cdr (split-string choice "/")) "/")))
-                    (and (member choice (magit-list-remote-branch-names))
-                         (not (member def (magit-list-local-branch-names)))
-                         def)))
-                 choice))
-          ((eq magit-branch-read-upstream-first 'fallback)
-           (list choice
-                 (magit-read-starting-point prompt choice default-start)))
-          ((user-error "Not a valid starting-point: %s" choice))))
-    (let ((branch (magit-read-string-ns (concat prompt " named"))))
-      (if (magit-branch-p branch)
-          (magit-branch-read-args
-           (format "Branch `%s' already exists; pick another name" branch)
-           default-start)
-        (list branch (magit-read-starting-point prompt branch default-start))))))
+  (cond-let
+    ((not magit-branch-read-upstream-first)
+     (let ((name (magit-read-string-ns (concat prompt " named"))))
+       (if (magit-branch-p name)
+           (magit-branch-read-args
+            (format "Branch `%s' already exists; pick another name" name)
+            default-start)
+         (list name (magit-read-starting-point prompt name default-start)))))
+    [[start (magit-read-starting-point prompt nil default-start)]]
+    ((magit-rev-verify start)
+     (list (magit-read-string-ns
+            (if magit-completing-read--silent-default
+                (format "%s (starting at `%s')" prompt start)
+              "Name for new branch")
+            (let ((def (string-join (cdr (split-string start "/")) "/")))
+              (and (member start (magit-list-remote-branch-names))
+                   (not (member def (magit-list-local-branch-names)))
+                   def)))
+           start))
+    [[name start]]
+    ((eq magit-branch-read-upstream-first 'fallback)
+     (list name (magit-read-starting-point prompt name default-start)))
+    ((user-error "Not a valid starting-point: %s" name))))
 
 ;;;###autoload
 (defun magit-branch-spinout (branch &optional from)
