@@ -50,6 +50,13 @@
                  (const :tag "Read upstream first" t)
                  (const :tag "Read upstream first, with fallback" fallback)))
 
+(defcustom magit-branch-name-suggestions nil
+  "List of names and/or prefixes suggested when naming a new branch."
+  :package-version '(magit . "4.6.0")
+  :group 'magit-commands
+  :type '(repeat string)
+  :safe (##and (listp %) (seq-every-p #'stringp %)))
+
 (defcustom magit-branch-prefer-remote-upstream nil
   "Whether to favor remote upstreams when creating new branches.
 
@@ -439,10 +446,12 @@ when using `magit-branch-and-checkout'."
 
 (defun magit-branch--read-name (prompt &optional start-point)
   (let ((taken (magit-list-local-branch-names))
-        (choices (and start-point
-                      (magit-remote-branch-p start-point)
-                      (string-match "/" start-point)
-                      (list (substring start-point (match-end 0))))))
+        (choices magit-branch-name-suggestions))
+    (when (and start-point
+               (magit-remote-branch-p start-point)
+               (string-match "/" start-point))
+      (cl-pushnew (substring start-point (match-end 0))
+                  choices :test #'equal))
     (magit-completing-read
      prompt (seq-difference choices taken) nil
      (lambda (choice)
@@ -450,6 +459,10 @@ when using `magit-branch-and-checkout'."
          ((member choice taken)
           (run-with-timer
            0 nil (##minibuffer-message "conflicts with existing branch"))
+          nil)
+         ((not (magit-git-success "check-ref-format" "--branch" choice))
+          (run-with-timer
+           0 nil (##minibuffer-message "not a valid branch name"))
           nil)
          (t))))))
 

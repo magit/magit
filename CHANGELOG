@@ -101,6 +101,8 @@ prepare for future changes.
 
 - Improved gitignore commands and menu.  1c0efafc4b~..28878dd879
 
+- Added new option ~magit-branch-name-suggestions~.
+
 Bugfixes:
 
 - Deleting all stashes proceeded without requiring confirmation.

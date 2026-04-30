@@ -6509,6 +6509,10 @@ the name of the branch that is to be created.  The default is @code{t},
 and I recommend you leave it at that.
 @end defopt
 
+@defopt magit-branch-name-suggestions
+List of names and/or prefixes suggested when naming a new branch.
+@end defopt
+
 @defopt magit-branch-prefer-remote-upstream
 This option specifies whether remote upstreams are favored over
 local upstreams when creating new branches.
