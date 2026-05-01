@@ -179,7 +179,7 @@ A few Git hooks additionally run Lisp hooks:
 - `post-merge'   runs `magit-git-post-merge-functions'
 - `post-rewrite' runs `magit-git-post-rewrite-functions'
 
-All of these hooks also run `magit-common-git-post-rewrite-functions'.
+All of these hooks also run `magit-common-git-post-commit-functions'.
 For many uses this hook variable is more useful than the three above.
 
 If you want to teach additional Git hooks to run Lisp hooks, you have to
