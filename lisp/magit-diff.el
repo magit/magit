@@ -2755,8 +2755,10 @@ keymap is the parent of their keymaps."
          (setq orig (magit-decode-git-path orig)))
        (setq file (magit-decode-git-path file))
        (setq header (nreverse header))
-       ;; KLUDGE `git-log' ignores `--no-prefix' when `-L' is used.
-       (when (and (derived-mode-p 'magit-log-mode)
+       ;; KLUDGE Before v2.54 `git-log' ignored `--no-prefix'
+       ;; when `-L' is used.
+       (when (and (magit-git-version< "2.54")
+                  (derived-mode-p 'magit-log-mode)
                   (seq-some (##string-prefix-p "-L" %)
                             magit-buffer-log-args))
          (when orig

@@ -183,6 +183,10 @@ Bugfixes:
   it comes to this particular file set, instead of the reliable ~git
   status --porcelain~.  073b01e834
 
+- Before v2.54 ~git log~ ignored ~--no-prefix~ when used together with ~-L~.
+  Drop our workaround, for releases that don't need it, where it would
+  backfire.
+
 * v4.5.0    2026-01-01
 
 - Removed support for loading Magit extensions from ".git/config".
