@@ -550,9 +550,8 @@ is run in the top-level directory of the current working tree."
   (magit-read-gpg-secret-key
    prompt initial-input history
    (lambda (cert)
-     (cl-some (lambda (key)
-                (memq 'sign (epg-sub-key-capability key)))
-              (epg-key-sub-key-list cert)))
+     (any (##memq 'sign (epg-sub-key-capability %))
+          (epg-key-sub-key-list cert)))
    magit-openpgp-default-signing-key))
 
 ;;; Font-Lock Keywords

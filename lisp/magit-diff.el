@@ -2504,7 +2504,7 @@ keymap is the parent of their keymaps."
     (unless (equal cmd "merge-tree")
       (push "--ita-visible-in-index" args))
     (setq args (magit-diff--maybe-add-stat-arguments args))
-    (when (magit--any (##string-prefix-p "--color-moved" %) args)
+    (when (any (##string-prefix-p "--color-moved" %) args)
       (push "--color=always" args)
       (setq magit-git-global-arguments
             (append magit-diff--reset-non-color-moved
@@ -2639,7 +2639,7 @@ keymap is the parent of their keymaps."
         (if (looking-at "^$") (forward-line) (insert "\n"))))))
 
 (defun magit-diff-wash-diff (args)
-  (when (magit--any (##string-prefix-p "--color-moved" %) args)
+  (when (any (##string-prefix-p "--color-moved" %) args)
     (require 'ansi-color)
     (ansi-color-apply-on-region (point-min) (point-max)))
   (cond

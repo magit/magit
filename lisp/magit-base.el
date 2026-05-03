@@ -818,13 +818,13 @@ ACTION is a member of option `magit-slow-confirm'."
   (or (cond ((and (not (eq action t))
                   (or (eq magit-no-confirm t)
                       (memq action magit-no-confirm)
-                      (magit--any (pcase-lambda (`(,key ,var . ,sub))
-                                    (and (memq key magit-no-confirm)
-                                         (memq action sub)
-                                         (or (not var)
-                                             (and (boundp var)
-                                                  (symbol-value var)))))
-                                  magit--no-confirm-alist)))
+                      (any (pcase-lambda (`(,key ,var . ,sub))
+                             (and (memq key magit-no-confirm)
+                                  (memq action sub)
+                                  (or (not var)
+                                      (and (boundp var)
+                                           (symbol-value var)))))
+                           magit--no-confirm-alist)))
              (or (not sitems) items))
             ((not sitems)
              (magit-y-or-n-p prompt action))
@@ -1018,11 +1018,6 @@ and return a new string, instead use `magit--remove-text-properties'."
   "Return a copy of STRING with text properties PROPS removed.
 If PROPS is nil, remove all properties."
   (magit--delete-text-properties (copy-sequence string) props))
-
-;;; Emacs Compatibility
-
-(defalias 'magit--any ; Emacs 31.1 adds member-if
-  (static-if (fboundp 'member-if) #'member-if #'cl-member-if))
 
 ;;; Kludges for Emacs Bugs
 
