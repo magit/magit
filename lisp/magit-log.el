@@ -1416,7 +1416,7 @@ Do not add this to a hook variable."
 
 (cl-defun magit-log-wash-rev (style abbrev)
   (when (derived-mode-p 'magit-log-mode 'magit-reflog-mode)
-    (cl-incf magit-log-count))
+    (incf magit-log-count))
   (looking-at (pcase style
                 ('log        magit-log-heading-re)
                 ('cherry     magit-log-cherry-re)

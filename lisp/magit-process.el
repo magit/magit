@@ -841,7 +841,7 @@ Magit status buffer."
                 ((memq (process-status process) '(exit signal))
                  (delete-region (oref section start)
                                 (1+ (oref section end)))
-                 (cl-decf count))
+                 (decf count))
                 ((push section head))))
         (pop tail))
       (oset magit-root-section children

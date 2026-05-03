@@ -11,7 +11,7 @@
 ;; Package-Version: 4.5.0
 ;; Package-Requires: (
 ;;     (emacs   "28.1")
-;;     (compat  "30.1")
+;;     (compat  "31.0")
 ;;     (cond-let "0.2")
 ;;     (llama    "1.0")
 ;;     (seq      "2.24"))
@@ -1115,7 +1115,7 @@ sections."
       (cl-do* ((s section
                   (oref s parent))
                (i (1- (length (magit-section-ident s)))
-                  (cl-decf i)))
+                  (decf i)))
           ((cond ((< i level) (magit-section-show-children s (- level i 1)) t)
                  ((= i level) (magit-section-hide s) t))
            (magit-section-goto s))))))

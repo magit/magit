@@ -804,7 +804,7 @@ Honor the buffer's file filter, which can be set using \"D - -\"."
         (let ((magit-section-insert-in-reverse t)
               (limit magit-status-file-list-limit))
           (while (and files (> limit 0))
-            (cl-decf limit)
+            (decf limit)
             (let ((file (pop files)))
               (magit-insert-section (file file)
                 (insert (funcall magit-format-file-function

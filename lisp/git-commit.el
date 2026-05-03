@@ -760,7 +760,7 @@ With a numeric prefix ARG, go back ARG messages."
       (when-let* ((message (git-commit-buffer-message))
                   (_(not (ring-member log-edit-comment-ring message))))
         (ring-insert log-edit-comment-ring message)
-        (cl-incf arg)
+        (incf arg)
         (setq len (ring-length log-edit-comment-ring)))
       ;; Delete the message but not the instructions at the end.
       (save-restriction

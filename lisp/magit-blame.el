@@ -559,8 +559,8 @@ modes is toggled, then this mode also gets toggled automatically.
                             (oref chunk orig-rev)))
             (setq beg (magit-blame--line-beginning-position
                        (oset chunk final-line (oref before final-line))))
-            (cl-incf (oref chunk num-lines)
-                     (oref before num-lines)))
+            (incf (oref chunk num-lines)
+                  (oref before num-lines)))
           (magit-blame--remove-overlays beg end)
           (when magit-blame--make-margin-overlays
             (magit-blame--make-margin-overlays chunk revinfo beg end))
@@ -580,7 +580,7 @@ modes is toggled, then this mode also gets toggled automatically.
       (while (< (point) end)
         (magit-blame--make-margin-overlay chunk revinfo line)
         (forward-line)
-        (cl-incf line)))))
+        (incf line)))))
 
 (defun magit-blame--make-margin-overlay (chunk revinfo line)
   (let* ((end (line-end-position))

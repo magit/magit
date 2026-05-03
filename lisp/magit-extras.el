@@ -493,7 +493,7 @@ list returned by `magit-rebase-arguments'."
                            (and (not magit-reshelve-since-committer-only)
                                 (format "export GIT_AUTHOR_DATE=\"%s\"; " date))
                            (format "export GIT_COMMITTER_DATE=\"%s\";;" date))
-                        (cl-incf date 60)))
+                        (incf date 60)))
                     (magit-git-lines "rev-list" "--reverse" range)
                     " "))
                   (and keyid

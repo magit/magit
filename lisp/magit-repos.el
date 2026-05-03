@@ -247,7 +247,7 @@ If it contains \"%s\" then the directory is substituted for that."
       (let ((default-directory
              (file-name-as-directory (expand-file-name repo base))))
         (if msg
-            (let ((msg (concat (format "(%s/%s) " (cl-incf i) len)
+            (let ((msg (concat (format "(%s/%s) " (incf i) len)
                                (format msg default-directory))))
               (message msg)
               (funcall fn)

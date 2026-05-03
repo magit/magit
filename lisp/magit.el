@@ -20,7 +20,7 @@
 ;; Package-Version: 4.5.0
 ;; Package-Requires: (
 ;;     (emacs        "28.1")
-;;     (compat       "30.1")
+;;     (compat       "31.0")
 ;;     (cond-let      "0.2")
 ;;     (llama         "1.0")
 ;;     (magit-section "4.5")

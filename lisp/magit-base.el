@@ -911,7 +911,7 @@ match was against a string, then that has to be provided as STRING."
     `(let* ((,s ,string)
             ,@(save-match-data
                 (seq-keep (lambda (sym)
-                            (cl-incf i)
+                            (incf i)
                             (and (not (eq (aref (symbol-name sym) 0) ?_))
                                  `(,sym (match-str ,i ,s))))
                           varlist)))

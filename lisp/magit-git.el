@@ -347,9 +347,9 @@ See info node `(magit)Debugging Tools' for more information."
     `(if magit--refresh-cache
          (let ((,k ,key))
            (if-let ((,hit (assoc ,k (cdr magit--refresh-cache))))
-               (progn (cl-incf (caar magit--refresh-cache))
+               (progn (incf (caar magit--refresh-cache))
                       (cdr ,hit))
-             (cl-incf (cdar magit--refresh-cache))
+             (incf (cdar magit--refresh-cache))
              (let ((value ,(macroexp-progn body)))
                (push (cons ,k value)
                      (cdr magit--refresh-cache))
@@ -1764,7 +1764,7 @@ The amount of time spent searching is limited by
                  ((setq prev (magit-rev-verify (format "@{-%d}" i)))
                   (or (not (setq prev (magit-rev-branch prev)))
                       (equal prev current))))
-      (cl-incf i))
+      (incf i))
     prev))
 
 (defun magit--set-default-branch (newname oldname)

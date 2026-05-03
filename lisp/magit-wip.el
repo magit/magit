@@ -361,7 +361,7 @@ many \"branches\" of each wip ref are shown."
                    (string-match "^[^ ]+ \\([^:]+\\)" (cadr reflog)))
           (push (match-str 1 (cadr reflog)) tips))
         (setq reflog (cddr reflog))
-        (cl-decf count))
+        (decf count))
       (cons wipref (nreverse tips)))))
 
 (defun magit-wip-purge ()

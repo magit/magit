@@ -946,7 +946,7 @@ If no such sequence is in progress, do nothing."
                   "pick" commit 'magit-sequence-pick))
                 ((magit-sequence-insert-am-patch
                   "pick" patch 'magit-sequence-pick)))
-          (cl-decf i)))
+          (decf i)))
       (magit-sequence-insert-sequence nil "ORIG_HEAD")
       (insert ?\n))))
 

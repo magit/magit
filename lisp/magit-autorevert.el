@@ -30,6 +30,7 @@
 ;;; Code:
 
 (require 'autorevert)
+(require 'compat)
 
 (declare-function magit-file-tracked-p "magit-git" (file))
 (declare-function magit-toplevel "magit-git" (&optional directory))
@@ -259,7 +260,7 @@ defaults to nil) for any BUFFER."
              (file-in-directory-p dir top))))))
 
 (define-advice auto-revert-buffers (:around (fn) buffer-list-filter)
-  (cl-incf magit-auto-revert-counter)
+  (incf magit-auto-revert-counter)
   (if (or global-auto-revert-mode
           (not auto-revert-buffer-list)
           (not auto-revert-buffer-list-filter))
