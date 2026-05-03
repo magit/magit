@@ -1030,19 +1030,19 @@ setting `imenu--index-alist' to nil before calling that function."
   (setq imenu--index-alist nil)
   (which-function))
 
-(static-if (version< emacs-version "31.1")
-    (define-advice dabbrev-capf (:around (fn) git-commit)
-      "Backport bugfix from debbug#80645 / a7d05207214 / 31.1.
-    See #5551, #5556 and #5558 (I wish I had not rushed this)."
-      (pcase-let ((`(,beg ,end ,table . ,rest) (funcall fn)))
-        `( ,beg ,end
-           ,(lambda (&rest args)
-              (condition-case err
-                  (apply table args)
-                (user-error
-                 (unless (string-prefix-p "No dynamic expansion" (cadr err))
-                   (signal (car err) (cdr err))))))
-           ,@rest))))
+(static-when (version< emacs-version "31.1")
+  (define-advice dabbrev-capf (:around (fn) git-commit)
+    "Backport bugfix from debbug#80645 / a7d05207214 / 31.1.
+See #5551, #5556 and #5558 (I wish I had not rushed this)."
+    (pcase-let ((`(,beg ,end ,table . ,rest) (funcall fn)))
+      `( ,beg ,end
+         ,(lambda (&rest args)
+            (condition-case err
+                (apply table args)
+              (user-error
+               (unless (string-prefix-p "No dynamic expansion" (cadr err))
+                 (signal (car err) (cdr err))))))
+         ,@rest))))
 
 ;;; Kludges for Custom
 
