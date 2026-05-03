@@ -2249,8 +2249,8 @@ forms CONDITION can take."
                            (setq siblings nil)))
                        (setq sections (nreverse sections))
                        (and (or (not condition)
-                                (seq-every-p (##magit-section-match condition %)
-                                             sections))
+                                (all (##magit-section-match condition %)
+                                     sections))
                             sections))))))))
 
 (defun magit-map-sections (function &optional section)

@@ -55,7 +55,7 @@
   :package-version '(magit . "4.6.0")
   :group 'magit-commands
   :type '(repeat string)
-  :safe (##and (listp %) (seq-every-p #'stringp %)))
+  :safe (##and (listp %) (all #'stringp %)))
 
 (defcustom magit-branch-prefer-remote-upstream nil
   "Whether to favor remote upstreams when creating new branches.
