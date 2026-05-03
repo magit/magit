@@ -666,8 +666,7 @@ INITIAL-SECTION SELECT-SECTION &rest BINDINGS)"
       &key buffer directory initial-section select-section)
   (let* ((value   (and locked
                        (with-temp-buffer
-                         (pcase-dolist (`(,var ,val) bindings)
-                           (set (make-local-variable var) val))
+                         (mapc (##apply #'set-local %) bindings)
                          (let ((major-mode mode))
                            (magit-buffer-value)))))
          (buffer  (if buffer
@@ -683,8 +682,7 @@ INITIAL-SECTION SELECT-SECTION &rest BINDINGS)"
         (setq default-directory directory))
       (funcall mode)
       (magit-xref-setup #'magit-setup-buffer-internal bindings)
-      (pcase-dolist (`(,var ,val) bindings)
-        (set (make-local-variable var) val))
+      (mapc (##apply #'set-local %) bindings)
       (when created
         (run-hooks 'magit-create-buffer-hook)))
     (magit-display-buffer buffer)
