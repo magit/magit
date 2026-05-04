@@ -283,20 +283,20 @@ framework ultimately determines how the collection is displayed."
 
 (defcustom magit-cygwin-mount-points
   (and (eq system-type 'windows-nt)
-       (cl-sort (mapcar
-                 (lambda (mount)
-                   (if (string-match "^\\(.*\\) on \\(.*\\) type" mount)
-                       (cons (file-name-as-directory (match-str 2 mount))
-                             (file-name-as-directory (match-str 1 mount)))
-                     (lwarn '(magit) :error
-                            "Failed to parse Cygwin mount: %S" mount)))
-                 ;; If --exec-path is not a native Windows path,
-                 ;; then we probably have a cygwin git.
-                 (and-let ((dirs (magit--early-process-lines
-                                  magit-git-executable "--exec-path")))
-                   (and (not (string-match-p "\\`[a-zA-Z]:" (car dirs)))
-                        (magit--early-process-lines "mount"))))
-                #'> :key (pcase-lambda (`(,cyg . ,_win)) (length cyg))))
+       (compat-call
+        sort (mapcar (lambda (mount)
+                       (if (string-match "^\\(.*\\) on \\(.*\\) type" mount)
+                           (cons (file-name-as-directory (match-str 2 mount))
+                                 (file-name-as-directory (match-str 1 mount)))
+                         (lwarn '(magit) :error
+                                "Failed to parse Cygwin mount: %S" mount)))
+                     ;; If --exec-path is not a native Windows path,
+                     ;; then we probably have a cygwin git.
+                     (and-let ((dirs (magit--early-process-lines
+                                      magit-git-executable "--exec-path")))
+                       (and (not (string-match-p "\\`[a-zA-Z]:" (car dirs)))
+                            (magit--early-process-lines "mount"))))
+        :lessp #'< :reverse t :key (pcase-lambda (`(,cyg . ,_win)) (length cyg))))
   "Alist of (CYGWIN . WIN32) directory names.
 Sorted from longest to shortest CYGWIN name."
   :package-version '(magit . "2.3.0")

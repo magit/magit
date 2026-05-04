@@ -320,10 +320,11 @@ want to fall back to using \"--3way\", without being prompted."
    (magit--run-git-stash "apply" stash)
    (let* ((range (format "%s^..%s" stash stash))
           (stashed (magit-git-items "diff" "-z" "--name-only" range "--"))
-          (conflicts (cl-sort (cl-union (magit-unstaged-files t stashed)
-                                        (magit-untracked-files t stashed)
-                                        :test #'equal)
-                              #'string<))
+          (conflicts (compat-call
+                      sort (cl-union (magit-unstaged-files t stashed)
+                                     (magit-untracked-files t stashed)
+                                     :test #'equal)
+                      :lessp #'string<))
           (arg (if (or (not conflicts)
                        (memq 'stash-apply-3way magit-no-confirm))
                    "--3way"
