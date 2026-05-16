@@ -190,7 +190,7 @@ and also setting this variable to t will lead to tears."
   ())
 
 (cl-defmethod transient-format-description ((obj magit--git-submodule-suffix))
-  (let ((value (delq nil (mapcar #'transient-infix-value transient--suffixes))))
+  (let ((value (seq-filter #'transient-infix-value transient--suffixes)))
     (replace-regexp-in-string
      "\\[--[^]]+\\]"
      (lambda (match)
