@@ -186,8 +186,7 @@
     (pcase-let ((`(,fallback . ,choices) (magit--git-variable-list-choices obj)))
       (concat
        (propertize "[" 'face 'transient-inactive-value)
-       (mapconcat #'identity choices
-                  (propertize "|" 'face 'transient-inactive-value))
+       (string-join choices (propertize "|" 'face 'transient-inactive-value))
        (and fallback (propertize "|" 'face 'transient-inactive-value))
        fallback
        (propertize "]" 'face 'transient-inactive-value)))))
