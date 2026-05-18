@@ -374,7 +374,7 @@ ignored) files."
                    (url (let ((default-directory
                                (file-name-as-directory (expand-file-name repo))))
                           (or (magit-get "remote" (magit-get-some-remote) "url")
-                              (concat (file-name-as-directory ".") repo))))
+                              (file-name-concat "." repo))))
                    (package
                     (and (equal borg-user-emacs-directory topdir)
                          (file-name-nondirectory (directory-file-name repo)))))

@@ -185,8 +185,7 @@ Interactively, use `magit-read-worktree-directory-function'."
         (kill-buffer)
         (magit-diff-visit-directory
          (if preexisting-directory
-             (concat (file-name-as-directory directory)
-                     (file-name-nondirectory worktree))
+             (file-name-concat directory (file-name-nondirectory worktree))
            directory)))
       (magit-refresh))))
 
