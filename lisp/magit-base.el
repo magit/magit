@@ -1210,11 +1210,12 @@ Like `message', except that `message-log-max' is bound to nil."
 (defun magit--find-buffer (&rest plist)
   "Like `find-buffer' but take multiple VARIABLE-VALUE pairs."
   (seq-find (lambda (buf)
-              (while (and plist
-                          (equal (buffer-local-value (car plist) buf)
-                                 (cadr plist)))
-                (setq plist (cddr plist)))
-              (not plist))
+              (let ((plist plist))
+                (while (and plist
+                            (equal (buffer-local-value (car plist) buf)
+                                   (cadr plist)))
+                  (setq plist (cddr plist)))
+                (not plist)))
             (buffer-list)))
 
 ;;; _
