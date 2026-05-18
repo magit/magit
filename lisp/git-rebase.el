@@ -894,12 +894,11 @@ except for the \"pick\" command."
 
 (defun git-rebase--insert-descriptions (alist)
   (pcase-dolist (`(,cmd . ,desc) alist)
-    (insert (format (propertize "%s %s %s\n"
-                                'font-lock-face 'font-lock-comment-face)
-                    comment-start
-                    (string-pad
-                     (substitute-command-keys (format "\\[%s]" cmd)) 8)
-                    (replace-regexp-in-string "#" comment-start desc)))))
+    (insert
+     (format (propertize "%s %s %s\n" 'font-lock-face 'font-lock-comment-face)
+             comment-start
+             (string-pad (substitute-command-keys (format "\\[%s]" cmd)) 8)
+             (string-replace "#" comment-start desc)))))
 
 (add-hook 'git-rebase-mode-hook #'git-rebase-mode-show-keybindings t)
 
