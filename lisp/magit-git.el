@@ -439,10 +439,8 @@ to do the following.
   (if (and (eq system-type 'windows-nt) (boundp 'w32-ansi-code-page))
       ;; On w32, the process arguments *must* be encoded in the
       ;; current code-page (see #3250).
-      (mapcar (lambda (arg)
-                (encode-coding-string
-                 arg (intern (format "cp%d" w32-ansi-code-page))))
-              args)
+      (let ((coding (intern (format "cp%d" w32-ansi-code-page))))
+        (mapcar (##encode-coding-string % coding) args))
     args))
 
 (defun magit-git-exit-code (&rest args)
