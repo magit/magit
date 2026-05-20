@@ -2199,7 +2199,7 @@ commit or stash at point, then prompt for a commit."
                                     (progn
                                       (when (oref section hidden)
                                         (magit-section-show section))
-                                      (oref section children))))
+                                      (copy-sequence (oref section children)))))
                              (list (magit-get-section '((staged)   (status)))
                                    (magit-get-section '((unstaged) (status))))))
                     ((derived-mode-p 'magit-diff-mode)
