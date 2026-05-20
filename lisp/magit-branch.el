@@ -454,8 +454,14 @@ when using `magit-branch-and-checkout'."
                   choices :test #'equal))
     (magit-completing-read
      prompt (seq-difference choices taken) nil
-     (lambda (choice)
+     (lambda (&optional choice)
        (cond
+         ((not choice)
+          ;; This function ought to be called with one argument (see
+          ;; `completing-read') but Ivy calls it with zero arguments.
+          ;; Since Ivy doesn't tell us what choice the user made, we
+          ;; also cannot validate it, and assume it is valid.
+          t)
          ((member choice taken)
           (run-with-timer
            0 nil (##minibuffer-message "conflicts with existing branch"))
