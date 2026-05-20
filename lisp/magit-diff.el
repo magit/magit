@@ -2192,30 +2192,32 @@ commit or stash at point, then prompt for a commit."
 (defun magit-section-cycle-diffs ()
   "Cycle visibility of diff-related sections in the current buffer."
   (interactive)
-  (when-let ((sections
-              (cond ((derived-mode-p 'magit-status-mode)
-                     (mapcan (lambda (section)
-                               (and section
-                                    (progn
-                                      (when (oref section hidden)
-                                        (magit-section-show section))
-                                      (copy-sequence (oref section children)))))
-                             (list (magit-get-section '((staged)   (status)))
-                                   (magit-get-section '((unstaged) (status))))))
-                    ((derived-mode-p 'magit-diff-mode)
-                     (seq-filter #'magit-file-section-p
-                                 (oref magit-root-section children))))))
-    (if (seq-some (##oref % hidden) sections)
-        (dolist (s sections)
-          (magit-section-show s)
-          (magit-section-hide-children s))
-      (let ((children (mapcan (##copy-sequence (oref % children)) sections)))
-        (cond ((and (seq-some (##oref % hidden)   children)
-                    (seq-some (##oref % children) children))
-               (mapc #'magit-section-show-headings sections))
-              ((seq-some #'magit-section-hidden-body children)
-               (mapc #'magit-section-show-children sections))
-              ((mapc #'magit-section-hide sections)))))))
+  (cond-let*
+    [[sections
+      (cond ((derived-mode-p 'magit-status-mode)
+             (mapcan (lambda (section)
+                       (and section
+                            (progn
+                              (when (oref section hidden)
+                                (magit-section-show section))
+                              (copy-sequence (oref section children)))))
+                     (list (magit-get-section '((staged)   (status)))
+                           (magit-get-section '((unstaged) (status))))))
+            ((derived-mode-p 'magit-diff-mode)
+             (seq-filter #'magit-file-section-p
+                         (oref magit-root-section children))))]]
+    ((not sections))
+    ((seq-some (##oref % hidden) sections)
+     (dolist (s sections)
+       (magit-section-show s)
+       (magit-section-hide-children s)))
+    [[children (mapcan (##copy-sequence (oref % children)) sections)]]
+    ((and (seq-some (##oref % hidden)   children)
+          (seq-some (##oref % children) children))
+     (mapc #'magit-section-show-headings sections))
+    ((seq-some #'magit-section-hidden-body children)
+     (mapc #'magit-section-show-children sections))
+    ((mapc #'magit-section-hide sections))))
 
 ;;;; Jump Commands
 
