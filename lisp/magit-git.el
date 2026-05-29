@@ -2389,7 +2389,7 @@ If `first-parent' is set, traverse only first parents."
   (magit-rev-parse (magit-abbrev-arg "short") rev))
 
 (defun magit--abbrev-if-oid (obj)
-  (cond ((or (magit-ref-p obj) (member obj '("{index}" "{worktree}"))) obj)
+  (cond ((or (member obj '("{index}" "{worktree}")) (magit-ref-p obj)) obj)
         ((magit-rev-parse (magit-abbrev-arg "short") obj))
         (obj)))
 
