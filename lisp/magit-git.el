@@ -1659,9 +1659,8 @@ to, or to some other symbolic-ref that points to the same ref."
     (branch (oref it value))
     (commit (or (magit--painted-branch-at-point)
                 (magit-name-branch (oref it value))))
-    (pullreq (and (fboundp 'forge--pullreq-branch)
-                  (magit-branch-p
-                   (forge--pullreq-branch (oref it value)))))
+    (pullreq (and (fboundp 'forge--pullreq-branch-active)
+                  (forge--pullreq-branch-active (oref it value))))
     (related-refs (magit--painted-branch-at-point))
     ((unpulled unpushed)
      (magit-ref-abbrev
@@ -1715,11 +1714,10 @@ to, or to some other symbolic-ref that points to the same ref."
                     (let ((rev (oref it value)))
                       (or (magit-name-branch rev) rev))))
         (tag (magit-ref-maybe-qualify (oref it value) "tags/"))
-        (pullreq (or (and (fboundp 'forge--pullreq-branch)
-                          (magit-branch-p
-                           (forge--pullreq-branch (oref it value))))
-                     (magit-ref-p (format "refs/pullreqs/%s"
-                                          (oref (oref it value) number)))))
+        (pullreq (or (and (fboundp 'forge--pullreq-branch-active)
+                          (forge--pullreq-branch-active (oref it value)))
+                     (and (fboundp 'forge--pullreq-ref)
+                          (forge--pullreq-ref (oref it value)))))
         ((unpulled unpushed)
          (magit-ref-abbrev
           (replace-regexp-in-string "\\.\\.\\.?" "" (oref it value)))))
