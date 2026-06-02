@@ -2291,30 +2291,47 @@ specified using `core.worktree'."
                    (if (> (length line) 8) (substring line 9) t)))))
     (nreverse worktrees)))
 
-(defun magit-symbolic-ref-p (name)
-  (magit-git-success "symbolic-ref" "--quiet" name))
+(defun magit-symbolic-ref-p (string)
+  "Return t if STRING is a reference, nil otherwise."
+  (cl-assert (stringp string))
+  (magit-git-success "symbolic-ref" "--quiet" string))
 
-(defun magit-ref-p (rev)
-  (or (car (member rev (magit-list-refs "refs/")))
-      (car (member rev (magit-list-refnames "refs/")))))
+(defun magit-ref-p (string)
+  "Return t if STRING is a reference, nil otherwise."
+  (cl-assert (stringp string))
+  (and (magit-ref-fullname string)
+       (not (magit-symbolic-ref-p string))))
 
-(defun magit-branch-p (rev)
-  (or (car (member rev (magit-list-branches)))
-      (car (member rev (magit-list-branch-names)))))
+(defun magit-branch-p (string)
+  "Return t if STRING is a local or remote-tracking branch, nil otherwise."
+  (cl-assert (stringp string))
+  (or (magit-local-branch-p string)
+      (magit-remote-branch-p string)))
 
-(defun magit-local-branch-p (rev)
-  (or (car (member rev (magit-list-local-branches)))
-      (car (member rev (magit-list-local-branch-names)))))
+(defun magit-local-branch-p (string)
+  "Return t if STRING is a local branch."
+  (cl-assert (stringp string))
+  (magit-git-success "show-ref" "--quiet" "--branches" string))
 
-(defun magit-remote-branch-p (rev)
-  (or (car (member rev (magit-list-remote-branches)))
-      (car (member rev (magit-list-remote-branch-names)))))
+(defun magit-remote-branch-p (string)
+  "Return t if STRING is a remote-tracking branch, nil otherwise."
+  (cl-assert (stringp string))
+  (seq-some (lambda (line)
+              (let ((ref (cadr (split-string line " "))))
+                (or (equal string ref)
+                    (equal string (substring ref 5))
+                    (equal string (substring ref 13)))))
+            (magit-git-lines "show-ref" string)))
 
-(defun magit-tag-p (obj)
-  (equal (magit-object-type obj) "tag"))
+(defun magit-tag-p (string)
+  "Return t if STRING is a tag, nil otherwise."
+  (cl-assert (stringp string))
+  (magit-git-success "show-ref" "--quiet" "--tags" string))
 
 (defun magit-remote-p (string)
-  (car (member string (magit-list-remotes))))
+  "Return t if STRING is a remote, nil otherwise."
+  (cl-assert (stringp string))
+  (and (member string (magit-list-remotes)) t))
 
 (defun magit-branch-set-face (branch)
   (magit--propertize-face branch (if (magit-local-branch-p branch)
