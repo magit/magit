@@ -2310,16 +2310,16 @@ specified using `core.worktree'."
   (or (car (member rev (magit-list-remote-branches)))
       (car (member rev (magit-list-remote-branch-names)))))
 
-(defun magit-branch-set-face (branch)
-  (magit--propertize-face branch (if (magit-local-branch-p branch)
-                                     'magit-branch-local
-                                   'magit-branch-remote)))
-
 (defun magit-tag-p (obj)
   (equal (magit-object-type obj) "tag"))
 
 (defun magit-remote-p (string)
   (car (member string (magit-list-remotes))))
+
+(defun magit-branch-set-face (branch)
+  (magit--propertize-face branch (if (magit-local-branch-p branch)
+                                     'magit-branch-local
+                                   'magit-branch-remote)))
 
 (defvar magit-main-branch-names
   '("main" "master" "trunk" "development")
