@@ -1009,8 +1009,7 @@ returning the truename."
             ;; This has long been fixed, but old repository may still
             ;; exist that contain such a file.  See #2364.
             [_(not (equal wtree ".git"))]
-            (concat (file-remote-p default-directory)
-                    (file-name-directory wtree)))
+            (file-name-directory (expand-file-name wtree default-directory)))
            ;; The working directory may not be the parent
            ;; directory of .git if it was set up with
            ;; "git init --separate-git-dir".  See #2955.
