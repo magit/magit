@@ -463,7 +463,7 @@ whether they are wrapped in an additional section."
 ;;;###autoload
 (defun magit-insert-modules-overview ()
   "Insert sections for all modules.
-For each section insert the path and the output of `git describe --tags',
+For each section insert the path and the output of \"git describe --tags\",
 or, failing that, the abbreviated HEAD commit hash."
   (when-let ((modules (magit-list-module-paths)))
     (magit-insert-section (modules nil t)

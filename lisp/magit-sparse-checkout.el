@@ -22,7 +22,7 @@
 
 ;;; Commentary:
 
-;; This library provides an interface to the `git sparse-checkout'
+;; This library provides an interface to the "git sparse-checkout"
 ;; command (operating in cone mode).
 
 ;;; Code:
@@ -46,7 +46,7 @@
 
 (defun magit-sparse-checkout-directories ()
   "Return directories that are recursively included in the sparse checkout.
-See the `git sparse-checkout' manpage for details about
+See the \"git sparse-checkout\" manpage for details about
 \"recursive\" versus \"parent\" directories in cone mode."
   (and (magit-get-boolean "core.sparsecheckoutcone")
        (mapcar #'file-name-as-directory

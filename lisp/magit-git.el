@@ -209,17 +209,16 @@ on one another."
            (list "-c" "i18n.logOutputEncoding=UTF-8")))
   "Global Git arguments.
 
-The arguments set here are used every time the git executable is
-run as a subprocess.  They are placed right after the executable
-itself and before the git command - as in `git HERE... COMMAND
-REST'.  See the manpage `git(1)' for valid arguments.
+The arguments set here are used every time the git executable is run
+as a subprocess.  They are placed right after the executable itself
+and before the git command - as in \"git HERE... COMMAND REST\".
+See the manpage `git(1)' for valid arguments.
 
-Be careful what you add here, especially if you are using Tramp
-to connect to servers with ancient Git versions.  Never remove
-anything that is part of the default value, unless you really
-know what you are doing.  And think very hard before adding
-something; it will be used every time Magit runs Git for any
-purpose."
+Be careful what you add here, especially if you are using Tramp to
+connect to servers with ancient Git versions.  Never remove anything
+that is part of the default value, unless you really know what you
+are doing.  And think very hard before adding something; it will be
+used every time Magit runs Git for any purpose."
   :package-version '(magit . "4.3.2")
   :group 'magit-commands
   :group 'magit-process
@@ -683,7 +682,7 @@ executable."
                    (list (concat
                           (file-remote-p default-directory)
                           (or (magit-git-string "--exec-path")
-                              (error "`git --exec-path' failed"))))
+                              (error "\"git --exec-path\" failed"))))
                    exec-suffixes
                    #'file-executable-p)
       (executable-find command t)))
@@ -816,7 +815,7 @@ See info node `(magit)Debugging Tools' for more information."
 (defun magit-config-get-from-cached-list (key)
   (gethash
    (thread$ key
-     ;; `git config --list' downcases first and last components.
+     ;; "git config --list" downcases first and last components.
      (replace-regexp-in-string "\\`[^.]+" #'downcase $ t t)
      (replace-regexp-in-string "[^.]+\\'" #'downcase $ t t))
    (magit--with-refresh-cache (cons (magit-toplevel) 'config)
@@ -1451,30 +1450,30 @@ are considered."
 ;;; Revisions and References
 
 (defun magit-rev-parse (&rest args)
-  "Execute `git rev-parse ARGS', returning first line of output.
+  "Execute \"git rev-parse ARGS\", returning first line of output.
 If there is no output, return nil."
   (apply #'magit-git-string "rev-parse" args))
 
 (defun magit-rev-parse-safe (&rest args)
-  "Execute `git rev-parse ARGS', returning first line of output.
+  "Execute \"git rev-parse ARGS\", returning first line of output.
 If there is no output, return nil.  Like `magit-rev-parse' but
 ignore `magit-git-debug'."
   (apply #'magit-git-str "rev-parse" args))
 
 (defun magit-rev-parse-true (&rest args)
-  "Execute `git rev-parse ARGS', returning t if it prints \"true\".
+  "Execute \"git rev-parse ARGS\", returning t if it prints \"true\".
 If it prints \"false\", then return nil.  For any other output
 signal an error."
   (magit-git-true "rev-parse" args))
 
 (defun magit-rev-parse-false (&rest args)
-  "Execute `git rev-parse ARGS', returning t if it prints \"false\".
+  "Execute \"git rev-parse ARGS\", returning t if it prints \"false\".
 If it prints \"true\", then return nil.  For any other output
 signal an error."
   (magit-git-false "rev-parse" args))
 
 (defun magit-rev-parse-p (&rest args)
-  "Execute `git rev-parse ARGS', returning t if it prints \"true\".
+  "Execute \"git rev-parse ARGS\", returning t if it prints \"true\".
 Return t if the first (and usually only) output line is the
 string \"true\", otherwise return nil."
   (equal (magit-git-str "rev-parse" args) "true"))
@@ -2066,11 +2065,11 @@ where COMMITS is the number of commits in TAG but not in REV."
 When NAMESPACES is non-nil, list refs from these namespaces
 rather than those from `magit-list-refs-namespaces'.
 
-FORMAT is passed to the `--format' flag of `git for-each-ref'
+FORMAT is passed to the `--format' flag of \"git for-each-ref\"
 and defaults to \"%(refname)\".
 
 SORTBY is a key or list of keys to pass to the `--sort' flag
-of `git for-each-ref' to sort the refs within each namespace.
+of \"git for-each-ref\" to sort the refs within each namespace.
 When nil, use `magit-list-refs-sortby'.  If both are nil, use
 \"version:refname\", but only for \"refs/tags\"."
   (let ((format (concat "--format=%(symref)" (or format "%(refname)")))
@@ -2449,7 +2448,7 @@ If `first-parent' is set, traverse only first parents."
       (car (split-string (buffer-string))))))
 
 (defun magit-rev-format (format &optional rev args)
-  ;; Prefer `git log --no-walk' to `git show --no-patch' because it
+  ;; Prefer "git log --no-walk" to "git show --no-patch" because it
   ;; performs better in some scenarios.
   (let ((str (magit-git-string "log" "--no-walk"
                                (concat "--format=" format) args
@@ -2459,7 +2458,7 @@ If `first-parent' is set, traverse only first parents."
          str)))
 
 (defun magit-rev-insert-format (format &optional rev args)
-  ;; Prefer `git log --no-walk' to `git show --no-patch' because it
+  ;; Prefer "git log --no-walk" to "git show --no-patch" because it
   ;; performs better in some scenarios.
   (magit-git-insert "log" "--no-walk"
                     (concat "--format=" format) args

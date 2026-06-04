@@ -1556,7 +1556,7 @@ Do not add this to a hook variable."
               (forward-line)
               (magit-make-margin-overlay))
             ;; When `--format' is used and its value isn't one of the
-            ;; predefined formats, then `git-log' does not insert a
+            ;; predefined formats, then "git log" does not insert a
             ;; separator line.
             (save-excursion
               (forward-line -1)

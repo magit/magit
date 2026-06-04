@@ -190,16 +190,15 @@ to test.  This command lets Git choose a different one."
 (defun magit-bisect-run (cmdline &optional bad good args)
   "Bisect automatically by running commands after each step.
 
-Unlike `git bisect run' this can be used before bisecting has
-begun.  In that case it behaves like `git bisect start; git
-bisect run'."
+Unlike \"git bisect run\" this can be used before bisecting has begun.
+In that case it behaves like \"git bisect start; git bisect run\"."
   (interactive (let ((args (and (not (magit-bisect-in-progress-p))
                                 (magit-bisect-start-read-args))))
                  (cons (read-shell-command "Bisect shell command: ") args)))
   (when (and bad good)
     (magit-bisect-start--assert bad good args)
     ;; Avoid `magit-git-bisect' because it's asynchronous, but the
-    ;; next `git bisect run' call requires the bisect to be started.
+    ;; next "git bisect run" call requires the bisect to be started.
     (magit-with-toplevel
       (magit-process-git
        (list :file (expand-file-name "BISECT_CMD_OUTPUT" (magit-gitdir)))
@@ -244,13 +243,13 @@ bisect run'."
   (magit-file-lines (expand-file-name "BISECT_TERMS" (magit-gitdir))))
 
 (defun magit-insert-bisect-output ()
-  "While bisecting, insert section with output from `git bisect'."
+  "While bisecting, insert section with output from \"git bisect\"."
   (when (magit-bisect-in-progress-p)
     (let* ((lines
             (or (magit-file-lines
                  (expand-file-name "BISECT_CMD_OUTPUT" (magit-gitdir)))
                 (list "Bisecting: (no saved bisect output)"
-                      "It appears you have invoked `git bisect' from a shell."
+                      "It appears you have invoked \"git bisect\" from a shell."
                       "There is nothing wrong with that, we just cannot display"
                       "anything useful here.  Consult the shell output instead.")))
            (done-re "^\\([a-z0-9]\\{40,\\}\\) is the first bad commit$")

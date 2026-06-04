@@ -125,7 +125,7 @@ alternative commands."
 
 ;;;###autoload
 (defun magit-run-git-gui-blame (commit filename &optional linenum)
-  "Run `git gui blame' on the given FILENAME and COMMIT.
+  "Run \"git gui blame\" on the given FILENAME and COMMIT.
 Interactively run it for the current file and the `HEAD', with a
 prefix or when the current file cannot be determined let the user
 choose.  When the current buffer is visiting FILENAME instruct
@@ -165,7 +165,7 @@ blame to center around the line point is on."
 
 ;;;###autoload
 (defun magit-run-git-gui ()
-  "Run `git gui' for the current git repository."
+  "Run \"git gui\" for the current git repository."
   (interactive)
   (magit-with-toplevel (magit-process-git 0 "gui")))
 
@@ -353,8 +353,8 @@ on a position in a file-visiting buffer."
   "Edit the commit that added the current line.
 
 With a prefix argument edit the commit that removes the line,
-if any.  The commit is determined using `git blame' and made
-editable using `git rebase --interactive' if it is reachable
+if any.  The commit is determined using \"git blame\" and made
+editable using \"git rebase --interactive\" if it is reachable
 from `HEAD', or by checking out the commit (or a branch that
 points at it) otherwise."
   (interactive (list (and current-prefix-arg 'removal)))
@@ -543,7 +543,7 @@ should contain \"%N\", which is replaced with the number that was
 determined in the previous step.
 
 Both formats, if non-nil and after removing %N, are then expanded
-using `git show --format=FORMAT ...' inside TOPLEVEL.
+using \"git show --format=FORMAT ...\" inside TOPLEVEL.
 
 The expansion of POINT-FORMAT is inserted at point, and the
 expansion of EOB-FORMAT is inserted at the end of the buffer (if

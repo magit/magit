@@ -85,7 +85,7 @@ them invalid as a branch name.  Recommended characters to use
 to trigger interpretation as a regexp are \"*\" and \"^\".  Some
 other characters which you might expect to be invalid, actually
 are not, e.g., \".+$\" are all perfectly valid.  More precisely,
-if `git check-ref-format --branch STRING' exits with a non-zero
+if \"git check-ref-format --branch STRING\" exits with a non-zero
 status, then treat STRING as a regexp.
 
 Assuming the chosen branch matches these conditions you would end

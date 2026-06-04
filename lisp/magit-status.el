@@ -271,7 +271,7 @@ Non-interactively DIRECTORY is (re-)initialized unconditionally."
                                     toplevel directory)))
           (user-error "Abort")))
       (list directory)))
-  ;; `git init' does not understand the meaning of "~"!
+  ;; "git init" does not understand the meaning of "~"!
   (magit-call-git "init" (magit-convert-filename-for-git
                           (expand-file-name directory)))
   (magit-status-setup-buffer directory))
