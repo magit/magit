@@ -815,10 +815,10 @@ See info node `(magit)Debugging Tools' for more information."
 
 (defun magit-config-get-from-cached-list (key)
   (gethash
-   ;; `git config --list' downcases first and last components of the key.
-   (let* ((key (replace-regexp-in-string "\\`[^.]+" #'downcase key t t))
-          (key (replace-regexp-in-string "[^.]+\\'" #'downcase key t t)))
-     key)
+   (thread$ key
+     ;; `git config --list' downcases first and last components.
+     (replace-regexp-in-string "\\`[^.]+" #'downcase $ t t)
+     (replace-regexp-in-string "[^.]+\\'" #'downcase $ t t))
    (magit--with-refresh-cache (cons (magit-toplevel) 'config)
      (let ((configs (make-hash-table :test #'equal)))
        (dolist (conf (magit-git-items "config" "--list" "-z"))
