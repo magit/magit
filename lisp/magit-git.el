@@ -2091,20 +2091,32 @@ When nil, use `magit-list-refs-sortby'.  If both are nil, use
                        (or namespaces magit-list-refs-namespaces))))))
 
 (defun magit-list-branches ()
+  "Return list of local and remote-tracking branches."
   (magit-list-refs (list "refs/heads" "refs/remotes")))
 
 (defun magit-list-local-branches ()
+  "Return list of local branches."
   (magit-list-refs "refs/heads"))
 
 (defun magit-list-remote-branches (&optional remote)
+  "Return list of remote-tracking branches.
+If optional REMOTE is non-nil, return only branches from that remote."
   (magit-list-refs (concat "refs/remotes/" remote)))
 
 (defun magit-list-related-branches (relation &optional rev &rest args)
+  "Return list of branches related to REV.
+RELATION must be one of \"--contains\", \"--no-contains\", \"--merged\",
+\"--no-merged\" and \"--points-at\".  If optional REV is nil, default to
+the \"HEAD\" commit.  Optional ARGS are additional arguments passed to
+\"git branch\"."
   (seq-remove (##string-match-p "\\(\\`(HEAD\\|HEAD -> \\)" %)
               (mapcar (##substring % 2)
                       (magit-git-lines "branch" args relation rev))))
 
 (defun magit-list-containing-branches (&optional rev &rest args)
+  "Return list of branches containing REV.
+If optional REV is nil, default to the \"HEAD\" commit.
+Optional ARGS are additional arguments passed to \"git branch\"."
   (magit-list-related-branches "--contains" rev args))
 
 (defun magit-list-publishing-branches (&optional rev)
@@ -2112,17 +2124,25 @@ When nil, use `magit-list-refs-sortby'.  If both are nil, use
               magit-published-branches))
 
 (defun magit-list-merged-branches (&optional rev &rest args)
+  "Return list of branches merged into REV.
+If optional REV is nil, default to the \"HEAD\" commit.
+Optional ARGS are additional arguments passed to \"git branch\"."
   (magit-list-related-branches "--merged" rev args))
 
 (defun magit-list-unmerged-branches (&optional rev &rest args)
+  "Return list of branches not merged into REV.
+If optional REV is nil, default to the \"HEAD\" commit.
+Optional ARGS are additional arguments passed to \"git branch\"."
   (magit-list-related-branches "--no-merged" rev args))
 
 (defun magit-list-unmerged-to-upstream-branches ()
+  "Return list of branches not merged into their respective upstreams."
   (seq-filter (##and-let ((upstream (magit-get-upstream-branch %)))
                 (member % (magit-list-unmerged-branches upstream)))
               (magit-list-local-branch-names)))
 
 (defun magit-list-branches-pointing-at (rev)
+  "Return list of branches pointing at REV."
   (let ((re (format "\\`%s refs/\\(heads\\|remotes\\)/\\(.*\\)\\'"
                     (magit-rev-verify rev))))
     (seq-keep (##and (string-match re %)
