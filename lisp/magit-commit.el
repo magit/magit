@@ -376,7 +376,7 @@ the user explicitly select a commit, in a buffer dedicated to that task.
 
 Leave the original commit message of the targeted commit untouched.
 
-Like `magit-commit-fixup' but also run a `--autofixup' rebase."
+Like `magit-commit-fixup' but also run a \"--autofixup\" rebase."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
   (magit-commit-squash-internal "--fixup=" commit args nil nil 'rebase))
@@ -393,7 +393,7 @@ Turing the rebase phase, when the two commits are being squashed, ask
 the user to author the final commit message, based on the original
 message of the targeted commit.
 
-Like `magit-commit-squash' but also run a `--autofixup' rebase."
+Like `magit-commit-squash' but also run a \"--autofixup\" rebase."
   (interactive (list (magit-commit-at-point)
                      (magit-commit-arguments)))
   (magit-commit-squash-internal "--squash=" commit args nil nil 'rebase))

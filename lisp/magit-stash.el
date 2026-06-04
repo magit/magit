@@ -124,8 +124,8 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 (defun magit-stash-both (message &optional include-untracked)
   "Create a stash of the index and working tree.
 Untracked files are included according to infix arguments.
-One prefix argument is equivalent to `--include-untracked'
-while two prefix arguments are equivalent to `--all'."
+One prefix argument is equivalent to \"--include-untracked\"
+while two prefix arguments are equivalent to \"--all\"."
   (interactive
     (progn (when (and (magit-merge-in-progress-p)
                       (not (magit-y-or-n-p "\
@@ -150,8 +150,8 @@ Applying the resulting stash has the inverse effect."
 (defun magit-stash-worktree (message &optional include-untracked)
   "Create a stash of unstaged changes in the working tree.
 Untracked files are included according to infix arguments.
-One prefix argument is equivalent to `--include-untracked'
-while two prefix arguments are equivalent to `--all'."
+One prefix argument is equivalent to \"--include-untracked\"
+while two prefix arguments are equivalent to \"--all\"."
   (interactive (magit-stash-read-args))
   (magit-stash-save message nil t include-untracked t 'index))
 
@@ -159,8 +159,8 @@ while two prefix arguments are equivalent to `--all'."
 (defun magit-stash-keep-index (message &optional include-untracked)
   "Create a stash of the index and working tree, keeping index intact.
 Untracked files are included according to infix arguments.
-One prefix argument is equivalent to `--include-untracked'
-while two prefix arguments are equivalent to `--all'."
+One prefix argument is equivalent to \"--include-untracked\"
+while two prefix arguments are equivalent to \"--all\"."
   (interactive (magit-stash-read-args))
   (magit-stash-save message t t include-untracked t 'index))
 
@@ -206,8 +206,8 @@ The resulting message is what Git would have used."
 (defun magit-snapshot-both (&optional include-untracked)
   "Create a snapshot of the index and working tree.
 Untracked files are included according to infix arguments.
-One prefix argument is equivalent to `--include-untracked'
-while two prefix arguments are equivalent to `--all'."
+One prefix argument is equivalent to \"--include-untracked\"
+while two prefix arguments are equivalent to \"--all\"."
   (interactive (magit-snapshot-read-args))
   (magit-snapshot-save t t include-untracked t))
 
@@ -222,8 +222,8 @@ Unstaged and untracked changes are not stashed."
 (defun magit-snapshot-worktree (&optional include-untracked)
   "Create a snapshot of unstaged changes in the working tree.
 Untracked files are included according to infix arguments.
-One prefix argument is equivalent to `--include-untracked'
-while two prefix arguments are equivalent to `--all'."
+One prefix argument is equivalent to \"--include-untracked\"
+while two prefix arguments are equivalent to \"--all\"."
   (interactive (magit-snapshot-read-args))
   (magit-snapshot-save nil t include-untracked t))
 

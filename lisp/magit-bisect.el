@@ -31,7 +31,7 @@
 ;;; Options
 
 (defcustom magit-bisect-show-graph t
-  "Whether to use `--graph' in the log showing commits yet to be bisected."
+  "Whether to use \"--graph\" in the log showing commits yet to be bisected."
   :package-version '(magit . "2.8.0")
   :group 'magit-status
   :type 'boolean)

@@ -346,12 +346,12 @@ that many spaces.  Otherwise, highlight neither."
   :type 'boolean)
 
 (defcustom magit-diff-extra-stat-arguments nil
-  "Additional arguments to be used alongside `--stat'.
+  "Additional arguments to be used alongside \"--stat\".
 
 A list of zero or more arguments or a function that takes no
 argument and returns such a list.  These arguments are allowed
-here: `--stat-width', `--stat-name-width', `--stat-graph-width'
-and `--compact-summary'.  See the git-diff(1) manpage."
+here: \"--stat-width\", \"--stat-name-width\", \"--stat-graph-width\"
+and \"--compact-summary\".  See the git-diff(1) manpage."
   :package-version '(magit . "3.0.0")
   :group 'magit-diff
   :type `(radio (function-item ,#'magit-diff-use-window-width-as-stat-width)
@@ -2554,7 +2554,7 @@ keymap is the parent of their keymaps."
           "\\(-*\\)$"))  ; del
 
 (defun magit-diff-use-window-width-as-stat-width ()
-  "Use the `window-width' as the value of `--stat-width'."
+  "Use the `window-width' as the value of \"--stat-width\"."
   (and$ (get-buffer-window (current-buffer) 'visible)
         (list (format "--stat-width=%d" (window-width $)))))
 
@@ -2757,8 +2757,8 @@ keymap is the parent of their keymaps."
          (setq orig (magit-decode-git-path orig)))
        (setq file (magit-decode-git-path file))
        (setq header (nreverse header))
-       ;; KLUDGE Before v2.54, "git log" ignored `--no-prefix'
-       ;; when `-L' is used.
+       ;; KLUDGE Before v2.54, "git log" ignored "--no-prefix"
+       ;; when "-L" is used.
        (when (and (magit-git-version< "2.54")
                   (derived-mode-p 'magit-log-mode)
                   (seq-some (##string-prefix-p "-L" %)

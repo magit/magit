@@ -261,7 +261,7 @@ is called by functions like `magit-list-branch-names' to generate
 the collection of refs.  By default, refs are sorted according to
 their full refname (i.e., \"refs/...\").
 
-Any value accepted by the `--sort' flag of \"git for-each-ref\" can
+Any value accepted by the \"--sort\" flag of \"git for-each-ref\" can
 be used.  For example, \"-creatordate\" places refs with more
 recent committer or tagger dates earlier in the list.  A list of
 strings can also be given in order to pass multiple sort keys to
@@ -930,9 +930,9 @@ not located inside a Git repository, then return nil."
     ;; Kludge: git-annex converts submodule gitdirs to symlinks. See #3599.
     (when (file-symlink-p (directory-file-name gitdir))
       (setq gitdir (file-truename gitdir)))
-    ;; We want to delete the entry for `topdir' here, rather than within
-    ;; (unless ...), in case a `--separate-git-dir' repository was switched to
-    ;; the standard structure (i.e., "topdir/.git/").
+    ;; We want to delete the entry for `topdir' here, rather than
+    ;; within (unless ...), in case a "--separate-git-dir" repository
+    ;; was switched to the standard structure (i.e., "topdir/.git/").
     (setq magit--separated-gitdirs (cl-delete topdir
                                               magit--separated-gitdirs
                                               :key #'car :test #'equal))
@@ -968,14 +968,13 @@ tree, then it is not possible to avoid returning the truename."
            (;; Always honor these settings.
             [_(not find-file-visit-truename)]
             [_(not (getenv "GIT_WORK_TREE"))]
-            ;; `--show-cdup' is the relative path to the toplevel
-            ;; from `(file-truename default-directory)'.  Here we
-            ;; pretend it is relative to `default-directory', and
-            ;; go to that directory.  Then we check whether
-            ;; `--show-toplevel' still returns the same value and
-            ;; whether `--show-cdup' now is the empty string.  If
-            ;; both is the case, then we are at the toplevel of
-            ;; the same working tree, but also avoided needlessly
+            ;; "--show-cdup" is the relative path to the toplevel from
+            ;; (file-truename default-directory).  Here we pretend it is
+            ;; relative to `default-directory', and go to that directory.
+            ;; Then we check whether "--show-toplevel" still returns the
+            ;; same value and whether "--show-cdup" now is the empty
+            ;; string.  If both is the case, then we are at the toplevel
+            ;; of the same working tree, but also avoided needlessly
             ;; following any symlinks.
             [updir (file-name-as-directory
                     (magit-rev-parse-safe "--show-cdup"))]
@@ -2065,10 +2064,10 @@ where COMMITS is the number of commits in TAG but not in REV."
 When NAMESPACES is non-nil, list refs from these namespaces
 rather than those from `magit-list-refs-namespaces'.
 
-FORMAT is passed to the `--format' flag of \"git for-each-ref\"
+FORMAT is passed to the \"--format\" flag of \"git for-each-ref\"
 and defaults to \"%(refname)\".
 
-SORTBY is a key or list of keys to pass to the `--sort' flag
+SORTBY is a key or list of keys to pass to the \"--sort\" flag
 of \"git for-each-ref\" to sort the refs within each namespace.
 When nil, use `magit-list-refs-sortby'.  If both are nil, use
 \"version:refname\", but only for \"refs/tags\"."

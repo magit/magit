@@ -78,7 +78,7 @@
 (defcustom magit-openpgp-default-signing-key nil
   "Fingerprint of your default Openpgp key used for signing.
 If the specified primary key has signing capacity then it is used
-as the value of the `--gpg-sign' argument without prompting, even
+as the value of the \"--gpg-sign\" argument without prompting, even
 when other such keys exist.  To be able to select another key you
 must then use a prefix argument."
   :package-version '(magit . "4.0.0")
