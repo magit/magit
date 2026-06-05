@@ -1571,6 +1571,7 @@ mentioned caches completely."
   (cond (all
          (setq magit-repository-local-cache nil)
          (setq magit--host-git-version-cache nil)
+         (setq magit--overriding-githook-directory nil)
          (dolist (buffer (buffer-list))
            (with-current-buffer buffer
              (when (derived-mode-p 'magit-mode)
