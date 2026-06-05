@@ -536,23 +536,25 @@ eol conversion."
                     (expand-file-name "hooks" (magit-gitdir))))))))
 
 (defun magit-process-environment ()
-  ;; The various w32 hacks are only applicable when running on the local
-  ;; machine.  A local binding of process-environment different from the
-  ;; top-level value affects the environment used by Tramp.
-  (let ((local (not (file-remote-p default-directory))))
-    (append magit-git-environment
-            (and magit-overriding-githook-directory
-                 (list (concat "SHADOWED_GITHOOK_DIRECTORY="
-                               (magit--shadowed-githook-directory))))
-            (and local
-                 (cdr (assoc magit-git-executable magit--git-w32-path-hack)))
-            (and local magit-need-cygwin-noglob
-                 (mapcar (lambda (var)
-                           (concat var "=" (if-let ((val (getenv var)))
-                                               (concat val " noglob")
-                                             "noglob")))
-                         '("CYGWIN" "MSYS")))
-            process-environment)))
+  (cond
+    ((file-remote-p default-directory)
+     `(,@magit-git-environment
+       ,@process-environment))
+    (`(,@magit-git-environment
+       ,@(and magit-overriding-githook-directory
+              (list (concat "SHADOWED_GITHOOK_DIRECTORY="
+                            (magit--shadowed-githook-directory))))
+       ;; The various w32 hacks are only applicable when running on the
+       ;; local machine.  A local binding of process-environment different
+       ;; from the top-level value affects the environment used by Tramp.
+       ,@(cdr (assoc magit-git-executable magit--git-w32-path-hack))
+       ,@(and magit-need-cygwin-noglob
+              (mapcar (lambda (var)
+                        (concat var "=" (if-let ((val (getenv var)))
+                                            (concat val " noglob")
+                                          "noglob")))
+                      '("CYGWIN" "MSYS")))
+       ,@process-environment))))
 
 (defvar magit-this-process nil)
 
