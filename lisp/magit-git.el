@@ -425,26 +425,28 @@ to do the following.
   and valid, set `core.hooksPath' by adding additional arguments to ARGS.
 * Flatten ARGS, removing nil arguments.
 * If `system-type' is `windows-nt', encode ARGS to `w32-ansi-code-page'."
-  (cond ((not async))
-        (magit--overriding-githook-directory)
-        ((eq magit-overriding-githook-directory 'magit)
-         (setq magit--overriding-githook-directory
-               (magit-convert-filename-for-git
-                (expand-file-name "git-hooks"
-                                  (locate-dominating-file
-                                   (locate-library "magit.el") "git-hooks")))))
-        ((and magit-overriding-githook-directory
-              (file-directory-p magit-overriding-githook-directory))
-         (setq magit--overriding-githook-directory
-               (magit-convert-filename-for-git
-                magit-overriding-githook-directory))))
-  (setq args
-        (append magit-git-global-arguments
-                (and async
-                     magit--overriding-githook-directory
-                     (list "-c" (format "core.hooksPath=%s"
-                                        magit--overriding-githook-directory)))
-                (flatten-tree args)))
+  (let ((githookp (and async (not (file-remote-p default-directory)))))
+    (cond
+      ((not githookp))
+      (magit--overriding-githook-directory)
+      ((eq magit-overriding-githook-directory 'magit)
+       (setq magit--overriding-githook-directory
+             (magit-convert-filename-for-git
+              (expand-file-name "git-hooks"
+                                (locate-dominating-file
+                                 (locate-library "magit.el") "git-hooks")))))
+      ((and magit-overriding-githook-directory
+            (file-directory-p magit-overriding-githook-directory))
+       (setq magit--overriding-githook-directory
+             (magit-convert-filename-for-git
+              magit-overriding-githook-directory))))
+    (setq args
+          (append magit-git-global-arguments
+                  (and githookp
+                       magit--overriding-githook-directory
+                       (list "-c" (format "core.hooksPath=%s"
+                                          magit--overriding-githook-directory)))
+                  (flatten-tree args))))
   (if (and (eq system-type 'windows-nt) (boundp 'w32-ansi-code-page))
       ;; On w32, the process arguments *must* be encoded in the
       ;; current code-page (see #3250).
