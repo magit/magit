@@ -4,7 +4,7 @@ if [[ "$INSIDE_EMACS" == *magit ]]
 then
     for arg in "$@"; do args+="\"$arg\""; done
     $GIT_EDITOR --eval \
-      "(magit-run-git-hook '(common-post-commit post-commit) ${args[@]})"
+      "(magit-run-git-hook 'common-post-commit ${args[@]})"
 fi
 
 if [[ -x "$SHADOWED_GITHOOK_DIRECTORY" ]]
