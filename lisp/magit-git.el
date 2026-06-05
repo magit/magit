@@ -402,9 +402,16 @@ is remote."
       magit-remote-git-executable
     magit-git-executable))
 
-(defun magit-process-git-arguments--length ()
-  (+ (length magit-git-global-arguments)
-     (if magit--overriding-githook-directory 2 0)))
+(defun magit-process-git-arguments--split (program args)
+  (if (equal program (magit-git-executable))
+      (let* ((length (length magit-git-global-arguments))
+             (global (seq-take args length))
+             (local  (seq-drop args length)))
+        (when (equal (car local) "-c")
+          (setq global (append global (seq-take local 2)))
+          (setq local (seq-drop local 2)))
+        (list global local))
+    (list nil args)))
 
 (defun magit-process-git-arguments (args &optional async)
   "Prepare ARGS for a function that invokes Git.
@@ -433,7 +440,8 @@ to do the following.
                 magit-overriding-githook-directory))))
   (setq args
         (append magit-git-global-arguments
-                (and magit--overriding-githook-directory
+                (and async
+                     magit--overriding-githook-directory
                      (list "-c" (format "core.hooksPath=%s"
                                         magit--overriding-githook-directory)))
                 (flatten-tree args)))

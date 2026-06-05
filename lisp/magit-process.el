@@ -809,16 +809,17 @@ Magit status buffer."
 (defun magit-process--format-arguments (program args)
   (cond
     ((and args (equal program (magit-git-executable)))
-     (let ((global (magit-process-git-arguments--length)))
+     (pcase-let ((`(,global ,local)
+                  (magit-process-git-arguments--split program args)))
        (concat
         (propertize (file-name-nondirectory program)
                     'font-lock-face 'magit-section-heading)
         " "
         (propertize (magit--ellipsis)
                     'font-lock-face 'magit-section-heading
-                    'help-echo (string-join (seq-take args global) " "))
+                    'help-echo (string-join global " "))
         " "
-        (propertize (mapconcat #'shell-quote-argument (seq-drop args global) " ")
+        (propertize (mapconcat #'shell-quote-argument local " ")
                     'font-lock-face 'magit-section-heading))))
     ((and args (equal program shell-file-name))
      (propertize (cadr args)
@@ -880,11 +881,10 @@ Magit status buffer."
             ((section
               (magit-get-section
                `((commit . ,(magit-rev-parse "HEAD"))
-                 (,(pcase (car (seq-drop
-                                (process-command process)
-                                (1+ (magit-process-git-arguments--length))))
-                     ((or "rebase" "am") 'rebase-sequence)
-                     ((or "cherry-pick" "revert") 'sequence)))
+                 (,(pcase-let ((`(,cmd . ,args) (process-command process)))
+                     (pcase (cadr (magit-process-git-arguments--split cmd args))
+                       ((or "rebase" "am") 'rebase-sequence)
+                       ((or "cherry-pick" "revert") 'sequence))))
                  (status)))))
           (goto-char (oref section start))
           (magit-section-update-highlight))))))
@@ -1119,7 +1119,7 @@ as argument."
 (defun magit-process-set-mode-line (program args)
   "Display the git command (sans arguments) in the mode line."
   (when (equal program (magit-git-executable))
-    (setq args (nthcdr (magit-process-git-arguments--length) args)))
+    (setq args (cadr (magit-process-git-arguments--split program args))))
   (let ((str (concat " " (propertize
                           (concat (file-name-nondirectory program)
                                   (and args (concat " " (car args))))
