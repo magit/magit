@@ -9448,19 +9448,15 @@ Mode-line lighter for @code{magit-wip--mode}.
 This option controls whether the current branch is merged into the
 wip refs after a new commit was created on the branch.
 
-If non-@code{nil} and the current branch has new commits, then it is
-merged into the wip ref before creating a new wip commit.  This
-makes it easier to inspect wip history and the wip commits are
-never garbage collected.
-
 If @code{nil} and the current branch has new commits, then the wip ref
 is reset to the tip of the branch before creating a new wip
 commit.  With this setting wip commits are eventually garbage
 collected.
 
-If @code{immediately}, then use @code{git-commit-post-finish-hook} to
-create the merge commit.  This is discouraged because it can
-lead to a race condition, e.g., during rebases.
+If non-@code{nil} and the current branch has new commits, then it is
+merged into the wip ref before creating a new wip commit.  This
+makes it easier to inspect wip history and the wip commits are
+never garbage collected.
 @end defopt
 
 When @code{magit-wip-merge-branch} is @code{t}, then the history looks like this:
