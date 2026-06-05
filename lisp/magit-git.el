@@ -422,13 +422,15 @@ to do the following.
         (magit--overriding-githook-directory)
         ((eq magit-overriding-githook-directory 'magit)
          (setq magit--overriding-githook-directory
-               (expand-file-name "git-hooks"
-                                 (locate-dominating-file
-                                  (locate-library "magit.el") "git-hooks"))))
+               (magit-convert-filename-for-git
+                (expand-file-name "git-hooks"
+                                  (locate-dominating-file
+                                   (locate-library "magit.el") "git-hooks")))))
         ((and magit-overriding-githook-directory
               (file-directory-p magit-overriding-githook-directory))
          (setq magit--overriding-githook-directory
-               magit-overriding-githook-directory)))
+               (magit-convert-filename-for-git
+                magit-overriding-githook-directory))))
   (setq args
         (append magit-git-global-arguments
                 (and magit--overriding-githook-directory
