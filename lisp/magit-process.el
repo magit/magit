@@ -515,11 +515,11 @@ eol conversion."
   (when magit-process-record-invocations
     (let ((messages-buffer-name magit-process-record-buffer-name)
           (inhibit-message t))
-      (message "%s"
-               (format-spec
-                (format-time-string magit-process-record-entry-format)
-                `((?d . ,(abbreviate-file-name default-directory))
-                  (?a . ,(magit-process--format-arguments process args)))))))
+      (message
+       "%s" (format-spec
+             (format-time-string magit-process-record-entry-format)
+             `((?d . ,(abbreviate-file-name default-directory))
+               (?a . ,(magit-process--format-arguments process args)))))))
   (let ((process-environment (magit-process-environment))
         (default-process-coding-system (magit--process-coding-system)))
     (apply #'process-file process infile buffer display args)))
@@ -874,15 +874,16 @@ Magit status buffer."
                 (status-buf (with-current-buffer process-buf
                               (magit-get-mode-buffer 'magit-status-mode))))
       (with-current-buffer status-buf
-        (when-let ((section
-                    (magit-get-section
-                     `((commit . ,(magit-rev-parse "HEAD"))
-                       (,(pcase (car (seq-drop
-                                      (process-command process)
-                                      (1+ (magit-process-git-arguments--length))))
-                           ((or "rebase" "am") 'rebase-sequence)
-                           ((or "cherry-pick" "revert") 'sequence)))
-                       (status)))))
+        (when-let
+            ((section
+              (magit-get-section
+               `((commit . ,(magit-rev-parse "HEAD"))
+                 (,(pcase (car (seq-drop
+                                (process-command process)
+                                (1+ (magit-process-git-arguments--length))))
+                     ((or "rebase" "am") 'rebase-sequence)
+                     ((or "cherry-pick" "revert") 'sequence)))
+                 (status)))))
           (goto-char (oref section start))
           (magit-section-update-highlight))))))
 
