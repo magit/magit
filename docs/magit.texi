@@ -2406,6 +2406,114 @@ are doing.  And think very hard before adding something; it will be
 used every time Magit runs Git for any purpose.
 @end defopt
 
+@anchor{Mapping Git Hooks to Lisp Hooks}
+@subsection Mapping Git Hooks to Lisp Hooks
+
+Git hooks can be configured to call Lisp hooks, starting with Git
+v2.54.0.  The mechanism described here is only used when @code{git} is
+invoked by Magit, and @code{git} is run asynchronously and on the local
+machine.
+
+@table @asis
+@item @kbd{magit-run-hooks-from-githooks}
+@kindex magit-run-hooks-from-githooks
+This option controls whether Git hooks may run Lisp hooks.
+
+Magit only defines one such hook mapping, but users can add more.
+
+@item @kbd{magit-user-githook-file}
+@kindex magit-user-githook-file
+This option controls the location of a user-editable file containing
+additional hook mappings.
+@end table
+
+@defvar magit-githook-directory
+The value of this variable is the directory containing files Magit
+needs to map Git hooks to Lisp hooks.
+
+This directory must contains two files; @code{config}, which maps Git
+hooks to the Lisp hook @code{magit-common-git-post-commit-functions},
+and an executable @code{magit-run-git-hook}, which is used in that, and
+potentially other, hook mappings.
+
+The value of this variable is set by @code{magit-process-git-arguments},
+when it is first needed.  Users can set it to another directory,
+but that should rarely be necessary.  Additional hook mappings
+should instead be defined in @code{magit-user-githook-file}.
+@end defvar
+
+@defun magit-run-git-hook (hook &rest args)
+This function runs the Lisp hook HOOK with the specified arguments
+ARGS@.  ARGS are the arguments (a possibly empty list of strings),
+which the Git hook was called with.  HOOK is a string naming a hook.
+
+This function is only intended to be called via @code{emacsclient}, by an
+executable by the same name, which in turn is only intended to be
+called by Git hooks.
+@end defun
+
+@defvar magit-common-git-post-commit-functions
+This Lisp hook is run by the Git hooks @code{post-commit}, @code{post-merge} and
+@code{post-rewrite}.  There is not a single Git hook, which is called after
+a commit is created; to achieve that, all of these hooks have to be
+used.
+@end defvar
+
+Git hooks are documented in 
+@ifinfo
+@ref{githooks,,,gitman,}.
+@end ifinfo
+@ifhtml
+@html
+the <a href="http://git-scm.com/docs/githooks">githooks(1)</a> manpage.
+@end html
+@end ifhtml
+@iftex
+the githooks(1) manpage.
+@end iftex
+ Also see 
+@ifinfo
+@ref{git-hook,,,gitman,}.
+@end ifinfo
+@ifhtml
+@html
+the <a href="http://git-scm.com/docs/git-hook">git-hook(1)</a> manpage.
+@end html
+@end ifhtml
+@iftex
+the git-hook(1) manpage.
+@end iftex
+ Using
+@code{magit-common-git-post-commit-functions} as an example, the following
+is how Magit gets Git to map Git hooks to Lisp hooks.
+
+Iff Magit calls Git asynchronously and on the local machine, it
+injects the global arguments @code{-c include.path=/path/to/githooks/config}.
+That file contains:
+
+@example
+[hook "magit-common-post-commit"]
+  event = post-commit
+  event = post-merge
+  event = post-rewrite
+  command = magit-run-git-hook magit-common-git-post-commit-functions
+@end example
+
+Consequently when one of the Git hooks @code{post-commit}, @code{post-merge} or
+@code{post-rewrite} is triggered, that causes the @code{magit-run-git-hook}
+executable to be called with @code{magit-common-git-post-commit-functions}
+as the first argument.
+
+That executable used the @code{emacsclient} to call a Lisp function by the
+same name, which takes the name of a Lisp hook as the first argument.
+The executable may receive additional arguments from the Git hook,
+which it passes on to the function.  All arguments are strings.
+
+The function @code{magit-run-git-hook} runs the Lisp hook using
+@code{run-hook-with-args}, passing along all arguments, starting with the
+second.  It also arranges for @code{message} to output to standard output,
+so that messages appear in Magit's process buffer.
+
 @node Inspecting
 @chapter Inspecting
 

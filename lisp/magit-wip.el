@@ -60,10 +60,7 @@ makes it easier to inspect wip history and the wip commits are
 never garbage collected.
 
 If `githook', then use `magit-common-git-post-commit-hook' to
-create the merge commit.  This uses the experimental support for
-calling Lisp hooks from Git hooks, which is disabled by default,
-Customize `magit-overriding-githook-directory' to enable use of
-Git hooks."
+create the merge commit."
   :package-version '(magit . "2.90.0")
   :group 'magit-wip
   :type '(choice

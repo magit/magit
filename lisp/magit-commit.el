@@ -102,10 +102,14 @@ Also see https://github.com/magit/magit/issues/4132."
 (defvar magit-common-git-post-commit-functions nil
   "Hook run by Git hooks `post-commit', `post-merge' and `post-rewrite'.
 
-This hook is run if `magit-overriding-githook-directory' is non-nil.
-The functions are called with the same arguments as the Git hook.
+There is not a single Git hook, which is called after a commit is
+created; to achieve that, all of these Git hooks have to be used.
 
-This hook is still experimental.")
+Git hooks are documented in the githooks(5) manpage.  This Lisp hook
+is only run if `magit-run-hooks-from-githooks' is non-nil, and Magit
+runs Git asynchronously and on the local machine.  The hook functions
+are called with the same arguments as the Git hook; see the mentioned
+manpage for details.")
 
 ;;; Popup
 

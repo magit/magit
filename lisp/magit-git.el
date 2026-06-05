@@ -155,48 +155,57 @@ option."
   :group 'magit-process
   :type 'string)
 
-(defvar magit--githook-directory nil)
+(defcustom magit-run-hooks-from-githooks t
+  "Whether Git hooks may run Lisp hooks.
 
-(defcustom magit-githook-directory nil
-  "Directory containing the Git hook scripts used by Magit.
+By default the Lisp hook `magit-common-git-post-commit-functions' is
+run by the Git hooks `post-commit', `post-merge' and `post-rewrite'.
+Use `magit-user-githook-file' (which see) to define additional hooks.
 
-No Magit-specific Git hook scripts are used if this is nil, which it
-is the default.  This feature is still experimental.
-
-Git does not allow overriding just an individual hook.  It is only
-possible to point Git at an alternative directory containing hook
-scripts, using the Git variable `core.hooksPath'.  When doing that,
-the hooks located in `$GIT_DIR/hooks' are ignored.
-
-If `magit', use the directory containing Git hook scripts distributed
-with Magit.  To counteract Git's limited granularity, Magit provides a
-script for every Git hook, most of which only run the respective script
-located in `$GIT_DIR/hooks', provided it exists and is executable.
-
-A few Git hooks additionally run Lisp hooks:
-
-- `post-commit'  runs `magit-git-post-commit-functions'
-- `post-merge'   runs `magit-git-post-merge-functions'
-- `post-rewrite' runs `magit-git-post-rewrite-functions'
-
-All of these hooks also run `magit-common-git-post-commit-functions'.
-For many uses this hook variable is more useful than the three above.
-
-If you want to teach additional Git hooks to run Lisp hooks, you have to
-copy Magit's hook script directory elsewhere, modify the hook scripts in
-question, and point this variable at the used directory.
-
-Magit only sets `core.hooksPath' when calling Git asynchronously.  Doing
-the same when calling Git synchronously would cause Git and Magit to wait
-on one another."
-  :package-version '(magit . "4.5.0")
+Git hooks can only run Lisp hooks, if Magit invokes Git asynchronously
+and on the local machine, and at least Git v2.54.0 is used."
+  :package-version '(magit . "4.6.0")
   :group 'magit-process
-  :set (lambda (symbol value)
-         (set-default-toplevel-value symbol value)
-         (setq magit--githook-directory nil))
-  :type '(choice (const :tag "Do not shadow Git's hook directory" nil)
-                 (const :tag "Use Magit's hook directory" magit)
-                 (directory :tag "Custom directory")))
+  :type 'boolean)
+
+(defcustom magit-user-githook-file (locate-user-emacs-file "magit-githooks")
+  "File containing user Git hook to Lisp hook mappings.
+
+Magit ships with one such mapping, defined in the included file
+\"githooks/config\", which looks like this:
+
+[hook \"magit-common-post-commit\"]
+  event = post-commit
+  event = post-merge
+  event = post-rewrite
+  command = magit-run-git-hook magit-common-git-post-commit-functions
+
+That file should not be edited by users, as those edits would be lost
+when Magit is updated; instead the file specified by this option, has
+to be used, to add additional mappings.
+
+See the git-hook(1) and githooks(5) manpages for details about the
+Git part.  The command should always use the \"magit-run-git-hook\"
+executable, which takes the name of the Lisp hook to be run as the
+first argument.
+
+See also `magit-run-hooks-from-githooks'."
+  :package-version '(magit . "4.6.0")
+  :group 'magit-process
+  :type 'file)
+
+(defvar magit-githook-directory nil
+  "Directory containing files Magit needs to map Git to Lisp hooks.
+
+This directory must contains two files; \"config\", which maps Git
+hooks to the `magit-common-git-post-commit-functions' hook, and an
+executable \"magit-run-git-hook\", which is used in that, and
+potentially other hooks.
+
+The value of this variable is set by `magit-process-git-arguments',
+when it is first needed.  Users can set it to another directory,
+but that should rarely be necessary.  Additional hook mappings
+should instead be defined in `magit-user-githook-file'.")
 
 (defcustom magit-git-global-arguments
   `("--no-pager" "--literal-pathspecs"
@@ -407,7 +416,7 @@ is remote."
       (let* ((length (length magit-git-global-arguments))
              (global (seq-take args length))
              (local  (seq-drop args length)))
-        (when (equal (car local) "-c")
+        (while (equal (car local) "-c")
           (setq global (append global (seq-take local 2)))
           (setq local (seq-drop local 2)))
         (list global local))
@@ -421,31 +430,38 @@ pass arguments through this function before handing them to Git,
 to do the following.
 
 * Prepend `magit-git-global-arguments' to ARGS.
-* If ASYNC is non-nil and `magit-githook-directory' is non-nil
-  and valid, set `core.hooksPath' by adding additional arguments to ARGS.
+* If ASYNC is non-nil, potentially add additional arguments to load
+  the hook configuration in \"/path/to/magit/githooks/config\" and/or
+  `magit-user-githook-file'.
 * Flatten ARGS, removing nil arguments.
 * If `system-type' is `windows-nt', encode ARGS to `w32-ansi-code-page'."
-  (let ((githookp (and async (not (file-remote-p default-directory)))))
+  (let ((githookp (and async
+                       (magit-git-version>= "2.54")
+                       (not (file-remote-p default-directory)))))
     (cond
       ((not githookp))
-      (magit--githook-directory)
-      ((eq magit-githook-directory 'magit)
-       (setq magit--githook-directory
+      (magit-githook-directory)
+      ((and (stringp magit-run-hooks-from-githooks)
+            (file-directory-p magit-run-hooks-from-githooks))
+       (setq magit-githook-directory
              (magit-convert-filename-for-git
-              (expand-file-name "git-hooks"
+              magit-run-hooks-from-githooks)))
+      (magit-run-hooks-from-githooks
+       (setq magit-githook-directory
+             (magit-convert-filename-for-git
+              (expand-file-name "githooks"
                                 (locate-dominating-file
-                                 (locate-library "magit.el") "git-hooks")))))
-      ((and magit-githook-directory
-            (file-directory-p magit-githook-directory))
-       (setq magit--githook-directory
-             (magit-convert-filename-for-git
-              magit-githook-directory))))
+                                 (locate-library "magit.el") "githooks"))))))
     (setq args
           (append magit-git-global-arguments
                   (and githookp
-                       magit--githook-directory
-                       (list "-c" (format "core.hooksPath=%s"
-                                          magit--githook-directory)))
+                       magit-githook-directory
+                       `("-c" ,(format "include.path=%s/config"
+                                       magit-githook-directory)
+                         ,@(and magit-user-githook-file
+                                (file-exists-p magit-user-githook-file)
+                                `("-c" ,(concat "include.path="
+                                                magit-user-githook-file)))))
                   (flatten-tree args))))
   (if (and (eq system-type 'windows-nt) (boundp 'w32-ansi-code-page))
       ;; On w32, the process arguments *must* be encoded in the
@@ -3086,21 +3102,23 @@ out.  Only existing branches can be selected."
 
 ;;; Git Hooks
 
-(defun magit-run-git-hook (githook &rest args)
-  (dolist (githook (ensure-list githook))
-    (let* ((githook (symbol-name githook))
-           (hook (save-match-data
-                   (if (string-match "\\`common-" githook)
-                       (intern (format "magit-common-git-%s-functions"
-                                       (substring githook (match-end 0))))
-                     (intern (format "magit-git-%s-functions" githook))))))
-      (when (and (boundp hook)
-                 (symbol-value hook))
-        (magit--client-message "Running %s..." hook)
-        (advice-add 'message :override #'magit--client-message)
-        (unwind-protect (apply #'run-hook-with-args hook args)
-          (advice-remove 'message #'magit--client-message))
-        (magit--client-message "Running %s...done" hook))))
+(defun magit-run-git-hook (hook &rest args)
+  "Run the Lisp HOOK with the specified arguments ARGS.
+
+ARGS are the arguments (a possibly empty list of strings), which
+the Git hook was called with.  HOOK is a string naming a hook.
+
+This function is only intended to be called via \"emacsclient\", by
+an executable by the same name, which in turn is only intended to
+be called by Git hooks."
+  (setq hook (intern hook))
+  (when (and (boundp hook)
+             (symbol-value hook))
+    (magit--client-message "Running %s..." hook)
+    (advice-add 'message :override #'magit--client-message)
+    (unwind-protect (apply #'run-hook-with-args hook args)
+      (advice-remove 'message #'magit--client-message))
+    (magit--client-message "Running %s...done" hook))
   '---) ; Emacsclient insists on printing the value.
 
 (defun magit--client-message (format-string &rest args)

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+if [[ "$INSIDE_EMACS" == *magit ]]
+then
+    for arg in "$@"; do args+="\"$arg\""; done
+    $GIT_EDITOR --eval "(magit-run-git-hook ${args[@]})"
+else
+    true
+fi

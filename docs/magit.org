@@ -2049,6 +2049,87 @@ Emacs is searching for ~git~.
   are doing.  And think very hard before adding something; it will be
   used every time Magit runs Git for any purpose.
 
+*** Mapping Git Hooks to Lisp Hooks
+
+Git hooks can be configured to call Lisp hooks, starting with Git
+v2.54.0.  The mechanism described here is only used when ~git~ is
+invoked by Magit, and ~git~ is run asynchronously and on the local
+machine.
+
+- User option: magit-run-hooks-from-githooks ::
+
+  This option controls whether Git hooks may run Lisp hooks.
+
+  Magit only defines one such hook mapping, but users can add more.
+
+- User option: magit-user-githook-file ::
+
+  This option controls the location of a user-editable file containing
+  additional hook mappings.
+
+- Variable: magit-githook-directory ::
+
+  The value of this variable is the directory containing files Magit
+  needs to map Git hooks to Lisp hooks.
+
+  This directory must contains two files; ~config~, which maps Git
+  hooks to the Lisp hook ~magit-common-git-post-commit-functions~,
+  and an executable ~magit-run-git-hook~, which is used in that, and
+  potentially other, hook mappings.
+
+  The value of this variable is set by ~magit-process-git-arguments~,
+  when it is first needed.  Users can set it to another directory,
+  but that should rarely be necessary.  Additional hook mappings
+  should instead be defined in ~magit-user-githook-file~.
+
+- Function: magit-run-git-hook (hook &rest args) ::
+
+  This function runs the Lisp hook HOOK with the specified arguments
+  ARGS.  ARGS are the arguments (a possibly empty list of strings),
+  which the Git hook was called with.  HOOK is a string naming a hook.
+
+  This function is only intended to be called via ~emacsclient~, by an
+  executable by the same name, which in turn is only intended to be
+  called by Git hooks.
+
+- Variable: magit-common-git-post-commit-functions ::
+
+  This Lisp hook is run by the Git hooks ~post-commit~, ~post-merge~ and
+  ~post-rewrite~.  There is not a single Git hook, which is called after
+  a commit is created; to achieve that, all of these hooks have to be
+  used.
+
+Git hooks are documented in [[man:githooks]] Also see [[man:git-hook]] Using
+~magit-common-git-post-commit-functions~ as an example, the following
+is how Magit gets Git to map Git hooks to Lisp hooks.
+
+Iff Magit calls Git asynchronously and on the local machine, it
+injects the global arguments ~-c include.path=/path/to/githooks/config~.
+That file contains:
+
+#+begin_src conf-mode
+  [hook "magit-common-post-commit"]
+    event = post-commit
+    event = post-merge
+    event = post-rewrite
+    command = magit-run-git-hook magit-common-git-post-commit-functions
+#+end_src
+
+Consequently when one of the Git hooks ~post-commit~, ~post-merge~ or
+~post-rewrite~ is triggered, that causes the ~magit-run-git-hook~
+executable to be called with ~magit-common-git-post-commit-functions~
+as the first argument.
+
+That executable used the ~emacsclient~ to call a Lisp function by the
+same name, which takes the name of a Lisp hook as the first argument.
+The executable may receive additional arguments from the Git hook,
+which it passes on to the function.  All arguments are strings.
+
+The function ~magit-run-git-hook~ runs the Lisp hook using
+~run-hook-with-args~, passing along all arguments, starting with the
+second.  It also arranges for ~message~ to output to standard output,
+so that messages appear in Magit's process buffer.
+
 * Inspecting
 
 The functionality provided by Magit can be roughly divided into three

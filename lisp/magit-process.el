@@ -524,27 +524,17 @@ eol conversion."
         (default-process-coding-system (magit--process-coding-system)))
     (apply #'process-file process infile buffer display args)))
 
-(defvar magit--shadowed-githook-directory nil)
-
-(defun magit--shadowed-githook-directory ()
-  (or magit--shadowed-githook-directory
-      (setq magit--shadowed-githook-directory
-            (let ((magit-git-global-arguments nil))
-              (cl-letf (((symbol-function 'magit-process-environment)
-                         (lambda () process-environment)))
-                (or (magit-get "core.hooksPath")
-                    (expand-file-name "hooks" (magit-gitdir))))))))
-
 (defun magit-process-environment ()
   (cond
     ((file-remote-p default-directory)
      `(,@magit-git-environment
        ,@process-environment))
     (`(,@magit-git-environment
-       ,@(and magit--githook-directory
+       ,@(and magit-githook-directory
               (not (file-remote-p default-directory))
-              (list (concat "SHADOWED_GITHOOK_DIRECTORY="
-                            (magit--shadowed-githook-directory))))
+              (list (format "PATH=%s:%s"
+                            magit-githook-directory
+                            (getenv "PATH"))))
        ;; The various w32 hacks are only applicable when running on the
        ;; local machine.  A local binding of process-environment different
        ;; from the top-level value affects the environment used by Tramp.
