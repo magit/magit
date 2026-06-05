@@ -541,7 +541,7 @@ eol conversion."
      `(,@magit-git-environment
        ,@process-environment))
     (`(,@magit-git-environment
-       ,@(and magit--overriding-githook-directory
+       ,@(and magit--githook-directory
               (not (file-remote-p default-directory))
               (list (concat "SHADOWED_GITHOOK_DIRECTORY="
                             (magit--shadowed-githook-directory))))
