@@ -59,14 +59,14 @@ merged into the wip ref before creating a new wip commit.  This
 makes it easier to inspect wip history and the wip commits are
 never garbage collected.
 
-If `githook', then use `magit-common-git-post-commit-hook' to
-create the merge commit."
+When this and `magit-run-hooks-from-githooks' are both enabled,
+and the other conditions mention in the docstring of that option
+are also met, then the wip merge commit is created right after
+the user creates a regular commit.  Otherwise the wip merge
+commit is created right before the next regluar commit."
   :package-version '(magit . "2.90.0")
   :group 'magit-wip
-  :type '(choice
-          (const :tag "Yes (just in time)" t)
-          (const :tag "Yes (using experimental Git hook support)" githook)
-          (const :tag "No" nil)))
+  :type 'boolean)
 
 (defcustom magit-wip-namespace "refs/wip/"
   "Namespace used for work-in-progress refs.
@@ -142,8 +142,7 @@ buffer."
     (setq magit-wip-buffer-backed-up t)))
 
 (defun magit-wip-post-commit (&rest _)
-  (when (eq magit-wip-merge-branch 'githook)
-    (magit-wip-commit)))
+  (magit-wip-commit))
 
 ;;; Core
 
