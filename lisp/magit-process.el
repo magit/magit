@@ -541,7 +541,7 @@ eol conversion."
      `(,@magit-git-environment
        ,@process-environment))
     (`(,@magit-git-environment
-       ,@(and magit-overriding-githook-directory
+       ,@(and magit--overriding-githook-directory
               (list (concat "SHADOWED_GITHOOK_DIRECTORY="
                             (magit--shadowed-githook-directory))))
        ;; The various w32 hacks are only applicable when running on the
