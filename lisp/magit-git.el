@@ -3085,12 +3085,11 @@ out.  Only existing branches can be selected."
       (when (and (boundp hook)
                  (symbol-value hook))
         (magit--client-message "Running %s..." hook)
-        (apply #'run-hook-with-args hook args)
+        (advice-add 'message :override #'magit--client-message)
+        (unwind-protect (apply #'run-hook-with-args hook args)
+          (advice-remove 'message #'magit--client-message))
         (magit--client-message "Running %s...done" hook))))
-  ;; Emacsclient prints the returned value to stdout.  We cannot prevent
-  ;; that, but we can use something that looks like we actually *wanted*
-  ;; to print (which we don't).
-  '---)
+  '---) ; Emacsclient insists on printing the value.
 
 (defun magit--client-message (format-string &rest args)
   ;; See `server-process-filter'.
