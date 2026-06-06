@@ -138,7 +138,7 @@ Non-interactively REV can also be a blob object."
     buffer))
 
 (defun magit--get-blob-buffer (obj file &optional volatile)
-  ;; If OBJ is a commit, is assummed to be abbreviated.
+  ;; If OBJ is a commit, is assumed to be abbreviated.
   ;; FILE is assumed to be relative to the top-level.
   (cond-let
     ([buf (if (magit-blob-p obj)
