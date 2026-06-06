@@ -63,7 +63,7 @@ When this and `magit-run-hooks-from-githooks' are both enabled,
 and the other conditions mention in the docstring of that option
 are also met, then the wip merge commit is created right after
 the user creates a regular commit.  Otherwise the wip merge
-commit is created right before the next regluar commit."
+commit is created right before the next regular commit."
   :package-version '(magit . "2.90.0")
   :group 'magit-wip
   :type 'boolean)
