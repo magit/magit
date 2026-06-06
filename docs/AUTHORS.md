@@ -87,6 +87,7 @@ All Contributors
 - Bryan Shell
 - Buster Copley
 - Cameron Chaparro
+- Carl Lei
 - Carl Lieberman
 - Chillar Anand
 - Chris Bernard
@@ -305,6 +306,7 @@ All Contributors
 - Paul Pogonyshev
 - Paul Stadig
 - Pavel Holejsovsky
+- Pedro Ribeiro Mendes Júnior
 - Pekka Pessi
 - Pengji Zhang
 - Peter Eisentraut
@@ -386,6 +388,7 @@ All Contributors
 - Teruki Shigitani
 - Thierry Volpiatto
 - Thomas A Caswell
+- Thomas Ferrand
 - Thomas Fini Hansen
 - Thomas Frössman
 - Thomas Jost
