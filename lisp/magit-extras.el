@@ -616,11 +616,9 @@ the minibuffer too."
           (pnt-args nil)
           (eob-args nil))
       (when (listp pnt-format)
-        (setq pnt-args (cdr pnt-format))
-        (setq pnt-format (car pnt-format)))
+        (pcase-setq `(,pnt-format . ,pnt-args) pnt-format))
       (when (listp eob-format)
-        (setq eob-args (cdr eob-format))
-        (setq eob-format (car eob-format)))
+        (pcase-setq `(,eob-format . ,eob-args) eob-format))
       (when pnt-format
         (when idx-format
           (setq pnt-format (string-replace "%N" idx pnt-format)))
