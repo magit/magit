@@ -622,24 +622,18 @@ the minibuffer too."
       (when pnt-format
         (when idx-format
           (setq pnt-format (string-replace "%N" idx pnt-format)))
+        (when (and (bolp) comment-start (looking-at comment-start))
+          (save-excursion (insert ?\n)))
         (magit-rev-insert-format pnt-format rev pnt-args)
         (delete-char -1))
       (when eob-format
         (when idx-format
           (setq eob-format (string-replace "%N" idx eob-format)))
-        (save-excursion
-          (goto-char (point-max))
-          (skip-syntax-backward ">-")
-          (beginning-of-line)
-          (if (and comment-start (looking-at comment-start))
-              (while (looking-at comment-start)
-                (forward-line -1))
-            (forward-line)
-            (unless (= (current-column) 0)
-              (insert ?\n)))
-          (insert ?\n)
-          (magit-rev-insert-format eob-format rev eob-args)
-          (delete-char -1))))))
+        (git-commit--insert-trailer-1
+         (with-temp-buffer
+           (magit-rev-insert-format eob-format rev eob-args)
+           (string-trim (buffer-string)))
+         t)))))
 
 ;;;###autoload
 (defun magit-copy-section-value (arg)

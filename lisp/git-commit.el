@@ -1020,32 +1020,48 @@ completion candidates.  The input must have the form \"NAME <EMAIL>\"."
   (git-commit--insert-trailer trailer (format "%s <%s>" name email)))
 
 (defun git-commit--insert-trailer (trailer value)
+  (git-commit--insert-trailer-1 (format "%s: %s\n" trailer value)))
+
+(defun git-commit--insert-trailer-1 (string &optional before-trailers)
   (save-excursion
-    (let ((string (format "%s: %s" trailer value))
-          (leading-comment-end nil))
-      ;; Make sure we skip forward past any leading comments.
+    (goto-char (point-min))
+    (while (looking-at comment-start)
+      (forward-line))
+    (when (or (eobp) (looking-at "diff --git"))
       (goto-char (point-min))
-      (while (looking-at comment-start)
-        (forward-line))
-      (setq leading-comment-end (point))
+      (save-excursion (insert ?\n)))
+    (let ((bound (and (not (or (bobp) (eobp))) (point))))
       (goto-char (point-max))
-      (cond
-        ;; Look backwards for existing trailers.
-        ((re-search-backward (git-commit--trailer-regexp) nil t)
-         (end-of-line)
-         (insert ?\n string)
-         (unless (= (char-after) ?\n)
-           (insert ?\n)))
-        ;; Or place the new trailer right before the first non-leading
-        ;; comments.
-        (t
-         (while (re-search-backward (concat "^" comment-start)
-                                    leading-comment-end t))
-         (unless (looking-back "\n\n" nil)
-           (insert ?\n))
-         (insert string ?\n))))
-    (unless (or (eobp) (= (char-after) ?\n))
-      (insert ?\n))))
+      (unless (or (bobp) (= (char-before) ?\n))
+        (insert ?\n))
+      (cond (before-trailers
+             (git-commit--goto-insert-position bound)
+             (while (re-search-backward (git-commit--trailer-regexp) nil t))
+             (unless (looking-back "\n\n" nil)
+               (insert ?\n)))
+            ((re-search-backward (git-commit--trailer-regexp) nil t)
+             (goto-char (match-end 0))
+             (if (eobp) (insert ?\n) (forward-char)))
+            (t
+             (git-commit--goto-insert-position bound)
+             (unless (looking-back "\n\n" nil)
+               (insert ?\n)))))
+    (insert string)
+    (unless (ignore-errors (= (char-before) ?\n)) (insert ?\n))
+    (unless (ignore-errors (= (char-after)  ?\n)) (insert ?\n))))
+
+(defun git-commit--goto-insert-position (bound)
+  (let ((match (point)))
+    (cond ((re-search-backward (format "^%s -+ >8 -+" comment-start) nil t))
+          ((and (eobp) (bolp))
+           (forward-line -1)))
+    (while (and (or (looking-at comment-start)
+                    (looking-at "[\s\t]*$"))
+                (or (not bound) (> (point) bound))
+                (not (bobp)))
+      (setq match (point))
+      (forward-line -1))
+    (goto-char match)))
 
 ;;; Font-Lock
 

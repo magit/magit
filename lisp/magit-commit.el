@@ -776,7 +776,8 @@ actually insert the entry."
   (with-current-buffer buffer
     (undo-boundary)
     (goto-char (point-max))
-    (while (re-search-backward (concat "^" comment-start) nil t))
+    (git-commit--goto-insert-position nil)
+    (while (re-search-backward (git-commit--trailer-regexp) nil t))
     (save-restriction
       (narrow-to-region (point-min) (point))
       (cond ((re-search-backward (format "* %s\\(?: (\\([^)]+\\))\\)?: " file)
