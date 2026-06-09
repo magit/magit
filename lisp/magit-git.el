@@ -1944,7 +1944,11 @@ according to the branch type."
   (magit--with-refresh-cache
       (list default-directory 'magit-get-push-branch branch verify)
     (and-let*
-        ((branch (magit-ref-abbrev (or branch (magit-get-current-branch))))
+        ((branch (cond ((not branch)
+                        (magit-get-current-branch))
+                       ((string-prefix-p "refs/" branch)
+                        (magit-ref-abbrev branch))
+                       (branch)))
          (remote (magit-get-push-remote branch))
          (target (concat remote "/" branch)))
       (and (or (not verify)
