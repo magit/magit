@@ -302,7 +302,7 @@ string in the heading of its section."
   :type '(choice (const :tag "None" nil) string))
 
 (defvar tramp-pipe-stty-settings)
-(defvar magit-tramp-pipe-stty-settings ""
+(defcustom magit-tramp-pipe-stty-settings ""
   "Override `tramp-pipe-stty-settings' in `magit-start-process'.
 
 The default for that Tramp variable is \"-icanon min 1 time 0\",
@@ -325,7 +325,11 @@ To fall back to the value of `tramp-pipe-stty-settings', set this
 variable to nil.
 
 Also see https://github.com/magit/magit/issues/4720
-and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=62093.")
+and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=62093."
+  :group 'magit-process
+  :type '(choice (const :tag "Use Tramp's default" nil)
+                 (string :tag "Override stty settings")
+                 (const :tag "Use a pty" pty)))
 
 (defface magit-process-ok
   '((t :inherit magit-section-heading :foreground "green"))
