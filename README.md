@@ -96,7 +96,7 @@ and other videos about Magit, by various creators.
 Magit has many users and very few maintainers, so we kindly ask to read
 the appropriate guidelines before getting in contact. &mdash; Thanks!
 
-Use your own words.  No stochastic parrots.
+Please use your own words.  No stochastic parrots.
 
 - 🆘 [How to ask for help](https://github.com/magit/magit/discussions/4630)
 - 🪳 [How to report a bug](https://github.com/magit/magit/wiki/How-to-report-a-bug)
