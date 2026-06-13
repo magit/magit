@@ -196,6 +196,7 @@ All Contributors
 - Johannes Altmanninger
 - Johannes Maier
 - Johann Klähn
+- John Eismeier
 - John Mastro
 - John Morris
 - John Wiegley
