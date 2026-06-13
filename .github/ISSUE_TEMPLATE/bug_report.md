@@ -5,7 +5,7 @@ about: Report a defect. Do not use this for support requests and feature suggest
 note: Keep in sync with wiki/How-to-report-a-bug.md
 ---
 
-Please do not ignore these instructions.
+<!-- Do not use this for support requests and feature suggestions. -->
 
 Please use your own words.  If you really must use a LLM, at least disclose that upfront.
 
@@ -51,4 +51,4 @@ More debugging tools are described in the manual.
 
     https://docs.magit.vc/magit/Debugging-Tools.html
 
----- now delete this line and everything above ----
+<!--- Now delete this line and everything above. -->
