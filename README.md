@@ -96,6 +96,8 @@ and other videos about Magit, by various creators.
 Magit has many users and very few maintainers, so we kindly ask to read
 the appropriate guidelines before getting in contact. &mdash; Thanks!
 
+Use your own words.  No stochastic parrots.
+
 - 🆘 [How to ask for help](https://github.com/magit/magit/discussions/4630)
 - 🪳 [How to report a bug](https://github.com/magit/magit/wiki/How-to-report-a-bug)
 - 💡 [How to suggest a feature](https://github.com/magit/magit/discussions/4631)
@@ -103,11 +105,13 @@ the appropriate guidelines before getting in contact. &mdash; Thanks!
 - ℹ️ [FAQ](https://docs.magit.vc/magit/FAQ.html)
 - ℹ️ [Manual](https://docs.magit.vc/magit)
 
-TL;DR We now use discussions for feature requests (not issues) and prefer
-if you ask the community for support instead of the overworked maintainers.
+We use [discussions](https://github.com/magit/magit/discussions) (not issues)
+for feature requests.  Please consider asking other users for help, where ever
+you like to hang out with other Emacs users.  not every question can only be
+answered by the maintainer.
 
-Please also consider to contribute by supporting other users or by making
-a [monetary donation](https://magit.vc/donate). &mdash; Thanks!
+Please consider supporting the maintainer, who makes a living maintaining this
+and other packages, with a [donation](https://magit.vc/donate). &mdash; Thanks!
 
 ***
 ### Acknowledgments
@@ -118,8 +122,6 @@ Magit was started by [Marius Vollmer][marius], and is now maintained by
 [Peter J. Weisberg][peter], [Phil Jackson][phil], [Rémi Vanicat][remi] and
 [Yann Hodique][yann].  Many more people have [contributed code][authors],
 suggested features or made monetary contributions.
-
-Thanks to all of you, may (the history of) the source be with you!
 
 ***
 [![Compile](https://github.com/magit/magit/actions/workflows/compile.yml/badge.svg)](https://github.com/magit/magit/actions/workflows/compile.yml)
