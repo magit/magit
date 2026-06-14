@@ -891,7 +891,7 @@ https://github.com/mhagger/git-when-merged."
 (defun magit-delete-shelved-branch (branch)
   "Delete the shelved BRANCH.
 Delete a ref created by `magit-branch-shelve'."
-  (interactive (list (magit-read-shelved-branch "Log shelved branch")))
+  (interactive (list (magit-read-shelved-branch "Delete shelved branch")))
   (magit-run-git "update-ref" "-d" (concat "refs/shelved/" branch)))
 
 ;;;; Limit Commands
