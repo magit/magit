@@ -372,14 +372,15 @@ rebase sequences.")
 
 (defmacro magit-with-editor (&rest body)
   "Like `with-editor*' but let-bind some more variables.
-Also respect the value of `magit-with-editor-envvar'."
+Also respect the value of `magit-with-editor-envvar', prevent the
+process buffer from popping up, and on Windows possibly employ a
+kludge to fix an unusable value of `shell-file-name'."
   (declare (indent 0) (debug (body)))
   `(let ((magit-process-popup-time -1)
-         ;; The user may have customized `shell-file-name' to
-         ;; something which results in `w32-shell-dos-semantics' nil
-         ;; (which changes the quoting style used by
-         ;; `shell-quote-argument'), but Git for Windows expects shell
-         ;; quoting in the dos style.
+         ;; The user may have customized `shell-file-name' to something
+         ;; which results in `w32-shell-dos-semantics' being nil (which
+         ;; changes the quoting style used by `shell-quote-argument'),
+         ;; but Git for Windows expects shell quoting in the dos style.
          (shell-file-name (if (and (eq system-type 'windows-nt)
                                    ;; If we have Cygwin mount points,
                                    ;; the git flavor is cygwin, so dos
