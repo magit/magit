@@ -603,7 +603,8 @@ See `magit-start-process' for more information."
              (let ((m (string-join (flatten-tree args) " ")))
                (remove-list-of-text-properties 0 (length m) '(face) m)
                m))
-  (magit-start-git nil args))
+  (with-editor* "MAGIT_HOOK_EDITOR"
+    (magit-start-git nil args)))
 
 (defun magit-run-git-with-editor (&rest args)
   "Export GIT_EDITOR and start Git.
@@ -617,8 +618,16 @@ current when this function was called (if it is a Magit buffer
 and still alive), as well as the respective Magit status buffer.
 
 See `magit-start-process' and `with-editor' for more information."
+  (magit-msg "Running %s %s" (magit-git-executable)
+             (let ((m (string-join (flatten-tree args) " ")))
+               (remove-list-of-text-properties 0 (length m) '(face) m)
+               m))
   (magit--record-separated-gitdir)
-  (magit-with-editor (magit-run-git-async args)))
+  (with-editor* "MAGIT_HOOK_EDITOR"
+    (with-environment-variables
+        ((magit-with-editor-envvar (getenv "MAGIT_HOOK_EDITOR")))
+      (let ((magit-process-popup-time -1))
+        (magit-start-git nil args)))))
 
 (defun magit-run-git-sequencer (&rest args)
   "Export GIT_EDITOR and start Git.
