@@ -11246,6 +11246,15 @@ being enabled.
 If you choose to disable VC anyway, then you can do so by changing
 the value of @code{vc-handled-backends}.
 
+@anchor{The diff/log is filtered to one file; how do I show all changes}
+@appendixsubsec The diff/log is filtered to one file; how do I show all changes.
+
+The diff arguments used in the current buffer can be changed using
+the @code{magit-diff-refresh} menu on @code{D}.
+
+The log arguments used in the current buffer can be changed using
+the @code{magit-log-refresh} menu on @code{L}.
+
 @node FAQ - Issues and Errors
 @appendixsec FAQ - Issues and Errors
 

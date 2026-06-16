@@ -9449,6 +9449,14 @@ being enabled.
 If you choose to disable VC anyway, then you can do so by changing
 the value of ~vc-handled-backends~.
 
+*** The diff/log is filtered to one file; how do I show all changes.
+
+The diff arguments used in the current buffer can be changed using
+the ~magit-diff-refresh~ menu on ~D~.
+
+The log arguments used in the current buffer can be changed using
+the ~magit-log-refresh~ menu on ~L~.
+
 ** FAQ - Issues and Errors
 *** Magit is slow
 
