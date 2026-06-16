@@ -1402,11 +1402,11 @@ If no DWIM context is found, nil is returned."
               ((string= (magit-rev-parse revB) base)
                (format "%s..%s" revB revA))
               (interactive
-               (let ((main (magit-completing-read "View changes along"
-                                                  (list revA revB)
-                                                  nil t nil nil revB)))
-                 (format "%s...%s"
-                         (if (string= main revB) revA revB) main)))
+                (let ((main (magit-completing-read "View changes along"
+                                                   (list revA revB)
+                                                   nil t nil nil revB)))
+                  (format "%s...%s"
+                          (if (string= main revB) revA revB) main)))
               ((format "%s...%s" revA revB))))
         (format "%s..%s" revA revB)))))
 
