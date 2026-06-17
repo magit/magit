@@ -393,15 +393,13 @@ Like `magit-commit-squash' but also run a \"--autofixup\" rebase."
         (let ((magit-commit-show-diff nil))
           (push (concat option commit) args)
           (push (if edit "--edit" "--no-edit") args)
-          (cond (rebase
-                 (magit-run-git-with-editor
-                  "commit" "--no-gpg-sign"
-                  (seq-remove (apply-partially #'string-prefix-p "--gpg-sign=")
-                              args))
-                 (while (and magit-this-process
-                             (eq (process-status magit-this-process) 'run))
-                   (sleep-for 0.005)))
-                ((magit-run-git-with-editor "commit" args)))
+          (if rebase
+              (magit-with-editor
+                (magit-call-git
+                 "commit" "--no-gpg-sign"
+                 (seq-remove (apply-partially #'string-prefix-p "--gpg-sign=")
+                             args)))
+            (magit-run-git-with-editor "commit" args))
           t) ; The commit was created; used by below lambda.
       (let ((winconf (and magit-commit-show-diff
                           (current-window-configuration))))
