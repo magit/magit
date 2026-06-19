@@ -2373,9 +2373,9 @@ specified using `core.worktree'."
             (magit-git-lines "show-ref" string)))
 
 (defun magit-tag-p (string)
-  "Return t if STRING is a tag, nil otherwise."
+  "Return t if STRING is an annotated tag, nil otherwise."
   (cl-assert (stringp string))
-  (magit-git-success "show-ref" "--quiet" "--tags" string))
+  (equal (magit-object-type string) "tag"))
 
 (defun magit-remote-p (string)
   "Return t if STRING is a remote, nil otherwise."
