@@ -2378,10 +2378,23 @@ Signal an error if STRING is not a string."
             (magit-git-lines "show-ref" string)))
 
 (defun magit-tag-p (string)
+  "Return t if STRING is an annotated or lightweight tag, nil otherwise.
+Signal an error if STRING is not a string."
+  (cl-assert (stringp string))
+  (magit-git-success "show-ref" "--quiet" "--tags" string))
+
+(defun magit-annotated-tag-p (string)
   "Return t if STRING is an annotated tag, nil otherwise.
 Signal an error if STRING is not a string."
   (cl-assert (stringp string))
   (equal (magit-object-type string) "tag"))
+
+(defun magit-lightweight-tag-p (string)
+  "Return t if STRING is a lightweight (un-annotated) tag, nil otherwise.
+Signal an error if STRING is not a string."
+  (cl-assert (stringp string))
+  (and (magit-tag-p string)
+       (not (magit-annotated-tag-p string))))
 
 (defun magit-remote-p (string)
   "Return t if STRING is a remote, nil otherwise.
