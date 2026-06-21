@@ -2341,29 +2341,34 @@ specified using `core.worktree'."
     (nreverse worktrees)))
 
 (defun magit-symbolic-ref-p (string)
-  "Return t if STRING is a reference, nil otherwise."
+  "Return t if STRING is a reference, nil otherwise.
+Signal an error if STRING is not a string."
   (cl-assert (stringp string))
   (magit-git-success "symbolic-ref" "--quiet" string))
 
 (defun magit-ref-p (string)
-  "Return t if STRING is a reference, nil otherwise."
+  "Return t if STRING is a reference, nil otherwise.
+Signal an error if STRING is not a string."
   (cl-assert (stringp string))
   (and (magit-ref-fullname string)
        (not (magit-symbolic-ref-p string))))
 
 (defun magit-branch-p (string)
-  "Return t if STRING is a local or remote-tracking branch, nil otherwise."
+  "Return t if STRING is a local or remote-tracking branch, nil otherwise.
+Signal an error if STRING is not a string."
   (cl-assert (stringp string))
   (or (magit-local-branch-p string)
       (magit-remote-branch-p string)))
 
 (defun magit-local-branch-p (string)
-  "Return t if STRING is a local branch."
+  "Return t if STRING is a local branch.
+Signal an error if STRING is not a string."
   (cl-assert (stringp string))
   (magit-git-success "show-ref" "--quiet" "--branches" string))
 
 (defun magit-remote-branch-p (string)
-  "Return t if STRING is a remote-tracking branch, nil otherwise."
+  "Return t if STRING is a remote-tracking branch, nil otherwise.
+Signal an error if STRING is not a string."
   (cl-assert (stringp string))
   (seq-some (lambda (line)
               (let ((ref (cadr (split-string line " "))))
@@ -2373,12 +2378,14 @@ specified using `core.worktree'."
             (magit-git-lines "show-ref" string)))
 
 (defun magit-tag-p (string)
-  "Return t if STRING is an annotated tag, nil otherwise."
+  "Return t if STRING is an annotated tag, nil otherwise.
+Signal an error if STRING is not a string."
   (cl-assert (stringp string))
   (equal (magit-object-type string) "tag"))
 
 (defun magit-remote-p (string)
-  "Return t if STRING is a remote, nil otherwise."
+  "Return t if STRING is a remote, nil otherwise.
+Signal an error if STRING is not a string."
   (cl-assert (stringp string))
   (and (member string (magit-list-remotes)) t))
 
