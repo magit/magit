@@ -1,0 +1,116 @@
+# -*- mode: org -*-
+* v0.8.2    2010-07-10    by Phil Jackson
+
+- Use shorter more human readable representations for refs.
+
+- Optionally show refs for remote branches the way Git would.
+
+- Tell VC to update the mode-line for us.
+
+* v0.8.1    2010-06-10    by Phil Jackson
+
+- New library ~rebase-mode.el~.  Edit Git rebase files.
+
+- New commands ~magit-log-all~ and ~magit-log-first-parent~.
+
+- New command ~magit-git-command~.  Run any Git command.
+
+- ~magit-remote-update~ learned to fetch just the current remote.
+
+- ~magit-tag~ learned to place the tag on something other than HEAD.
+
+* v0.8.0    2010-05-07    by Phil Jackson
+
+- By setting ~magit-repo-dirs~, you can get better repo completion.
+  Magit will offer all subdirectories (up to ~magit-repo-dirs~ level
+  deep) of the listed directories when ~magit-status~ asks for a
+  directory to work on.  You can get the old behavior with a double
+  prefix to ~magit-status~.
+
+- Hitting ~c~ or ~C~ while resolving a conflict in the middle of a
+  rebase will offer to continue the rebase instead of trying to commit
+  your changes.
+
+- Pulling will ask which branch to pull from when you don't have a
+  default branch configured.
+
+- Switching to a remote branch will offer to create a local tracking
+  branch for it.
+
+- Hitting ~C-c C-s~ while editing a commit message will toggle the
+  "--signoff" option.
+
+- Hitting ~s~ on the "Untracked files" section title will stage all
+  untracked files.
+
+- Hitting ~C-u S~ will stage all untracked and tracked files.
+
+- Performance improvements in the status buffer.
+
+- Bug fixes to make Magit work better with newer Gits.
+
+* v0.7.0    2009-03-08    by Marius Vollmer
+
+- Tagging, on ~t~ and ~T~.
+
+- Stashing, on ~z~ and ~Z~.
+
+- Wazzup, on ~w~.  Wazzup gives you an overview over how other
+  branches relate to the current one.
+
+- There is more control over pushing.  ~P~ now takes a prefix argument
+  and pushing a branch without a default remote will ask for one.
+
+- Logs have changed a bit: ~l~ shows the traditional brief log, and
+  ~L~ shows a more verbose log.  Use the prefix arg to specify the
+  range of the log.
+
+- M-x magit-status doesn't prompt anymore for a directory when invoked
+  from within a Git repository.  Use ~C-u~ to force a prompt.
+
+- When you have nothing staged, ~c~ will now explicitly ask whether to
+  commit everything instead of just going ahead and do it.  This can
+  be customized.
+
+- The digit keys ~1~, ~2~, ~3~, and ~4~ now show sections on the
+  respective level and hide everything below.  With Meta, they work on
+  all sections; without, they work only on sections that are a parent
+  or child of the current section.
+
+- Typing ~+~ and ~-~ will change the size of hunks, via the "-U"
+  option to git diff.  ~0~ resets hunks to their default size.
+
+- Typing ~k~ on the "Untracked files" section title will offer to
+  delete all untracked files.
+
+- Magit understands a bit of git-svn: the status buffer shows unpushed
+  and unpulled commits, ~N r~ runs git svn rebase, and ~N c~ runs git
+  svn dcommit.
+
+- Magit now also works when the directory is accessed via tramp.
+
+- ~M-x magit-status~ can also create new repositories when given a
+  directory that is not a Git repository.
+
+- Magit works better with oldish Gits that don't understand "--graph",
+  for example.
+
+- The name of the Git program and common options for it can be
+  customized.
+
+* v0.6.1    2008-10-16    by Marius Vollmer
+
+Almost everything has changed.  Some highlights:
+
+- Magit now works with Git 1.6.0.
+
+- Support for interactive rewriting.
+
+- Sections can be shown and hidden.
+
+- Staging, unstaging, applying, reverting and discarding changes can
+  now be done line-by-line, not only hunk-by-hunk.
+
+* v0.5.1    2008-08-14    by Marius Vollmer
+
+This is the first release of Magit.  Enjoy!

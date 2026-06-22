@@ -1,0 +1,345 @@
+# -*- mode: org -*-
+* v1.4.2    2015-06-08    by Jonas Bernoulli
+
+- Automatic revers of file-visiting buffers now works again in Emacs
+  version 24.5.  It was broken due to an incompatible change in that
+  Emacs release.
+
+- Git's reflogs sometimes end with bogus entries.  We now work around
+  that when listing stashes.
+
+* v1.4.1    2015-04-12    by Jonas Bernoulli
+
+- The external library ~magit-log-edit.el~ is no longer supported.
+  If it is still installed, then instruct the user to remove it.
+
+- The function ~magit-maybe-show-setup-instructions~ is now run even
+  when ~magit~ has not been loaded by the time ~after-init-hook~ ran.
+
+- Invalid ~:package-version~ keywords in option definitions were
+  fixed.  In some cases the value was "2.1.0" instead of "1.4.0".
+
+- Some unnecessary obsolete-variable definitions were removed.
+
+- Running tests on Travis CI was fixed.
+
+- The Makefile, README.md, and release notes received minor fixes
+  and cleanup.
+
+* v1.4.0    2015-04-01    by Jonas Bernoulli
+
+This release sits in the middle of a commit marathon that lasted for
+more than 4700 commits.
+
+When I became Magit's new maintainer during the summer of 2013 Magit
+was already a big success, but underneath its shiny surface it was
+having some serious problems.  Over the years the source had gotten
+very disorganized and many old abstractions were no longer sufficient.
+Unfortunately existing code had almost never been adjusted when new
+features had been added, leading to a lot of new code that worked
+around limitations of existing code.
+
+This was clearly not sustainable in the long run, and so I started
+cleaning up and replacing the existing abstractions with simpler, yet
+often more powerful implementations.  Unfortunately his had to happen
+incrementally as it was seldom possible to cleanup one area without
+making substantial changes elsewhere.  Along the way I also addressed
+many of the hundreds of feature requests, but that was more of a bonus
+- the focus was on getting the codebase ready for future improvements.
+
+At the beginning of 2014 I moved development to the new next branch.
+Working on a branch which was not used by thousands of Melpa users
+allowed me to move faster and users were no longer affected by the
+occasional regression.  But it also meant that I now had to maintain
+two branches.  In hindsight I should have released the master branch
+as 1.3.0 at that time, despite all the known defects it had.
+
+Since then I have finished the cleanup on the next branch and then
+moved on to implement many new features.  On the master branch the
+focus was on bugfixes and the occasional backport.  This release is
+based on the master branch.  Later this spring 2.1.0 will be released
+based on the next branch.
+
+Compiling a list of all changes in 1.4.0 would by a major amount of
+work in itself, so instead the below list is for the most part limited
+to major changes, which enabled the user visible changes.  Many users
+don't have to be told about the new features anyway - they have been
+using them for more than a year now.
+
+- The libraries ~magit-topgit.el~, ~magit-stgit.el~, and
+  ~magit-svn.el~ all reincarnated as separate repository.
+
+- The libraries ~magit-classic-theme.el~ and ~magit-simple-keys.el~,
+  which allowed users to undo some of the changes in older releases,
+  were removed.
+
+- The library ~rebase-mode.el~ was renamed to ~git-rebase-mode.el~
+  and moved to the ~magit/git-modes~ repository.
+
+- The library ~magit-log-edit-mode.el~ was removed and replaced with
+  ~git-commit-mode.el~ from the ~magit/git-modes~ repository.
+
+- The functionality provided by the library ~magit-bisect.el~ was
+  replaced with a new implementation in ~magit.el~.
+
+- The package ~cl-lib~ is now used instead of the obsolete ~cl~.
+
+- The library ~magit.el~ no longer lacks any recognizable structure.
+
+- The macro ~magit-define-command~ was removed.
+  The hook that was defined in addition to the command only served
+  to make things more complicated and the generated doc-string was
+  insufficient.
+
+- The use of "section actions" has been reduced to a minimum.
+  Commands that behave differently depending on the type of the
+  current section still use ~magit-section-case~ or in some cases
+  even ~magit-section-action~, but the preferred way for users to
+  add new variants now is to add a new command to the type-specific
+  section keymap, instead of the hooks defined by
+  ~magit-section-action~.
+
+- More work is done directly in ~magit-with-section~.
+  Most of the helper functions were removed.  These functions
+  were not intended to be used directly, but that did not keep
+  contributors from doing so, leading to many inconsistencies.
+
+- The mode machinery was massively refactored.
+  Most importantly the new macro ~magit-mode-setup~ was added,
+  replacing the old ~magit-mode-init~ which forgoes most of the
+  things each and every of its callers has to do, which let to many
+  inconsistencies
+
+- The refresh machinery was massively refactored.
+  A refresh now has to be requested more explicitly by either calling
+  ~magit-refresh~ or one of the functions that call Git and then the
+  former.  Also, refreshing now more often correctly preserves point.
+
+- Washing diffs now takes less cycles.
+  Previously the code used to wash diffs was very complicated.  It
+  passed around state using many dynamically bound variables, and
+  called ~git diff~ many times.  Now we call ~git diff~ once and then
+  wash its output in one go.
+
+- Commits and stashes are now washed using the regular diffwasher.
+
+- Low-level functions for running Git were massively refactored, and
+  many new variants were added.  Previously many callers had to deal
+  with the gory details themselves (and usually did it badly).
+
+- The output from processes is now logged in a dedicated buffer.
+  From this buffer it's also possible to kill a running process.
+
+- The Wazzup buffer was massively refactored.
+  All options to optionally make it faster were removed, as it is now
+  faster out-of-the-box without sacrificing any functionality at all.
+
+- Many more competing abstractions were unified.
+  It was common to have one no longer sufficient core abstraction, and
+  several competing wrapper abstractions.  In most cases this has been
+  replaced with a single, less complex implementation, which serves all
+  of the current use cases.
+
+- Refreshing "after a asynchronous process has run" now happens after
+  the process has actually finished.  That was always the intention,
+  but not what actually used to happen.
+
+- The commit message is no longer provided when calling ~git commit~.
+  Instead Git populates a file with a template and then uses $EDITOR
+  to have the user edit that.  This did not work so well for a while
+  but now we succeed in having the emacsclient being used as $EDITOR.
+
+- A new Branch Manager was added.
+
+- Log learned to show optionally show author information in the
+  margin.
+
+- Terminology with regards to what a tracking branch is, was fixed.
+
+- When creating a new branch the default choice is what Git would
+  default to, instead of some silly name.
+
+- Tools used to test whether Git supports certain features was removed.
+  Instead we now require a non-ancient version of Git.
+
+- The shell script ~magit~ reincarnated as a separate repository.
+
+* v1.2.2    2014-10-23    by Jonas Bernoulli
+
+- ~magit-delete-directory~ uses itself when deleting recursively,
+  instead of ~org-delete-directory~ which it was copied from.
+
+- Many byte-compile warnings were addressed.
+
+* v1.2.1    2014-05-23    by Jonas Bernoulli
+
+- ~magit-delete-directory~ was rewritten to deal with an incompatible
+  change in ~delete-directory~ in Emacs v24.4.
+
+* v1.2.0    2012-09-23    by Yann Hodique
+
+- Rewrote the branch manager.
+
+- Diffs are optionally refined using ~diff-refine-hunk~.
+
+- Added library ~magit-blame.el~ defining new mode
+  ~magit-blame-mode~.
+
+- Added library ~magit-wip.el~ defining new modes
+  ~magit-wip-save-mode~ and ~magit-wip-mode~.
+
+- New section movement commands; ~magit-goto-next-sibling-section~
+  and ~magit-goto-previous-sibling-section~.
+
+- Added command ~magit-file-log~.
+
+- Added command ~magit-manual-merge~.
+
+- ~magit-delete-branch-force~ was merged into ~magit-delete-branch~.
+
+- ~magit-move-branch~ learned to force the rename.
+
+- ~magit-reset-working-tree~ learned to remove ignored files.
+
+- ~magit-pull~ learned to set ~branch.BRANCH.merge~.
+
+- ~magit-log-edit~ learned to respect GIT_AUTHOR_EMAIL,
+  GIT_AUTHOR_NAME and GIT_AUTHOR_DATE.
+
+- ~magit-visit-item~ learned to visit untracked files, diffs and
+  hunks.
+
+- Added option ~magit-sha1-abbrev-length~.
+
+* v1.1.2    2012-09-23    by Yann Hodique
+
+- Modes now have proper mode-line lighters.
+
+- Hook variables are now defined semi-explicitly.
+
+- Uninteresting refs are no longer shown in logs.
+
+- The deprecated ~assoc~ library is no longer used.
+
+- Several other fixes and improvements.
+
+* v1.1.1    2012-01-14    by Yann Hodique
+
+- ~magit-svn-get-local-ref~ learned to expand branch specs containing
+  braces.
+
+- ~magit-log-edit~ learned to amend and create commits with no message.
+
+- Several other fixes and improvements.
+
+* v1.1.0    2011-12-23    by Yann Hodique
+
+- Added distinct faces for various different kinds of refs.
+
+- Completely redesigned existing faces.
+
+- Added library ~magit-classic-theme.el~ for users who like the old
+  faces better.
+
+- Share many more key bindings between all Magit modes.  Previously
+  many commands were only available in certain buffers, even though
+  they are useful in all Magit buffers.
+
+- Added library ~magit-simple-keys.el~ for users who don't like the
+  popups.
+
+- Added support for using Ido to do completion.
+
+- Added support for Ediff.
+
+- Added shell script ~magit~.
+
+- Added library ~magit-bisect.el~.
+
+- Added library ~magit-stgit.el~.
+
+- Added mode ~magit-svn-mode~.
+
+- Added mode ~magit-topgit-mode~.
+
+- Added mode ~magit-rebase-mode~.
+
+- Added buttons to commit buffer to cycle to commits which were
+  previously shown.  The commands are ~magit-show-commit-backward~
+  and ~magit-show-commit-forward~.
+
+- Defined backward compatibility implementations of some Emacs
+  functions.
+
+- Type changes are now shown in diffs.
+
+- Added option ~magit-set-upstream-on-push~.
+
+- Added option ~magit-default-tracking-name-function~.
+
+- Added option ~magit-log-auto-more~.
+
+- Added option ~magit-create-branch-behaviour~.
+
+- Added option ~magit-status-buffer-switch-function~.
+
+- Added option ~magit-rewrite-inclusive~.
+
+- Added options ~magit-highlight-trailing-whitespace~ and
+  ~magit-highlight-indentation~.
+
+- Added command ~magit-show~.  Visit REVISION:FILE.
+
+- Added command ~magit-delete-branch-forced~.
+
+- Added command ~magit-log-edit-toggle-author~.
+
+- ~magit-reset-working-tree~ learned to remove untracked files.
+
+- ~magit-push~ learned to set the upstream branch.
+
+* v1.0.0    2011-03-23    by Phil Jackson
+
+- New library ~magit-key-mode.el~.  From a popup buffer dispatch
+  Magit/Emacs commands which wrap Git commands and select the
+  arguments passed to Git.  Group various sets of related commands
+  in new menus and adjust them accordingly.
+
+- New library ~magit-svn.el~ based on code previously in ~magit.el~.
+  Improve the implementation.  Control ~git svn~ from Magit.
+
+- New library ~magit-topgit.el~ based on code previously in
+  ~magit.el~.  Improve the implementation.  Control TopGit from Magit.
+
+- Provide a wrapper for ~completing-read~.  Support using iswitchb to
+  do completion.
+
+- Fixed and improved information shown during a rebase.
+
+- New macro ~magit-define-inserter~ to define functions which insert
+  sections.
+
+- New macro ~magit-add-action~.  A hook-like extension mechanism for
+  commands that behave differently based on the type of the section
+  at point.
+
+- New macro ~magit-define-command~.  Like ~defun~ but also define
+  a hook in addition to the function/command.  If a hook function
+  succeeds do not run the function body as passed to this macro.
+
+- New commands ~magit-add-change-log-entry~
+  and ~magit-add-change-log-entry-other-window~.
+
+- New command ~magit-change-what-branch-tracks~.
+
+- New commands ~magit-run-git-gui~ and ~magit-run-gitk~.
+
+- Various new submodule commands.
+
+- Various new branch commands.
+
+- Various new log commands.  Remove some old log commands.
+
+- Make reflog commands more like the log commands.
+
+- Numerous bugfixes and tweaks.
