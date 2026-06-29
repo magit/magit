@@ -295,8 +295,8 @@ changes.
 (defun magit-branch-and-checkout (branch start-point &optional args)
   "Create and checkout BRANCH at branch or revision START-POINT."
   (declare (interactive-only magit-call-git))
-  (interactive (cons (magit-branch-read-args "Create and checkout branch")
-                     (magit-branch-arguments)))
+  (interactive (append (magit-branch-read-args "Create and checkout branch")
+                       (list (magit-branch-arguments))))
   (if (string-match-p "^stash@{[0-9]+}$" start-point)
       (magit-run-git "stash" "branch" branch start-point)
     (magit-run-git-async "checkout" args "-b" branch start-point)
