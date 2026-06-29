@@ -454,23 +454,31 @@ when using `magit-branch-and-checkout'."
                   choices :test #'equal))
     (magit-completing-read
      prompt (seq-difference choices taken) nil
-     (lambda (&optional choice)
-       (cond
-         ((not choice)
-          ;; This function ought to be called with one argument (see
-          ;; `completing-read') but Ivy calls it with zero arguments.
-          ;; Since Ivy doesn't tell us what choice the user made, we
-          ;; also cannot validate it, and assume it is valid.
-          t)
-         ((member choice taken)
-          (run-with-timer
-           0 nil (##minibuffer-message "conflicts with existing branch"))
-          nil)
-         ((not (magit-git-success "check-ref-format" "--branch" choice))
-          (run-with-timer
-           0 nil (##minibuffer-message "not a valid branch name"))
-          nil)
-         (t))))))
+     ;; Ivy does not handle the PREDICATE correctly, so give
+     ;; up on any validation for the time being when that is
+     ;; being used.  See #5599, #5581, and the proposed fix
+     ;; https://github.com/abo-abo/swiper/pull/3083.
+     (and (not (bound-and-true-p ivy-mode))
+          (lambda (&optional choice)
+            (cond
+              ((not choice)
+               ;; ( This is currently dead code, see above comment.  Even
+               ;;   with this, Ivy users would always have to confirm and
+               ;;   the below check would remain unreachable. )
+               ;; This function ought to be called with one argument (see
+               ;; `completing-read') but Ivy calls it with zero arguments.
+               ;; Since Ivy doesn't tell us what choice the user made, we
+               ;; also cannot validate it, and assume it is valid.
+               t)
+              ((member choice taken)
+               (run-with-timer
+                0 nil (##minibuffer-message "conflicts with existing branch"))
+               nil)
+              ((not (magit-git-success "check-ref-format" "--branch" choice))
+               (run-with-timer
+                0 nil (##minibuffer-message "not a valid branch name"))
+               nil)
+              (t)))))))
 
 ;;;###autoload
 (defun magit-branch-spinout (branch &optional from)
