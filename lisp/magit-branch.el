@@ -175,17 +175,17 @@ preserved when doing so.
 
 When nil, then preserve nothing and unset `branch.OLD.pushRemote'.
 
-When `local-only', then first set `branch.NEW.pushRemote' to the
-  same value as `branch.OLD.pushRemote', provided the latter is
-  actually set and unless the former already has another value.
+When `local-only', then set `branch.NEW.pushRemote' to the same
+  value as `branch.OLD.pushRemote'.
 
-When t, then rename the branch named OLD on the remote specified
-  by `branch.OLD.pushRemote' to NEW, provided OLD exists on that
-  remote and unless NEW already exists on the remote.
+When t, then additionally rename the branch named OLD on the
+  remote specified by `branch.OLD.pushRemote' to NEW, provided
+  OLD exists on that remote and unless NEW already exists on the
+  remote.
 
 When `forge-only' and the `forge' package is available, then
-  behave like `t' if the remote points to a repository on a forge
-  (currently Github or Gitlab), otherwise like `local-only'."
+  behave like `t', iff the remote points to a repository on a
+  forge (currently Github or Gitlab), otherwise like `local-only'."
   :package-version '(magit . "2.90.0")
   :group 'magit-commands
   :type '(choice
@@ -792,45 +792,31 @@ the remote."
             current-prefix-arg)))
   (when (string-match "\\`heads/\\(.+\\)" old)
     (setq old (match-str 1 old)))
-  (when (equal old new)
-    (user-error "Old and new branch names are the same"))
-  (magit-call-git "branch" (if force "-M" "-m") old new)
-  (when magit-branch-rename-push-target
-    (let ((remote (magit-get-push-remote old))
-          (old-specified (magit-get "branch" old "pushRemote"))
-          (new-specified (magit-get "branch" new "pushRemote")))
-      (when (and old-specified (or force (not new-specified)))
-        ;; Keep the target setting branch specified, even if that is
-        ;; redundant.  But if a branch by the same name existed before
-        ;; and the rename isn't forced, then do not change a leftover
-        ;; setting.  Such a leftover setting may or may not conform to
-        ;; what we expect here...
-        (magit-set old-specified "branch" new "pushRemote"))
-      (when (and (equal (magit-get-push-remote new) remote)
-                 ;; ...and if it does not, then we must abort.
-                 (not (eq magit-branch-rename-push-target 'local-only))
-                 (or (not (eq magit-branch-rename-push-target 'forge-only))
-                     (and (require (quote forge) nil t)
-                          (fboundp 'forge--split-forge-url)
-                          (and$ (magit-git-string "remote" "get-url" remote)
-                                (forge--split-forge-url $)))))
-        (let ((old-target (magit-get-push-branch old t))
-              (new-target (magit-get-push-branch new t))
-              (remote (magit-get-push-remote new)))
-          (when (and old-target
-                     (not new-target)
-                     (magit-y-or-n-p (format "Also rename %S to %S on \"%s\"?"
-                                             old new remote)))
-            ;; Rename on (i.e., within) the remote, but only if the
-            ;; destination ref doesn't exist yet.  If that ref already
-            ;; exists, then it probably is of some value and we better
-            ;; not touch it.  Ignore what the local ref points at,
-            ;; i.e., if the local and the remote ref didn't point at
-            ;; the same commit before the rename then keep it that way.
-            (magit-call-git "push" "-v" remote
-                            (format "%s:refs/heads/%s" old-target new)
-                            (format ":refs/heads/%s" old)))))))
-  (magit-branch-unset-pushRemote old)
+  (cond ((equal old new)
+         (user-error "Old and new branch names are the same"))
+        ((and (magit-local-branch-p new) (not force))
+         (user-error "Branch `%s' already exists" new)))
+  (let* ((push-branch  (magit-get-push-branch old))
+         (push-remote  (magit-get "branch" old "pushRemote"))
+         (push-default (magit-get "remote.pushDefault"))
+         (remote       (or push-remote push-default)))
+    (magit-call-git "branch" (if force "-M" "-m") old new)
+    (when push-remote
+      (magit-set nil "branch" old "pushRemote")
+      (magit-set push-remote "branch" new "pushRemote"))
+    (when (and (magit-rev-verify (concat remote "/" old))
+               (not (magit-rev-verify (concat remote "/" new)))
+               (or (eq magit-branch-rename-push-target t)
+                   (and-let ((_(eq magit-branch-rename-push-target 'forge-only))
+                             (_(require (quote forge) nil t))
+                             (_(fboundp 'forge--split-forge-url))
+                             (url (magit-git-string "remote" "get-url" remote)))
+                     (forge--split-forge-url url)))
+               (magit-y-or-n-p (format "Also rename %S to %S on \"%s\"?"
+                                       old new remote)))
+      (magit-call-git "push" "-v" remote
+                      (format "%s:refs/heads/%s" push-branch new)
+                      (format ":refs/heads/%s" old))))
   (magit-refresh))
 
 ;;;###autoload

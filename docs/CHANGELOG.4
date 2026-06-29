@@ -240,6 +240,10 @@ Bugfixes:
 
 - Fixed a bug in suffix commands that deal with Git booleans.  #5594
 
+- ~magit-branch-rename~ now offers to rename the branch on the push
+  remote if ~branch.OLDNAME.pushRemote~ is set (as it already did if
+  that was specified using ~remote.pushDefault~).  #5596
+
 * v4.5.0    2026-01-01
 
 - Removed support for loading Magit extensions from ".git/config".
