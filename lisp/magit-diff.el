@@ -2562,6 +2562,9 @@ keymap is the parent of their keymaps."
   (run-hooks 'magit-diff-wash-diffs-hook)
   (when (member "--show-signature" args)
     (magit-diff-wash-signature magit-buffer-revision-oid))
+  (when (any (##string-prefix-p "--color-moved" %) args)
+    (require 'ansi-color)
+    (ansi-color-apply-on-region (point-min) (point-max)))
   (when (member "--stat" args)
     (magit-diff-wash-diffstat))
   (when (re-search-forward magit-diff-headline-re limit t)
@@ -2641,9 +2644,6 @@ keymap is the parent of their keymaps."
         (if (looking-at "^$") (forward-line) (insert "\n"))))))
 
 (defun magit-diff-wash-diff (args)
-  (when (any (##string-prefix-p "--color-moved" %) args)
-    (require 'ansi-color)
-    (ansi-color-apply-on-region (point-min) (point-max)))
   (cond
     ((looking-at "^Submodule")
      (magit-diff-wash-submodule))
