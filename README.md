@@ -131,7 +131,7 @@ suggested features or made monetary contributions.
 [![Melpa](https://melpa.org/packages/magit-badge.svg)](https://melpa.org/#/magit)
 [![Melpa Stable](https://stable.melpa.org/packages/magit-badge.svg)](https://stable.melpa.org/#/magit)
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/emacs%3Amagit.svg?header=&columns=4&minversion=4&exclude_unsupported=1)](https://repology.org/project/emacs%3Amagit/versions)
+[![Packaging status](https://repology.org/badge/vertical-allrepos/emacs%3Amagit.svg?header=&columns=4&minversion=4.5&exclude_unsupported=1)](https://repology.org/project/emacs%3Amagit/versions)
 
 [authors]: https://stats.magit.vc/magit/authors.html
 [jonas]:   https://emacsair.me
