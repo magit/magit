@@ -223,6 +223,7 @@ and alternative commands."
          (when (buffer-live-p ediff-buffer-C) (kill-buffer ediff-buffer-C))
          (when (buffer-live-p ediff-ancestor-buffer)
            (kill-buffer ediff-ancestor-buffer))
+         (magit-ediff--cleanup-buffers)
          (let ((magit-ediff-previous-winconf smerge-ediff-windows))
            (run-hooks 'magit-ediff-quit-hook)))))))
 
