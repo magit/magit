@@ -224,6 +224,12 @@ and alternative commands."
                (erase-buffer)
                (insert-buffer-substring bufC)
                (save-buffer)))
+           ;; These kills are not redundant with the ones in
+           ;; `magit-ediff--cleanup-buffers'.  That function only
+           ;; kills buffers created by `magit-ediff--find-file',
+           ;; which marks them as volatile; the temporary buffers
+           ;; created by `smerge-ediff' are not so marked and would
+           ;; be leaked.
            (when (buffer-live-p ediff-buffer-A) (kill-buffer ediff-buffer-A))
            (when (buffer-live-p ediff-buffer-B) (kill-buffer ediff-buffer-B))
            (when (buffer-live-p ediff-buffer-C) (kill-buffer ediff-buffer-C))
