@@ -210,22 +210,28 @@ and alternative commands."
       (setq-local
        ediff-quit-hook
        (lambda ()
-         (let ((bufC ediff-buffer-C)
+         ;; This hook runs with the Ediff control buffer current.
+         ;; `smerge-ediff-windows' and `smerge-ediff-buf' are local
+         ;; to that buffer and have no global value, and the control
+         ;; buffer does not survive `magit-ediff--cleanup-buffers',
+         ;; so capture their values before tearing anything down.
+         (let ((winconf smerge-ediff-windows)
+               (bufC ediff-buffer-C)
                (bufS smerge-ediff-buf))
            (with-current-buffer bufS
              (when (yes-or-no-p (format "Conflict resolution finished; save %s? "
                                         buffer-file-name))
                (erase-buffer)
                (insert-buffer-substring bufC)
-               (save-buffer))))
-         (when (buffer-live-p ediff-buffer-A) (kill-buffer ediff-buffer-A))
-         (when (buffer-live-p ediff-buffer-B) (kill-buffer ediff-buffer-B))
-         (when (buffer-live-p ediff-buffer-C) (kill-buffer ediff-buffer-C))
-         (when (buffer-live-p ediff-ancestor-buffer)
-           (kill-buffer ediff-ancestor-buffer))
-         (magit-ediff--cleanup-buffers)
-         (let ((magit-ediff-previous-winconf smerge-ediff-windows))
-           (run-hooks 'magit-ediff-quit-hook)))))))
+               (save-buffer)))
+           (when (buffer-live-p ediff-buffer-A) (kill-buffer ediff-buffer-A))
+           (when (buffer-live-p ediff-buffer-B) (kill-buffer ediff-buffer-B))
+           (when (buffer-live-p ediff-buffer-C) (kill-buffer ediff-buffer-C))
+           (when (buffer-live-p ediff-ancestor-buffer)
+             (kill-buffer ediff-ancestor-buffer))
+           (magit-ediff--cleanup-buffers)
+           (let ((magit-ediff-previous-winconf winconf))
+             (run-hooks 'magit-ediff-quit-hook))))))))
 
 ;;;###autoload(autoload 'magit-ediff-stage "magit-ediff" nil t)
 (transient-define-suffix magit-ediff-stage (file)
