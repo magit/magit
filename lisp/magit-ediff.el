@@ -229,9 +229,7 @@ and alternative commands."
            (when (buffer-live-p ediff-buffer-C) (kill-buffer ediff-buffer-C))
            (when (buffer-live-p ediff-ancestor-buffer)
              (kill-buffer ediff-ancestor-buffer))
-           (magit-ediff--cleanup-buffers)
-           (let ((magit-ediff-previous-winconf winconf))
-             (run-hooks 'magit-ediff-quit-hook))))))))
+           (magit-ediff--quit winconf)))))))
 
 ;;;###autoload(autoload 'magit-ediff-stage "magit-ediff" nil t)
 (transient-define-suffix magit-ediff-stage (file)
@@ -495,8 +493,9 @@ is put in FILE.
 
 Neutralize the hooks `ediff-quit-hook' and `ediff-quit-merge-hook'
 because they usually feature functions that do not work for Magit.
-Instead run optional QUIT (if non-nil), `magit-ediff--cleanup-buffers'
-and `magit-ediff-quit-hook', with no arguments.
+Instead run optional QUIT (if non-nil) with no arguments, followed
+by `magit-ediff--quit', which cleans up and runs
+`magit-ediff-quit-hook'.
 
 Optional SETUP, if non-nil, is called with no arguments after Ediff
 is done setting up buffers."
@@ -511,11 +510,8 @@ is done setting up buffers."
                (setq-local ediff-quit-hook nil)
                (when quit
                  (add-hook 'ediff-quit-hook quit nil t))
-               (add-hook 'ediff-quit-hook #'magit-ediff--cleanup-buffers t t)
                (add-hook 'ediff-quit-hook
-                         (lambda ()
-                           (let ((magit-ediff-previous-winconf winconf))
-                             (run-hooks 'magit-ediff-quit-hook)))
+                         (lambda () (magit-ediff--quit winconf))
                          t t))))
      (pcase (list (and c t) (and file t))
        ('(nil nil) 'ediff-buffers)
@@ -532,6 +528,16 @@ is done setting up buffers."
     buffer))
 
 ;;; Quit
+
+(defun magit-ediff--quit (winconf)
+  "Clean up after an Ediff session and run `magit-ediff-quit-hook'.
+Bind `magit-ediff-previous-winconf' to WINCONF while running the
+hook, for the benefit of `magit-ediff-restore-previous-winconf'.
+This is the shared tail of every quit path in this file; do not
+inline it, or the copies will drift apart again."
+  (magit-ediff--cleanup-buffers)
+  (let ((magit-ediff-previous-winconf winconf))
+    (run-hooks 'magit-ediff-quit-hook)))
 
 (defun magit-ediff--cleanup-buffers ()
   (magit-ediff--bury-buffer ediff-buffer-A)
