@@ -181,6 +181,7 @@ manpage for details.")
   (magit-completing-read prompt (magit-list-refnames)
                          nil nil nil history
                          (or default
+                             (magit-commit-at-point)
                              (and (magit-rev-verify "ORIG_HEAD")
                                   "ORIG_HEAD"))))
 
