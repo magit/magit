@@ -101,15 +101,16 @@ which creates patches for all commits that are reachable from
   (interactive
     (if (not (eq transient-current-command 'magit-patch-create))
         (list nil nil nil)
-      (cons (if-let ((revs (magit-region-values 'commit)))
-                (if (length> revs 1)
-                    (concat (car (last revs)) "^.." (car revs))
-                  (format "%s^..%s" (car revs) (car revs)))
-              (let ((range (magit-read-range-or-commit
-                            "Create patches for range or commit")))
-                (if (string-search ".." range)
-                    range
-                  (format "%s^..%s" range range))))
+      (cons (cond-let
+              ([revs (magit-region-values 'commit)]
+               (if (length> revs 1)
+                   (concat (car (last revs)) "^.." (car revs))
+                 (format "%s^..%s" (car revs) (car revs))))
+              ([range (magit-read-range-or-commit
+                       "Create patches for range or commit")]
+               (if (string-search ".." range)
+                   range
+                 (format "%s^..%s" range range))))
             (let ((args (transient-args 'magit-patch-create)))
               (list (seq-filter #'stringp args)
                     (cdr (assoc "--" args)))))))
