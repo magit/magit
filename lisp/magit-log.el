@@ -534,6 +534,7 @@ commits before and half after."
     ("L" "local branches"    magit-log-branches)
     ("b" "all branches"      magit-log-all-branches)
     ("a" "all references"    magit-log-all)
+    ("R" "reflog objects"    magit-log-reflog            :level 0)
     ("B" "matching branches" magit-log-matching-branches :level 7)
     ("T" "matching tags"     magit-log-matching-tags     :level 7)
     ("m" "merged"            magit-log-merged            :level 7)]
@@ -774,6 +775,12 @@ completion candidates."
   "Show log for all references and `HEAD'."
   (interactive (magit-log-arguments))
   (magit-log-setup-buffer (list "--all") args files))
+
+;;;###autoload
+(defun magit-log-reflog (&optional args files)
+  "Show log for all objects mentioned in all reflogs."
+  (interactive (magit-log-arguments))
+  (magit-log-setup-buffer (list "--reflog") args files))
 
 ;;;###autoload
 (defun magit-log-buffer-file (&optional follow beg end)
