@@ -109,7 +109,7 @@ which creates patches for all commits that are reachable from
                             "Create patches for range or commit")))
                 (if (string-search ".." range)
                     range
-                  (format "%s~..%s" range range))))
+                  (format "%s^..%s" range range))))
             (let ((args (transient-args 'magit-patch-create)))
               (list (seq-filter #'stringp args)
                     (cdr (assoc "--" args)))))))
