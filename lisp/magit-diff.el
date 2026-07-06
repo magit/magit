@@ -1153,14 +1153,25 @@ and `:slant'."
   :class 'transient-option
   :argument "-M"
   :allow-empty t
-  :reader #'transient-read-number-N+)
+  :reader #'magit-read-similarity-index)
 
 (transient-define-argument magit-diff:-C ()
   :description "Detect copies"
   :class 'transient-option
   :argument "-C"
   :allow-empty t
-  :reader #'transient-read-number-N+)
+  :reader #'magit-read-similarity-index)
+
+(defun magit-read-similarity-index (prompt initial-input history)
+  "Read a similarity index.  See \"--find-renames\" in git-diff(1) manpage."
+  (catch 'valid
+    (while t
+      (let ((input (read-from-minibuffer prompt initial-input nil nil history)))
+        (if (string-match-p "\\`[0-9]+%?\\'" input)
+            (throw 'valid input)
+	  (message "Please enter a percentage ending in %%, %s"
+                   "or a fraction, omitting the implied leading \"0.\"")
+	  (sit-for 1))))))
 
 (transient-define-argument magit-diff:--diff-algorithm ()
   :description "Diff algorithm"

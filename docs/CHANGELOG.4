@@ -5,6 +5,12 @@
   a patch for that, instead of prompting.  Previously that only was
   only done if multiple commit were marked.  #4734
 
+- When reading a value for ~git diff~'s ~--find-renames~ or ~--find-copies~
+  argument, the similarity index can now be specified as a percentage
+  or as a fraction.  The input now has to exactly match the value, as
+  used by Git; e.g., "20%" or "05".  The latter is interpreted as the
+  faction 0.05.  #4708
+
 * v4.6.0    2026-07-01
 
 The primary focus of this release are blob-visiting buffers.  For
