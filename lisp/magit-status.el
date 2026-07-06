@@ -360,7 +360,7 @@ repository without prompting."
 (put 'magit-status-here 'interactive-only 'magit-status-setup-buffer)
 
 ;;;###autoload
-(defun magit-status-quick ()
+(defun magit-status-quick (&optional directory)
   "Show the status of the current Git repository, maybe without refreshing.
 
 If the status buffer of the current Git repository exists but
@@ -374,14 +374,25 @@ Prefix arguments have the same meaning as for `magit-status',
 and additionally cause the buffer to be refresh.
 
 To use this function instead of `magit-status', add this to your
-init file: (global-set-key (kbd \"C-x g\") \\='magit-status-quick)."
+init file: (global-set-key (kbd \"C-x g\") \\='magit-status-quick).
+
+Non-interactively another repository can be specified using the
+optional DIRECTORY argument, which must then name the top-level
+directory of an existing repository."
   (interactive)
-  (if-let ((buffer
-            (and (not current-prefix-arg)
-                 (not (magit-get-mode-buffer 'magit-status-mode nil 'selected))
-                 (magit-get-mode-buffer 'magit-status-mode))))
-      (magit-display-buffer buffer)
-    (call-interactively #'magit-status)))
+  (let ((default-directory default-directory))
+    (when-let*
+        ((_ directory)
+         (toplevel (magit-toplevel directory))
+         (directory (file-name-as-directory (expand-file-name directory)))
+         (_(file-equal-p directory toplevel)))
+      (setq default-directory directory))
+    (if-let ((buffer
+              (and (not current-prefix-arg)
+                   (not (magit-get-mode-buffer 'magit-status-mode nil 'selected))
+                   (magit-get-mode-buffer 'magit-status-mode))))
+        (magit-display-buffer buffer)
+      (call-interactively #'magit-status))))
 
 ;;; Mode
 
