@@ -473,7 +473,7 @@ commits before and half after."
   ;; details, so our logical grouping only follows it to an extend.
   ;; Arguments that are "misplaced" here:
   ;;   1. From "Commit Formatting".
-  ;;   2. From "Common Diff Options".
+  ;;   2. From "Common Diff Options". ;FIXME
   ;;   3. From unnamed first group.
   ;;   4. Implemented by Magit.
   ["Commit limiting"
@@ -508,6 +508,7 @@ commits before and half after."
    :if magit-log-infix-arguments--show-p
    ("-g" "Show graph"          "--graph")          ;1
    ("-c" "Show graph in color" "--color")          ;2
+   (magit-log:--graph-lane-limit :level 5)         ;TODO
    ("-d" "Show refnames"       "--decorate")       ;3
    ("=S" "Show signatures"     "--show-signature") ;1
    ("-h" "Show header"         "++header")         ;4
@@ -601,6 +602,14 @@ commits before and half after."
   :shortarg "-n"
   :argument "-n"
   :reader #'transient-read-number-N+)
+
+(transient-define-argument magit-log:--graph-lane-limit ()
+  :description "Show graph lanes"
+  :class 'transient-option
+  :key "=g"
+  :argument "--graph-lane-limit="
+  :reader #'transient-read-number-N+
+  :if (##magit-git-version>= "2.55"))
 
 (transient-define-argument magit:--author ()
   :description "Limit to author"
