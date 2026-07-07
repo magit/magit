@@ -17,6 +17,12 @@
 - Added new command ~magit-log-reflog~, which shows log for all objects
   mentioned in all reflogs.  #4748
 
+- When ~gpg.format~ specifies a format other than openpgp, The menu
+  argument ~--gpg-sign~ now acts as a boolean toggle.  Previously it
+  always wanted to read an openpgp key, making it impossible to
+  toggle ssh or x509 signing from the menu.  The used format is now
+  shown in the menu.  #5046
+
 * v4.6.0    2026-07-01
 
 The primary focus of this release are blob-visiting buffers.  For

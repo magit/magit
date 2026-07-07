@@ -506,7 +506,7 @@ is run in the top-level directory of the current working tree."
   :level 6)
 
 (transient-define-argument magit:--gpg-sign ()
-  :description "Sign using gpg"
+  :description (##concat "Sign using " (or (magit-get "gpg.format") "openpgp"))
   :class 'transient-option
   :shortarg "-S"
   :argument "--gpg-sign="
@@ -547,12 +547,14 @@ is run in the top-level directory of the current working tree."
     choice))
 
 (defun magit-read-gpg-signing-key (prompt &optional initial-input history)
-  (magit-read-gpg-secret-key
-   prompt initial-input history
-   (lambda (cert)
-     (seq-some (##memq 'sign (epg-sub-key-capability %))
-               (epg-key-sub-key-list cert)))
-   magit-openpgp-default-signing-key))
+  (if (member (magit-get "gpg.format") '(nil "openpgp"))
+      (magit-read-gpg-secret-key
+       prompt initial-input history
+       (lambda (cert)
+         (seq-some (##memq 'sign (epg-sub-key-capability %))
+                   (epg-key-sub-key-list cert)))
+       magit-openpgp-default-signing-key)
+    ""))
 
 ;;; Font-Lock Keywords
 
