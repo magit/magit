@@ -433,6 +433,7 @@ without prompting."
   ["Arguments"
    :if-not magit-am-in-progress-p
    ("-3" "Fall back on 3way merge"           ("-3" "--3way"))
+   ("-R" "Reject only failed hunks"          "--reject")
    (magit-apply:-p)
    ("-c" "Remove text before scissors line"  ("-c" "--scissors"))
    ("-k" "Inhibit removal of email cruft"    ("-k" "--keep"))
