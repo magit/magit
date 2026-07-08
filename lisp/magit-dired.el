@@ -102,7 +102,7 @@ for a repository."
   "Open FILE with `dired-do-async-shell-command'.
 Interactively, open the file at point."
   (interactive (list (or (magit-file-at-point)
-                         (magit-read-file "Act on file"))))
+                         (magit-read-file "Act on file" nil t))))
   (require 'dired-aux)
   (dired-do-async-shell-command
    (dired-read-shell-command "& on %s: " current-prefix-arg (list file))
