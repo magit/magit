@@ -401,13 +401,21 @@ optional NODISPLAY is non-nil also display it."
       buffer)))
 
 (defun magit-process-kill ()
-  "Kill the process at point."
+  "Interrupt or kill the process at point.
+First try to interrupt the process.  If that fails a second
+invocation instead kill the process."
   (interactive)
-  (when-let ((process (magit-section-value-if 'process)))
-    (unless (eq (process-status process) 'run)
-      (user-error "Process isn't running"))
-    (magit-confirm 'kill-process)
-    (kill-process process)))
+  (cond-let
+    [[process (magit-section-value-if 'process)]]
+    ((not process)
+     (message "No process at point"))
+    ((not (eq (process-status process) 'run))
+     (message "Process no longer running"))
+    ((not (eq (process-get process 'sigint) t))
+     (magit-confirm 'kill-process)
+     (process-put process 'sigint t)
+     (interrupt-process process))
+    ((kill-process process))))
 
 ;;; Synchronous Processes
 

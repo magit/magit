@@ -31,6 +31,9 @@
 - ~magit-file-untrack~, ~magit-file-rename~, ~magit-file-delete~ and
   ~magit-do-async-shell-command~ can now act on directories.  #5247
 
+- ~magit-process-kill~ now first tries to interrupt the process.
+  If that fails, a second invocation instead kill it.  #5086
+
 * v4.6.0    2026-07-01
 
 The primary focus of this release are blob-visiting buffers.  For
