@@ -555,7 +555,7 @@ commits before and half after."
   "Change the arguments used for the log(s) in the current buffer."
   :man-page "git-log"
   :class 'magit-log-refresh-prefix
-  magit-log-infix-arguments
+  'magit-log-infix-arguments
   [:if-not-mode magit-log-mode
    :description "Arguments"
    (magit-log:-n)
