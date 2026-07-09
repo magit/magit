@@ -187,12 +187,19 @@ manpage for details.")
   :history-key 'magit-revision-history)
 
 (defun magit-read-reuse-message (prompt &optional default history)
-  (magit-completing-read prompt (magit-list-refnames)
-                         nil nil nil history
-                         (or default
-                             (magit-commit-at-point)
-                             (and (magit-rev-verify "ORIG_HEAD")
-                                  "ORIG_HEAD"))))
+  (if current-prefix-arg
+      (let (rev)
+        (magit-log-select
+          (lambda (r) (setq rev r) (exit-recursive-edit))
+          "Type %p on a commit to reuse its message")
+        (recursive-edit)
+        rev)
+    (magit-completing-read prompt (magit-list-refnames)
+                           nil nil nil history
+                           (or default
+                               (magit-commit-at-point)
+                               (and (magit-rev-verify "ORIG_HEAD")
+                                    "ORIG_HEAD")))))
 
 ;;; Commands
 ;;;; Create

@@ -39,6 +39,11 @@
 - By default, submodules with untracked content are now also listed
   the status of the super-repository.  #5448
 
+- Added ~--redit-message~ to the ~magit-commit~ menu.  That argument and
+  ~--reuse-message~ now usually default to the commit at point, but when
+  invoked with a prefix argument, the user can instead selected the
+  commit from a log.  #5602
+
 Bugfixes:
 
 - ~magit-ignore-submodules-p~ didn't return ~nil~ for ~none~.
