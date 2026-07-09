@@ -205,26 +205,28 @@ and alternative commands."
   :inapt-if-not #'magit-anything-unmerged-p
   (interactive (list (magit-read-unmerged-file)))
   (magit-with-toplevel
-    (with-current-buffer (find-file-noselect file)
-      (smerge-ediff)
-      (setq-local
-       ediff-quit-hook
-       (lambda ()
-         (let ((bufC ediff-buffer-C)
-               (bufS smerge-ediff-buf))
-           (with-current-buffer bufS
-             (when (yes-or-no-p (format "Conflict resolution finished; save %s? "
-                                        buffer-file-name))
-               (erase-buffer)
-               (insert-buffer-substring bufC)
-               (save-buffer))))
-         (when (buffer-live-p ediff-buffer-A) (kill-buffer ediff-buffer-A))
-         (when (buffer-live-p ediff-buffer-B) (kill-buffer ediff-buffer-B))
-         (when (buffer-live-p ediff-buffer-C) (kill-buffer ediff-buffer-C))
-         (when (buffer-live-p ediff-ancestor-buffer)
-           (kill-buffer ediff-ancestor-buffer))
-         (let ((magit-ediff-previous-winconf smerge-ediff-windows))
-           (run-hooks 'magit-ediff-quit-hook)))))))
+    (let ((winconf (current-window-configuration)))
+      (with-current-buffer (find-file-noselect file)
+        (smerge-ediff)
+        (setq-local
+         ediff-quit-hook
+         (lambda ()
+           (let ((bufC ediff-buffer-C)
+                 (bufS smerge-ediff-buf))
+             (with-current-buffer bufS
+               (when (yes-or-no-p
+                      (format "Conflict resolution finished; save %s? "
+                              buffer-file-name))
+                 (erase-buffer)
+                 (insert-buffer-substring bufC)
+                 (save-buffer))))
+           (when (buffer-live-p ediff-buffer-A) (kill-buffer ediff-buffer-A))
+           (when (buffer-live-p ediff-buffer-B) (kill-buffer ediff-buffer-B))
+           (when (buffer-live-p ediff-buffer-C) (kill-buffer ediff-buffer-C))
+           (when (buffer-live-p ediff-ancestor-buffer)
+             (kill-buffer ediff-ancestor-buffer))
+           (let ((magit-ediff-previous-winconf winconf))
+             (run-hooks 'magit-ediff-quit-hook))))))))
 
 ;;;###autoload(autoload 'magit-ediff-stage "magit-ediff" nil t)
 (transient-define-suffix magit-ediff-stage (file)
