@@ -1468,12 +1468,15 @@ are considered."
   (not (magit-module-worktree-p module)))
 
 (defun magit-ignore-submodules-p (&optional return-argument)
-  (or (cl-find-if (##string-prefix-p "--ignore-submodules" %)
-                  magit-buffer-diff-args)
-      (and$ (magit-get "diff.ignoreSubmodules")
-            (if return-argument
-                (concat "--ignore-submodules=" $)
-              (concat "diff.ignoreSubmodules=" $)))))
+  (or (and-let* ((arg (cl-find-if (##string-prefix-p "--ignore-submodules" %)
+                                  magit-buffer-diff-args))
+                 (_(not (equal arg "--ignore-submodules=none"))))
+        arg)
+      (and-let* ((val (magit-get "diff.ignoreSubmodules"))
+                 (_(not (equal $ "none"))))
+        (if return-argument
+            (concat "--ignore-submodules=" val)
+          (concat "diff.ignoreSubmodules=" val)))))
 
 ;;; Revisions and References
 
