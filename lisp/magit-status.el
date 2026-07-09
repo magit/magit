@@ -577,15 +577,16 @@ the status buffer causes this section to disappear again."
   (let ((ignore-modules (magit-ignore-submodules-p)))
     (when (or ignore-modules
               magit-buffer-diff-files)
-      (insert (propertize (format "%-10s" "Filter! ")
-                          'font-lock-face 'magit-section-heading))
-      (when ignore-modules
-        (insert ignore-modules)
+      (magit-insert-section (diff-filter)
+        (insert (propertize (format "%-10s" "Filter! ")
+                            'font-lock-face 'magit-section-heading))
+        (when ignore-modules
+          (insert ignore-modules)
+          (when magit-buffer-diff-files
+            (insert " -- ")))
         (when magit-buffer-diff-files
-          (insert " -- ")))
-      (when magit-buffer-diff-files
-        (insert (string-join magit-buffer-diff-files " ")))
-      (insert ?\n))))
+          (insert (string-join magit-buffer-diff-files " ")))
+        (insert ?\n)))))
 
 ;;;; Reference Headers
 
