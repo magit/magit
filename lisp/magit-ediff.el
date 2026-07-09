@@ -229,6 +229,7 @@ and alternative commands."
                     (when (buffer-live-p ediff-ancestor-buffer)
                       (kill-buffer ediff-ancestor-buffer)))
                   t t)
+        (add-hook 'ediff-quit-hook #'magit-ediff--cleanup-buffers t t)
         (add-hook 'ediff-quit-hook
                   (lambda ()
                     (let ((magit-ediff-previous-winconf winconf))
