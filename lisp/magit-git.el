@@ -1473,7 +1473,7 @@ are considered."
                  (_(not (equal arg "--ignore-submodules=none"))))
         arg)
       (and-let* ((val (magit-get "diff.ignoreSubmodules"))
-                 (_(not (equal $ "none"))))
+                 (_(not (equal val "none"))))
         (if return-argument
             (concat "--ignore-submodules=" val)
           (concat "diff.ignoreSubmodules=" val)))))
