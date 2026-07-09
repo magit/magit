@@ -453,7 +453,7 @@ Type \\[magit-commit] to create a commit.
   (setq magit--imenu-group-types '(not branch commit)))
 
 (put 'magit-status-mode 'magit-diff-default-arguments
-     '("--no-ext-diff"))
+     '("--no-ext-diff" "--ignore-submodules=none"))
 (put 'magit-status-mode 'magit-log-default-arguments
      '("-n256" "--decorate"))
 
