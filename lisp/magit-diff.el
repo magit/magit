@@ -1214,6 +1214,7 @@ and `:slant'."
 
 (defun magit-diff-select-ignore-submodules (&rest _ignored)
   (magit-read-char-case "Ignore submodules " t
+    (?n "[n]one"      "none")
     (?u "[u]ntracked" "untracked")
     (?d "[d]irty"     "dirty")
     (?a "[a]ll"       "all")))
