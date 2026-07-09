@@ -573,7 +573,21 @@ the status buffer causes this section to disappear again."
     (setq magit-this-error nil)))
 
 (defun magit-insert-diff-filter-header ()
-  "Insert a header line showing the effective diff filters."
+  "Insert a header line showing the effective diff filters.
+
+If any diff filters are in effect in the status buffer, they are
+shown on a line beginning with \"Filter! ...\" as a reminder, so you
+won't end up wondering why certain changes, which you expect to be
+displayed, are not actually displayed.
+
+Filters either come from arguments, which can be changed using \
+\\<magit-status-mode-map>\\[magit-diff-refresh],
+or from Git variables, which are configured outside of Magit.
+
+If you do not want this reminder to be shown, remove it like so:
+
+  (remove-hook \\='magit-status-headers-hook
+               \\='magit-insert-diff-filter-header)"
   (let ((ignore-modules (magit-ignore-submodules-p)))
     (when (or ignore-modules
               magit-buffer-diff-files)
@@ -586,7 +600,8 @@ the status buffer causes this section to disappear again."
             (insert " -- ")))
         (when magit-buffer-diff-files
           (insert (string-join magit-buffer-diff-files " ")))
-        (insert ?\n)))))
+        (insert (substitute-command-keys " \
+[\\[magit-diff-refresh] to change, \\[magit-describe-section] for help]\n"))))))
 
 ;;;; Reference Headers
 
