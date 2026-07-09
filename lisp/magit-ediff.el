@@ -208,6 +208,7 @@ and alternative commands."
     (let ((winconf (current-window-configuration)))
       (with-current-buffer (find-file-noselect file)
         (smerge-ediff)
+        (setq-local ediff-quit-merge-hook nil)
         (setq-local ediff-quit-hook nil)
         (add-hook 'ediff-quit-hook
                   (lambda ()
