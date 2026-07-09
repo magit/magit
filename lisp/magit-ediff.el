@@ -221,15 +221,7 @@ and alternative commands."
                           (insert-buffer-substring bufC)
                           (save-buffer)))))
                   t t)
-        (add-hook 'ediff-quit-hook
-                  (lambda ()
-                    (when (buffer-live-p ediff-buffer-A) (kill-buffer ediff-buffer-A))
-                    (when (buffer-live-p ediff-buffer-B) (kill-buffer ediff-buffer-B))
-                    (when (buffer-live-p ediff-buffer-C) (kill-buffer ediff-buffer-C))
-                    (when (buffer-live-p ediff-ancestor-buffer)
-                      (kill-buffer ediff-ancestor-buffer)))
-                  t t)
-        (add-hook 'ediff-quit-hook #'magit-ediff--cleanup-buffers t t)
+        (add-hook 'ediff-quit-hook (##magit-ediff--cleanup-buffers t) t t)
         (add-hook 'ediff-quit-hook
                   (lambda ()
                     (let ((magit-ediff-previous-winconf winconf))
@@ -536,11 +528,18 @@ is done setting up buffers."
 
 ;;; Quit
 
-(defun magit-ediff--cleanup-buffers ()
-  (magit-ediff--bury-buffer ediff-buffer-A)
-  (magit-ediff--bury-buffer ediff-buffer-B)
-  (magit-ediff--bury-buffer ediff-buffer-C)
-  (magit-ediff--bury-buffer ediff-ancestor-buffer)
+(defun magit-ediff--cleanup-buffers (&optional smerge)
+  (cond (smerge
+         (when (buffer-live-p ediff-buffer-A) (kill-buffer ediff-buffer-A))
+         (when (buffer-live-p ediff-buffer-B) (kill-buffer ediff-buffer-B))
+         (when (buffer-live-p ediff-buffer-C) (kill-buffer ediff-buffer-C))
+         (when (buffer-live-p ediff-ancestor-buffer)
+           (kill-buffer ediff-ancestor-buffer)))
+        (t
+         (magit-ediff--bury-buffer ediff-buffer-A)
+         (magit-ediff--bury-buffer ediff-buffer-B)
+         (magit-ediff--bury-buffer ediff-buffer-C)
+         (magit-ediff--bury-buffer ediff-ancestor-buffer)))
   (let* ((ctl-buf ediff-control-buffer)
          (ctl-win (ediff-get-visible-buffer-window ctl-buf))
          (ctl-frm ediff-control-frame)
