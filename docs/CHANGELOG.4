@@ -2,22 +2,22 @@
 * v4.6.1    UNRELEASED
 
 - If the region marks a single commit, ~magit-patch-create~ now creates
-  a patch for that, instead of prompting.  Previously that only was
-  only done if multiple commit were marked.  #4734
+  a patch for that, instead of prompting.  Previously that was only
+  done if multiple commit were marked.  #4734
 
 - When reading a value for ~git diff~'s ~--find-renames~ or ~--find-copies~
   argument, the similarity index can now be specified as a percentage
   or as a fraction.  The input now has to exactly match the value, as
   used by Git; e.g., "20%" or "05".  The latter is interpreted as the
-  faction 0.05.  #4708
+  fraction 0.05.  #4708
 
 - Added optional DIRECTORY argument to ~magit-status-quick~, intended
   for use in third-party repository switchers.  #4636
 
-- Added new command ~magit-log-reflog~, which shows log for all objects
-  mentioned in all reflogs.  #4748
+- Added new command ~magit-log-reflog~, which shows the log for all
+  objects mentioned in all reflogs.  #4748
 
-- When ~gpg.format~ specifies a format other than openpgp, The menu
+- When ~gpg.format~ specifies a format other than openpgp, the menu
   argument ~--gpg-sign~ now acts as a boolean toggle.  Previously it
   always wanted to read an openpgp key, making it impossible to
   toggle ssh or x509 signing from the menu.  The used format is now
@@ -32,16 +32,16 @@
   ~magit-do-async-shell-command~ can now act on directories.  #5247
 
 - ~magit-process-kill~ now first tries to interrupt the process.
-  If that fails, a second invocation instead kill it.  #5086
+  If that fails, a second invocation instead kills it.  #5086
 
 - Added help text for the ~Filter!~ status section.  #5121
 
 - By default, submodules with untracked content are now also listed
-  the status of the super-repository.  #5448
+  in the status of the super-repository.  #5448
 
 - Added ~--redit-message~ to the ~magit-commit~ menu.  That argument and
   ~--reuse-message~ now usually default to the commit at point, but when
-  invoked with a prefix argument, the user can instead selected the
+  invoked with a prefix argument, the user can instead select the
   commit from a log.  #5602
 
 Bugfixes:
