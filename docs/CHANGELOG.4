@@ -53,6 +53,10 @@ Bugfixes:
 
 - Fixed regressions in ~magit-ediff-resolve-rest~.  #5603
 
+- ~magit-bisect-start~ and ~magit-bisect-run~ insisted on the good commit
+  being an ancestor of the bad, but ~git bisect~ only requires a merge-
+  base.  #5238
+
 * v4.6.0    2026-07-01
 
 The primary focus of this release are blob-visiting buffers.  For
