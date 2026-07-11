@@ -655,27 +655,27 @@ These sections can be expanded to show the respective commits."
 
 (defun magit-submodule-list-refresh ()
   (setq tabulated-list-entries
-        (seq-keep
-         (lambda (module)
-           (let ((default-directory
-                  (expand-file-name (file-name-as-directory module))))
-             (and (file-exists-p ".git")
-                  (or (not magit-submodule-list-predicate)
-                      (funcall magit-submodule-list-predicate module))
-                  (list default-directory
-                        (vconcat
-                         (mapcar (pcase-lambda (`(,title ,width ,fn ,props))
-                                   (or (funcall fn `((:path  ,module)
-                                                     (:title ,title)
-                                                     (:width ,width)
-                                                     ,@props))
-                                       ""))
-                                 magit-repolist-columns))))))
-         (magit-list-module-paths)))
+        (seq-keep #'magit-submodule--format-module (magit-list-module-paths)))
   (message "Listing submodules...")
   (tabulated-list-init-header)
   (tabulated-list-print t)
   (message "Listing submodules...done"))
+
+(defun magit-submodule--format-module (module)
+  (let ((default-directory (expand-file-name (file-name-as-directory module))))
+    (and (file-exists-p ".git")
+         (or (not magit-submodule-list-predicate)
+             (funcall magit-submodule-list-predicate module))
+         (list default-directory
+               (vconcat
+                (mapcar
+                 (pcase-lambda (`(,title ,width ,fn ,props))
+                   (or (funcall fn `((:path  ,module)
+                                     (:title ,title)
+                                     (:width ,width)
+                                     ,@props))
+                       ""))
+                 magit-repolist-columns))))))
 
 (defun magit-modulelist-column-path (spec)
   "Insert the relative path of the submodule."
