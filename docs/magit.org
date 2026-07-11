@@ -4132,11 +4132,16 @@ following suffix commands.
   Start a bisect session.
 
   Bisecting a bug means to find the commit that introduced it.
+
   This command starts such a bisect session by asking for a known
-  good commit and a known bad commit.  If you're bisecting a change
-  that isn't a regression, you can select alternate terms that are
-  conceptually more fitting than "bad" and "good", but the infix
-  arguments to do so are disabled by default.
+  good commit and a known bad commit.  If the region marks a range of
+  commit, where one is an ancestor of the other, then these commits
+  are used as the good and bad commits.  Otherwise these starting
+  points are read in the minibuffer.
+
+  If you're bisecting a change that isn't a regression, you can select
+  alternate terms that are conceptually more fitting than "bad" and
+  "good", but the infix arguments to do so are disabled by default.
 
 - Key: B s (magit-bisect-run) ::
 

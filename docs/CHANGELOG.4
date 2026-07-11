@@ -47,6 +47,10 @@
 - Added new option ~magit-submodule-list-predicate~ and taught
   ~magit-submodule-list~ to support unpopulated modules.  #5077
 
+- When ~magit-bisect-start~ and ~magit-bisect-run~ are invoked with the
+  region marking a reange of consecutive commit, the commits at the
+  ends are used as the good and bad commits.  #5049
+
 Bugfixes:
 
 - ~magit-ignore-submodules-p~ didn't return ~nil~ for ~none~.
