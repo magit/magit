@@ -140,6 +140,15 @@ if non-nil, means to invert the resulting sort."
                  (cons (string :tag "Column name")
                        (boolean :tag "Flip order"))))
 
+(defcustom magit-submodule-list-predicate #'always
+  "Predicate used to determine whether to include a module in the list.
+Suitable values incluce `always' and `magit-submodule-list-module-populated-p'."
+  :package-version '(magit . "4.6.1")
+  :group 'magit-repolist
+  :type '(choice (function-item always)
+                 (function-item magit-submodule-list-module-populated-p)
+                 (function)))
+
 (defvar magit-submodule-list-format-path-functions nil)
 
 (defcustom magit-submodule-remove-trash-gitdirs nil
@@ -640,8 +649,6 @@ These sections can be expanded to show the respective commits."
   (setq-local tabulated-list-revert-hook
               (list #'magit-submodule-list-refresh t)))
 
-(defvar-local magit-submodule-list-predicate nil)
-
 (defun magit-submodule-list-setup (columns &optional predicate)
   (magit-display-buffer
    (or (magit-get-mode-buffer 'magit-submodule-list-mode)
@@ -649,7 +656,8 @@ These sections can be expanded to show the respective commits."
   (magit-submodule-list-mode)
   (setq-local magit-repolist-columns columns)
   (setq-local magit-repolist-sort-key magit-submodule-list-sort-key)
-  (setq-local magit-submodule-list-predicate predicate)
+  (when predicate
+    (setq-local magit-submodule-list-predicate predicate))
   (magit-repolist-setup-1)
   (magit-submodule-list-refresh))
 
@@ -662,20 +670,33 @@ These sections can be expanded to show the respective commits."
   (message "Listing submodules...done"))
 
 (defun magit-submodule--format-module (module)
-  (let ((default-directory (expand-file-name (file-name-as-directory module))))
-    (and (file-exists-p ".git")
-         (or (not magit-submodule-list-predicate)
-             (funcall magit-submodule-list-predicate module))
+  (and (funcall magit-submodule-list-predicate module)
+       (let ((default-directory
+              (expand-file-name (file-name-as-directory module))))
          (list default-directory
                (vconcat
                 (mapcar
                  (pcase-lambda (`(,title ,width ,fn ,props))
-                   (or (funcall fn `((:path  ,module)
-                                     (:title ,title)
-                                     (:width ,width)
-                                     ,@props))
+                   (or (and (or (file-exists-p ".git")
+                                (and
+                                 (symbolp fn)
+                                 (get fn 'magit-submodule-support-unpopulated)))
+                            (funcall fn `((:path  ,module)
+                                          (:title ,title)
+                                          (:width ,width)
+                                          ,@props)))
                        ""))
                  magit-repolist-columns))))))
+
+(put 'magit-modulelist-column-path 'magit-submodule-support-unpopulated t)
+(put 'magit-repolist-column-path   'magit-submodule-support-unpopulated t)
+(put 'magit-repolist-column-branch 'magit-submodule-support-unpopulated t)
+
+(defun magit-submodule-list-module-populated-p (module)
+  "Return t if MODULE is populated, nil otherwise.
+This is only suitable as a value of `magit-submodule-list-predicate'."
+  (file-exists-p
+   (expand-file-name (concat (file-name-as-directory module) ".git"))))
 
 (defun magit-modulelist-column-path (spec)
   "Insert the relative path of the submodule."
