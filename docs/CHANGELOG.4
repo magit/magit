@@ -51,6 +51,11 @@
   region marking a reange of consecutive commit, the commits at the
   ends are used as the good and bad commits.  #5049
 
+- ~magit-branch-checkout~ now always passes the commit, which is to be
+  checked out, to the function used to read the worktree directory
+  from the user.  Previously this was only done for local branches.
+  #5502
+
 Bugfixes:
 
 - ~magit-ignore-submodules-p~ didn't return ~nil~ for ~none~.

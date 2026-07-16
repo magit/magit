@@ -33,9 +33,8 @@
 (defcustom magit-read-worktree-directory-function
   #'magit-read-worktree-directory-sibling
   "Function used to read the directory to be used as a new worktree.
-This is called with two arguments, the prompt and the branch to be
-checked out.  When not checking out a branch then use nil for the
-second argument."
+This is called with two arguments, the prompt and the commit to be
+checked out."
   :package-version '(magit . "4.4.0")
   :group 'magit-commands
   :type `(radio (function-item ,#'magit-read-worktree-directory)
@@ -61,24 +60,24 @@ but is not used by default."
 
 ;;; Functions
 
-(defun magit-read-worktree-directory (prompt _branch)
-  "Call `read-directory-name' with PROMPT, but ignoring _BRANCH."
+(defun magit-read-worktree-directory (prompt _commit)
+  "Call `read-directory-name' with PROMPT, but ignoring _COMMIT."
   (read-directory-name prompt))
 
-(defun magit-read-worktree-directory-nested (prompt branch)
+(defun magit-read-worktree-directory-nested (prompt commit)
   "Call `read-directory-name' in current worktree.
 For `read-directory-name's INITIAL argument use a string based on
-BRANCH, replacing slashes with dashes.  If BRANCH is nil, use nil
+COMMIT, replacing slashes with dashes.  If COMMIT is nil, use nil
 as INITIAL.  Always forward PROMPT as-is."
   (read-directory-name prompt nil nil nil
-                       (and branch (string-replace "/" "-" branch))))
+                       (and commit (string-replace "/" "-" commit))))
 
-(defun magit-read-worktree-directory-sibling (prompt branch)
+(defun magit-read-worktree-directory-sibling (prompt commit)
   "Call `read-directory-name' in parent directory of current worktree.
 For `read-directory-name's INITIAL argument use a string based on the
 name of the current worktree and BRANCH.  Use \"PREFIX_BRANCH\" where
 PREFIX is the name of the current worktree, up to the first underscore,
-and slashes in BRANCH are replaced with dashes.  If BRANCH is nil use
+and slashes in COMMIT are replaced with dashes.  If COMMIT is nil use
 just \"PREFIX_\".  Always forward PROMPT as-is."
   (let* ((path (directory-file-name default-directory))
          (name (file-name-nondirectory path)))
@@ -88,9 +87,9 @@ just \"PREFIX_\".  Always forward PROMPT as-is."
                  (substring name 0 (match-beginning 0))
                name)
              "_"
-             (and branch (string-replace "/" "-" branch))))))
+             (and commit (string-replace "/" "-" commit))))))
 
-(defun magit-read-worktree-directory-offsite (prompt branch)
+(defun magit-read-worktree-directory-offsite (prompt commit)
   "Call `read-directory-name' in a directory shared by all repositories.
 
 Option `magit-read-worktree-offsite-directory' specifies that shared
@@ -99,7 +98,7 @@ base directory.
 For `read-directory-name's INITIAL argument use a string based on the
 name of the current worktree and BRANCH.  Use \"PREFIX_BRANCH\" where
 PREFIX is the name of the current worktree, up to the first underscore,
-and slashes in BRANCH are replaced with dashes.  If BRANCH is nil use
+and slashes in COMMIT are replaced with dashes.  If COMMIT is nil use
 just \"PREFIX_\".  Always forward PROMPT as-is."
   (mkdir magit-read-worktree-offsite-directory t)
   (read-directory-name
@@ -109,19 +108,19 @@ just \"PREFIX_\".  Always forward PROMPT as-is."
                     (substring name 0 (match-beginning 0))
                   name))
           (name (concat name "_")))
-     (if branch
-         (concat name (string-replace "/" "-" branch))
+     (if commit
+         (concat name (string-replace "/" "-" commit))
        (file-name-nondirectory
         (make-temp-name
          (expand-file-name name magit-read-worktree-offsite-directory)))))))
 
-(defun magit--read-worktree-directory (rev branchp)
+(defun magit--read-worktree-directory (rev)
   (let ((default-directory (magit-toplevel))
         (prompt (format "Checkout %s in new worktree: " rev)))
     (if magit-worktree-read-directory-name-function
         (funcall magit-worktree-read-directory-name-function prompt)
       (funcall magit-read-worktree-directory-function
-               prompt (and branchp rev)))))
+               prompt rev))))
 
 ;;; Commands
 
@@ -146,7 +145,7 @@ Interactively, use `magit-read-worktree-directory-function'."
     (let ((commit (magit-read-branch-or-commit
                    "In new worktree; checkout" nil
                    (mapcar #'caddr (magit-list-worktrees)))))
-      (list (magit--read-worktree-directory commit (magit-local-branch-p commit))
+      (list (magit--read-worktree-directory commit)
             commit)))
   (when (zerop (magit-run-git "worktree" "add"
                               (magit--expand-worktree directory) commit))
@@ -160,7 +159,7 @@ Interactively, use `magit-read-worktree-directory-function'."
     (pcase-let
         ((`(,branch ,start-point)
           (magit-branch-read-args "In new worktree; checkout new branch")))
-      (list (magit--read-worktree-directory branch t)
+      (list (magit--read-worktree-directory branch)
             branch start-point)))
   (when (zerop (magit-run-git "worktree" "add" "-b" branch
                               (magit--expand-worktree directory) start-point))
