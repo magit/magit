@@ -191,26 +191,20 @@ blame to center around the line point is on."
 
 ;;;###autoload
 (defun magit-project-status ()
-  "Run `magit-status' in the current project's root."
+  "Run `magit-status' in the current project's root.
+
+To teach `project-switch-project' about this command, you have to
+add something like this to your configuration:
+
+    (keymap-set project-prefix-map \"m\" #\\='magit-project-status)
+    (add-to-list \\='project-switch-commands
+                 \\='(magit-project-status \"Magit\") t)
+
+Also see `magit-project-dispatch'."
   (interactive)
   (if (fboundp 'project-root)
       (magit-status-setup-buffer (project-root (project-current t)))
     (user-error "`magit-project-status' requires `project' 0.3.0 or greater")))
-
-(defvar magit-bind-magit-project-status t
-  "Whether to bind \"m\" to `magit-project-status' in `project-prefix-map'.
-If so, then an entry is added to `project-switch-commands' as
-well.  If you want to use another key, then you must set this
-to nil before loading Magit to prevent \"m\" from being bound.")
-
-(with-eval-after-load 'project
-  (when (and magit-bind-magit-project-status
-             ;; Only modify if it hasn't already been modified.
-             (equal project-switch-commands
-                    (eval (car (get 'project-switch-commands 'standard-value))
-                          t)))
-    (keymap-set project-prefix-map "m" #'magit-project-status)
-    (add-to-list 'project-switch-commands '(magit-project-status "Magit") t)))
 
 ;;; Shift Selection
 
