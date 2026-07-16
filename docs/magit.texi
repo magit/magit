@@ -6616,6 +6616,22 @@ prompt is confusing.
 Rename a branch.  The branch and the new name are read in the
 minibuffer.  With prefix argument the branch is renamed even if that
 name conflicts with an existing branch.
+
+@item @kbd{b r} (@code{magit-checkout-remote-ref})
+@kindex b r
+@findex magit-checkout-remote-ref
+This commands first reads a remote from the user.  Then it queries
+that remote for a list of its references and presents that to the
+user.  After the user has selected one of them, it fetches just that
+ref, and finally it checks out "FETCH@math{_HEAD}", which now refers to the
+same commit as REF does on REMOTE@.
+
+This is only useful if you usually only fetch a subset of the refs
+from REMOTE@.  Otherwise it is better to use @code{magit-checkout}, as that
+avoids a round-trip.
+
+This command is not shown in the menu by default, see
+@ref{Enabling and Disabling Suffixes,transient#Enabling and Disabling Suffixes,,transient,}.
 @end table
 
 @defopt magit-branch-read-upstream-first

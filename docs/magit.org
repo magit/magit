@@ -5618,6 +5618,22 @@ The variables are described in [[*Branch Git Variables]].
   minibuffer.  With prefix argument the branch is renamed even if that
   name conflicts with an existing branch.
 
+- Key: b r (magit-checkout-remote-ref) ::
+
+  This commands first reads a remote from the user.  Then it queries
+  that remote for a list of its references and presents that to the
+  user.  After the user has selected one of them, it fetches just that
+  ref, and finally it checks out "FETCH_HEAD", which now refers to the
+  same commit as REF does on REMOTE.
+
+  This is only useful if you usually only fetch a subset of the refs
+  from REMOTE.  Otherwise it is better to use ~magit-checkout~, as that
+  avoids a round-trip.
+
+  This command is not shown in the menu by default, see
+  [[info:transient#Enabling and Disabling
+   Suffixes][transient#Enabling and Disabling Suffixes]].
+
 - User Option: magit-branch-read-upstream-first ::
 
   When creating a branch, whether to read the upstream branch before

@@ -235,7 +235,8 @@ has to be used to view and change branch related variables."
   [["Checkout"
     ("b" "branch/revision"   magit-checkout)
     ("l" "local branch"      magit-branch-checkout)
-    (6 "o" "new orphan"      magit-branch-orphan)]
+    (6 "o" "new orphan"      magit-branch-orphan)
+    (0 "r" "remote ref"      magit-checkout-remote-ref)]
    [""
     ("c" "new branch"        magit-branch-and-checkout)
     ("s" "new spin-off"      magit-branch-spinoff)
@@ -425,6 +426,35 @@ when using `magit-branch-and-checkout'."
   "Create and checkout an orphan BRANCH with contents from revision START-POINT."
   (interactive (magit-branch-read-args "Create and checkout orphan branch"))
   (magit-run-git "checkout" "--orphan" branch start-point))
+
+;;;###autoload
+(defun magit-checkout-remote-ref (remote ref)
+  "Checkout reference REF from REMOTE.
+
+This command queries the REMOTE for a list of its references.  After
+the user has selected on of them, it fetches just that, and finally
+it checks out \"FETCH_HEAD\", which now refers to the same commit as
+REF does on REMOTE.
+
+This is only useful if you usually only fetch a subset of the refs
+from REMOTE.  Otherwise it is better to use `magit-checkout', as
+that avoids a round-trip."
+  (declare (interactive-only magit-call-git))
+  (interactive
+    (let ((remote (magit-read-remote "Checkout ref from remote" nil t)))
+      (list remote
+            (magit-completing-read
+             "Fetch and checkout ref"
+             (prog2 (message "Fetching list of remote refs...")
+                 (magit-remote-list-refs remote)
+               (message "Fetching list of remote refs...done"))))))
+  (magit-run-git-async "fetch" remote ref)
+  (set-process-sentinel
+   magit-this-process
+   (lambda (process _event)
+     (when (memq (process-status process) '(exit signal))
+       (magit--checkout "FETCH_HEAD")
+       (magit-refresh)))))
 
 (defun magit-branch-read-args (prompt &optional default-start)
   (cond-let
