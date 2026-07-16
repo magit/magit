@@ -206,6 +206,29 @@ Also see `magit-project-dispatch'."
       (magit-status-setup-buffer (project-root (project-current t)))
     (user-error "`magit-project-status' requires `project' 0.3.0 or greater")))
 
+;;;###autoload
+(defun magit-project-dispatch ()
+  "Run `magit-dispatch' in the current project's root.
+
+Note that for `magit-dispatch' to operate in the selected project,
+the current buffer's `default-directory' must be located in the
+selected repository.  To achive that, a Dired buffer is created.
+
+To teach `project-switch-project' about this command, you have to
+add something like this to your configuration:
+
+    (keymap-set project-prefix-map \"M\" #\\='magit-project-dispatch)
+    (add-to-list \\='project-switch-commands
+                 \\='(magit-project-dispatch \"Magit Dispatch\") t)
+
+Also see `magit-project-status'."
+  (interactive)
+  (if (fboundp 'project-root)
+      (let ((dir (project-root (project-current t))))
+        (find-file dir)
+        (magit-dispatch))
+    (user-error "`magit-project-status' requires `project' 0.3.0 or greater")))
+
 ;;; Shift Selection
 
 (defun magit--turn-on-shift-select-mode-p ()
