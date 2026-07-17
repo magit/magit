@@ -3711,6 +3711,24 @@ If the revision buffer is not displayed from a log buffer, the file
 restriction is determined as usual (see [[*Transient Arguments and
 Buffer Variables]]).
 
+- User Option: magit-revision-use-dedicated-buffers ::
+
+  Whether ~magit-show-commit~ uses a dedicated buffer for each revision.
+
+  If this is ~nil~, then each revision is initially displayed in the same
+  per-repository buffer.  You can then lock that buffer to the revision;
+  if you later display another revision, the locked buffer continues to
+  display the same revision as before and the new revision is displayed
+  in another bufer.
+
+  If this is ~t~, then each revision is displayed in a dedicated buffer.
+  A revision buffer is only reused (i.e., raised), if it already displays
+  the requested revision.  If you enable this, you will quickly accumulate
+  revision buffers and will have to find a way to keep that under control.
+  ~magit-{blame,log,status}-maybe-update-revision-buffer~ also will stop
+  working, if this is enabled.  For these reasons it is recommended, that
+  you do not enable this."
+
 ** Ediffing
 
 This section describes how to enter Ediff from Magit buffers.  For

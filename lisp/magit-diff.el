@@ -576,6 +576,26 @@ log's file filter is always honored."
   :group 'magit-revision
   :type 'boolean)
 
+(defcustom magit-revision-use-dedicated-buffers nil
+  "Whether `magit-show-commit' uses a dedicated buffer for each revision.
+
+If this is nil, then each revision is initially displayed in the same
+per-repository buffer.  You can then lock that buffer to the revision;
+if you later display another revision, the locked buffer continues to
+display the same revision as before and the new revision is displayed
+in another bufer.
+
+If this is t, then each revision is displayed in a dedicated buffer.
+A revision buffer is only reused (i.e., raised), if it already displays
+the requested revision.  If you enable this, you will quickly accumulate
+revision buffers and will have to find a way to keep that under control.
+`magit-{blame,log,status}-maybe-update-revision-buffer' also will stop
+working, if this is enabled.  For these reasons it is recommended, that
+you do not enable this."
+  :package-version '(magit . "4.6.1")
+  :group 'magit-revision
+  :type 'boolean)
+
 ;;;; Visit Commands
 
 (defcustom magit-diff-visit-prefer-worktree nil
@@ -1555,8 +1575,19 @@ the file or blob."
 ;;;###autoload
 (defun magit-show-commit (rev &optional args files module)
   "Visit the revision at point in another buffer.
-If there is no revision at point or with a prefix argument prompt
-for a revision."
+
+If there is no revision at point, or with a prefix argument, prompt
+for a revision.
+
+By default the same per-repository revision buffer is reused for all
+revision.  When you want to display multiple revisions at the same
+time, you can lock a revision buffer to its value, which prevents it
+from being reused to display another revision.
+
+Alternatively, you can use a dedicated buffer for every revision.
+To do so, enable `magit-revision-use-dedicated-buffers', but only
+after readings its docstring, to make sure you are can live with
+the trade-offs."
   (interactive
     (pcase-let* ((mcommit (magit-section-value-if 'module-commit))
                  (atpoint (or mcommit
@@ -2997,7 +3028,8 @@ Staging and applying changes is documented in info node
      '("--stat" "--no-ext-diff"))
 
 (defun magit-revision-setup-buffer (rev args files)
-  (magit-setup-buffer #'magit-revision-mode nil
+  (magit-setup-buffer #'magit-revision-mode
+      magit-revision-use-dedicated-buffers
     (magit-buffer-revision rev)
     (magit-buffer-diff-range (format "%s^..%s" rev rev))
     (magit-buffer-diff-type 'committed)
