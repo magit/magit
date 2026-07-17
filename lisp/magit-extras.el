@@ -834,6 +834,36 @@ In Magit diffs, also skip over - and + at the beginning of the line."
   (skip-syntax-forward " " (line-end-position))
   (backward-prefix-chars))
 
+(defun magit-insert-nested-repositories ()
+  "Insert repositories below the current repository.
+
+If the current repository has submodules, then do nothing (in this case
+the expectation is that all nested repositories are submodules and that
+they are being listed using a function such as `magit-insert-modules').
+Otherwise look for nested repositories once, using \"find\", and cache
+the result.  That cache can be invalidated using `magit-zap-caches'.
+
+Note that \"find\" will be run once in every repository, including in
+huge repositories, which don't actually have any nested repositories.
+This may be highly inefficient and you might have to implement your own
+version of this function, which is more suited to you situation.  This
+function is mostly intended as a proof-of-concept."
+  (unless (magit-list-module-names)
+    (unless (magit-repository-local-exists-p 'nested-repos)
+      (magit-repository-local-set
+       'nested-repos
+       (mapcar (##file-name-directory (substring % 2))
+               (process-lines "find" "-name" ".git" "-mindepth" "2"))))
+    (when-let ((repos (magit-repository-local-get 'nested-repos)))
+      (magit-insert-section (repos repos t)
+        (magit-insert-heading
+          (format "%s (%s)"
+                  (propertize "Nested repositories"
+                              'font-lock-face 'magit-section-heading)
+                  (length repos)))
+        (magit-insert-section-body
+          (magit--insert-modules-overview nil repos))))))
+
 ;;; _
 (provide 'magit-extras)
 ;; Local Variables:

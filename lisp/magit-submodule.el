@@ -486,9 +486,9 @@ or, failing that, the abbreviated HEAD commit hash."
 
 (defvar magit-modules-overview-align-numbers t)
 
-(defun magit--insert-modules-overview (&optional _section)
+(defun magit--insert-modules-overview (&optional _section repos)
   (magit-with-toplevel
-    (let* ((modules (magit-list-module-paths))
+    (let* ((modules (or repos (magit-list-module-paths)))
            (path-format (format "%%-%ds "
                                 (min (apply #'max (mapcar #'length modules))
                                      (/ (window-width) 2))))
