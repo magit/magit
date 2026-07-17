@@ -226,7 +226,7 @@ Also see `magit-project-status'."
   (if (fboundp 'project-root)
       (let ((dir (project-root (project-current t))))
         (find-file dir)
-        (magit-dispatch))
+        (transient-setup 'magit-dispatch))
     (user-error "`magit-project-status' requires `project' 0.3.0 or greater")))
 
 ;;; Shift Selection
