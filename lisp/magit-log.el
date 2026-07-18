@@ -157,10 +157,10 @@ This is useful if you use really long branch names."
         #'magit-highlight-bracket-keywords)
   "Functions used to highlight parts of each individual commit summary.
 
-These functions are called in order, in a buffer that containing the
-first line of the commit message.  They should set text properties as
-they see fit, usually just `font-lock-face'.  Before each function is
-called, point is at the beginning of the buffer.
+These functions are called in order, in a buffer containing the first
+line of the commit message.  They should set text properties as they see
+fit, usually just `font-lock-face'.  Before each function is called,
+point is at the beginning of the buffer.
 
 See also the related `magit-revision-wash-message-hook'.  You likely
 want to use the same functions for both hooks."
@@ -470,7 +470,7 @@ commits before and half after."
 
 (transient-define-group magit-log-infix-arguments
   ;; The grouping in git-log(1) appears to be guided by implementation
-  ;; details, so our logical grouping only follows it to an extend.
+  ;; details, so our logical grouping only follows it to an extent.
   ;; Arguments that are "misplaced" here:
   ;;   1. From "Commit Formatting".
   ;;   2. From "Common Diff Options". ;FIXME

@@ -212,7 +212,7 @@ Also see `magit-project-dispatch'."
 
 Note that for `magit-dispatch' to operate in the selected project,
 the current buffer's `default-directory' must be located in the
-selected repository.  To achive that, a Dired buffer is created.
+selected repository.  To achieve that, a Dired buffer is created.
 
 To teach `project-switch-project' about this command, you have to
 add something like this to your configuration:
@@ -846,7 +846,7 @@ the result.  That cache can be invalidated using `magit-zap-caches'.
 Note that \"find\" will be run once in every repository, including in
 huge repositories, which don't actually have any nested repositories.
 This may be highly inefficient and you might have to implement your own
-version of this function, which is more suited to you situation.  This
+version of this function, which is more suited to your situation.  This
 function is mostly intended as a proof-of-concept."
   (unless (magit-list-module-names)
     (unless (magit-repository-local-exists-p 'nested-repos)
