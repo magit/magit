@@ -1524,14 +1524,15 @@ be committed."
   (magit-commit-diff--show))
 
 ;;;###autoload
-(defun magit-diff-buffer-file ()
+(defun magit-diff-buffer-file (&optional unstaged-only)
   "Show diff for the blob or file visited in the current buffer.
+
+Limit the diff to the file or blob.
 
 When the buffer visits a blob, then show the respective commit.
 When the buffer visits a file, then show the differences between
-`HEAD' and the working tree.  In both cases limit the diff to
-the file or blob."
-  (interactive)
+`HEAD' and the working tree, or the index with a prefix argument."
+  (interactive (list current-prefix-arg))
   (require 'magit)
   (if-let ((file (magit-file-relative-name)))
       (if magit-buffer-revision
@@ -1542,7 +1543,9 @@ the file or blob."
         (let ((line (line-number-at-pos))
               (col (current-column)))
           (with-current-buffer
-              (magit-diff-setup-buffer (or (magit-get-current-branch) "HEAD")
+              (magit-diff-setup-buffer (and (not unstaged-only)
+                                            (or (magit-get-current-branch)
+                                                "HEAD"))
                                        nil
                                        (car (magit-diff-arguments))
                                        (list file)

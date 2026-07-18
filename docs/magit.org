@@ -8140,7 +8140,11 @@ all, add this to your init file and restart Emacs.
 - Key: C-c M-g d (magit-diff-buffer-file) ::
 
   This command shows the diff for the file of blob that the current
-  buffer visits.
+  buffer visits.  The diff is limited to the file or blob.
+
+  When the buffer visits a blob, then show the respective commit.
+  When the buffer visits a file, then show the differences between
+  ~HEAD~ and the working tree, or the index with a prefix argument.
 
 - User Option: magit-diff-buffer-file-locked ::
 

@@ -9837,7 +9837,11 @@ file(s) is set to the visited file.
 @kindex C-c M-g d
 @findex magit-diff-buffer-file
 This command shows the diff for the file of blob that the current
-buffer visits.
+buffer visits.  The diff is limited to the file or blob.
+
+When the buffer visits a blob, then show the respective commit.
+When the buffer visits a file, then show the differences between
+@code{HEAD} and the working tree, or the index with a prefix argument.
 @end table
 
 @defopt magit-diff-buffer-file-locked
