@@ -121,11 +121,11 @@ so causes the change to be applied to the index as well."
        (user-error "Change is already in the working tree"))
       (`(untracked ,(or 'file 'files))
        (call-interactively #'magit-am))
+      (`(rebase-sequence file)
+       (call-interactively #'magit-patch-apply))
       (`(,_ region) (magit-apply-region $ args))
       (`(,_   hunk) (magit-apply-hunk   $ args))
       (`(,_  hunks) (magit-apply-hunks  $ args))
-      (`(rebase-sequence file)
-       (call-interactively #'magit-patch-apply))
       (`(,_   file) (magit-apply-diff   $ args))
       (`(,_  files) (magit-apply-diffs  $ args)))))
 
