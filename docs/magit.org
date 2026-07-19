@@ -4859,6 +4859,18 @@ variants.
 With a prefix argument all apply variants attempt a 3-way merge when
 appropriate (i.e., when ~git apply~ is used internally).
 
+- Command: magit-copy-diff-as-kill ::
+
+  This command saves the diff at point to the kill ring.
+
+  It can be used on staged and unstaged changes, and anywhere
+  ~magit-apply~ can be used.  Additionally, if there is no diff at point
+  but ~magit-buffer-revision~ is non-nil, or there is a commit at point,
+  the diff for that commit is saved.
+
+  This is useful if you need to copy some diff elsewhere, e.g., to a
+  mail client or browser text area.
+
 ** Committing
 
 When the user initiates a commit, Magit calls ~git commit~ without the

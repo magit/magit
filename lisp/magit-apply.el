@@ -227,18 +227,20 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
       (user-error "Not enough context to apply patch.  Increase the context"))
     (unless magit-inhibit-refresh
       (magit-run-before-change-functions files command))
-    (with-temp-buffer
-      (insert patch)
-      (let ((magit-inhibit-refresh t))
-        (magit-run-git-with-input
-         "apply" args "-p0"
-         (if ignore-context "-C0" (format "-C%s" context))
-         "--ignore-space-change" "-")))
-    (unless magit-inhibit-refresh
-      (magit-run-after-apply-functions files command)
-      (magit-refresh))))
+    (if (eq this-command 'magit-copy-diff-as-kill)
+        (kill-new patch)
+      (with-temp-buffer
+        (insert patch)
+        (let ((magit-inhibit-refresh t))
+          (magit-run-git-with-input
+           "apply" args "-p0"
+           (if ignore-context "-C0" (format "-C%s" context))
+           "--ignore-space-change" "-")))
+      (unless magit-inhibit-refresh
+        (magit-run-after-apply-functions files command)
+        (magit-refresh)))))
 
-(defun magit-apply--get-selection ()
+(defun magit-apply--get-selection (&optional noerror)
   (or (magit-region-sections '(hunk file module) t)
       (let ((section (magit-current-section)))
         (pcase (oref section type)
@@ -247,6 +249,7 @@ adjusted as \"@@ -10,6 +10,7 @@\" and \"@@ -18,6 +19,7 @@\"."
                'stashed-index 'stashed-worktree 'stashed-untracked)
            (oref section children))
           ('untracked t)
+          ((guard noerror) nil)
           (_ (user-error "Cannot apply this, it's not a change"))))))
 
 (defun magit-apply--get-diffs (sections)
@@ -755,6 +758,33 @@ a separate commit.  A typical workflow would be:
    and then type \"c c\" to create a new commit."
   (interactive)
   (magit-reverse (cons "--cached" args)))
+
+;;;; Copy
+
+(defun magit-copy-diff-as-kill ()
+  "Save the diff at point to the kill ring.
+This command can be used on staged and unstaged changes, and anywhere
+`magit-apply' can be used.  Additionally, if there is no diff at point
+but `magit-buffer-revision' is non-nil, or there is a commit at point,
+the diff for that commit is saved."
+  (interactive)
+  (cond-let
+    ([$ (magit-apply--get-selection t)]
+     (pcase (list (magit-diff-type) (magit-diff-scope))
+       (`(untracked ,(or 'file 'files))
+        (user-error "Cannot copy this as a diff"))
+       (`(rebase-sequence file)
+        (user-error "Cannot copy this as a diff"))
+       (`(,_ region) (magit-apply-region $))
+       (`(,_   hunk) (magit-apply-hunk   $))
+       (`(,_  hunks) (magit-apply-hunks  $))
+       (`(,_   file) (magit-apply-diff   $))
+       (`(,_  files) (magit-apply-diffs  $))))
+    ([rev (or (magit-commit-at-point) magit-buffer-revision)]
+     (magit--with-temp-process-buffer
+       (magit-git-insert "show" "-p" "--format=" rev)
+       (kill-new (buffer-string))))
+    ((user-error "Cannot copy this as a diff"))))
 
 ;;; Smerge Support
 
