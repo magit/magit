@@ -111,7 +111,7 @@ runs Git asynchronously and on the local machine.  The hook functions
 are called with the same arguments as the Git hook; see the mentioned
 manpage for details.")
 
-;;; Popup
+;;; Menu
 
 ;;;###autoload(autoload 'magit-commit "magit-commit" nil t)
 (transient-define-prefix magit-commit ()

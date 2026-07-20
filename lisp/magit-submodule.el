@@ -165,7 +165,7 @@ and also setting this variable to t will lead to tears."
   :group 'magit-commands
   :type 'boolean)
 
-;;; Popup
+;;; Menu
 
 ;;;###autoload(autoload 'magit-submodule "magit-submodule" nil t)
 (transient-define-prefix magit-submodule ()

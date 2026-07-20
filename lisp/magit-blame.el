@@ -940,7 +940,7 @@ instead of the hash, like `kill-ring-save' would."
       (call-interactively #'copy-region-as-kill)
     (kill-new (message "%s" (oref (magit-current-blame-chunk) orig-rev)))))
 
-;;; Popup
+;;; Menu
 
 ;;;###autoload(autoload 'magit-blame "magit-blame" nil t)
 (transient-define-prefix magit-blame ()

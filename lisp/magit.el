@@ -322,7 +322,7 @@ already been run."
       (magit-maybe-define-global-key-bindings)
     (add-hook 'after-init-hook #'magit-maybe-define-global-key-bindings t)))
 
-;;; Dispatch Popup
+;;; Dispatch Menu
 
 ;;;###autoload(autoload 'magit-dispatch "magit" nil t)
 (transient-define-prefix magit-dispatch ()
@@ -403,7 +403,7 @@ already been run."
    [("C-x m"    "Show all key bindings"    describe-mode)
     ("C-x i"    "Show Info manual"         magit-info)]])
 
-;;; Git Popup
+;;; Git Menu
 
 (defcustom magit-shell-command-verbose-prompt t
   "Whether to show the working directory when reading a command.
