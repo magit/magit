@@ -281,7 +281,7 @@ then also remove the respective remote branch."
                 (car (magit-file-lines
                       (expand-file-name "MERGE_HEAD" (magit-gitdir)))))))
   (and head
-       (concat (magit-git-string "merge-base" "--octopus" "HEAD" head)
+       (concat (magit-merge-base "HEAD" head "--octopus")
                ".." head)))
 
 (defun magit-merge-assert ()

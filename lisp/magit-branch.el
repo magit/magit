@@ -583,7 +583,7 @@ from the source branch's upstream, then an error is raised."
                   (setq base
                         (if from
                             (concat from "^")
-                          (magit-git-string "merge-base" current tracked)))
+                          (magit-merge-base current tracked)))
                   (not (magit-rev-eq base current)))
          (if checkout
              (magit-call-git "update-ref" "-m"

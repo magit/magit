@@ -1426,7 +1426,7 @@ If no DWIM context is found, nil is returned."
       (when interactive
         (deactivate-mark))
       (if mbase
-          (let ((base (magit-git-string "merge-base" revA revB)))
+          (let ((base (magit-merge-base revA revB)))
             (cond
               ((string= (magit-rev-parse revA) base)
                (format "%s..%s" revA revB))
@@ -3400,7 +3400,7 @@ Refer to user option `magit-revision-insert-related-refs-display-alist'."
                                           (or branch "HEAD")))
     (magit-insert-section (diffbuf)
       (magit--insert-diff t
-        "merge-tree" (magit-git-string "merge-base" head magit-buffer-revision)
+        "merge-tree" (magit-merge-base head magit-buffer-revision)
         head magit-buffer-revision))))
 
 (cl-defmethod magit-buffer-value (&context (major-mode magit-merge-preview-mode))

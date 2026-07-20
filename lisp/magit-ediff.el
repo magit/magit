@@ -149,7 +149,7 @@ and alternative commands."
                               '("MERGE_HEAD" "CHERRY_PICK_HEAD" "REVERT_HEAD")))
            (revB  (or (magit-name-branch revB)
                       (magit-commit-oid revB)))
-           (revC  (magit-commit-oid (magit-git-string "merge-base" revA revB)))
+           (revC  (magit-commit-oid (magit-merge-base revA revB)))
            (fileA (magit--rev-file-name file revA revB))
            (fileB (magit--rev-file-name file revB revA))
            (fileC (or (magit--rev-file-name file revC revA)

@@ -256,7 +256,7 @@ commit message."
 
 (defun magit-wip-get-parent (ref wipref)
   (if (and (magit-rev-verify wipref)
-           (equal (magit-git-string "merge-base" wipref ref)
+           (equal (magit-merge-base wipref ref)
                   (magit-rev-verify ref)))
       wipref
     ref))

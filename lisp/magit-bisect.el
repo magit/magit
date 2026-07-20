@@ -127,7 +127,7 @@ other actions from the bisect transient command (\
                 args)))))
 
 (defun magit-bisect-start--assert (bad good args)
-  (unless (magit-git-string "merge-base" bad good)
+  (unless (magit-merge-base bad good)
     (user-error
      "%s `%s' or merge-base has to be an ancestor of %s `%s')"
      (or (transient-arg-value "--term-old=" args) "Good")
