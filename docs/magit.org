@@ -2247,6 +2247,15 @@ that it should be bound globally.  We recommend using ~C-x g~:
   It supports displaying any existing Magit buffer that belongs to the
   current repository; not just the status buffer.
 
+- Command: magit-parent-status ::
+
+  This command shows the status of the parent repository of the
+  current Git repository.  If the current repository is a submodule,
+  it shows the status buffer of its super-repository.  Otherwise it
+  steps outside the worktree of the current repository, and if that
+  takes us to another repository, that is considered that the parent
+  repository.
+
 *** Status Sections
 
 The contents of status buffers is controlled using the hook

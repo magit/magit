@@ -394,6 +394,26 @@ directory of an existing repository."
         (magit-display-buffer buffer)
       (call-interactively #'magit-status))))
 
+(defun magit-parent-status ()
+  "Show the status of the parent repository of the current Git repository.
+If the current repository is a submodule, show the status buffer
+of its super-repository.  Otherwise step outside the worktree of
+the current repository, and if that takes us to another repository,
+consider that the parent repository."
+  (interactive)
+  (cond-let*
+    [[topdir (magit-toplevel)]]
+    ((not topdir)
+     (user-error "Not inside a Git repository"))
+    [[gitdir (magit-gitdir)]
+     [parent (magit-toplevel (file-name-parent-directory gitdir))]]
+    ((and parent (not (file-equal-p parent topdir)))
+     (magit-status-setup-buffer parent))
+    [[default-directory (file-name-parent-directory topdir)]]
+    ([parent (magit-toplevel)]
+     (magit-status-setup-buffer parent))
+    ((user-error "No parent repository"))))
+
 ;;; Mode
 
 (defvar-keymap magit-status-mode-map
