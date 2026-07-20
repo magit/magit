@@ -74,6 +74,10 @@
 
 - Added new command ~magit-parent-status~.  #5022
 
+- If upstream itself is not reachable, ~magit-commit-absorb~ and
+  ~magit-commit-autofixup~ now conveniently place the cursor on the
+  merge-base of that and HEAD, instead of on HEAD.  #5579
+
 Bugfixes:
 
 - ~magit-ignore-submodules-p~ didn't return ~nil~ for ~none~.
