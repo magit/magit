@@ -559,19 +559,18 @@ a good reason to include a long line in the body sometimes."
                  (integer :tag "Fill if longer than")))
 
 (defcustom magit-revision-filter-files-on-follow nil
-  "Whether to honor file filter if log arguments include --follow.
+  "Whether to honor file filter if log arguments include \"--follow\".
 
-When a commit is displayed from a log buffer, the resulting
-revision buffer usually shares the log's file arguments,
-restricting the diff to those files.  However, there's a
-complication when the log arguments include --follow: if the log
-follows a file across a rename event, keeping the file
-restriction would mean showing an empty diff in revision buffers
-for commits before the rename event.
+When a commit is displayed from a log buffer, the resulting revision
+buffer usually shares the log's file arguments, restricting the diff to
+those files.  However, there's a complication when the log arguments
+include \"--follow\": if the log follows a file across a rename event,
+keeping the file restriction would mean showing an empty diff in
+revision buffers for commits before the rename event.
 
-When this option is nil, the revision buffer ignores the log's
-filter if the log arguments include --follow.  If non-nil, the
-log's file filter is always honored."
+When this option is nil, the revision buffer ignores the log's filter
+if the log arguments include \"--follow\".  If non-nil, the log's file filter
+is always honored."
   :package-version '(magit . "3.0.0")
   :group 'magit-revision
   :type 'boolean)
