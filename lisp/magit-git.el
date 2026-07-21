@@ -3021,20 +3021,24 @@ out.  Only existing branches can be selected."
          (car (member (magit-get-previous-branch) branches))))))
 
 (defun magit-read-starting-point (prompt &optional branch default)
-  (or (magit-completing-read
-       (concat prompt
-               (and branch
-                    (if (bound-and-true-p ivy-mode)
-                        ;; Ivy-mode strips faces from prompt.
-                        (format  " `%s'" branch)
-                      (concat " " (magit--propertize-face
-                                   branch 'magit-branch-local))))
-               " starting at")
-       (nconc (list "HEAD")
-              (magit-list-refnames)
-              (directory-files (magit-gitdir) nil "_HEAD\\'"))
-       nil 'any nil 'magit-revision-history
-       (or default (magit--default-starting-point)))
+  (or (minibuffer-with-setup-hook #'magit--minibuf-default-add-commit
+        (magit-completing-read
+         (concat prompt
+                 (and branch
+                      (if (bound-and-true-p ivy-mode)
+                          ;; Ivy-mode strips faces from prompt.
+                          (format  " `%s'" branch)
+                        (concat " " (magit--propertize-face
+                                     branch 'magit-branch-local))))
+                 " starting at")
+         (let ((refnames (magit-list-refnames)))
+           (when-let ((upstream (magit-get-upstream-branch)))
+             (setq refnames (cons upstream (delete upstream refnames))))
+           (nconc refnames
+                  (list "HEAD")
+                  (directory-files (magit-gitdir) nil "_HEAD\\'")))
+         nil 'any nil 'magit-revision-history
+         (or default (magit--default-starting-point))))
       (user-error "Nothing selected")))
 
 (defun magit--default-starting-point ()
