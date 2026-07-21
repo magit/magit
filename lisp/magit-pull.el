@@ -60,6 +60,11 @@
    ("p" magit-pull-from-pushremote)
    ("u" magit-pull-from-upstream)
    ("e" "elsewhere"         magit-pull-branch)]
+  [:description
+   (lambda ()
+     (format (propertize "Pull into %s from" 'face 'transient-heading)
+             (magit-get-upstream-branch)))
+   ("U" magit-pull-into-upstream :level 7)]
   ["Fetch from"
    :if-non-nil magit-pull-or-fetch
    ("f" "remotes"           magit-fetch-all-no-prune)
@@ -147,6 +152,36 @@ the upstream."
             ((or remote merge)
              (concat u ", replacing invalid"))
             ((concat u ", setting that")))))))
+
+;;;###autoload(autoload 'magit-pull-into-upstream "magit-pull" nil t)
+(transient-define-suffix magit-pull-into-upstream ()
+  "Update the upstream of the current branch from its own upstream.
+
+If the upstream of the current branch is a local branch, and the
+upstream of that is a remote branch, then update the local upstream.
+This makes it possible to update the upstream branch, without having
+to first check it out."
+  :if #'magit-pull--upstreams
+  :description (##cdr (magit-pull--upstreams))
+  (interactive)
+  (if-let ((upstreams (magit-pull--upstreams)))
+      (pcase-let* ((`(,up1 . ,up2) upstreams)
+                   (`(,remote . ,branch) (magit-split-branch-name up2)))
+        (magit-run-git-async "fetch" remote branch)
+        (set-process-sentinel
+         magit-this-process
+         (lambda (process _event)
+           (when (memq (process-status process) '(exit signal))
+             (magit-run-git-async "update-ref" (concat "refs/heads/" up1)
+                                  "FETCH_HEAD")))))
+    (user-error "Cannot perform background update of upstream branch")))
+
+(defun magit-pull--upstreams ()
+  (and-let* ((up1 (magit-get-upstream-branch))
+             (_   (magit-local-branch-p up1))
+             (up2 (magit-get-upstream-branch up1))
+             (_   (magit-remote-branch-p up2)))
+    (cons up1 up2)))
 
 ;;;###autoload
 (defun magit-pull-branch (source args)

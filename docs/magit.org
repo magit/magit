@@ -7251,6 +7251,19 @@ push-remote, see [[*The Two Remotes]].
 
   This command pulls from a branch read in the minibuffer.
 
+The following suffix is disabled by default. See
+[[info:transient#Enabling and Disabling Suffixes]] for how to enable it.
+
+- Key: F U (magit-pull-into-upstream) ::
+
+  This command update the upstream of the current branch from its own
+  upstream.
+
+  If the upstream of the current branch is a local branch, and the
+  upstream of that is a remote branch, then the local upstream is
+  updated.  This makes it possible to update the upstream branch,
+  without having to first check it out.
+
 ** Pushing
 
 Also see [[man:git-push]] For information about the upstream and the

@@ -8633,6 +8633,22 @@ the upstream.
 This command pulls from a branch read in the minibuffer.
 @end table
 
+The following suffix is disabled by default. See
+@ref{Enabling and Disabling Suffixes,,,transient,} for how to enable it.
+
+@table @asis
+@item @kbd{F U} (@code{magit-pull-into-upstream})
+@kindex F U
+@findex magit-pull-into-upstream
+This command update the upstream of the current branch from its own
+upstream.
+
+If the upstream of the current branch is a local branch, and the
+upstream of that is a remote branch, then the local upstream is
+updated.  This makes it possible to update the upstream branch,
+without having to first check it out.
+@end table
+
 @node Pushing
 @section Pushing
 
