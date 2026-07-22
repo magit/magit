@@ -1245,7 +1245,8 @@ See also `magit-untracked-files'."
 (defun magit-removed-files ()
   (seq-difference (delete-consecutive-dups
                    (sort (magit-git-items "log" "-z" "--format="
-                                          "--name-only" "--diff-filter=D")))
+                                          "--name-only" "--diff-filter=D")
+                         #'string<))
                   (magit-list-files)))
 
 (defun magit-skip-worktree-files (&rest args)
