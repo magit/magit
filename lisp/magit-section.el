@@ -2572,6 +2572,8 @@ and the buffer-local values of the variables referenced in its
         (bookmark-prop-set bookmark 'handler  #'magit--handle-bookmark)
         (bookmark-prop-set bookmark 'mode     major-mode)
         (bookmark-prop-set bookmark 'filename (magit-bookmark-get-filename))
+        ;; Default(s) suggested to the user when naming the bookmark.
+        ;; See comment in `bookmark-set-internal'.
         (bookmark-prop-set bookmark 'defaults (list (magit-bookmark-name)))
         (magit-bookmark-get-value bookmark)
         (bookmark-prop-set
