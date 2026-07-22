@@ -9881,6 +9881,10 @@ When the buffer visits a file, then show the differences between
 @code{HEAD} and the working tree, or the index with a prefix argument.
 @end table
 
+@deffn Command magit-show-commit-removing-file
+This command shows the commit that removed FILE@.
+@end deffn
+
 @defopt magit-diff-buffer-file-locked
 This option controls whether @code{magit-diff-buffer-file} uses a dedicated
 buffer.  See @ref{Modes and Buffers}.

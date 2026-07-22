@@ -1242,6 +1242,12 @@ See also `magit-untracked-files'."
 (defun magit-stashed-files (stash)
   (magit-git-items "stash" "show" "-z" "--name-only" stash))
 
+(defun magit-removed-files ()
+  (seq-difference (delete-consecutive-dups
+                   (sort (magit-git-items "log" "-z" "--format="
+                                          "--name-only" "--diff-filter=D")))
+                  (magit-list-files)))
+
 (defun magit-skip-worktree-files (&rest args)
   (seq-keep (##and (= (aref % 0) ?S)
                    (substring % 2))

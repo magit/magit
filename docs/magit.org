@@ -8180,6 +8180,10 @@ all, add this to your init file and restart Emacs.
   When the buffer visits a file, then show the differences between
   ~HEAD~ and the working tree, or the index with a prefix argument.
 
+- Command: magit-show-commit-removing-file ::
+
+  This command shows the commit that removed FILE.
+
 - User Option: magit-diff-buffer-file-locked ::
 
   This option controls whether ~magit-diff-buffer-file~ uses a dedicated

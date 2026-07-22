@@ -1620,6 +1620,22 @@ the trade-offs."
             (with-current-buffer buf
               (magit-diff--goto-file-position file line col))))))))
 
+;;;###autoload
+(defun magit-show-commit-removing-file (file &optional args)
+  "Show the commit that removed FILE."
+  (interactive
+    (let* ((files (magit-removed-files))
+           (default (magit-file-relative-name))
+           (default (and default (member default files) default)))
+      (list (magit-completing-read "Show commit removing file: "
+                                   files nil nil nil nil default)
+            (car (magit-show-commit--arguments)))))
+  (if-let ((rev (magit-with-toplevel
+                  (magit-git-string "log" "--format=%H" "--diff-filter=D"
+                                    "--full-history" "-n" "1" "--" file))))
+      (magit-show-commit rev args)
+    (error "%s has not been removed" file)))
+
 (defun magit-diff--locate-file-position (file line column &optional parent)
   (and-let*
       ((parent (pcase parent
