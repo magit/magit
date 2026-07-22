@@ -31,6 +31,8 @@
 
 (require 'magit)
 
+(require 'bookmark)
+
 (declare-function ediff-quit "ediff-util" (reverse-default-keep-variants))
 
 ;;; Find Blob
@@ -159,10 +161,11 @@ Non-interactively REV can also be a blob object."
      (buffer-enable-undo buf)
      buf)))
 
-(defun magit--blob-buffer-name (obj file &optional volatile)
+(defun magit--blob-buffer-name (obj file &optional volatile relative)
   (format "%s%s.~%s~"
           (if volatile " " "")
-          (or file (and (magit-blob-p obj) "{blob}"))
+          (or (if relative (file-relative-name file (magit-toplevel)) file)
+              (and (magit-blob-p obj) "{blob}"))
           (subst-char-in-string ?/ ?_ obj)))
 
 (defun magit--revert-blob-buffer (_ignore-auto _noconfirm)
@@ -216,6 +219,10 @@ Non-interactively REV can also be a blob object."
       ;; The FIND-FILE argument wasn't designed for our use case,
       ;; so we have to use this strange invocation to achieve that.
       (normal-mode (not enable-local-variables)))
+    ;; Set this here, so we don't have to make it permanent-local, which
+    ;; we probably shouldn't do, because for other packages changing the.
+    ;; If the user calls `normal-mode', this value will be discarded.
+    (setq-local bookmark-make-record-function #'magit--make-blob-bookmark)
     (set-buffer-modified-p nil)
     (run-hooks 'magit-find-blob-hook)))
 
@@ -323,6 +330,29 @@ Age is tracked in seconds.  If nil, only use `magit--blob-cache-limit'.")
 See also https://github.com/doomemacs/doomemacs/pull/6309."
   (unless magit-buffer-blob-oid
     (apply fn args)))
+
+;;; Blob Bookmarks
+
+(defun magit--make-blob-bookmark ()
+  (let* ((obj (or magit-buffer-revision
+                  magit-buffer-blob-oid))
+         (bookmark (cons nil (bookmark-make-record-default 'no-file))))
+    (bookmark-prop-set bookmark 'handler #'magit--handle-blob-bookmark)
+    (bookmark-prop-set bookmark 'revision obj)
+    (bookmark-prop-set bookmark 'filename magit-buffer-file-name)
+    ;; Determine buffer name anew to avoid using volatile name.
+    ;; These are offered to the user when they name the bookmark.
+    (bookmark-prop-set
+     bookmark 'defaults
+     (list (magit--blob-buffer-name obj magit-buffer-file-name nil t)
+           (magit--blob-buffer-name obj magit-buffer-file-name)))
+    bookmark))
+
+(defun magit--handle-blob-bookmark (bookmark)
+  (pop-to-buffer-same-window
+   (magit-find-file-noselect (bookmark-prop-get bookmark 'revision)
+                             (bookmark-prop-get bookmark 'filename)
+                             t)))
 
 ;;; Update Index
 
