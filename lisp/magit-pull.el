@@ -42,11 +42,12 @@
 (transient-define-prefix magit-pull ()
   "Pull from another repository."
   :man-page "git-pull"
-  :incompatible '(("--ff-only" "--rebase"))
+  :incompatible
+  '(("--ff-only" "--rebase=true" "--rebase=merges" "--rebase=interactive"))
   [:description
    (lambda () (if magit-pull-or-fetch "Pull arguments" "Arguments"))
    ("-f" "Fast-forward only" "--ff-only")
-   ("-r" "Rebase local commits" ("-r" "--rebase"))
+   ("-r" magit-pull:--rebase)
    ("-A" "Autostash" "--autostash" :level 7)
    ("-F" "Force" ("-f" "--force"))]
   [:description
@@ -82,6 +83,13 @@
 
 (defun magit-pull-arguments ()
   (transient-args 'magit-pull))
+
+(transient-define-infix magit-pull:--rebase ()
+  :class 'transient-option
+  :description "Rebase local commits"
+  :argument "--rebase="
+  :shortarg "-r"
+  :choices '("true" "merges" "interactive" "false"))
 
 ;;;###autoload(autoload 'magit-pull-from-pushremote "magit-pull" nil t)
 (transient-define-suffix magit-pull-from-pushremote (args)

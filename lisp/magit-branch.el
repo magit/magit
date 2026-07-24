@@ -988,7 +988,7 @@ Also rename the respective reflog file."
   :scope #'magit--read-branch-scope
   :variable "branch.%s.rebase"
   :fallback "pull.rebase"
-  :choices '("true" "false")
+  :choices '("true" "merges" "interactive" "false")
   :default "false")
 
 (transient-define-infix magit-branch.<branch>.pushRemote ()
@@ -1001,7 +1001,7 @@ Also rename the respective reflog file."
 (transient-define-infix magit-pull.rebase ()
   :class 'magit--git-variable:choices
   :variable "pull.rebase"
-  :choices '("true" "false")
+  :choices '("true" "merges" "interactive" "false")
   :default "false")
 
 (transient-define-infix magit-remote.pushDefault ()

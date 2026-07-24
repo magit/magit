@@ -91,6 +91,10 @@
   Also added new variable ~magit-push-options~, which controls the
   push options offered when setting the argument.  #5478
 
+- The ~--rebase~ argument now takes a value and all valid values for
+  the of ~branch.<name>.rebase~ and ~pull.rebase~ Git variables are now
+  supported.
+
 Bugfixes:
 
 - ~magit-ignore-submodules-p~ didn't return ~nil~ for ~none~.
