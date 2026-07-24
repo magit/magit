@@ -488,6 +488,7 @@ commits before and half after."
    (magit-log:-G)     ;2
    (magit-log:-S)     ;2
    (magit-log:-L)     ;2
+   (7 "=M" "Only merges"            "--merges")
    (7 "=m" "Omit merges"            "--no-merges")
    (7 "=p" "First parent"           "--first-parent")]
   ["History simplification"
@@ -525,6 +526,7 @@ commits before and half after."
   "Show a commit or reference log."
   :man-page "git-log"
   :class 'magit-log-prefix
+  :incompatible '(("--merges" "--no-merges"))
   'magit-log-infix-arguments
   [["Log"
     ("l"                     magit-log-current)
@@ -555,6 +557,7 @@ commits before and half after."
   "Change the arguments used for the log(s) in the current buffer."
   :man-page "git-log"
   :class 'magit-log-refresh-prefix
+  :incompatible '(("--merges" "--no-merges"))
   'magit-log-infix-arguments
   [:if-not-mode magit-log-mode
    :description "Arguments"
