@@ -365,32 +365,32 @@ ignored) files."
                      "--" plain)
       (when magit-auto-revert-mode
         (mapc #'magit-turn-on-auto-revert-mode-if-desired plain)))
-    (when (and (fboundp 'borg-assimilate)
-               (fboundp 'borg--maybe-absorb-gitdir)
-               (fboundp 'borg--sort-submodule-sections))
-      (dolist (repo repos)
-        (save-excursion
-          (when-let ((section (magit-get-section
-                               `((file . ,repo) (untracked) (status)))))
-            (goto-char (oref section start))
-            (let* ((topdir (magit-toplevel))
-                   (url (let ((default-directory
-                               (file-name-as-directory (expand-file-name repo))))
-                          (or (magit-get "remote" (magit-get-some-remote) "url")
-                              (file-name-concat "." repo))))
-                   (package
-                    (and (equal borg-user-emacs-directory topdir)
-                         (file-name-nondirectory (directory-file-name repo)))))
-              (if (and package
-                       (y-or-n-p (format "Also assimilate `%s' drone?" package)))
-                  (borg-assimilate package url)
-                (magit-submodule-add-1
-                 url repo (magit-submodule-read-name-for-path repo package))
-                (when package
-                  (borg--sort-submodule-sections
-                   (expand-file-name ".gitmodules" topdir))
-                  (let ((default-directory borg-user-emacs-directory))
-                    (borg--maybe-absorb-gitdir package)))))))))
+    (dolist (repo repos)
+      (save-excursion
+        (when-let ((section (magit-get-section
+                             `((file . ,repo) (untracked) (status)))))
+          (goto-char (oref section start))
+          (let* ((topdir (magit-toplevel))
+                 (url (let ((default-directory
+                             (file-name-as-directory (expand-file-name repo))))
+                        (or (magit-get "remote" (magit-get-some-remote) "url")
+                            (file-name-concat "." repo))))
+                 (package
+                  (and (equal borg-user-emacs-directory topdir)
+                       (file-name-nondirectory (directory-file-name repo)))))
+            (if (and package
+                     (fboundp 'borg-assimilate)
+                     (y-or-n-p (format "Also assimilate `%s' drone?" package)))
+                (borg-assimilate package url)
+              (magit-submodule-add-1
+               url repo (magit-submodule-read-name-for-path repo package))
+              (when (and package
+                         (fboundp 'borg--sort-submodule-sections)
+                         (fboundp 'borg--maybe-absorb-gitdir))
+                (borg--sort-submodule-sections
+                 (expand-file-name ".gitmodules" topdir))
+                (let ((default-directory borg-user-emacs-directory))
+                  (borg--maybe-absorb-gitdir package))))))))
     (magit-run-after-apply-functions files "stage")))
 
 (defvar magit-post-stage-hook-commands
