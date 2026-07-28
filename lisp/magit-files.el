@@ -289,7 +289,8 @@ Age is tracked in seconds.  If nil, only use `magit--blob-cache-limit'.")
 
 (defun magit--blob-cache-prune ()
   (when magit--blob-cache-timer
-    (cancel-timer magit--blob-cache-timer))
+    (cancel-timer magit--blob-cache-timer)
+    (setq magit--blob-cache-timer nil))
   (pcase-let
       ((`(,active ,rest)
         (magit--separate
