@@ -2432,7 +2432,7 @@ that you don't do that.
 
 *** Status Log Sections
 
-- Function: magit-insert-unpulled-or-recent-commits ::
+- Function: magit-insert-unpulled-from-upstream-or-recent ::
 
   Insert section showing unpulled or recent commits.
   If an upstream is configured for the current branch and it is
