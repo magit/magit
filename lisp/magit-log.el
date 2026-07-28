@@ -360,7 +360,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 (defcustom magit-log-section-commit-count 10
   "How many recent commits to show in certain log sections.
 How many recent commits `magit-insert-recent-commits' and
-`magit-insert-unpulled-from-upstream-or-recent' (provided
+`magit-insert-unpushed-to-upstream-or-recent' (provided
 the upstream isn't ahead of the current branch) show."
   :package-version '(magit . "2.1.0")
   :group 'magit-status
