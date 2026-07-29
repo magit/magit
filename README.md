@@ -128,8 +128,8 @@ suggested features or made monetary contributions.
   <a href="https://repology.org/project/emacs%3Amagit/versions"><img alt="Packaging status" src="https://repology.org/badge/vertical-allrepos/emacs%3Amagit.svg?header=&columns=4&minversion=4.5&exclude_unsupported=1"/></a>
 </div>
 <div align="center">
-  <a href="https://melpa.org/#/magit"><img alt="MELPA" src="https://melpa.org/packages/magit-badge.svg"/></a>
-  <a href="https://stable.melpa.org/#/magit"><img alt="MELPA Stable" src="https://stable.melpa.org/packages/magit-badge.svg"/></a>
+  <a href="https://snapshots.melpa.org/#/magit"><img alt="MELPA Snapshots" src="https://snapshots.melpa.org/packages/magit-badge.svg"/></a>
+  <a href="https://releases.melpa.org/#/magit"><img alt="MELPA Releases" src="https://releases.melpa.org/packages/magit-badge.svg"/></a>
   <a href="https://elpa.nongnu.org/nongnu/magit.html"><img alt="NonGNU ELPA" src="https://emacsair.me/assets/badges/nongnu-elpa.svg"/></a>
 </div>
 <div align="center">
