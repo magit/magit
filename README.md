@@ -124,14 +124,19 @@ Magit was started by [Marius Vollmer][marius], and is now maintained by
 suggested features or made monetary contributions.
 
 ***
-[![Compile](https://github.com/magit/magit/actions/workflows/compile.yml/badge.svg)](https://github.com/magit/magit/actions/workflows/compile.yml)
-[![Test](https://github.com/magit/magit/actions/workflows/test.yml/badge.svg)](https://github.com/magit/magit/actions/workflows/test.yml)
-[![Manual](https://github.com/magit/magit/actions/workflows/manual.yml/badge.svg)](https://github.com/magit/magit/actions/workflows/manual.yml)
-[![NonGNU ELPA](https://emacsair.me/assets/badges/nongnu-elpa.svg)](https://elpa.nongnu.org/nongnu/magit.html)
-[![Melpa](https://melpa.org/packages/magit-badge.svg)](https://melpa.org/#/magit)
-[![Melpa Stable](https://stable.melpa.org/packages/magit-badge.svg)](https://stable.melpa.org/#/magit)
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/emacs%3Amagit.svg?header=&columns=4&minversion=4.5&exclude_unsupported=1)](https://repology.org/project/emacs%3Amagit/versions)
+<div align="center">
+  <a href="https://repology.org/project/emacs%3Amagit/versions"><img alt="Packaging status" src="https://repology.org/badge/vertical-allrepos/emacs%3Amagit.svg?header=&columns=4&minversion=4.5&exclude_unsupported=1"/></a>
+</div>
+<div align="center">
+  <a href="https://melpa.org/#/magit"><img alt="MELPA" src="https://melpa.org/packages/magit-badge.svg"/></a>
+  <a href="https://stable.melpa.org/#/magit"><img alt="MELPA Stable" src="https://stable.melpa.org/packages/magit-badge.svg"/></a>
+  <a href="https://elpa.nongnu.org/nongnu/magit.html"><img alt="NonGNU ELPA" src="https://emacsair.me/assets/badges/nongnu-elpa.svg"/></a>
+</div>
+<div align="center">
+  <a href="https://github.com/magit/magit/actions/workflows/compile.yml"><img alt="Compile" src="https://github.com/magit/magit/actions/workflows/compile.yml/badge.svg"/></a>
+  <a href="https://github.com/magit/magit/actions/workflows/test.yml"><img alt="Test" src="https://github.com/magit/magit/actions/workflows/test.yml/badge.svg"/></a>
+  <a href="https://github.com/magit/magit/actions/workflows/manual.yml"><img alt="Manual" src="https://github.com/magit/magit/actions/workflows/manual.yml/badge.svg"/></a>
+</div>
 
 [authors]: https://stats.magit.vc/magit/authors.html
 [jonas]:   https://emacsair.me
