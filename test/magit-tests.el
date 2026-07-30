@@ -250,6 +250,27 @@
     (should (equal (magit-list-remote-branch-names "origin" t)
                    (list "master")))))
 
+(ert-deftest magit-list-worktrees ()
+  (magit-with-test-repository
+    (magit-git "commit" "-m" "init" "--allow-empty")
+    (magit-git "worktree" "add" "--quiet" "plain"  "-b" "plain")
+    (magit-git "worktree" "add" "--quiet" "bare"   "-b" "bare")
+    (magit-git "worktree" "add" "--quiet" "reason" "-b" "reason")
+    (magit-git "worktree" "add" "--quiet" "gone"   "-b" "gone")
+    (magit-git "worktree" "lock" "bare")
+    (magit-git "worktree" "lock" "reason" "--reason" "on a usb stick")
+    (delete-directory "gone" t)
+    (let* ((worktrees (magit-list-worktrees))
+           (get (lambda (branch)
+                  (cl-find branch worktrees :test #'equal :key #'caddr))))
+      ;; LOCKED is nil, t or the reason given when locking.
+      (should (eq      (nth 5 (funcall get "plain"))  nil))
+      (should (eq      (nth 5 (funcall get "bare"))   t))
+      (should (equal   (nth 5 (funcall get "reason")) "on a usb stick"))
+      ;; PRUNABLE is nil or the reason Git considers it prunable.
+      (should (eq      (nth 6 (funcall get "plain"))  nil))
+      (should (stringp (nth 6 (funcall get "gone")))))))
+
 ;;; Prompts
 
 (ert-deftest magit-process:match-prompt-nil-when-no-match ()

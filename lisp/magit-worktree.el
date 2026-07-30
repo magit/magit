@@ -198,7 +198,11 @@ The primary worktree cannot be deleted."
                                  (magit-section-value-if 'worktree))))
   (if (file-directory-p (expand-file-name ".git" worktree))
       (user-error "Deleting %s would delete the shared .git directory" worktree)
-    (let ((primary (file-name-as-directory (caar (magit-list-worktrees)))))
+    (let* ((worktrees (magit-list-worktrees))
+           (primary (file-name-as-directory (caar worktrees)))
+           (locked (nth 5 (seq-find (##equal (directory-file-name (car %))
+                                             (directory-file-name worktree))
+                                    worktrees))))
       (when (file-exists-p worktree)
         (let (uncommitted)
           (magit-confirm
@@ -206,13 +210,24 @@ The primary worktree cannot be deleted."
                      (or (magit-anything-modified-p)
                          (magit-untracked-files)))
                    (setq uncommitted 'danger))
+                  (locked 'danger)
                   (magit-delete-by-moving-to-trash 'trash)
                   ('delete))
-            (format "%s worktree \"%s\"%s"
-                    (if magit-delete-by-moving-to-trash "Trash" "Delete")
-                    (file-name-nondirectory (directory-file-name worktree))
-                    (if uncommitted " despite uncommitted changes" ""))
+            (list "%s worktree \"%s\"%s"
+                  (if magit-delete-by-moving-to-trash "Trash" "Delete")
+                  (file-name-nondirectory (directory-file-name worktree))
+                  (if-let ((caveats
+                            (delq nil
+                                  (list (and uncommitted "uncommitted changes")
+                                        (and locked
+                                             (if (stringp locked)
+                                                 (format "its lock (%s)" locked)
+                                               "its lock"))))))
+                      (concat " despite " (string-join caveats " and "))
+                    ""))
             nil nil (list worktree)))
+        (when locked
+          (magit-call-git "worktree" "unlock" worktree))
         (if magit-delete-by-moving-to-trash
             (let ((delete-by-moving-to-trash t))
               (delete-directory worktree t t))
