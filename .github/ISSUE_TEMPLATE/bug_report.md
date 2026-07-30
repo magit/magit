@@ -2,53 +2,36 @@
 title: 
 name: 🪳 Report a bug
 about: Report a defect. Do not use this for support requests and feature suggestions.
-note: Keep in sync with wiki/How-to-report-a-bug.md
 ---
 
-<!-- Do not use this for support requests and feature suggestions. -->
+Please use your own words.
+Please use your own brain.
 
-Please use your own words.  If you really must use a LLM, at least disclose that upfront.
+Avoid stochastic parrots!
+Avoid LLMs!
 
-If you have just updated Magit, then restart Emacs. If that does not fix the issue, then also uninstall Magit and all dependencies that were updated at the same time, restart Emacs and then reinstall Magit.
+▄████▄ ▄▄ ▄▄  ▄▄▄  ▄▄ ▄▄▄▄     ▄████  ▄▄▄▄▄ ▄▄  ▄▄ ▄████▄ ██
+██▄▄██ ██▄██ ██▀██ ██ ██▀██   ██  ▄▄▄ ██▄▄  ███▄██ ██▄▄██ ██
+██  ██  ▀█▀  ▀███▀ ██ ████▀    ▀███▀  ██▄▄▄ ██ ▀██ ██  ██ ██
 
-The reason why this might fix the issue is that updating a package does not cause the old version to be unloaded, so you might end up with a franken-version; a mixture of parts of the old and new version being loaded at the same time. Worse it is possible for the old version to leak into the byte-code of the new version, which is why reinstalling might help.
+If you have already used an LLM to investigate an issue, don't post a generated wall of text.  A human has to read and verify all that.  Please do that work yourself and then use your own words to describe the relevant findings.
 
-Please explain,
-    (0) without using these lines as headings,
-    (1) what behavior you expected,
-    (2) what behavior you observed,
-    (3) and how we can reproduce the issue.
+Disclose the LLM usage upfront.
 
-Please include a backtrace in your report.  In most cases doing:
+======================================================================
 
-    M-x toggle-debug-on-error RET
+We use this issue tracker only for issues suspected to be caused by bugs.  If you need help or want to make a suggestion, please instead open a discussion.
 
-and then going through the steps again should result in a backtrace.
+======================================================================
 
-Also post the output of:
+Before reporting a defect, please try to reproduce the issue using the latest releases or snapshots of all involved packages.  Mention the versions you used, with the help of "M-x magit-version".
 
-    M-x magit-version RET
+Likewise try to reproduce it using an Emacs instance, in which only this package and its dependencies have been loaded.  Other packages or your configuration should not be loaded.
 
-Before reporting a defect, please try to reproduce it using an Emacs instance, in which only Magit and its dependencies have been loaded. Other packages or your configuration should not be loaded. This makes it easier to determine whether the issue lays with Magit or something else.
+Please consult https://docs.magit.vc/magit/Debugging-Tools.html and make use of the tools documented there.
 
-If you run Magit from its Git repository, then you can do so using:
+======================================================================
 
-    $ cd /path/to/magit
-    $ make emacs-Q
+Explain (1) what behavior you expected, (2) what behavior you observed, (3) and how we can reproduce the issue.
 
-Alternatively, run:
-
-    M-x magit-emacs-Q-command RET
-
-to save a shell command to the `kill-ring` and the system's clip-board, which you can then copy into a shell to run.
-
-Finally, if that didn't work and you have installed Magit from Melpa, then run commands similar to the ones above, but use tab completion to replace the various Ns with the correct versions:
-
-    $ cd ~/.emacs.d/elpa/magit-N
-    $ emacs -Q --debug-init --eval '(setq debug-on-error t)' -L ../cond-let-N -L ../llama-N -L ../magit-section -L ../seq-N -L ../transient-N -L ../with-editor-N -L . -l magit
-
-More debugging tools are described in the manual.
-
-    https://docs.magit.vc/magit/Debugging-Tools.html
-
-<!--- Now delete this line and everything above. -->
+Do "M-x magit-version", trigger the issue again, and post the backtrace.
