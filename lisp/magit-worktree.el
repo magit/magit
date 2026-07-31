@@ -198,7 +198,13 @@ The primary worktree cannot be deleted."
                                  (magit-section-value-if 'worktree))))
   (if (file-directory-p (expand-file-name ".git" worktree))
       (user-error "Deleting %s would delete the shared .git directory" worktree)
-    (let ((primary (file-name-as-directory (caar (magit-list-worktrees)))))
+    (let* ((wtrees (magit-list-worktrees))
+           (wtree (assoc worktree wtrees))
+           (locked (nth 5 wtree))
+           (primary (file-name-as-directory (caar wtrees))))
+      (when locked
+        (user-error "Cannot delete locked %s%s" worktree
+                    (if (stringp locked) (format " [reason: %s]" locked) "")))
       (when (file-exists-p worktree)
         (let (uncommitted)
           (magit-confirm
