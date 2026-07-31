@@ -591,7 +591,7 @@ revision buffers and will have to find a way to keep that under control.
 `magit-{blame,log,status}-maybe-update-revision-buffer' also will stop
 working, if this is enabled.  For these reasons it is recommended, that
 you do not enable this."
-  :package-version '(magit . "4.6.1")
+  :package-version '(magit . "4.7.0")
   :group 'magit-revision
   :type 'boolean)
 

@@ -143,7 +143,7 @@ if non-nil, means to invert the resulting sort."
 (defcustom magit-submodule-list-predicate #'always
   "Predicate used to determine whether to include a module in the list.
 Suitable values incluce `always' and `magit-submodule-list-module-populated-p'."
-  :package-version '(magit . "4.6.1")
+  :package-version '(magit . "4.7.0")
   :group 'magit-repolist
   :type '(choice (function-item always)
                  (function-item magit-submodule-list-module-populated-p)

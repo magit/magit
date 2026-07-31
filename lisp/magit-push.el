@@ -32,7 +32,7 @@
 
 (defcustom magit-push-options '("skip-ci" "ci.skip")
   "Choices offered when setting \"--push-options\" in the push menu."
-  :package-version '(magit . "4.6.1")
+  :package-version '(magit . "4.7.0")
   :group 'magit-commands
   :type '(repeat string))
 
