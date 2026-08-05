@@ -331,7 +331,7 @@ want to fall back to using \"--3way\", without being prompted."
                  (magit-read-char-case
                      (concat
                       "Could not apply stash because of unstaged changes.\n\n"
-                      "To do a tree-way merge, these files have to be staged\n"
+                      "To do a three-way merge, these files have to be staged\n"
                       (mapconcat (##format "  %s" %) conflicts "\n")
                       "\n")
                      nil
