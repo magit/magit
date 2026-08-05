@@ -230,6 +230,7 @@ has to be used to view and change branch related variables."
    ("B" "Update default branch" magit-update-default-branch
     :inapt-if-not magit-get-some-remote)]
   ["Arguments"
+   (6 "-m" "Automatically merge conflicting local modifications" "--merge")
    (7 "-r" "Recurse submodules when checking out an existing branch"
       "--recurse-submodules")]
   [["Checkout"
@@ -388,7 +389,8 @@ when using `magit-branch-and-checkout'."
      (magit--checkout branch (magit-branch-arguments))
      (magit-refresh))
     (t
-     (when (magit-anything-modified-p t)
+     (when (and (magit-anything-modified-p t)
+                (not (transient-arg-value "--merge" (magit-branch-arguments))))
        (user-error "Cannot checkout when there are uncommitted changes"))
      (magit-run-git-async "checkout" (magit-branch-arguments)
                           "-b" branch start-point)
