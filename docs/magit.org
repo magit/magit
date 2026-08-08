@@ -7248,7 +7248,7 @@ The following suffix is disabled by default. See
 
 - Key: F U (magit-pull-into-upstream) ::
 
-  This command update the upstream of the current branch from its own
+  This command updates the upstream of the current branch from its own
   upstream.
 
   If the upstream of the current branch is a local branch, and the
