@@ -946,18 +946,20 @@ Also see `magit-git-config-p'."
   (and$ (magit-gitdir)
         (if path (expand-file-name (convert-standard-filename path) $) $)))
 
-(defun magit-gitdir (&optional directory)
+(defun magit-gitdir (&optional directory common)
   "Return the absolute and resolved path of the .git directory.
 
 If the `GIT_DIR' environment variable is defined, return that.
 Otherwise return the .git directory for DIRECTORY, or if that is
 nil, then for `default-directory' instead.  If the directory is
-not located inside a Git repository, then return nil."
+not located inside a Git repository, then return nil.  If COMMON
+is t and the directory is a worktree, return the git common
+dir (shared by all worktrees)."
   (let ((default-directory (or directory default-directory)))
     (magit--with-refresh-cache (list default-directory 'magit-gitdir)
       (magit--with-safe-default-directory nil
         (and-let*
-            ((dir (magit-rev-parse-safe "--git-dir"))
+            ((dir (magit-rev-parse-safe (if common "--git-common-dir" "--git-dir")))
              (dir (file-name-as-directory (magit-expand-git-file-name dir))))
           (if (file-remote-p dir)
               dir
