@@ -178,7 +178,10 @@ with a prefix argument."
   (if transient
       (transient-setup 'magit-fetch-modules)
     (magit-with-toplevel
-      (magit-run-git-async "fetch" "--recurse-submodules" args))))
+      (magit-run-git-async "fetch" "--recurse-submodules" args))
+    ;; Tried anyway; a future Git release may fix this defect.
+    (unless (magit-list-remotes)
+      (message "Cannot fetch modules if super-repository has no remotes"))))
 
 ;;; _
 (provide 'magit-fetch)
