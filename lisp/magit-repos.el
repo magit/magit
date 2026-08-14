@@ -317,17 +317,7 @@ If it contains \"%s\" then the directory is substituted for that."
 
 (defun magit-repolist-refresh ()
   (setq tabulated-list-entries
-        (mapcar (pcase-lambda (`(,id . ,path))
-                  (let ((default-directory path))
-                    (list path
-                          (vconcat
-                           (mapcar (pcase-lambda (`(,title ,width ,fn ,props))
-                                     (or (funcall fn `((:id ,id)
-                                                       (:title ,title)
-                                                       (:width ,width)
-                                                       ,@props))
-                                         ""))
-                                   magit-repolist-columns)))))
+        (mapcar #'magit-repolist--format-entry
                 (magit-list-repos-uniquify
                  (mapcar (##cons (file-name-nondirectory (directory-file-name %))
                                  %)
@@ -336,6 +326,18 @@ If it contains \"%s\" then the directory is substituted for that."
   (tabulated-list-init-header)
   (tabulated-list-print t)
   (message "Listing repositories...done"))
+
+(defun magit-repolist--format-entry (entry)
+  (pcase-let ((`(,id . ,default-directory) entry))
+    (list default-directory
+          (vconcat
+           (mapcar (pcase-lambda (`(,title ,width ,fn ,props))
+                     (or (funcall fn `((:id ,id)
+                                       (:title ,title)
+                                       (:width ,width)
+                                       ,@props))
+                         ""))
+                   magit-repolist-columns)))))
 
 (defun magit-repolist--imenu-prev-index-position ()
   (and (not (bobp))
