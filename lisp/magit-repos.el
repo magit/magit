@@ -282,6 +282,7 @@ If it contains \"%s\" then the directory is substituted for that."
     (user-error "You need to customize `magit-repository-directories' %s"
                 "before you can list repositories"))
   (with-current-buffer (get-buffer-create "*Magit Repositories*")
+    (setq default-directory (expand-file-name "~"))
     (magit-repolist-mode)
     (setq-local magit-repolist-columns columns)
     (magit-repolist-setup-1)
