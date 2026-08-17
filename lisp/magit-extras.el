@@ -316,12 +316,7 @@ in HEAD as well as staged changes in the diff to check."
   (require 'diff-mode) ; `diff-add-log-current-defuns'.
   (require 'vc-git)    ; `vc-git-diff'.
   (require 'add-log)   ; `change-log-insert-entries'.
-  (setq default-directory
-        (if (and (file-regular-p "gitdir")
-                 (not (magit-git-true "rev-parse" "--is-inside-work-tree"))
-                 (magit-git-true "rev-parse" "--is-inside-git-dir"))
-            (file-name-directory (magit-file-line "gitdir"))
-          (magit-toplevel)))
+  (setq default-directory (magit-toplevel))
   (let ((rev1 (if amending "HEAD^1" "HEAD"))
         (rev2 nil))
     ;; Magit may have updated the files without notifying vc, but
