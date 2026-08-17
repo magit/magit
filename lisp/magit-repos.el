@@ -502,7 +502,16 @@ instead."
   (if-let ((repos (and (not read-directory-name)
                        magit-repository-directories
                        (magit-repos-alist))))
-      (let ((reply (magit-completing-read "Git repository" repos nil 'any)))
+      (let ((reply (magit-completing-read
+                    "Git repository" repos nil 'any nil nil
+                    (and-let* ((_(derived-mode-p 'dired-mode))
+                               (path (and (fboundp 'dired-get-filename)
+                                          (dired-get-filename nil t)))
+                               (_(magit-git-repo-p path))
+                               (name (file-relative-name path)))
+                      (if (member (cdr (assoc name repos)) (list path nil))
+                          name
+                        path)))))
         (file-name-as-directory
          (or (cdr (assoc reply repos))
              (if (file-directory-p reply)
