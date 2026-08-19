@@ -2391,7 +2391,9 @@ Signal an error if STRING is not a string."
   "Return t if STRING is a local branch.
 Signal an error if STRING is not a string."
   (cl-assert (stringp string))
-  (magit-git-success "show-ref" "--quiet" "--branches" string))
+  (magit-git-success "show-ref" "--quiet"
+                     (if (magit-git-version>= "2.46") "--branches" "--heads")
+                     string))
 
 (defun magit-remote-branch-p (string)
   "Return t if STRING is a remote-tracking branch, nil otherwise.
