@@ -77,10 +77,13 @@ Also stage the file."
 ;;;###autoload(autoload 'magit-gitignore-in-gitdir "magit-gitignore" nil t)
 (transient-define-suffix magit-gitignore-in-gitdir (rule)
   "Add the Git ignore RULE to \"$GIT_DIR/info/exclude\".
-Rules in that file only affects this clone of the repository."
+Rules in that file only affects this clone of the repository.  If the
+repository has multiple worktrees, the rules apply to all worktrees."
   :description "privately (.git/info/exclude)"
   (interactive (list (magit-gitignore-read-pattern)))
-  (magit--gitignore rule (expand-file-name "info/exclude" (magit-gitdir))))
+  (magit--gitignore
+   rule
+   (expand-file-name "info/exclude" (magit-gitdir nil t))))
 
 ;;;###autoload(autoload 'magit-gitignore-on-system "magit-gitignore" nil t)
 (transient-define-suffix magit-gitignore-on-system (rule)
