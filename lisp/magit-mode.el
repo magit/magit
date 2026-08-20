@@ -1460,8 +1460,7 @@ Later, when the buffer is buried, it may be restored by
 
 (defun magit-xref-restore (fn dir args)
   (setq default-directory dir)
-  (funcall fn major-mode nil args)
-  (magit-refresh-buffer))
+  (funcall fn major-mode nil args))
 
 ;;; Repository-Local Cache
 
