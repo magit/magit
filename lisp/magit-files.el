@@ -325,7 +325,7 @@ Age is tracked in seconds.  If nil, only use `magit--blob-cache-limit'.")
     (apply fn args)))
 ;; See bb8a65269d.
 (advice-add 'global-diff-hl-mode-enable-in-buffer ; Emacs >= 30
-            :around #'magit--inhibit-in-blob-buffer)
+            :around #'magit--inhibit-in-blob-buffers)
 (advice-add 'global-diff-hl-mode-enable-in-buffers ; Emacs < 30
             :around #'magit--inhibit-in-blob-buffers)
 ;; See 234a787b8c.
