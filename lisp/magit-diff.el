@@ -2795,7 +2795,7 @@ keymap is the parent of their keymaps."
            ((looking-at "copy from \\(.+\\)\ncopy to \\(.+\\)\n")
             (setq orig (match-str 1))
             (setq file (match-str 2))
-            (setq status "new file"))
+            (setq status "copied"))
            ((looking-at "similarity index .+\n"))
            ((looking-at "dissimilarity index .+\n"))
            ((looking-at "index .+\n"))
