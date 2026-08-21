@@ -194,13 +194,6 @@ Non-interactively REV can also be a blob object."
 
 (defun magit--blob-normal-mode ()
   (let ((buffer-file-name magit-buffer-file-name)
-        (after-change-major-mode-hook
-         ;; Inhibit diff-hl and eglot; see bb8a65269d and 234a787b8c.
-         (seq-difference after-change-major-mode-hook
-                         '(global-diff-hl-mode-enable-in-buffer ; Emacs >= 30
-                           global-diff-hl-mode-enable-in-buffers ; Emacs < 30
-                           eglot--maybe-activate-editing-mode)
-                         #'eq))
         (buffer-name (buffer-name)))
     ;; `font-lock-mode' contains a hardcoded condition that prevents it
     ;; from being enabled in hidden buffers.  Use a fake `buffer-name'
@@ -326,11 +319,21 @@ Age is tracked in seconds.  If nil, only use `magit--blob-cache-limit'.")
     (kill-buffer buffer))
   (setq magit--blob-cache nil))
 
-(define-advice lsp (:around (fn &rest args) magit-find-file)
-  "Do nothing when visiting blob using `magit-find-file' and similar.
-See also https://github.com/doomemacs/doomemacs/pull/6309."
+(defun magit--inhibit-in-blob-buffers (fn &rest args)
+  "Prevent the advised function from doing anything in Magit blob buffers."
   (unless magit-buffer-blob-oid
     (apply fn args)))
+;; See bb8a65269d.
+(advice-add 'global-diff-hl-mode-enable-in-buffer ; Emacs >= 30
+            :around #'magit--inhibit-in-blob-buffer)
+(advice-add 'global-diff-hl-mode-enable-in-buffers ; Emacs < 30
+            :around #'magit--inhibit-in-blob-buffers)
+;; See 234a787b8c.
+(advice-add 'eglot--maybe-activate-editing-mode
+            :around #'magit--inhibit-in-blob-buffers)
+;; See https://github.com/doomemacs/doomemacs/pull/6309.
+(advice-add 'lsp
+            :around #'magit--inhibit-in-blob-buffers)
 
 ;;; Blob Bookmarks
 
