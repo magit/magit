@@ -372,9 +372,6 @@ Usually this is just its basename."
 \\(?:-\\(?4:dirty\\)\\)\
 ?\\'")
 
-(defvar magit-repolist-column-version-resume-regexp
-  "\\`Resume development\\'")
-
 (defun magit-repolist-column-version (_)
   "Insert a description of the repository's `HEAD' revision."
   (and-let ((v (or (magit-git-string "describe" "--tags" "--dirty")
@@ -388,11 +385,7 @@ Usually this is just its basename."
           (magit--put-face (match-beginning 2) (match-end 2) 'bold v))
         (when (match-end 4)
           (magit--put-face (or (match-beginning 3) (match-beginning 4))
-                           (match-end 4) 'error v))
-        (when (and (equal (match-str 2 v) "1")
-                   (string-match-p magit-repolist-column-version-resume-regexp
-                                   (magit-rev-format "%s")))
-          (setq v (replace-match (propertize "+" 'face 'shadow) t t v 1))))
+                           (match-end 4) 'error v)))
       (cond ((not v) nil)
             ((string-match "\\`[0-9]" v)
              (concat " " v))
