@@ -376,7 +376,8 @@ ignored) files."
                         (or (magit-get "remote" (magit-get-some-remote) "url")
                             (file-name-concat "." repo))))
                  (package
-                  (and (equal borg-user-emacs-directory topdir)
+                  (and (boundp 'borg-user-emacs-directory)
+                       (equal borg-user-emacs-directory topdir)
                        (file-name-nondirectory (directory-file-name repo)))))
             (if (and package
                      (fboundp 'borg-assimilate)
