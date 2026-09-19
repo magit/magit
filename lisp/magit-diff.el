@@ -582,7 +582,7 @@ If this is nil, then each revision is initially displayed in the same
 per-repository buffer.  You can then lock that buffer to the revision;
 if you later display another revision, the locked buffer continues to
 display the same revision as before and the new revision is displayed
-in another bufer.
+in another buffer.
 
 If this is t, then each revision is displayed in a dedicated buffer.
 A revision buffer is only reused (i.e., raised), if it already displays
