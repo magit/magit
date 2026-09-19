@@ -174,7 +174,7 @@ Also note that `git-commit-mode' (which see) is not a major-mode.")
         #'git-commit-setup-auto-fill
         #'git-commit-propertize-diff
         #'git-commit-collapse-diff
-        #'bug-reference-mode)
+        #'git-commit-setup-bug-reference)
   "Hook run at the end of `git-commit-setup'."
   :group 'git-commit
   :type 'hook
@@ -189,7 +189,7 @@ Also note that `git-commit-mode' (which see) is not a major-mode.")
              git-commit-setup-flyspell
              git-commit-propertize-diff
              git-commit-collapse-diff
-             bug-reference-mode))
+             git-commit-setup-bug-reference))
 
 (defcustom git-commit-finish-query-functions
   (list #'git-commit-check-style-conventions)
@@ -711,6 +711,14 @@ comment and anything below the cut line (\"--- >8 ---\")."
                                  (select-window w1)))))
       (let ((ov (make-overlay (point) (point-max))))
         (overlay-put ov 'invisible 'git-commit-diff)))))
+
+(defun git-commit-setup-bug-reference ()
+  "Turn on `bug-reference-mode' while working around a limitation of VC.
+`bug-reference-try-setup-from-vc' doesn't work when visiting a file in
+the Git directory."
+  (magit-with-toplevel
+    (let ((buffer-file-name nil))
+      (bug-reference-mode 1))))
 
 ;;; Finish
 
