@@ -687,8 +687,8 @@ prompt is confusing."
             (format "These %s names are" len))
            ((format "%s of these names are" len))))))
     (cond
-      ((string-match "^refs/remotes/\\([^/]+\\)" (car refs))
-       (let* ((remote (match-str 1 (car refs)))
+      ((string-prefix-p "refs/remotes/" (car refs))
+       (let* ((remote (car (magit-split-branch-name (substring (car refs) 13))))
               (offset (1+ (length remote))))
          (cond
            ((magit-confirm 'delete-branch-on-remote
