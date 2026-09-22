@@ -136,12 +136,17 @@
 
 (defun magit-transient-read-person (prompt initial-input history)
   (magit-completing-read
-   prompt
-   (mapcar (##save-excursion
-             (and (string-match "\\`[\s\t]+[0-9]+\t" %)
-                  (list (substring % (match-end 0)))))
-           (magit-git-lines "shortlog" "-n" "-s" "-e" "HEAD"))
-   nil nil initial-input history))
+   prompt (magit-list-people) nil nil initial-input history))
+
+(defun magit-transient-read-persons (prompt initial-input history)
+  (magit-completing-read-multiple
+   prompt (magit-list-people) nil nil initial-input history))
+
+(defun magit-list-people ()
+  (mapcar (##save-excursion
+            (and (string-match "\\`[\s\t]+[0-9]+\t" %)
+                 (list (substring % (match-end 0)))))
+          (magit-git-lines "shortlog" "-n" "-s" "-e" "HEAD")))
 
 (defun magit-transient-read-revision (prompt initial-input history)
   (magit-completing-read prompt (cons "HEAD" (magit-list-refnames))

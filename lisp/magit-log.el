@@ -619,6 +619,7 @@ commits before and half after."
   :class 'transient-option
   :key "-A"
   :argument "--author="
+  :multi-value 'repeat
   :reader #'magit-transient-read-person)
 
 (transient-define-argument magit-log:--since ()
