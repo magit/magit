@@ -620,7 +620,7 @@ commits before and half after."
   :key "-A"
   :argument "--author="
   :multi-value 'repeat
-  :reader #'magit-transient-read-person)
+  :reader #'magit-transient-read-persons)
 
 (transient-define-argument magit-log:--since ()
   :description "Limit to commits since"
