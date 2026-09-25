@@ -2460,13 +2460,13 @@ Signal an error if STRING is not a string."
 
 (defvar magit-main-branch-names
   '("main" "master" "trunk" "development")
-  "Branch names reserved for use by the primary branch.
+  "Branch names intended to be used for the primary branch.
 Use function `magit-main-branch' to get the name actually used in
 the current repository.")
 
 (defvar magit-long-lived-branches
   (append magit-main-branch-names (list "maint" "next"))
-  "Branch names reserved for use by long lived branches.")
+  "Branch names intended to be used for long lived branches.")
 
 (defun magit-main-branch ()
   "Return the main branch.
