@@ -146,14 +146,15 @@ the upstream."
               (not (or (magit-get-upstream-branch branch)
                        (magit--unnamed-upstream-p remote merge)
                        (magit--valid-upstream-p remote merge))))
-      (let* ((branches (seq-union (mapcar (##concat % "/" branch)
+      (let ((upstream (magit-completing-read
+                       (format "Set upstream of %s and push there" branch)
+                       (seq-union (mapcar (##concat % "/" branch)
                                           (magit-list-remotes))
-                                  (magit-list-remote-branch-names)))
-             (upstream (magit-completing-read
-                        (format "Set upstream of %s and push there" branch)
-                        branches nil 'any nil 'magit-revision-history
-                        (or (car (member (magit-remote-branch-at-point) branches))
-                            (car (member "origin/master" branches))))))
+                                  (magit-list-remote-branch-names))
+                       nil 'any nil 'magit-revision-history
+                       (or (magit-remote-branch-at-point)
+                           (and$ (magit-primary-remote)
+                                 (magit-main-branch $))))))
         (pcase-setq `(,remote . ,merge)
                     (or (magit-get-tracked upstream)
                         (magit-split-branch-name upstream)))
