@@ -146,19 +146,17 @@ the upstream."
               (not (or (magit-get-upstream-branch branch)
                        (magit--unnamed-upstream-p remote merge)
                        (magit--valid-upstream-p remote merge))))
-      (let* ((branches (cl-union (mapcar (##concat % "/" branch)
-                                         (magit-list-remotes))
-                                 (magit-list-remote-branch-names)
-                                 :test #'equal))
+      (let* ((branches (seq-union (mapcar (##concat % "/" branch)
+                                          (magit-list-remotes))
+                                  (magit-list-remote-branch-names)))
              (upstream (magit-completing-read
                         (format "Set upstream of %s and push there" branch)
                         branches nil 'any nil 'magit-revision-history
                         (or (car (member (magit-remote-branch-at-point) branches))
-                            (car (member "origin/master" branches)))))
-             (upstream* (or (magit-get-tracked upstream)
-                            (magit-split-branch-name upstream))))
-        (setq remote (car upstream*))
-        (setq merge  (cdr upstream*))
+                            (car (member "origin/master" branches))))))
+        (pcase-setq `(,remote . ,merge)
+                    (or (magit-get-tracked upstream)
+                        (magit-split-branch-name upstream)))
         (unless (string-prefix-p "refs/" merge)
           ;; User selected a non-existent remote-tracking branch.
           ;; It is very likely, but not certain, that this is the
