@@ -48,7 +48,6 @@
 (require 'cond-let)
 (require 'eieio)
 (require 'llama) ; For (##these ...) see M-x describe-function RET # # RET.
-(require 'subr-x)
 
 (defun magit--display-core-upgrade-instructions (package version)
   (display-warning 'magit

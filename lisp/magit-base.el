@@ -41,7 +41,6 @@
 (require 'cond-let)
 (require 'eieio)
 (require 'llama) ; For (##these ...) see M-x describe-function RET # # RET.
-(require 'subr-x)
 
 (require 'crm)
 
