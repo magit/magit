@@ -78,16 +78,15 @@ versionlib: $(PKG)-version.el
 
 $(PKG)-autoloads.el: $(ELS)
 	@printf " Creating $@\n"
-	@$(EMACS_BATCH) --load autoload --eval "\
-(let* ((file (expand-file-name \"$@\"))\
-       (generated-autoload-file file)\
-       (coding-system-for-write 'utf-8-emacs-unix)\
-       (backup-inhibited t)\
-       (version-control 'never)\
-       (inhibit-message t))\
-  (write-region (autoload-rubric file \"package\" t) nil file)\
-  (update-directory-autoloads default-directory))" \
-	2>&1 | sed "/^Package autoload is deprecated$$/d"
+	@$(EMACS_BATCH) --eval "\
+(let ((inhibit-message t))\
+  (loaddefs-generate\
+   default-directory \"$@\" nil\
+   (prin1-to-string\
+    '(add-to-list 'load-path\
+                  (or (and #$$ (directory-file-name (file-name-directory #$$)))\
+                      (car load-path)))))\
+   nil t)"
 
 $(PKG)-version.el:
 	@printf " Creating $@\n"
