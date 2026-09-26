@@ -28,6 +28,8 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'subr-x)) ; For macros thread-{first,last}.
+
 (require 'magit)
 
 ;; For `magit-rebase--todo'.

@@ -26,6 +26,8 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'subr-x)) ; For macros thread-{first,last}.
+
 (require 'magit-base)
 
 (require 'format-spec)
