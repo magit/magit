@@ -104,7 +104,6 @@ similar defect."
   (magit--display-core-upgrade-instructions 'transient "0.13"))
 
 (require 'cursor-sensor)
-(require 'format-spec)
 
 (eval-when-compile (require 'benchmark))
 

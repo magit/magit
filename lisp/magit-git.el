@@ -30,7 +30,6 @@
 
 (require 'magit-base)
 
-(require 'format-spec)
 (require 'server)
 
 ;; From `magit-branch'.

@@ -70,7 +70,6 @@
 (require 'git-commit)
 
 (require 'epa) ;used in magit-read-gpg-{secret,signing}-key
-(require 'format-spec)
 (require 'with-editor)
 
 ;;; Options

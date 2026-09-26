@@ -33,7 +33,6 @@
 
 (require 'benchmark)
 (require 'browse-url)
-(require 'format-spec)
 (require 'help-mode)
 
 (require 'transient)
