@@ -1106,8 +1106,8 @@ The arguments are for internal use."
       (cond
         (created
          (funcall refresh)
-         (cond (initial-section (funcall initial-section))
-               (select-section (funcall select-section))))
+         (cond ((and select-section (funcall select-section)))
+               (initial-section (funcall initial-section))))
         (t
          (deactivate-mark)
          (setq magit-section-pre-command-section nil)
@@ -1117,7 +1117,7 @@ The arguments are for internal use."
          (setq magit-section-focused-sections nil)
          (let ((positions (magit--refresh-buffer-get-positions)))
            (funcall refresh)
-           (cond (select-section (funcall select-section))
+           (cond ((and select-section (funcall select-section)))
                  ((magit--refresh-buffer-set-positions positions))))))
       (let ((magit-section-cache-visibility nil))
         (magit-section-show magit-root-section))

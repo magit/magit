@@ -517,8 +517,9 @@ Type \\[magit-commit] to create a commit.
           ((eq sloc 'hunk) (goto-char spos))
           (upos            (goto-char upos))
           (spos            (goto-char spos)))
-    (when (or upos spos)
-      (magit-section-reveal (magit-current-section)))))
+    (and (or upos spos)
+         (progn (magit-section-reveal (magit-current-section))
+                t))))
 
 (defun magit-status-goto-initial-section ()
   "Jump to the section specified by `magit-status-initial-section'."
