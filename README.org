@@ -138,4 +138,7 @@ Magit was started by [[https://github.com/mvollmer][Marius Vollmer]], and is now
 #+HTML:  <a href="https://github.com/magit/magit/actions/workflows/test.yml"><img alt="Test" src="https://github.com/magit/magit/actions/workflows/test.yml/badge.svg"/></a>
 #+HTML:  <a href="https://github.com/magit/magit/actions/workflows/manual.yml"><img alt="Manual" src="https://github.com/magit/magit/actions/workflows/manual.yml/badge.svg"/></a>
 #+HTML:</div>
+#+HTML:<div align="center">
+#+HTML:  <a href="https://emacsair.me/human"><img alt="human made" src="https://emacsair.me/assets/badges/human.svg"/></a>
+#+HTML:</div>
 :end:
