@@ -4,6 +4,7 @@ name: 🪳 Report a bug
 about: Report a defect. Do not use this for support requests and feature suggestions.
 ---
 
+```
 Please use your own words.
 Please use your own brain.
 
@@ -13,6 +14,7 @@ Avoid LLMs!
 ▄████▄ ▄▄ ▄▄  ▄▄▄  ▄▄ ▄▄▄▄     ▄████  ▄▄▄▄▄ ▄▄  ▄▄ ▄████▄ ██
 ██▄▄██ ██▄██ ██▀██ ██ ██▀██   ██  ▄▄▄ ██▄▄  ███▄██ ██▄▄██ ██
 ██  ██  ▀█▀  ▀███▀ ██ ████▀    ▀███▀  ██▄▄▄ ██ ▀██ ██  ██ ██
+```
 
 If you have already used an LLM to investigate an issue, don't post a generated wall of text.  A human has to read and verify all that.  Please do that work yourself and then use your own words to describe the relevant findings.
 
