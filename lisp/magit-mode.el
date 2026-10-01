@@ -568,7 +568,8 @@ Magit is documented in info node `(magit)'."
   (setq-local bookmark-make-record-function #'magit--make-bookmark)
   (setq-local imenu-create-index-function #'magit--imenu-create-index)
   (setq-local imenu-default-goto-function #'magit--imenu-goto-function)
-  (setq-local isearch-filter-predicate #'magit-section--open-temporarily))
+  (setq-local isearch-filter-predicate #'magit-section--open-temporarily)
+  (setq-local hi-lock-use-overlays t))
 
 (defun magit-hack-dir-local-variables ()
   "Like `hack-dir-local-variables-non-file-buffer' but ignore some variables."
@@ -1123,6 +1124,8 @@ The arguments are for internal use."
         (magit-section-show magit-root-section))
       (run-hooks 'magit-refresh-buffer-hook)
       (magit-section-update-highlight)
+      (when hi-lock-mode
+        (funcall (hi-lock-revert-buffer-rehighlight)))
       (set-buffer-modified-p nil)
       (push (current-buffer) magit-section--refreshed-buffers)
       (when magit-refresh-verbose
