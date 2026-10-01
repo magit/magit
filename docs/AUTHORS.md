@@ -48,6 +48,7 @@ All Contributors
 - Alex Kost
 - Alex Kreisher
 - Alex Ott
+- Alex Romine
 - Allen Li
 - Andrea Alberti
 - Andreas Fuchs
@@ -339,6 +340,7 @@ All Contributors
 - Ramkumar Ramachandra
 - Remco van 't Veer
 - Rémi Vanicat
+- Renato Ferreira
 - René Stadler
 - Richard Kim
 - Richard Sent
