@@ -607,8 +607,7 @@ the output in the kill ring.
     (when toplib
       (let* ((topdir (file-name-directory toplib))
              (gitdir (expand-file-name
-                      ".git" (file-name-directory
-                              (directory-file-name topdir))))
+                      ".git" (file-name-parent-directory topdir)))
              (static (locate-library "magit-version.el" nil (list topdir)))
              (static (and static (magit--chase-links static))))
         (or (progn

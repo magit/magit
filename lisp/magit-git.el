@@ -930,7 +930,7 @@ Also see `magit-git-config-p'."
                 (expand-file-name (or file default-directory))))
           (previous nil))
       (while (not (file-accessible-directory-p dir))
-        (setq dir (file-name-directory (directory-file-name dir)))
+        (setq dir (file-name-parent-directory dir))
         (when (equal dir previous)
           (throw 'unsafe-default-dir nil))
         (setq previous dir))
@@ -1063,7 +1063,7 @@ tree, then it is not possible to avoid returning the truename."
            ;; helpful.  This does not work in sub-directories of such a
            ;; gitdir.
            [[defdir default-directory]
-            [updir  (file-name-directory (directory-file-name gitdir))]
+            [updir  (file-name-parent-directory gitdir)]
             [upname (file-name-nondirectory (directory-file-name updir))]
             [module (file-name-nondirectory (directory-file-name gitdir))]]
            ([_(equal upname "modules")]

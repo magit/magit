@@ -951,8 +951,7 @@ account."
                'post-forward-angle-brackets
              uniquify-buffer-name-style)))
       (uniquify-rationalize-file-buffer-names
-       name (file-name-directory (directory-file-name default-directory))
-       buffer))))
+       name (file-name-parent-directory default-directory) buffer))))
 
 ;;; Buffer Lock
 
