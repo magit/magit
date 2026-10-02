@@ -45,6 +45,9 @@
 (declare-function elp-results "elp" ())
 (declare-function elp-restore-all "elp" ())
 
+(eval-when-compile (require 'hi-lock))
+(declare-function hi-lock-revert-buffer-rehighlight "hi-lock" ())
+
 (defvar magit--wip-inhibit-autosave)
 (defvar magit-wip-mode)
 (declare-function magit-wip-get-ref "magit-wip" ())
@@ -1124,7 +1127,7 @@ The arguments are for internal use."
         (magit-section-show magit-root-section))
       (run-hooks 'magit-refresh-buffer-hook)
       (magit-section-update-highlight)
-      (when hi-lock-mode
+      (when (bound-and-true-p hi-lock-mode)
         (funcall (hi-lock-revert-buffer-rehighlight)))
       (set-buffer-modified-p nil)
       (push (current-buffer) magit-section--refreshed-buffers)
