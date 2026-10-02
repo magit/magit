@@ -1,4 +1,34 @@
 # -*- mode: org -*-
+* v4.7.2    UNRELEASED
+
+- Tags are now shown in the logs of submodules in the status buffer
+  of the super-repository.  Additionally all unpulled tags are shown
+  in the headings of these logs.  1c470b54, 5f6c5afa
+
+- When setting the value of a Git variable in a menu, the worktree
+  specific value can be set or unset using a prefix argument.  See
+  https://github.com/magit/forge/discussions/831.  This is still
+  experimental.  2e92cad8
+
+- In the log menu, the ~--authors~ argument now accepts multiple values.
+  7851e024
+
+- Improved the default choice when pushing to the upstream when that
+  isn't configured yet.  #5638
+
+- Hi-lock is now instructed to use overlays in Magit buffers so that
+  its highlights are not lost when refreshing such buffers.
+
+Bugfixes:
+
+- Fixed a regression in ~magit-stage-untracked~.  #5635
+
+- ~bug-reference-mode~ did not work in buffers used to write commit
+  messages.  fe66e74a
+
+- ~magit-branch-delete~ failed to delete remote branches on remotes
+  whose name contain a slash.  #5637
+
 * v4.7.1    2026-09-01
 
 - In repository listings the home directory is now used as
