@@ -29,6 +29,9 @@ Bugfixes:
 - ~magit-branch-delete~ failed to delete remote branches on remotes
   whose name contain a slash.  #5637
 
+- When visiting a blob from a buffer visiting the respective file in
+  the worktree, the position was not restored in the target buffer.
+
 * v4.7.1    2026-09-01
 
 - In repository listings the home directory is now used as

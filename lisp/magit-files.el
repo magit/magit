@@ -133,7 +133,7 @@ Non-interactively REV can also be a blob object."
                (current-buffer)))
             ((error "Unexpected error")))))
     (when (and (not no-restore-position)
-               (equal magit-buffer-file-name file))
+               (equal (magit-buffer-file-name) file))
       (let ((pos (magit-find-file--position)))
         (with-current-buffer buffer
           (apply #'magit-find-file--restore-position pos))))
