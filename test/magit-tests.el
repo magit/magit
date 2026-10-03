@@ -41,11 +41,13 @@
                    (list "-c" "user.name=\"A U Thor\"")
                    (list "-c" "user.email=\"a.u.thor@example.com\"")
                    magit-git-global-arguments)))
-       (condition-case err
-           (let ((default-directory (file-truename ,dir)))
-             ,@body)
-         (error (message "Keeping test directory:\n  %s" ,dir)
-                (signal (car err) (cdr err))))
+       (let ((default-directory (file-truename ,dir)))
+         ,@(static-if (fboundp 'handler-bind) ;Emacs >= 30.1
+               `((handler-bind
+                     ((error (lambda (_)
+                               (message "Keeping test directory:\n  %s" ,dir))))
+                   ,@body))
+             body))
        (delete-directory ,dir t))))
 
 (defmacro magit-with-test-repository (&rest body)
