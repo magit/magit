@@ -1059,24 +1059,19 @@ tree, then it is not possible to avoid returning the truename."
            ;; directory of .git if it was set up with
            ;; "git init --separate-git-dir".  See #2955.
            ((car (rassoc gitdir magit--separated-gitdirs)))
-           ;; We might be in the gitdir of a submodule.  Git isn't being
-           ;; helpful.  This does not work in sub-directories of such a
-           ;; gitdir.
-           [[defdir default-directory]
-            [updir  (file-name-parent-directory gitdir)]
-            [upname (file-name-nondirectory (directory-file-name updir))]
-            [module (file-name-nondirectory (directory-file-name gitdir))]]
-           ([_(equal upname "modules")]
-            [default-directory updir]
+           ;; We might be inside the nested gitdir of a submodule.
+           ([parts (nreverse (file-name-split gitdir))]
+            [_(equal (nth 2 parts) "modules")]
+            [_(equal (nth 3 parts) ".git")]
+            [default-directory (file-name-parent-directory gitdir)]
             [default-directory (magit-toplevel)]
-            [default-directory
-             (expand-file-name
-              (magit-git-string "config" "-f" ".gitmodules"
-                                (format "submodule.%s.path" module)))]
-            [_(file-equal-p (magit-gitdir) defdir)]
+            [path (magit-git-string "config" "-f" ".gitmodules"
+                                    (format "submodule.%s.path" (nth 1 parts)))]
+            [default-directory (expand-file-name path)]
+            [_(file-equal-p (magit-gitdir) gitdir)]
             default-directory)
            ;; Step outside the control directory to enter the working tree.
-           (updir)))))))
+           ((file-name-parent-directory gitdir))))))))
 
 (defun magit--toplevel-safe ()
   (or (magit-toplevel)
