@@ -66,6 +66,7 @@ has to be used to view and change remote related variables."
 (transient-define-prefix magit-remote (remote)
   "Add, configure or remove a remote."
   :man-page "git-remote"
+  :refresh-suffixes t
   :value '("-f")
   ["Variables"
    :if (##and magit-remote-direct-configure (transient-scope))

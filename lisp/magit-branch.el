@@ -215,6 +215,7 @@ has to be used to view and change branch related variables."
 (transient-define-prefix magit-branch (branch)
   "Add, configure or remove a branch."
   :man-page "git-branch"
+  :refresh-suffixes t
   [:if (##and magit-branch-direct-configure (transient-scope))
    :description (##concat
                  (propertize "Configure " 'face 'transient-heading)
