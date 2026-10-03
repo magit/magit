@@ -2646,7 +2646,9 @@ keymap is the parent of their keymaps."
     ((looking-at "^gpg: ")
      (let (title end)
        (save-excursion
-         (while (looking-at "^gpg: ")
+         (while (looking-at "^\\(gpg: \\|\
+Primary key fingerprint: \\|\
+     Subkey fingerprint: \\)")
            (cond
              ((looking-at "^gpg: Good signature from")
               (setq title (magit--propertize-face
