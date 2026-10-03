@@ -3,7 +3,7 @@ include ../default.mk
 
 LOAD_PATH += -L ../lisp
 
-test: lisp
+test:
 	@printf "  Testing...\n"
 	@$(EMACS_BATCH) -l $(PKG)-tests -f ert-run-tests-batch-and-exit
 

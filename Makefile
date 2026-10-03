@@ -115,7 +115,7 @@ install-info: info
 
 ## Test ##############################################################
 
-test: lisp
+test:
 	@$(MAKE) -C test test
 
 test-interactive:
