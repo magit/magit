@@ -378,7 +378,8 @@ optional NODISPLAY is non-nil also display it."
         (let (prev)
           (while (not (equal topdir prev))
             (setq prev topdir)
-            (setq topdir (file-name-parent-directory topdir))))))
+            ;; Do not use file-name-parent-directory.
+            (setq topdir (file-name-directory (directory-file-name topdir)))))))
     (let ((buffer (or (seq-find (##with-current-buffer %
                                   (and (eq major-mode 'magit-process-mode)
                                        (equal default-directory topdir)))

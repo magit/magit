@@ -930,7 +930,8 @@ Also see `magit-git-config-p'."
                 (expand-file-name (or file default-directory))))
           (previous nil))
       (while (not (file-accessible-directory-p dir))
-        (setq dir (file-name-parent-directory dir))
+        ;; Do not use file-name-parent-directory.
+        (setq dir (file-name-directory (directory-file-name dir)))
         (when (equal dir previous)
           (throw 'unsafe-default-dir nil))
         (setq previous dir))
