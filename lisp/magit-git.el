@@ -1046,7 +1046,6 @@ tree, then it is not possible to avoid returning the truename."
                               (magit-expand-git-file-name gitdir))
                     (expand-file-name gitdir)))]
          (cond-let*
-           ((magit-bare-repo-p) gitdir)
            ;; Return the linked working tree, if any.
            ([link (expand-file-name "gitdir" gitdir)]
             [wtree (and (file-exists-p link)
@@ -1056,6 +1055,9 @@ tree, then it is not possible to avoid returning the truename."
             ;; exist that contain such a file.  See #2364.
             [_(not (equal wtree ".git"))]
             (file-name-directory (expand-file-name wtree default-directory)))
+           ;; Keep the bare repo check after the linked working tree
+           ;; check.  See #5636.
+           ((magit-bare-repo-p) gitdir)
            ;; The working directory may not be the parent
            ;; directory of .git if it was set up with
            ;; "git init --separate-git-dir".  See #2955.
