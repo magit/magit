@@ -1126,8 +1126,9 @@ The arguments are for internal use."
         (magit-section-show magit-root-section))
       (run-hooks 'magit-refresh-buffer-hook)
       (magit-section-update-highlight)
-      (when (bound-and-true-p hi-lock-mode)
-        (funcall (hi-lock-revert-buffer-rehighlight)))
+      (when-let ((_(bound-and-true-p hi-lock-mode))
+                 (fn (hi-lock-revert-buffer-rehighlight)))
+        (funcall fn))
       (set-buffer-modified-p nil)
       (push (current-buffer) magit-section--refreshed-buffers)
       (when magit-refresh-verbose
