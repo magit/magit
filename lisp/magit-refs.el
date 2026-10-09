@@ -67,7 +67,6 @@ To change the value in an existing buffer use the command
   :type '(choice (const :tag "For branches and tags" all)
                  (const :tag "For branches only"     branch)
                  (const :tag "Never"                 nil)))
-(put 'magit-refs-show-commit-count 'safe-local-variable 'symbolp)
 (put 'magit-refs-show-commit-count 'permanent-local t)
 
 (defcustom magit-refs-pad-commit-counts nil
