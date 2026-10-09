@@ -63,11 +63,12 @@ To change the value in an existing buffer use the command
 `magit-refs-set-show-commit-count'."
   :package-version '(magit . "2.1.0")
   :group 'magit-refs
+  :local 'permanent-only
   :safe (##memq % '(all branch nil))
   :type '(choice (const :tag "For branches and tags" all)
                  (const :tag "For branches only"     branch)
                  (const :tag "Never"                 nil)))
-(put 'magit-refs-show-commit-count 'permanent-local t)
+(put 'magit-refs-show-commit-count 'permanent-local t) ;< 31.1
 
 (defcustom magit-refs-pad-commit-counts nil
   "Whether to pad all counts on all sides in `magit-refs-mode' buffers.

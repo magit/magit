@@ -209,12 +209,12 @@ keep their distinct foreground colors."
        Refreshing the buffer removes all refinement.  This
        variant is only provided for performance reasons."
   :group 'magit-diff
+  :local 'permanent-only
   :safe (##memq % '(nil t all))
   :type '(choice (const :tag "No refinement" nil)
                  (const :tag "Immediately refine all hunks" all)
                  (const :tag "Refine each hunk when moving to it" t)))
-
-(put 'magit-diff-refine-hunk 'permanent-local t)
+(put 'magit-diff-refine-hunk 'permanent-local t) ;< 31.1
 
 (defcustom magit-diff-fontify-hunk nil
   "Whether to apply syntax highlighting to diff hunks.
@@ -236,12 +236,12 @@ delay.  The plan is to make it asynchronous, probably with the help of
 the new `futur' package, which itself still under heavy development."
   :package-version '(magit . "4.6.0")
   :group 'magit-diff
+  :local 'permanent-only
   :safe (##memq % '(nil t all))
   :type '(choice (const :tag "No fontification" nil)
                  (const :tag "Immediately fontify all hunks" all)
                  (const :tag "Fontify each hunk when moving to it" t)))
-
-(put 'magit-diff-fontify-hunk 'permanent-local t)
+(put 'magit-diff-fontify-hunk 'permanent-local t) ;< 31.1
 
 (defcustom magit-diff-refine-ignore-whitespace smerge-refine-ignore-whitespace
   "Whether to ignore whitespace changes in word-granularity differences."
