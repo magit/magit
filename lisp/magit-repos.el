@@ -374,24 +374,28 @@ Usually this is just its basename."
 
 (defun magit-repolist-column-version (_)
   "Insert a description of the repository's `HEAD' revision."
-  (and-let ((v (or (magit-git-string "describe" "--tags" "--dirty")
-                   ;; If there are no tags, use the date in MELPA format.
-                   (magit-rev-format "%cd-g%h" nil
-                                     "--date=format:%Y%m%d.%H%M"))))
-    (save-match-data
-      (when (string-match magit-repolist-column-version-regexp v)
-        (magit--put-face (match-beginning 0) (match-end 0) 'shadow v)
-        (when (match-end 2)
-          (magit--put-face (match-beginning 2) (match-end 2) 'bold v))
-        (when (match-end 4)
-          (magit--put-face (or (match-beginning 3) (match-beginning 4))
-                           (match-end 4) 'error v)))
-      (cond ((not v) nil)
-            ((string-match "\\`[0-9]" v)
-             (concat " " v))
-            ((string-match "\\`[^0-9]+" v)
-             (magit--put-face 0 (match-end 0) 'shadow v)
-             v)))))
+  (cond-let
+    ([v (magit-git-string "describe" "--tags" "--dirty")]
+     (save-match-data
+       (when (string-match magit-repolist-column-version-regexp v)
+         (magit--put-face (match-beginning 0) (match-end 0) 'shadow v)
+         (when (match-end 2)
+           (magit--put-face (match-beginning 2) (match-end 2) 'bold v))
+         (when (match-end 4)
+           (magit--put-face (or (match-beginning 3) (match-beginning 4))
+                            (match-end 4) 'error v)))
+       (cond ((not v) nil)
+             ((string-match "\\`[0-9]" v)
+              (concat " " v))
+             ((string-match "\\`[^0-9]+" v)
+              (magit--put-face 0 (match-end 0) 'shadow v)
+              v))))
+    [[v (magit-rev-format "#%cd-g%h" nil "--date=format:%Y%m%d")]]
+    ([_(magit-anything-modified-p)]
+     [v (magit--propertize-face (concat v "-dirty") 'shadow)]
+     (magit--put-face 9 (length v) 'error v)
+     v)
+    ((magit--propertize-face v 'shadow))))
 
 (defun magit-repolist-version< (a b)
   (save-match-data
