@@ -490,6 +490,29 @@ Recent commits\n[[:xdigit:]]\\{7,\\} master dummy\\'"
                "\\`Head:[[:space:]]+master dummy\n\nRecent commits\\'"
                (magit-test-visible-text))))))
 
+;;; Repository List
+
+(ert-deftest magit-repolist-column-version:no-commits ()
+  (magit-with-test-repository
+    (should-not (magit-repolist-column-version nil))))
+
+(ert-deftest magit-repolist-column-version:no-commits-staged ()
+  (magit-with-test-repository
+    (with-temp-file "file" (insert "content\n"))
+    (magit-git "add" "file")
+    (should-not (magit-repolist-column-version nil))))
+
+(ert-deftest magit-repolist-refresh:no-commits ()
+  (magit-with-test-repository
+    (let ((magit-repository-directories (list (cons default-directory 0))))
+      (with-temp-buffer
+        (magit-repolist-mode)
+        (magit-repolist-setup-1)
+        (magit-repolist-refresh)
+        (should (= (length tabulated-list-entries) 1))
+        (should (equal (caar tabulated-list-entries) default-directory))
+        (should (equal (aref (cadar tabulated-list-entries) 1) ""))))))
+
 ;;; Utils
 
 (ert-deftest magit-utils:add-face-text-property ()
