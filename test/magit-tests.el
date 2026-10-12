@@ -38,6 +38,7 @@
     `(let ((,dir (file-name-as-directory (make-temp-file "magit-" t)))
            (magit-git-global-arguments
             (nconc (list "-c" "protocol.file.allow=always")
+                   (list "-c" "tag.gpgsign=false")
                    (list "-c" "user.name=\"A U Thor\"")
                    (list "-c" "user.email=\"a.u.thor@example.com\"")
                    magit-git-global-arguments)))
