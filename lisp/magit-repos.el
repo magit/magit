@@ -390,12 +390,12 @@ Usually this is just its basename."
              ((string-match "\\`[^0-9]+" v)
               (magit--put-face 0 (match-end 0) 'shadow v)
               v))))
-    [[v (magit-rev-format "#%cd-g%h" nil "--date=format:%Y%m%d")]]
-    ([_(magit-anything-modified-p)]
-     [v (magit--propertize-face (concat v "-dirty") 'shadow)]
-     (magit--put-face 9 (length v) 'error v)
-     v)
-    ((magit--propertize-face v 'shadow))))
+    ([v (magit-rev-format "#%cd-g%h" nil "--date=format:%Y%m%d")]
+     (magit--put-face 0 (length v) 'shadow v)
+     (when (magit-anything-modified-p)
+       (setq v (concat v "-dirty"))
+       (magit--put-face 9 (length v) 'error v))
+     v)))
 
 (defun magit-repolist-version< (a b)
   (save-match-data
