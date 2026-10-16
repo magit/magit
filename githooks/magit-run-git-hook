@@ -2,7 +2,7 @@
 if [ -n "$MAGIT_HOOK_EDITOR" ]
 then
     for arg in "$@"; do args+="\"$arg\""; done
-    $MAGIT_HOOK_EDITOR --eval "(magit-run-git-hook ${args[@]})"
+    eval "$MAGIT_HOOK_EDITOR" --eval '"(magit-run-git-hook ${args[@]})"'
 else
     true
 fi
