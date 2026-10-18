@@ -1475,6 +1475,19 @@ but knowing them can be handy at times.
 @findex magit-describe-section
 This command shows information about the section at point in a
 separate buffer.
+
+The main purpose of this command is to direct the user to the function
+used to insert the section at point, and to the hook, from which that
+function is called.  This information is useful, for example, if one
+wants to stop displaying a certain section.  Or if one wants to learn
+about related options.
+
+That function may also be responsible for inserting the parent and
+siblings of the section at point.  If that is the case, this command
+identifies that ancestor section, not the actual section at point.
+
+Use @code{magit-describe-section-briefly} to always identify precisely the
+innermost section at point.
 @end table
 
 @deffn Command magit-describe-section-briefly

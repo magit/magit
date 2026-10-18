@@ -1216,8 +1216,22 @@ or when INTERACTIVE is non-nil, show the section in the echo area."
   "Print `magit-describe-section' result of SECTION."
   (princ (magit-describe-section-briefly section) stream))
 
+;; https://emacs.stackexchange.com/questions/86042/magit-section-backward-does-not-work-as-described
 (defun magit-describe-section (section &optional interactive-p)
-  "Show information about the section at point."
+  "Show information about the section at point.
+
+The main purpose of this command is to direct the user to the function
+used to insert the section at point, and to the hook, from which that
+function is called.  This information is useful, for example, if one
+wants to stop displaying a certain section.  Or if one wants to learn
+about related options.
+
+That function may also be responsible for inserting the parent and
+siblings of the section at point.  If that is the case, this command
+identifies that ancestor section, not the actual section at point.
+
+Use `magit-describe-section-briefly' to always identify precisely the
+innermost section at point."
   (interactive (list (magit-current-section) t))
   (let ((inserter-section section))
     (while (and inserter-section (not (oref inserter-section inserter)))
