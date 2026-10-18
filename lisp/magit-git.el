@@ -1826,6 +1826,11 @@ to, or to some other symbolic-ref that points to the same ref."
                (funcall predicate module))
            module))))
 
+(defun magit-repository-at-point ()
+  (or (magit-module-at-point)
+      (and (derived-mode-p 'magit-repolist-mode)
+           (tabulated-list-get-id))))
+
 (defun magit-get-current-branch ()
   "Return the refname of the currently checked out branch.
 Return nil if no branch is currently checked out."
