@@ -1216,7 +1216,6 @@ or when INTERACTIVE is non-nil, show the section in the echo area."
   "Print `magit-describe-section' result of SECTION."
   (princ (magit-describe-section-briefly section) stream))
 
-;; https://emacs.stackexchange.com/questions/86042/magit-section-backward-does-not-work-as-described
 (defun magit-describe-section (section &optional interactive-p)
   "Show information about the section at point.
 
