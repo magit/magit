@@ -12,7 +12,7 @@ No LLMs!
 ▀▀ █▪ ▀█▄▀▪     ▀  ▀ ▀▀▀
 ```
 
-All LLM generated code will rejected.
+All LLM generated code will be rejected.
 
 If you just cannot help yourself, you may use an LLM to investigate
 an issue, but then have to disclose that upfront and should not post
