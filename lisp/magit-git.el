@@ -597,7 +597,7 @@ insert the run command and stderr into the process buffer."
       (let (log)
         (unwind-protect
             (let (exit errmsg)
-              (setq log (make-temp-file "magit-stderr"))
+              (setq log (make-nearby-temp-file "magit-stderr"))
               (delete-file log)
               (setq exit (magit-process-git (list t log) args))
               (when (or (> exit 0) (eq magit-git-debug 'include-success))
