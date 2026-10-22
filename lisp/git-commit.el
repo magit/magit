@@ -629,7 +629,7 @@ completing modified symbols and other text appearing in the diff."
   (unless dabbrev--abbrev-char-regexp
     ;; Initialize (not "reset") variables.  See #5545.
     (dabbrev--reset-global-variables))
-  (add-hook 'completion-at-point-functions #'dabbrev-capf -90 t))
+  (add-hook 'completion-at-point-functions #'dabbrev-capf 90 t))
 
 (defun git-commit-setup-changelog-support ()
   "Treat ChangeLog entries as unindented paragraphs."
