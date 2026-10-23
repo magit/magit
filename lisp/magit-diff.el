@@ -2981,8 +2981,7 @@ function errors."
 
 (defun magit-diff-wash-hunk ()
   (when (looking-at "^@\\{2,\\} \\(.+?\\) @\\{2,\\}\\(?: \\(.*\\)\\)?")
-    (let* ((heading  (match-str 0))
-           (ranges   (mapcar
+    (let* ((ranges   (mapcar
                       (lambda (str)
                         (let ((range
                                (mapcar #'string-to-number
@@ -2994,17 +2993,17 @@ function errors."
                       (split-string (match-str 1))))
            (about    (match-str 2))
            (combined (length= ranges 3))
-           (value    (cons about ranges)))
-      (magit-delete-line)
+           (value    (cons about ranges))
+           (beg      (point)))
       (magit-insert-section
           ( hunk value nil
             :combined combined
             :from-range (if combined (butlast ranges) (car ranges))
             :to-range (car (last ranges))
             :about about)
-        (magit-insert-heading
-          (propertize (concat heading "\n")
-                      'font-lock-face 'magit-diff-hunk-heading))
+        (forward-line)
+        (put-text-property beg (point) 'font-lock-face 'magit-diff-hunk-heading)
+        (magit-insert-heading)
         (while (not (or (eobp) (looking-at "^[^-+\s\\]")))
           (forward-line))))
     t))
