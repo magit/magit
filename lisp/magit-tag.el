@@ -168,11 +168,6 @@ that is not the case, propose a message using a reasonable format."
            (msg (magit-rev-format "%s"))
            (ver (and (string-match magit-release-commit-regexp msg)
                      (match-str 1 msg)))
-           (_   (and (not ver)
-                     (require (quote sisyphus) nil t)
-                     (string-match magit-release-commit-regexp
-                                   (magit-rev-format "%s" ptag))
-                     (user-error "Use `sisyphus-create-release' first")))
            (tag (cond
                   ((not ptag)
                    ;; Force the user to review the message used for the
