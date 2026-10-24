@@ -8896,6 +8896,10 @@ functions return the process object.
 
   Calls git synchronously with ARGS.
 
+  This function runs the hooks ~magit-pre-call-git-hook~ and
+  ~magit-post-call-git-functions~.  Since ~magit-run-git~ and ~magit-git~
+  use this function, they too run these hooks.
+
 - Function: magit-call-process program &rest args ::
 
   Calls PROGRAM synchronously with ARGS.

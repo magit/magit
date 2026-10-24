@@ -476,7 +476,15 @@ Process output goes into a new section in the buffer returned by
         (setq magit--refresh-cache nil))
       (magit-refresh))))
 
-(defvar magit-pre-call-git-hook (list #'magit-maybe-save-repository-buffers))
+(defvar magit-pre-call-git-hook (list #'magit-maybe-save-repository-buffers)
+  "Hook run by `magit-call-git' before calling \"git\".")
+
+(defvar magit-post-call-git-functions nil
+  "Hook run by `magit-call-git' after calling \"git\".
+Called with two arguments, the exit-status and the list of argument.
+The argument list is flattened but is otherwise identical to the
+arguments to `magit-call-git'.  Hook functions cannot change the
+return value and errors are demoted.")
 
 (defun magit-call-git (&rest args)
   "Call Git synchronously in a separate process.
@@ -489,10 +497,14 @@ before use.
 Process output goes into a new section in the buffer returned by
 `magit-process-buffer'.  Return the exit code."
   (run-hooks 'magit-pre-call-git-hook)
-  (let ((default-process-coding-system (magit--process-coding-system)))
-    (apply #'magit-call-process
-           (magit-git-executable)
-           (magit-process-git-arguments args))))
+  (let* ((args (flatten-tree args))
+         (default-process-coding-system (magit--process-coding-system))
+         (status (apply #'magit-call-process
+                        (magit-git-executable)
+                        (magit-process-git-arguments args))))
+    (with-demoted-errors "Error running magit-post-call-git-functions: %S"
+      (run-hook-with-args 'magit-post-call-git-functions status args))
+    status))
 
 (defun magit-call-process (program &rest args)
   "Call PROGRAM synchronously in a separate process.

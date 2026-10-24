@@ -10670,6 +10670,10 @@ functions return the process object.
 
 @defun magit-call-git &rest args
 Calls git synchronously with ARGS@.
+
+This function runs the hooks @code{magit-pre-call-git-hook} and
+@code{magit-post-call-git-functions}.  Since @code{magit-run-git} and @code{magit-git}
+use this function, they too run these hooks.
 @end defun
 
 @defun magit-call-process program &rest args
