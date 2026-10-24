@@ -1905,18 +1905,19 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
          (message "Enabling long lines shortcuts in %S" (current-buffer))
          (kill-local-variable 'redisplay-highlight-region-function)
          (kill-local-variable 'redisplay-unhighlight-region-function)
+         (setq-local magit-diff-fontify-hunk nil)
+         (setq-local magit-diff-refine-hunk nil)
          (when magit-show-long-lines-warning
            (setq magit-show-long-lines-warning nil)
            (display-warning 'magit (format "\
 Emacs has enabled redisplay shortcuts
 in this buffer because there are lines whose length go beyond
-`long-line-threshold' (%s characters).  As a result, section
-highlighting and the special appearance of the region has been
-disabled.
+`long-line-threshold' (%s characters).
 
-These shortcuts remain enabled, even once there no longer are
-any long lines in this buffer.  To disable them again, kill
-and recreate the buffer.
+Additionall several potentially costly Magit features (such as
+section highlighting) have been disabled.  These features remain
+disabled, even once there no longer are any long lines in this
+buffer.  To enable them again, kill and recreate the buffer.
 
 This message won't be shown for this session again.  To disable
 it for all future sessions, set `magit-show-long-lines-warning'
