@@ -3797,7 +3797,7 @@ actually a `diff' but a `diffstat' section."
     (forward-char (if merging 2 1))
     (while (= (char-after) ?\t)
       (put-text-property (point) (1+ (point))
-                         'display (list (list 'space :width width)))
+                         'display (list 'space :width width))
       (forward-char))))
 
 (defun magit-diff-paint-whitespace (merging line-type diff-type)
