@@ -52,6 +52,7 @@ This option controls which repositories are being listed by
 \(which see) in potentially surprising ways."
   :package-version '(magit . "3.0.0")
   :group 'magit-essentials
+  :safe #'listp
   :type '(repeat (cons directory (integer :tag "Depth"))))
 
 (defgroup magit-repolist nil
@@ -151,13 +152,15 @@ non-nil, means to invert the resulting sort."
 ;;; List Repositories
 ;;;; List Commands
 ;;;###autoload
-(defun magit-list-repositories ()
+(defun magit-list-repositories (&optional force-global)
   "Display a list of repositories.
 
-Use the option `magit-repository-directories' to control which
-repositories are displayed."
-  (interactive)
-  (magit-repolist-setup (default-value 'magit-repolist-columns)))
+Use option `magit-repository-directories' to control which repositories
+are displayed.  Use \".dir-locals.el\" to specify a different set of
+repositories to be listed, when invoked from below a certain directory.
+With a prefix argument, always display the global list."
+  (interactive "P")
+  (magit-repolist-setup (default-value 'magit-repolist-columns) force-global))
 
 ;;;; Mode Commands
 
@@ -279,17 +282,31 @@ If it contains \"%s\" then the directory is substituted for that."
         #'magit-repolist--imenu-prev-index-position)
   (setq imenu-extract-index-name-function #'tabulated-list-get-id))
 
-(defun magit-repolist-setup (columns)
+(defun magit-repolist-setup (columns &optional force-global)
   (unless magit-repository-directories
     (user-error "You need to customize `magit-repository-directories' %s"
                 "before you can list repositories"))
-  (with-current-buffer (get-buffer-create "*Magit Repositories*")
-    (setq default-directory (expand-file-name "~"))
-    (magit-repolist-mode)
-    (setq-local magit-repolist-columns columns)
-    (magit-repolist-setup-1)
-    (magit-repolist-refresh)
-    (switch-to-buffer (current-buffer))))
+  (let ((dir (and (not force-global)
+                  (buffer-local-boundp 'magit-repository-directories
+                                       (current-buffer))
+                  (or (locate-dominating-file default-directory
+                                              #'dir-locals--base-file)
+                      default-directory))))
+    (with-current-buffer
+        (get-buffer-create
+         (if dir
+             (let ((magit-uniquify-buffer-names nil))
+               (funcall magit-generate-buffer-name-function
+                        'magit-repo-list-mode))
+           "*Magit Repositories*"))
+      (setq default-directory (or dir (expand-file-name "~")))
+      (magit-repolist-mode)
+      (setq-local magit-repolist-columns columns)
+      (when dir
+        (hack-local-variables 'only))
+      (magit-repolist-setup-1)
+      (magit-repolist-refresh)
+      (switch-to-buffer (current-buffer)))))
 
 (defun magit-repolist-setup-1 ()
   (unless tabulated-list-sort-key

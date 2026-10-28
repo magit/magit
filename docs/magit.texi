@@ -3073,8 +3073,11 @@ buffers.
 @deffn Command magit-list-repositories
 This command displays a list of repositories in a separate buffer.
 
-The option @code{magit-repository-directories} controls which repositories are
-displayed.
+Use option @code{magit-repository-directories} to control which
+repositories are displayed.  Use ".dir-locals.el" to specify a
+different set of repositories to be listed, when invoked from below
+a certain directory.  With a prefix argument, always display the
+global list.
 @end deffn
 
 @defopt magit-repolist-columns
