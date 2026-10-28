@@ -290,7 +290,7 @@ If it contains \"%s\" then the directory is substituted for that."
                   (buffer-local-boundp 'magit-repository-directories
                                        (current-buffer))
                   (or (locate-dominating-file default-directory
-                                              #'dir-locals--base-file)
+                                              #'dir-locals--all-files)
                       default-directory))))
     (with-current-buffer
         (get-buffer-create
