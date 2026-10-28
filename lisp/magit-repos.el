@@ -40,10 +40,12 @@
 (defcustom magit-repository-directories nil
   "List of directories that are or contain Git repositories.
 
-Each element has the form (DIRECTORY . DEPTH).  DIRECTORY has
-to be a directory or a directory file-name, a string.  DEPTH,
-an integer, specifies the maximum depth to look for Git
-repositories.  If it is 0, then only add DIRECTORY itself.
+Each element has the form (DIRECTORY . DEPTH).  DIRECTORY has to be a
+directory or a directory file-name, a string.  DEPTH, is an integer, its
+absolute value specifies the maximum depth to look for Git repositories.
+If it is 0, only add DIRECTORY itself.  If it is positive, do not list
+nested repositories.  If it is negative, descend into repositories as
+for any other directory.
 
 This option controls which repositories are being listed by
 `magit-list-repositories'.  It also affects `magit-status'
@@ -517,17 +519,20 @@ instead."
 
 (defun magit-list-repos ()
   (mapcan (pcase-lambda (`(,dir . ,depth))
-            (magit-list-repos-1 dir depth))
+            (magit-list-repos-1 dir (abs depth) (< depth 0)))
           magit-repository-directories))
 
-(defun magit-list-repos-1 (directory depth)
-  (cond ((file-readable-p (expand-file-name ".git" directory))
-         (list (file-name-as-directory directory)))
-        ((and (> depth 0) (file-accessible-directory-p directory))
-         (mapcan (##and (file-directory-p %)
-                        (magit-list-repos-1 % (1- depth)))
-                 (directory-files directory t
-                                  directory-files-no-dot-files-regexp t)))))
+(defun magit-list-repos-1 (directory depth nested)
+  (let ((repop (file-readable-p (expand-file-name ".git" directory))))
+    (nconc
+     (and repop (list (file-name-as-directory directory)))
+     (and (> depth 0)
+          (or nested (not repop))
+          (file-accessible-directory-p directory)
+          (mapcan (##and (file-directory-p %)
+                         (magit-list-repos-1 % (1- depth) nested))
+                  (directory-files directory t
+                                   directory-files-no-dot-files-regexp t))))))
 
 (defun magit-list-repos-uniquify (alist)
   (let (result (dict (make-hash-table :test #'equal)))

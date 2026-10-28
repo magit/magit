@@ -2224,9 +2224,13 @@ that it should be bound globally.  We recommend using ~C-x g~:
   repositories.
 
   Each element has the form ~(DIRECTORY . DEPTH)~.  DIRECTORY has to be
-  a directory or a directory file-name, a string.  DEPTH, an integer,
+  a directory or a directory file-name, a string.  specifies the
+  maximum depth to look for Git repositories.  If it is 0, then only
+  add DIRECTORY itself.  DEPTH, is an integer, its absolute value
   specifies the maximum depth to look for Git repositories.  If it is
-  0, then only add DIRECTORY itself.
+  0, only add DIRECTORY itself.  If it is positive, do not list nested
+  repositories.  If it is negative, descend into repositories as for
+  any other directory.
 
   This option controls which repositories are being listed by
   ~magit-list-repositories~.  It also affects ~magit-status~ (which see)

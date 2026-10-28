@@ -2633,9 +2633,13 @@ List of directories that are Git repositories or contain Git
 repositories.
 
 Each element has the form @code{(DIRECTORY . DEPTH)}.  DIRECTORY has to be
-a directory or a directory file-name, a string.  DEPTH, an integer,
+a directory or a directory file-name, a string.  specifies the
+maximum depth to look for Git repositories.  If it is 0, then only
+add DIRECTORY itself.  DEPTH, is an integer, its absolute value
 specifies the maximum depth to look for Git repositories.  If it is
-0, then only add DIRECTORY itself.
+0, only add DIRECTORY itself.  If it is positive, do not list nested
+repositories.  If it is negative, descend into repositories as for
+any other directory.
 
 This option controls which repositories are being listed by
 @code{magit-list-repositories}.  It also affects @code{magit-status} (which see)
