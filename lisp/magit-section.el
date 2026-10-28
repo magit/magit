@@ -1853,7 +1853,7 @@ evaluated its BODY.  Admittedly that's a bit of a hack."
 
 (defun magit-section-update-paint (section focused-sections)
   (cl-flet ((paint (highlight)
-              (let ((inhibit-read-only t))
+              (with-silent-modifications
                 (save-excursion
                   (goto-char (oref section start))
                   (magit-section-paint section highlight))))
