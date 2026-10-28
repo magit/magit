@@ -2863,7 +2863,8 @@ Primary key fingerprint: \\|\
       (cond ((and binary long-status)
              (format " (%s, binary)" long-status))
             ((or binary long-status)
-             (format " (%s)" (if binary "binary" long-status)))))
+             (format " (%s)" (if binary "binary" long-status))))
+      "\n")
     (when modes
       (magit-insert-section (hunk '(chmod))
         (magit-insert-heading (magit--propertize-face modes 'default))))
