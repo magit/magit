@@ -550,14 +550,19 @@ eol conversion."
     ((file-remote-p default-directory)
      `(,@magit-git-environment
        ,@process-environment))
+    ;; The various w32 hacks are only applicable when running on the local
+    ;; machine.  A local binding of process-environment different from the
+    ;; top-level value affects the environment used by Tramp.
     (`(,@magit-git-environment
        ,@(and magit-githook-directory
-              (list (format "PATH=%s:%s"
-                            magit-githook-directory
-                            (getenv "PATH"))))
-       ;; The various w32 hacks are only applicable when running on the
-       ;; local machine.  A local binding of process-environment different
-       ;; from the top-level value affects the environment used by Tramp.
+              (list (format
+                     "PATH=%s:%s"
+                     ;; Inspired by code setting magit-git-executable.
+                     (or (and (eq system-type 'windows-nt)
+                              (car (magit--early-process-lines
+                                    "cygpath" "-w" magit-githook-directory)))
+                         magit-githook-directory)
+                     (getenv "PATH"))))
        ,@(cdr (assoc magit-git-executable magit--git-w32-path-hack))
        ,@(and magit-need-cygwin-noglob
               (mapcar (lambda (var)
