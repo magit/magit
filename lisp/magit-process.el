@@ -552,7 +552,6 @@ eol conversion."
        ,@process-environment))
     (`(,@magit-git-environment
        ,@(and magit-githook-directory
-              (not (file-remote-p default-directory))
               (list (format "PATH=%s:%s"
                             magit-githook-directory
                             (getenv "PATH"))))
