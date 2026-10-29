@@ -624,8 +624,12 @@ See `magit-start-process' for more information."
              (let ((m (string-join (flatten-tree args) " ")))
                (remove-list-of-text-properties 0 (length m) '(face) m)
                m))
-  (with-editor* "MAGIT_HOOK_EDITOR"
-    (magit-start-git nil args)))
+  (if (or (not magit-run-hooks-from-githooks)
+          (not with-editor-emacsclient-executable)
+          (file-remote-p default-directory))
+      (magit-start-git nil args)
+    (with-editor* "MAGIT_HOOK_EDITOR"
+      (magit-start-git nil args))))
 
 (defun magit-run-git-with-editor (&rest args)
   "Export GIT_EDITOR and start Git.
@@ -644,11 +648,13 @@ See `magit-start-process' and `with-editor' for more information."
                (remove-list-of-text-properties 0 (length m) '(face) m)
                m))
   (magit--record-separated-gitdir)
-  (with-editor* "MAGIT_HOOK_EDITOR"
-    (with-environment-variables
-        ((magit-with-editor-envvar (getenv "MAGIT_HOOK_EDITOR")))
-      (let ((magit-process-popup-time -1))
-        (magit-start-git nil args)))))
+  (magit-with-editor
+    (if (or (not magit-run-hooks-from-githooks)
+            (not with-editor-emacsclient-executable)
+            (file-remote-p default-directory))
+        (magit-start-git nil args)
+      (setenv "MAGIT_HOOK_EDITOR" (getenv magit-with-editor-envvar))
+      (magit-start-git nil args))))
 
 (defun magit-run-git-sequencer (&rest args)
   "Export GIT_EDITOR and start Git.

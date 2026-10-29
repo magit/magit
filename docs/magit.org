@@ -2075,7 +2075,13 @@ machine.
 
   This option controls whether Git hooks may run Lisp hooks.
 
-  Magit only defines one such hook mapping, but users can add more.
+  By default the Lisp hook ~magit-common-git-post-commit-functions~ is
+  run by the Git hooks ~post-commit~, ~post-merge~ and ~post-rewrite~.
+  Use ~magit-user-githook-file~ to define additional hooks.
+
+  Git hooks can only run Lisp hooks, if Magit invokes Git asynchronously
+  and on the local machine, ~with-editor-emacsclient-executable~ is set,
+  and at least Git v2.54.0 is used.
 
 - User option: magit-user-githook-file ::
 

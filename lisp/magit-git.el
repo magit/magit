@@ -164,7 +164,8 @@ run by the Git hooks `post-commit', `post-merge' and `post-rewrite'.
 Use `magit-user-githook-file' (which see) to define additional hooks.
 
 Git hooks can only run Lisp hooks, if Magit invokes Git asynchronously
-and on the local machine, and at least Git v2.54.0 is used."
+and on the local machine, `with-editor-emacsclient-executable' is set,
+and at least Git v2.54.0 is used."
   :package-version '(magit . "4.6.0")
   :group 'magit-process
   :type 'boolean)

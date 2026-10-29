@@ -2434,7 +2434,13 @@ machine.
 @kindex magit-run-hooks-from-githooks
 This option controls whether Git hooks may run Lisp hooks.
 
-Magit only defines one such hook mapping, but users can add more.
+By default the Lisp hook @code{magit-common-git-post-commit-functions} is
+run by the Git hooks @code{post-commit}, @code{post-merge} and @code{post-rewrite}.
+Use @code{magit-user-githook-file} to define additional hooks.
+
+Git hooks can only run Lisp hooks, if Magit invokes Git asynchronously
+and on the local machine, @code{with-editor-emacsclient-executable} is set,
+and at least Git v2.54.0 is used.
 
 @item @kbd{magit-user-githook-file}
 @kindex magit-user-githook-file
