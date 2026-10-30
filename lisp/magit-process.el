@@ -555,14 +555,15 @@ eol conversion."
     ;; top-level value affects the environment used by Tramp.
     (`(,@magit-git-environment
        ,@(and magit-githook-directory
-              (list (format
-                     "PATH=%s:%s"
-                     ;; Inspired by code setting magit-git-executable.
-                     (or (and (eq system-type 'windows-nt)
-                              (car (magit--early-process-lines
-                                    "cygpath" "-w" magit-githook-directory)))
-                         magit-githook-directory)
-                     (getenv "PATH"))))
+              (list
+               (concat "PATH="
+                       ;; Inspired by code setting magit-git-executable.
+                       (or (and (eq system-type 'windows-nt)
+                                (car (magit--early-process-lines
+                                      "cygpath" "-w" magit-githook-directory)))
+                           magit-githook-directory)
+                       path-separator
+                       (getenv "PATH"))))
        ,@(cdr (assoc magit-git-executable magit--git-w32-path-hack))
        ,@(and magit-need-cygwin-noglob
               (mapcar (lambda (var)
