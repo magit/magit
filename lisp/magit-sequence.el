@@ -686,13 +686,13 @@ START has to be selected from a list of recent commits."
                   commit delay-edit-confirm
                   (seq-some (##string-prefix-p "--rebase-merges" %) args))))
   (if (and commit (not confirm))
-      (let ((process-environment process-environment))
+      ;; Use a copy because the old value may contain GIT_SEQUENCE_EDITOR.
+      (let ((process-environment (copy-sequence process-environment)))
         (when editor
-          (push (concat "GIT_SEQUENCE_EDITOR="
-                        (if (functionp editor)
-                            (funcall editor commit)
-                          editor))
-                process-environment))
+          (setenv "GIT_SEQUENCE_EDITOR"
+                  (if (functionp editor)
+                      (funcall editor commit)
+                    editor)))
         (magit-run-git-sequencer "rebase" "-i" args
                                  (and (not (member "--root" args)) commit)))
     (magit-log-select
