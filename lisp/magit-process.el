@@ -61,6 +61,8 @@ If t, use ptys: this enables Magit to prompt for passphrases when needed."
 (defcustom magit-need-cygwin-noglob
   (and (eq system-type 'windows-nt)
        (with-temp-buffer
+         ;; `magit-process-environment' isn't defined yet
+         ;; and uses this variable, so it cannot be used here.
          (let ((process-environment
                 (append magit-git-environment process-environment)))
            (condition-case e
@@ -546,6 +548,15 @@ eol conversion."
     (apply #'process-file process infile buffer display args)))
 
 (defun magit-process-environment ()
+  "Prepend `magit-git-environment' to `process-environment'.
+
+This is intended to be used in bindings directly around calls
+to git.  No copy of `process-environment' is created, because
+there is no expectation that the binding is further modified.
+
+On Windows (except on a remote system), prepend additional
+variables (whose values are calculated here), addressing path
+and glob incompatibilities."
   (cond
     ((file-remote-p default-directory)
      `(,@magit-git-environment

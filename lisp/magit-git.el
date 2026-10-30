@@ -99,6 +99,8 @@ this."
 
 (defun magit--early-process-lines (program &rest args)
   "Only used to initialize custom options."
+  ;; `magit-process-environment' isn't defined yet
+  ;; and uses this function, so it cannot be used here.
   (let ((process-environment
          (append magit-git-environment process-environment)))
     (ignore-error file-missing
