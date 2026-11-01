@@ -150,6 +150,7 @@ All Contributors
 - Eyal Soha
 - Fabian Wiget
 - Felix Geller
+- Felix Lange
 - Felix Yan
 - Feng Li
 - Florian Ragwitz
@@ -411,6 +412,7 @@ All Contributors
 - Tsuyoshi Kitamoto
 - Tunc Uzlu
 - Ulrich Müller
+- Umar Ahmad
 - Vineet Naik
 - Vitaly Ostashov
 - Vladimir Ivanov
