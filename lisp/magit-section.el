@@ -1914,7 +1914,7 @@ Emacs has enabled redisplay shortcuts
 in this buffer because there are lines whose length go beyond
 `long-line-threshold' (%s characters).
 
-Additionall several potentially costly Magit features (such as
+Additionally several potentially costly Magit features (such as
 section highlighting) have been disabled.  These features remain
 disabled, even once there no longer are any long lines in this
 buffer.  To enable them again, kill and recreate the buffer.
