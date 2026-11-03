@@ -13,11 +13,34 @@
 - In the log menu, the ~--authors~ argument now accepts multiple values.
   7851e024
 
-- Improved the default choice when pushing to the upstream when that
+- Improved the default choice when pushing to the upstream, if that
   isn't configured yet.  #5638
 
 - Hi-lock is now instructed to use overlays in Magit buffers so that
   its highlights are not lost when refreshing such buffers.
+
+- Improved the timestamp fallbacks displayed in repository lists for
+  repositories that lack release tags.  58a46982
+
+- When committing ~dabbrev-capf~ is now added near the end of
+  ~completion-at-point-functions~ to avoid shadowing other functions.
+  #5655
+
+- Optimized diff washing by preventing modification hooks from
+  triggering and avoiding unnecessary buffer edits.  #5656, #5659
+
+- Added new hook ~magit-post-call-git-functions~.  #5652
+
+- Hunk fontification and refinement are now disabled when
+  ~long-lines-threshold~ triggers.  #5647
+
+- ~magit-list-repositories~ can now be instructed (using option
+  ~magit-repository-directories~) to include repositories nested inside
+  other repositories.  #5657
+
+- ~magit-list-repositories~ can now list different sets of repositories
+  depending on ~default-directory~, by setting ~magit-repository-directories~
+  in ~.dir-locals.el~.  #5658
 
 Bugfixes:
 
@@ -26,11 +49,49 @@ Bugfixes:
 - ~bug-reference-mode~ did not work in buffers used to write commit
   messages.  fe66e74a
 
+- ~bug-reference-mode~ needed help doing its work in files located
+  in the gitdir (which Magit uses when authoring commit messages).
+  fe66e74a
+
 - ~magit-branch-delete~ failed to delete remote branches on remotes
   whose name contain a slash.  #5637
 
+- When invoked from a modified file, ~magit-status-here~ no longer
+  jumped to the correct location.  #5641
+
 - When visiting a blob from a buffer visiting the respective file in
   the worktree, the position was not restored in the target buffer.
+
+- ~magit-toplevel~ did not work from a subdirectory of the gitdir of
+  a submodule, and signaled an error from the gitdir of a regular
+  repository, which happens to be a subdirectory of a directory
+  named "modules".  #5644
+
+- ~magit-branch~ and ~magit-remote~ were not fully refreshed in an
+  edge-case.  #5642
+
+- GnuPG became more verbose in some cases, which we wasn't prepared.
+  to handle, causing failure to nicely format the output.  #5643
+
+- After adding a worktree to a bare repository, trying to create
+  a commit from the worktree signaled an error.  #5636
+
+- The script used to call back into Emacs from Git hooks failed if the
+  path to ~emacsclient~ needs shell quoting.  #5651
+
+- A local file was used to collect standard error of remote processes,
+  causing an unnecessary round-trip.  #5654
+
+- In logs dedicated to selecting a commit (such as when starting a
+  rebase), the wrong section was highlighted initially.  #5653
+
+- On remote systems and when ~with-editor-emacsclient-executable~ is
+  ~nil~, no longer try to call back from Git hooks into Emacs, which
+  cannot work.  #5592
+
+- When Git hooks are configured to call back into Emacs, and using
+  an ~windows-nt~ Emacs together with Cygwin, members of ~$PATH~ were
+  not translated, and the wrong path separator was used.  #5640
 
 * v4.7.1    2026-09-01
 
