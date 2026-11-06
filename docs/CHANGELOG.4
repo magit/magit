@@ -93,6 +93,13 @@ Bugfixes:
   an ~windows-nt~ Emacs together with Cygwin, members of ~$PATH~ were
   not translated, and the wrong path separator was used.  #5640
 
+- In Emacs 31.1, Tramp changed/extended how it filters out environment
+  variables, that should be hidden from processes on the remote.  This
+  caused a variable to be filtered out, that must remain set for Magit
+  to not drop data when creating a stash.  We now hold the variable as
+  is expected from us, and added a safety-net, which asserts that the
+  variable indeed remains set.  #5660
+
 * v4.7.1    2026-09-01
 
 - In repository listings the home directory is now used as

@@ -418,11 +418,25 @@ as for that macro.
 Note that itself Magit does not ever make this variable buffer-local.
 This macro only exists to cope with third-party code doing that."
   (declare (indent 0) (debug (body)))
-  (let ((p (gensym)))
-    `(let ((,p process-environment))
-       (with-temp-buffer
-         (let ((process-environment ,p))
-           ,@body)))))
+  (static-if (fboundp 'buffer-local-toplevel-value)
+      (let ((top (make-symbol "def"))
+            (let (make-symbol "let")))
+        `(let ((,top (condition-case nil
+                         (buffer-local-toplevel-value 'process-environment)
+                       (void-variable
+                        (default-toplevel-value 'process-environment))))
+               (,let process-environment))
+           (with-temp-buffer
+             (setq-local process-environment ,top)
+             (let ((process-environment ,let))
+               ,@body))))
+    (when (fboundp 'buffer-local-toplevel-value)
+      (error "Magit needs to be recompiled"))
+    (let ((env (make-symbol "env")))
+      `(let ((,env process-environment))
+         (with-temp-buffer
+           (let ((process-environment ,env))
+             ,@body))))))
 
 (defsubst magit-git-executable ()
   "Return value of `magit-git-executable' or `magit-remote-git-executable'.

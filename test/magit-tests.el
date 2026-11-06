@@ -560,6 +560,41 @@ Recent commits\n[[:xdigit:]]\\{7,\\} master dummy\\'"
     (cl-letf (((symbol-function 'char-displayable-p) (lambda (_) nil)))
       (should (equal (magit--ellipsis 'foo) (magit--ellipsis))))))
 
+;;; Tramp
+
+(defun magit--filter-envvars-like-tramp ()
+  ;; Like in tramp-handle-make-process:
+  (seq-filter (lambda (arg)
+                (and (string-search "=" arg)
+                     (not
+                      ;; Inline tramp-local-environment-variable-p:
+                      (or (ignore-error (void-variable void-function)
+                            (member arg (tramp-compat-funcall
+                                            'buffer-local-toplevel-value
+		                          'process-environment)))
+                          (member arg (default-toplevel-value
+                                       'process-environment))))))
+              process-environment))
+
+(ert-deftest magit--with-temp-process-buffer:already-buffer-local ()
+  :expected-result (if (>= emacs-major-version 31) :passed :failed)
+  (should (equal (with-temp-buffer
+                   ;; Emulate another package doing that:
+                   (make-local-variable 'process-environment)
+                   (setenv "SECRET" "12345")
+                   (with-environment-variables (("EXPORT" "value"))
+                     (magit--with-temp-process-buffer
+                       (magit--filter-envvars-like-tramp))))
+                 '("EXPORT=value"))))
+
+(ert-deftest magit--with-temp-process-buffer:not-buffer-local ()
+  (should (equal (with-temp-buffer
+                   (setenv "SECRET" "12345")
+                   (with-environment-variables (("EXPORT" "value"))
+                     (magit--with-temp-process-buffer
+                       (magit--filter-envvars-like-tramp))))
+                 '("EXPORT=value"))))
+
 ;;; _
 (provide 'magit-tests)
 ;; Local Variables:
