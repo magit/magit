@@ -536,8 +536,7 @@ still subject to major changes."
             (and (not (bobp))
                  (progn
                    (goto-char (point-min))
-                   (buffer-substring-no-properties
-                    (point) (line-end-position))))
+                   (magit--eol-substring)))
           (let ((buf (current-buffer)))
             (with-current-buffer (magit-process-buffer t)
               (magit-process-insert-section default-directory
@@ -561,7 +560,7 @@ ignore `magit-git-debug'."
       (magit-process-git (list t nil) args)
       (unless (bobp)
         (goto-char (point-min))
-        (buffer-substring-no-properties (point) (line-end-position))))))
+        (magit--eol-substring)))))
 
 (defun magit-git-output (&rest args)
   "Execute Git with ARGS, returning its output."
@@ -671,7 +670,7 @@ want, then use `magit-git-string-ng' instead."
            (not (bobp))
            (progn
              (goto-char (point-min))
-             (buffer-substring-no-properties (point) (line-end-position)))))))
+             (magit--eol-substring))))))
 
 (defun magit-git-lines (&rest args)
   "Execute Git with ARGS, returning its output as a list of lines.

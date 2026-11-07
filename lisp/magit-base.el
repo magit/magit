@@ -931,8 +931,7 @@ If optional NUM is specified, only delete that subexpression."
   (and (file-regular-p file)
        (with-temp-buffer
          (insert-file-contents file)
-         (buffer-substring-no-properties (point-min)
-                                         (line-end-position)))))
+         (magit--eol-substring))))
 
 (defun magit-file-lines (file &optional keep-empty-lines)
   "Return a list of strings containing one element per line in FILE.
@@ -1017,6 +1016,10 @@ and return a new string, instead use `magit--remove-text-properties'."
   "Return a copy of STRING with text properties PROPS removed.
 If PROPS is nil, remove all properties."
   (magit--delete-text-properties (copy-sequence string) props))
+
+(defun magit--eol-substring ()
+  "Return buffer content without properties from `point' to `pos-eol'."
+  (buffer-substring-no-properties (point) (pos-eol)))
 
 ;;; Kludges for Emacs Bugs
 

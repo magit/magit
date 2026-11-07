@@ -883,7 +883,7 @@ https://github.com/mhagger/git-when-merged."
         (setq exit (magit-process-git t "when-merged" "-c"
                                       (magit-abbrev-arg)
                                       commit branch)))
-      (setq m (buffer-substring-no-properties (point) (line-end-position))))
+      (setq m (magit--eol-substring)))
     (if (zerop exit)
         (magit-log-setup-buffer (list (format "%s^1..%s" m m))
                                 args files nil commit)

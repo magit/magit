@@ -2651,13 +2651,11 @@ Primary key fingerprint: \\|\
      Subkey fingerprint: \\)")
            (cond
              ((looking-at "^gpg: Good signature from")
-              (setq title (magit--propertize-face
-                           (buffer-substring (point) (line-end-position))
-                           'magit-signature-good)))
+              (setq title (magit--propertize-face (magit--eol-substring)
+                                                  'magit-signature-good)))
              ((looking-at "^gpg: Can't check signature")
-              (setq title (magit--propertize-face
-                           (buffer-substring (point) (line-end-position))
-                           '(italic bold)))))
+              (setq title (magit--propertize-face (magit--eol-substring)
+                                                  '(italic bold)))))
            (forward-line))
          (setq end (point-marker)))
        (magit-insert-section (signature object title)
@@ -2817,7 +2815,7 @@ Primary key fingerprint: \\|\
            ;; TODO Use all combined diff extended headers.
            ((looking-at "mode .+\n"))
            ((error "BUG: Unknown extended header: %S"
-                   (buffer-substring (point) (line-end-position)))))
+                   (magit--eol-substring))))
          ;; These headers are treated as some sort of special hunk.
          (unless (or (string-prefix-p "old mode" (match-str 0))
                      (string-prefix-p "rename"   (match-str 0)))

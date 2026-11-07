@@ -960,7 +960,7 @@ If no such sequence is in progress, do nothing."
              (insert-file-contents patch nil nil 4096)
              (unless (re-search-forward "^Subject: " nil t)
                (goto-char (point-min)))
-             (buffer-substring (point) (line-end-position)))))
+             (magit--eol-substring))))
       (insert (propertize type 'font-lock-face face)
               ?\s (propertize (file-name-nondirectory patch)
                               'font-lock-face 'magit-hash)
