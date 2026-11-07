@@ -100,6 +100,9 @@ Bugfixes:
   is expected from us, and added a safety-net, which asserts that the
   variable indeed remains set.  #5660
 
+- When committing a file with changes near its file-local settings,
+  they could end up being enabled in the commit message buffer.  #5662
+
 * v4.7.1    2026-09-01
 
 - In repository listings the home directory is now used as

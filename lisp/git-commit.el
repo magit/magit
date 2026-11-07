@@ -462,6 +462,8 @@ full loading."
 (with-eval-after-load 'recentf
   (add-to-list 'recentf-exclude git-commit-filename-regexp))
 
+(add-to-list 'inhibit-local-variables-regexps git-commit-filename-regexp)
+
 (add-to-list 'with-editor-file-name-history-exclude git-commit-filename-regexp)
 
 (defun git-commit-setup-font-lock-in-buffer ()
