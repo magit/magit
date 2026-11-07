@@ -686,7 +686,6 @@ START has to be selected from a list of recent commits."
                   commit delay-edit-confirm
                   (seq-some (##string-prefix-p "--rebase-merges" %) args))))
   (if (and commit (not confirm))
-      ;; Use a copy because the old value may contain GIT_SEQUENCE_EDITOR.
       (let ((process-environment (copy-sequence process-environment)))
         (when editor
           (setenv "GIT_SEQUENCE_EDITOR"
