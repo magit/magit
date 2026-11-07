@@ -2043,7 +2043,7 @@ the Magit-Status buffer for DIRECTORY."
 
 (defun magit-diff-hunk-line (section goto-from)
   (save-excursion
-    (goto-char (line-beginning-position))
+    (goto-char (pos-bol))
     (with-slots (content combined from-ranges from-range to-range) section
       (when (or from-range to-range)
         (when (< (point) content)
@@ -2066,7 +2066,7 @@ the Magit-Status buffer for DIRECTORY."
   (if (or (< (magit-point)
              (oref section content))
           (and (not goto-from)
-               (= (char-after (line-beginning-position)) ?-)))
+               (= (char-after (pos-bol)) ?-)))
       0
     (max 0 (- (+ (current-column) 2)
               (length (oref section value))))))
@@ -2635,7 +2635,7 @@ keymap is the parent of their keymaps."
   (when (member "--stat" args)
     (magit-diff-wash-diffstat))
   (when (re-search-forward magit-diff-headline-re limit t)
-    (goto-char (line-beginning-position))
+    (goto-char (pos-bol))
     (magit-wash-sequence (##magit-diff-wash-diff args))
     (insert ?\n)))
 
@@ -2773,8 +2773,8 @@ Primary key fingerprint: \\|\
                          (t                                     "unmerged")))
            (orig nil)
            (file (or (match-str 2) (match-str 3)))
-           (header (list (buffer-substring-no-properties
-                          (line-beginning-position) (1+ (line-end-position)))))
+           (header (list (buffer-substring-no-properties (pos-bol)
+                                                         (1+ (pos-eol)))))
            (modes nil)
            (rename nil)
            (binary nil)
@@ -3211,7 +3211,7 @@ or a ref which is not a branch, then it inserts nothing."
     (when magit-revision-fill-summary-line
       (let ((fill-column (min magit-revision-fill-summary-line
                               (window-width (get-buffer-window nil t)))))
-        (fill-region (point) (line-end-position))))
+        (fill-region (point) (pos-eol))))
     (run-hook-wrapped 'magit-revision-wash-message-hook
                       (lambda (fn) (prog1 nil (save-excursion (funcall fn)))))
     (buffer-string)))
@@ -3444,7 +3444,7 @@ It the SECTION has a different type, then do nothing."
   (nconc (cl-call-next-method)
          (and (region-active-p)
               (progn
-                (goto-char (line-beginning-position))
+                (goto-char (pos-bol))
                 (when  (looking-at "^[-+]") (forward-line))
                 (while (looking-at "^[ @]") (forward-line))
                 (let ((beg (magit-point)))
@@ -3454,8 +3454,8 @@ It the SECTION has a different type, then do nothing."
                            (while (looking-at "^[-+]") (forward-line))
                            (while (looking-at "^ ")    (forward-line))
                            (forward-line -1)
-                           (regexp-quote (buffer-substring-no-properties
-                                          beg (line-end-position))))
+                           (regexp-quote
+                            (buffer-substring-no-properties beg (pos-eol))))
                           (t))))))))
 
 (cl-defmethod magit-section-goto-successor ((section magit-hunk-section)
@@ -3697,7 +3697,7 @@ actually a `diff' but a `diffstat' section."
     (forward-line)
     (while (< (point) end)
       (let ((bol (point))
-            (eol (line-end-position))
+            (eol (pos-eol))
             (sign-face nil)
             (line-face nil))
         (when (and magit-diff-hide-trailing-cr-characters
@@ -4016,8 +4016,7 @@ last (visual) lines of the region."
               'display (list 'space :align-to
                              `(+ (0 . right)
                                  ,(min (window-hscroll)
-                                       (- (line-end-position)
-                                          (line-beginning-position)))))
+                                       (- (pos-eol) (pos-bol)))))
               ;; This prevents the cursor from being rendered at the
               ;; edge of the window.
               'cursor t))

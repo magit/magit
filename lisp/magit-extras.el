@@ -826,7 +826,7 @@ In Magit diffs, also skip over - and + at the beginning of the line."
                              "^ ?[-+]+"
                            "^[-+]")))
     (goto-char (match-end 0)))
-  (skip-syntax-forward " " (line-end-position))
+  (skip-syntax-forward " " (pos-eol))
   (backward-prefix-chars))
 
 (defun magit-insert-nested-repositories ()

@@ -941,7 +941,7 @@ Magit status buffer."
       ;; everything before it and delete the current line.
       (when-let ((ret-pos (cl-position ?\r string :from-end t)))
         (setq string (substring string (1+ ret-pos)))
-        (delete-region (line-beginning-position) (point)))
+        (delete-region (pos-bol) (point)))
       (setq string (magit-process-remove-bogus-errors string))
       (when (eq magit-process-apply-ansi-colors 'filter)
         (setq string (ansi-color-apply string)))
@@ -1349,9 +1349,9 @@ return.  If that is nil, or PROCESS-BUF is no longer alive, return nil."
       (ansi-color-apply-on-region (oref section content)
                                   (oref section end)))
     (cond ((= (oref section end)
-              (+ (line-end-position) 2))
+              (+ (pos-eol) 2))
            (save-excursion
-             (goto-char (1+ (line-end-position)))
+             (goto-char (1+ (pos-eol)))
              (delete-char -1)
              (oset section content nil)))
           ((and (= exit-code 0)

@@ -918,7 +918,7 @@ match was against a string, then that has to be provided as STRING."
 
 (defun magit-delete-line ()
   "Delete the rest of the current line."
-  (delete-region (point) (1+ (line-end-position))))
+  (delete-region (point) (1+ (pos-eol))))
 
 (defun magit-delete-match (&optional num)
   "Delete text matched by last search.

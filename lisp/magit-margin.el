@@ -176,7 +176,7 @@ line is affected."
   (save-excursion
     (forward-line (if (if sline previous-line (bolp)) -1 0))
     ;; Don't put the overlay on the complete line to work around #1880.
-    (let ((o (make-overlay (1+ (point)) (line-end-position) nil t)))
+    (let ((o (make-overlay (1+ (point)) (pos-eol) nil t)))
       (overlay-put o 'evaporate t)
       (overlay-put o 'before-string
                    (propertize "o" 'display

@@ -1532,7 +1532,7 @@ Do not add this to a hook variable."
           (insert ?\s trailers)))
       (insert ?\n)
       (when (memq style '(log reflog stash))
-        (goto-char (line-beginning-position))
+        (goto-char (pos-bol))
         (when (and refsub
                    (string-match "\\`\\([^ ]\\) \\+\\(..\\)\\(..\\)" date))
           (setq date (+ (string-to-number (match-str 1 date))

@@ -1932,7 +1932,7 @@ to nil." (bound-and-true-p long-line-threshold)) :warning)))))
         (point (magit-point)))
     (list (- (line-number-at-pos point)
              (line-number-at-pos start))
-          (- point (line-beginning-position)))))
+          (- point (pos-bol)))))
 
 (cl-defgeneric magit-section-goto-successor ())
 

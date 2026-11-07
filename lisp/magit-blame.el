@@ -583,10 +583,10 @@ modes is toggled, then this mode also gets toggled automatically.
         (incf line)))))
 
 (defun magit-blame--make-margin-overlay (chunk revinfo line)
-  (let* ((end (line-end-position))
+  (let* ((end (pos-eol))
          ;; If possible avoid putting this on the first character
          ;; of the line to avoid a conflict with the line overlay.
-         (beg (min (1+ (line-beginning-position)) end))
+         (beg (min (1+ (pos-bol)) end))
          (ov  (make-overlay beg end)))
     (overlay-put ov 'magit-blame-chunk chunk)
     (overlay-put ov 'magit-blame-revinfo revinfo)
@@ -665,7 +665,7 @@ modes is toggled, then this mode also gets toggled automatically.
                 ;; `magit-blame--make-margin-overlay'.  For empty
                 ;; lines it is not possible to show both overlays
                 ;; without the line being too high.
-                (not (= (point) (line-end-position)))))
+                (not (= (point) (pos-eol)))))
           magit-blame-separator))))
 
 (defun magit-blame--update-highlight-overlay (ov)

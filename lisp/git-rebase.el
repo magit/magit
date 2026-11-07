@@ -361,7 +361,7 @@ instance with all nil values is returned, unless optional
 BATCH is non-nil, in which case nil is returned.  Non-nil
 BATCH also ignores commented lines."
   (save-excursion
-    (goto-char (line-beginning-position))
+    (goto-char (pos-bol))
     (cond-let*
       ([re-start (if batch
                      "^"
@@ -419,7 +419,7 @@ of its action type."
        (goto-char (cond (git-rebase-auto-advance end-marker)
                         (pt-below-p (1- end-marker))
                         (beg)))
-       (goto-char (line-beginning-position))))
+       (goto-char (pos-bol))))
     (_ (ding))))
 
 (defun git-rebase-line-p (&optional pos)
@@ -442,8 +442,7 @@ if any."
             (git-rebase-line-p end)
             (list beg (1+ end)))))
     ((and fallback (git-rebase-line-p))
-     (list (line-beginning-position)
-           (1+ (line-end-position))))))
+     (list (pos-bol) (1+ (pos-eol))))))
 
 (defun git-rebase-move-line-down (n)
   "Move the current commit (or command) N lines down.
@@ -453,8 +452,7 @@ current line."
   (interactive "p")
   (pcase-let* ((`(,beg ,end)
                 (or (git-rebase-region-bounds)
-                    (list (line-beginning-position)
-                          (1+ (line-end-position)))))
+                    (list (pos-bol) (1+ (pos-eol)))))
                (pt-offset (- (point) beg))
                (mark-offset (and mark-active (- (mark) beg))))
     (save-restriction
@@ -471,7 +469,7 @@ current line."
                          (looking-at-p (concat git-rebase-comment-re
                                                " Branch")))
                 (forward-line))
-              (line-beginning-position))
+              (pos-bol))
           (point-max))))
       (if (or (and (< n 0) (= beg (point-min)))
               (and (> n 0) (= end (point-max)))
@@ -530,7 +528,7 @@ If the region is active, act on all lines touched by the region."
     (user-error "Unknown revision")))
 
 (defun git-rebase-set-noncommit-action (action value-fn arg)
-  (goto-char (line-beginning-position))
+  (goto-char (pos-bol))
   (pcase-let* ((inhibit-read-only t)
                (`(,initial ,trailer ,comment-p)
                 (and (not arg)
@@ -657,7 +655,7 @@ commit.  For an upper-case -C, the message will be used as is."
       (ding))))
 
 (defun git-rebase-set-bare-action (action arg)
-  (goto-char (line-beginning-position))
+  (goto-char (pos-bol))
   (with-slots ((ln-action action) comment-p)
       (git-rebase-current-line)
     (let ((same-action-p (equal action ln-action))
@@ -711,7 +709,7 @@ Like `undo' but works in read-only buffers."
 (defun git-rebase--show-commit (&optional scroll)
   (let ((magit--disable-save-buffers t))
     (save-excursion
-      (goto-char (line-beginning-position))
+      (goto-char (pos-bol))
       (if-let ((rev (with-slots (action-type target)
                         (git-rebase-current-line)
                       (and (eq action-type 'commit)
@@ -863,7 +861,7 @@ except for the \"pick\" command."
                  (re-search-forward
                   (concat git-rebase-comment-re "\\s-+p, pick")
                   nil t))
-        (goto-char (line-beginning-position))
+        (goto-char (pos-bol))
         (git-rebase--insert-descriptions git-rebase-command-descriptions)
         (let ((cmd nil)
               (line (concat git-rebase-comment-re "\\(?:\\( \\.?     *\\)\\|"
@@ -881,8 +879,8 @@ except for the \"pick\" command."
                  (delete-line)
                  (git-rebase--insert-descriptions git-rebase-fixup-descriptions))
                 (t
-                 (add-text-properties (line-beginning-position)
-                                      (1+ (line-end-position))
+                 (add-text-properties (pos-bol)
+                                      (1+ (pos-eol))
                                       '(font-lock-face font-lock-comment-face))
                  (replace-match " " t t nil 2)
                  (replace-match
@@ -936,8 +934,7 @@ Used as a value for `imenu-prev-index-position-function'."
   "Return imenu name for line at point.
 Point should be at the beginning of the line.  This function
 is used as a value for `imenu-extract-index-name-function'."
-  (buffer-substring-no-properties (line-beginning-position)
-                                  (line-end-position)))
+  (buffer-substring-no-properties (pos-bol) (pos-eol)))
 
 ;;; _
 (provide 'git-rebase)

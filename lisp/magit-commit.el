@@ -821,8 +821,7 @@ actually insert the entry."
         (let ((limit (save-excursion
                        (and (re-search-forward "^\\*" nil t)
                             (point)))))
-          (unless (or (looking-back (format "(%s): " defun)
-                                    (line-beginning-position))
+          (unless (or (looking-back (format "(%s): " defun) (pos-bol))
                       (re-search-forward (format "^(%s): " defun) limit t))
             (while (re-search-forward "^[^\\*\n].*\n" limit t))
             (insert (format "(%s): \n" defun))
