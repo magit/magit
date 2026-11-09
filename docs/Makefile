@@ -101,7 +101,7 @@ clean:
 	@printf " Cleaning docs/*...\n"
 	@$(RMDIR) dir $(INFOPAGES) $(HTMLFILES) $(HTMLDIRS) $(PDFFILES)
 	@$(RMDIR) $(EPUBFILES) $(EPUBTRASH)
-	@$(RMDIR) $(GENSTATS_DIR)
+	@$(RMDIR) $(GITSTATS_DIR)
 
 ## Release management ################################################
 
