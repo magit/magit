@@ -70,8 +70,9 @@ Bugfixes:
 - ~magit-branch~ and ~magit-remote~ were not fully refreshed in an
   edge-case.  #5642
 
-- GnuPG became more verbose in some cases, which we wasn't prepared.
-  to handle, causing failure to nicely format the output.  #5643
+- GnuPG became more verbose in some cases, which we weren't prepared
+  to handle, causing failures in properly formatting the output.
+  #5643
 
 - After adding a worktree to a bare repository, trying to create
   a commit from the worktree signaled an error.  #5636
