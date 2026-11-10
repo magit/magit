@@ -146,7 +146,7 @@
   (mapcar (##save-excursion
             (and (string-match "\\`[\s\t]+[0-9]+\t" %)
                  (list (substring % (match-end 0)))))
-          (magit-git-lines "shortlog" "-n" "-s" "-e" "HEAD")))
+          (magit-git-lines "shortlog" "-n" "-s" "-e" "--branches")))
 
 (defun magit-transient-read-revision (prompt initial-input history)
   (magit-completing-read prompt (cons "HEAD" (magit-list-refnames))
