@@ -2289,7 +2289,7 @@ commit or stash at point, then prompt for a commit."
   "In a Magit-Revision buffer, jump to a section.
 Show a menu to choose a section, unless point is on a file
 heading, or with a prefix argument, in which case behave
-like 'magit-jump-to-diffstat-or-diff'."
+like `magit-jump-to-diffstat-or-diff'."
   [["Jump to"
     ("h" magit-jump-to-revision-headers)
     ("m" magit-jump-to-revision-message)
