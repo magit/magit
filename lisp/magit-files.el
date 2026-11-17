@@ -199,11 +199,11 @@ Non-interactively REV can also be a blob object."
     ;; from being enabled in hidden buffers.  Use a fake `buffer-name'
     ;; to trick it into believing the buffer is not hidden.
     (if (eq (aref buffer-name 0) ?\s)
-        (letrec ((adv (lambda (fn &optional buffer)
-                        (let ((name (funcall fn buffer)))
-                          (if (equal name buffer-name)
-                              (substring name 1)
-                            name)))))
+        (let ((adv (lambda (fn &optional buffer)
+                     (let ((name (funcall fn buffer)))
+                       (if (equal name buffer-name)
+                           (substring name 1)
+                         name)))))
           (advice-add 'buffer-name :around adv)
           (unwind-protect
               (normal-mode (not enable-local-variables))
