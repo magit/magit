@@ -212,9 +212,8 @@ Non-interactively REV can also be a blob object."
       ;; The FIND-FILE argument wasn't designed for our use case,
       ;; so we have to use this strange invocation to achieve that.
       (normal-mode (not enable-local-variables)))
-    ;; Set this here, so we don't have to make it permanent-local, which
-    ;; we probably shouldn't do, because for other packages changing the.
-    ;; If the user calls `normal-mode', this value will be discarded.
+    ;; Set this here, so we don't have to make it permanent-local,
+    ;; which we shouldn't do, because it's not our variable.
     (setq-local bookmark-make-record-function #'magit--make-blob-bookmark)
     (set-buffer-modified-p nil)
     (run-hooks 'magit-find-blob-hook)))
